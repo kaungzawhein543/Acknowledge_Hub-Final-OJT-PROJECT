@@ -1,0 +1,12 @@
+
+/* Media query for small screens */
+/* @media (max-width: 800px) {
+  .sidebar {
+    width: 0; 
+    overflow: hidden;
+  }
+
+} */
+.notLoginPage{
+  padding-top: 70px;
+}

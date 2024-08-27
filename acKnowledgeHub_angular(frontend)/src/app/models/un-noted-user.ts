@@ -1,0 +1,9 @@
+export class UnNotedUser {
+    staffId!: string;
+    name?: string;
+    departmentName?: string;
+    companyName?: string;
+    positionName?: string;
+    notedAt?: Date;
+    email?: string;
+}

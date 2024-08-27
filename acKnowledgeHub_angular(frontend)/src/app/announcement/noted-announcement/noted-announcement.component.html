@@ -1,0 +1,19 @@
+<div class="data-grid-options mt-5">
+    <!-- <mat-checkbox class="mat" [(ngModel)]="showToolbar">Show Toolbar</mat-checkbox>
+    <mat-checkbox [(ngModel)]="rowHover">Hover</mat-checkbox>
+    <mat-checkbox [(ngModel)]="rowStriped">Striped</mat-checkbox>
+    <mat-checkbox [(ngModel)]="showPaginator">Show Paginator</mat-checkbox> -->
+</div>
+
+<div class="search-bar">
+    <input matInput placeholder="Search..." [(ngModel)]="searchTerm" (ngModelChange)="searchData()" />
+</div>
+<mtx-grid [data]="filteredData" [columns]="columns" [rowHover]="rowHover" [rowStriped]="rowStriped"
+    [showToolbar]="showToolbar" [toolbarTitle]="'Data Grid Toolbar'" [columnHideable]="columnHideable"
+    [columnSortable]="columnSortable" [expansionTemplate]="expansionTpl" [pageOnFront]="showPaginator"
+    [showPaginator]="showPaginator" [pageSizeOptions]="[5,10,20,50,100]" [pageIndex]="0" [pageSize]="10"
+    (sortChange)="changeSort($event)" (selectionChange)="changeSelect($event)">
+</mtx-grid>
+<ng-template #expansionTpl let-row>
+    {{row.name}}
+</ng-template>

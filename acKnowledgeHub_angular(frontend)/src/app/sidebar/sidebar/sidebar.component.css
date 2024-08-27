@@ -1,0 +1,11 @@
+/* styles.css or sidebar.component.css */
+@media (max-width: 800px) {
+    .copyrightext {
+      display: none;
+    }
+}
+
+.active {
+  background: #1b4980;
+}
+

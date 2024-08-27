@@ -1,0 +1,12 @@
+.myChart {
+  width: auto;
+  height: auto;
+}
+.chart-container {
+  width: auto;  /* Make the container full width */
+  margin-bottom: 20px;  /* Add some space between charts */
+}
+
+canvas {
+  width: 100% !important;  /* Force the canvas to take up full width */
+}

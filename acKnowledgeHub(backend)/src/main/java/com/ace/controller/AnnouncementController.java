@@ -1,0 +1,308 @@
+package com.ace.controller;
+
+import com.ace.entity.*;
+import com.ace.repository.StaffRepository;
+import com.ace.service.*;
+import com.ace.dto.AnnouncementDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.mock.web.MockMultipartFile;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+@EnableAsync
+@Slf4j
+@RestController
+@RequestMapping(value = "api/v1/announcement")
+public class AnnouncementController {
+
+    private final AnnouncementService announcement_service;
+    private final CloudinaryService cloudinaryService;
+    private final ModelMapper mapper;
+    private final ReportService reportService;
+    private final BlogService blogService;
+    private final PostSchedulerService postSchedulerService;
+    private final BotService botService;
+    private final StaffService staffService;
+    private final EmailService emailService;
+    private final ReqAnnouncementService reqAnnouncementService;
+    private final AnnouncementForReqService announcementForReqService;
+    private final UserNotedAnnouncementService userNotedAnnouncementService;
+
+    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, ReqAnnouncementService reqAnnouncementService, AnnouncementForReqService announcementForReqService, UserNotedAnnouncementService userNotedAnnouncementService) {
+        this.announcement_service = announcement_service;
+        this.cloudinaryService = cloudinaryService;
+        this.mapper = mapper;
+        this.reportService = reportService;
+        this.blogService = blogService;
+        this.postSchedulerService = postSchedulerService;
+        this.botService = botService;
+        this.staffService = staffService;
+        this.emailService = emailService;
+        this.reqAnnouncementService = reqAnnouncementService;
+        this.announcementForReqService = announcementForReqService;
+        this.userNotedAnnouncementService = userNotedAnnouncementService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Announcement> getAnnouncementById(@PathVariable int id) {
+        Announcement announcement = announcement_service.getAnnouncementById(id).orElseThrow();
+        return ResponseEntity.ok(announcement);
+    }
+
+    @GetMapping("/getPublishedAnnouncements")
+    public ResponseEntity<List<Announcement>> getPublishedAnnouncements() {
+        List<Announcement> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
+        return ResponseEntity.ok(publishedAnnouncements);
+    }
+
+
+
+    @PostMapping("/create")
+    public ResponseEntity<Announcement> createAnnouncement(
+            @RequestBody AnnouncementDTO request,
+            @RequestParam(name = "requestId", required = false) Integer requestId) {
+        try {
+            Staff user = staffService.findById(1);
+            Category category = new Category();
+            log.info("Request Data  is "+ request);
+            // Map DTO to Entity
+            Announcement announcement = mapper.map(request, Announcement.class);
+            log.info("Changed to entitty"+announcement);
+            announcement.setFile("N/A");
+            user.setId(1);
+            announcement.setCreateStaff(user);
+            category.setId(1);
+
+
+            announcement.setCategory(category);
+            log.info("category "+category);
+
+            LocalDateTime scheduledTime = LocalDateTime.of(2024,8,15,22,59);
+            announcement.setScheduleAt(scheduledTime);
+
+
+            // If ScheduledAt is null assign default
+            if(announcement.getScheduleAt() == null){
+                LocalDateTime PublishDateTime = announcement.getScheduleAt();
+                announcement.setScheduleAt(PublishDateTime);
+            }
+
+            // Save the announcement
+            Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
+            postSchedulerService.schedulePost(savedAnnouncement.getId(), () -> blogService.publishPost(savedAnnouncement.getId()), announcement.getScheduleAt());
+
+            // Generate PDF asynchronously
+            reportService.generateAnnouncementFile(savedAnnouncement.getId(), "Announce" + savedAnnouncement.getId(), new AsyncCallback<byte[]>() {
+                @Override
+                public void onSuccess(byte[] pdfBytes) {
+                    try {
+                        MultipartFile pdfFile = new MockMultipartFile("announcement.pdf", "announcement.pdf", "application/pdf", pdfBytes);
+                        CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadFile(pdfFile, "Announce" + savedAnnouncement.getId());
+                        uploadFuture.thenAccept(uploadResult -> {
+                            try {
+                                String fileName = uploadResult.get("public_id").toString();
+
+
+                                //Sent Announcement to Telegram & email
+                                List<String> AllChatIds = staffService.getAllChatIds();
+                                String email = "kzheindev789@gmail.com";
+                                List<String> staffchatId = staffService.getAllChatIds();
+                                for(String chatId : staffchatId){
+                                    if(chatId != null){
+                                        botService.sendFile(chatId,pdfFile,savedAnnouncement.getId());
+                                    }
+                                }
+                                emailService.sendFileEmail(email,"We Have new Announcement",pdfFile,fileName);
+
+
+                                // Update announcement with the file name
+                                Announcement announce = new Announcement();
+                                announce.setId(savedAnnouncement.getId());
+                                announce.setFile(fileName);
+                                Announcement updateFileUrlAnnounce =  announcement_service.updateFileUrl(announce);
+
+                                //check announcement is post for request or not
+                                if(requestId != null){
+                                    AnnouncementForReq announcementForReq = new AnnouncementForReq();
+                                    announcementForReq.setAnnouncement(updateFileUrlAnnounce);
+
+                                    ReqAnnouncement reqAnnouncement = reqAnnouncementService.getById(requestId);
+                                    announcementForReq.setRequestAnnouncement(reqAnnouncement);
+
+                                    announcementForReqService.createAnnouncementForReq(announcementForReq);
+
+
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }).exceptionally(uploadEx -> {
+                            uploadEx.printStackTrace();
+                            return null;
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            });
+
+            return ResponseEntity.ok(savedAnnouncement);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateAnnouncement(@RequestBody Announcement announcement, @PathVariable int id) {
+        try {
+            // Update announcement
+            Announcement updatedAnnouncement = announcement_service.updateAnnouncement(id, announcement);
+            if (updatedAnnouncement != null) {
+                LocalDateTime newPublishDateTime = announcement.getScheduleAt();
+                blogService.updateScheduledPost(id, newPublishDateTime);
+
+                // Generate PDF asynchronously
+                reportService.generateAnnouncementFile(updatedAnnouncement.getId(), "Announce" + updatedAnnouncement.getId(), new AsyncCallback<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] pdfBytes) {
+                        try {
+                            MultipartFile pdfFile = new MockMultipartFile("announcement.pdf", "announcement.pdf", "application/pdf", pdfBytes);
+                            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadFile(pdfFile, "Announce" + updatedAnnouncement.getId());
+
+                            uploadFuture.thenAccept(uploadResult -> {
+                                try {
+                                    String fileName = uploadResult.get("public_id").toString();
+
+                                    Announcement announce = new Announcement();
+                                    announce.setId(updatedAnnouncement.getId());
+                                    announce.setFile(fileName);
+                                    announcement_service.updateFileUrl(announce);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }).exceptionally(uploadEx -> {
+                                uploadEx.printStackTrace();
+                                return null;
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        // Handle error
+                        throwable.printStackTrace();
+                    }
+                });
+
+                return ResponseEntity.ok("Announcement Updated Successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Announcement Fail To Update");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating announcement");
+        }
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<String> deleteAnnouncement(@PathVariable int id) {
+        System.out.println("hay");
+        try {
+            cloudinaryService.deleteFile("Announce" + id);//is only accept multipartfile
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        announcement_service.deleteAnnouncement(id);
+        return ResponseEntity.ok("Announcement Deleted Successfully");
+    }
+
+    @GetMapping("/getAnnounceFile/{publicId}")
+    public Map getFile(@PathVariable String publicId) {
+        return cloudinaryService.getFile(publicId);
+    }
+
+    @GetMapping("/download/{publicId}")
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable String publicId) {
+        try {
+            byte[] pdfBytes = cloudinaryService.downloadPdf(publicId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", publicId + ".pdf");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (IOException | InterruptedException e) {
+            System.out.println(e.toString());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<byte[]> downloadPdfFromEmail(@RequestParam("publicId") String publicId,@RequestParam("userEmail") String userEmail, HttpServletResponse response) {
+        try {
+            // Use the service method to download the PDF file
+            byte[] pdfContent = cloudinaryService.downloadPdf(publicId);
+
+            //Noted User
+            Staff NotedUser = staffService.findByEmail(userEmail);
+
+            //Find Id From publicId
+            Pattern pattern = Pattern.compile("(\\d+)$");
+            Matcher matcher = pattern.matcher(publicId);
+            if (matcher.find()) {
+                Integer AnnouncementId = Integer.valueOf(matcher.group(1));
+                Announcement announcement =  announcement_service.getAnnouncementById(AnnouncementId).orElseThrow();
+
+                //Check Already Noted or not
+                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser,announcement);
+                if(!NotedConditionAnnouncement.isPresent()){
+                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+                    staffNotedAnnouncement.setStaff(NotedUser);
+                    staffNotedAnnouncement.setAnnouncement(announcement);
+                    staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
+                    //Save Noted User and Announcement
+                    userNotedAnnouncementService.save(staffNotedAnnouncement);
+                }
+            }
+
+            // Prepare the response headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + publicId + ".pdf");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+
+            // Return the PDF file content
+            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+
+        } catch (IOException | InterruptedException e) {
+            // Handle errors appropriately
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+}

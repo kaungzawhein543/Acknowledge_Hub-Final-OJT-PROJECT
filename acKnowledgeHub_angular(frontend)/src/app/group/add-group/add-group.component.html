@@ -1,0 +1,35 @@
+<div class="grid-container mt-5">
+    <div class="scroll-container">
+        <div class="text-center"><b>COMPANY</b></div>
+        <div *ngFor="let company of companies">
+            <div class="button " (click)="showDepartment(company.id)"><button> {{ company.name }}</button><span
+                    *ngIf="company.id == companystatus" class="icon"><i class="fa-solid fa-right-long"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-container">
+        <div class="text-center"><b>DEPARTMENT</b></div>
+        <div *ngFor="let department of departments">
+            <div class="button " (click)="showStaff(department.id)"><button> {{ department.name }}</button><span
+                    *ngIf="departmentstatus==department.id " class="icon"><i class="fa-solid fa-right-long"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-container">
+        <div class=" text-center"><b>STAFF</b></div>
+        <mat-selection-list #staff (selectionChange)="toggleSelection($event)">
+            <mat-list-option *ngFor="let staff of filteredStaffList" [value]="staff" [selected]="isSelected(staff)">
+                <div>
+                    {{ staff.name }} ({{ staff.position }})
+                </div>
+            </mat-list-option>
+        </mat-selection-list>
+    </div>
+</div>
+
+<p>
+    Options selected: {{ selectedStaffCount }}
+</p>
+<button (click)="getSelectedGroup()" class="cratebutton" [disabled]="!status">Create
+    Group</button>

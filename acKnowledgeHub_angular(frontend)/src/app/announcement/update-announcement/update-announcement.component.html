@@ -1,0 +1,19 @@
+<div>
+    <h2>Edit Announcement</h2>
+    <form #announcementForm="ngForm" (ngSubmit)="onSubmit(announcementForm)">
+        <label for="title">Title:</label>
+        <input id="title" name="title" [(ngModel)]="announcement.title" required>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" [(ngModel)]="announcement.description"></textarea>
+        
+        <button type="submit">Submit</button>
+    </form>
+    <h2 style="margin: 10px 0;">Enter the ID for deletion</h2>
+    <input type="text" [(ngModel)]="deleteAnnounceId" placeholder="Enter ID">
+    <button (click)="deleteAnnouncementById()">Delete</button>
+    
+
+    <button (click)="downloadPdf()">Download announcement</button>
+  </div>
+  
