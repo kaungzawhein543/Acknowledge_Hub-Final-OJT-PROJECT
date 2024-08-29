@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +58,13 @@ public class Staff implements UserDetails {
     private Department department;
     @ManyToMany(mappedBy = "staff")
     private List<Group> groups;
-
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "staff_has_announcement",
+            joinColumns = @JoinColumn(name = "staff_id"),
+            inverseJoinColumns = @JoinColumn(name = "announcement_id")
+    )
+    private List<Announcement> announcement = new ArrayList<>();
 
 
     @PrePersist

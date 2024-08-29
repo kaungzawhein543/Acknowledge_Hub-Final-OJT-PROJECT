@@ -35,6 +35,8 @@ public class Announcement {
     private boolean isPublished=false;
     @Column(name="status")
     private String status="active";
+    @Column(name ="group_status")
+    private byte groupStatus;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "create_staff_id")
     private Staff createStaff;
@@ -44,9 +46,9 @@ public class Announcement {
     @ManyToMany(mappedBy = "announcement")
     private List<Group> group;
     @ManyToMany(mappedBy = "announcement")
-    private List<Department> department;
-    @ManyToMany(mappedBy = "announcement")
-    private List<Company> company;
+    private List<Staff> staff;
+
+
 
     @PrePersist
     protected void onCreate() {

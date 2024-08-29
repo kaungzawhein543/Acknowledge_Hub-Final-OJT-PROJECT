@@ -41,7 +41,6 @@ public class AnnouncementService {
             newAnnouncement.setTitle(announcementDetails.getTitle());
             newAnnouncement.setDescription(announcementDetails.getDescription());
             newAnnouncement.setFile(announcementDetails.getFile());
-            newAnnouncement.setCompany(announcementDetails.getCompany());
             newAnnouncement.setCategory(announcementDetails.getCategory());
             newAnnouncement.setCreateStaff(announcementDetails.getCreateStaff());
             Announcement announcement = announcement_repo.save(newAnnouncement);

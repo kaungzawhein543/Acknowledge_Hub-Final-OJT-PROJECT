@@ -23,11 +23,5 @@ public class Department{
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "company_id",nullable = false)
     private Company company;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "department_has_announcement",
-            joinColumns = @JoinColumn(name = "department_id"),
-            inverseJoinColumns = @JoinColumn(name = "announcement_id")
-    )
-    private List<Announcement> announcement = new ArrayList<>();
+
 }
