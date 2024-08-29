@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200/")
-@RequestMapping("api/group")
+@RequestMapping("api/v1/group")
 public class GroupController {
     @Autowired
     private GroupService groupService;
@@ -22,7 +21,7 @@ public class GroupController {
     @PostMapping("/create")
     public String addGroup(
             @RequestParam String name,
-            @RequestParam List<Integer> userIds
+            @RequestBody List<Integer> userIds
             ){
         if (name.isEmpty()){
             return "Group name is Empty";

@@ -25,16 +25,16 @@ public class StaffController {
         List<StaffGroupDTO> staffList = staffService.getStaffListForGroup();
         return staffList;
     }
-
-    @GetMapping("/noted-list/{id}")
-    public List<NotedResponseDTO> getNotedStaff(@PathVariable("id") Integer announcementId){
-        List<NotedResponseDTO> staffList =staffService.getNotedStaffList(announcementId);
-        return staffList;
-    }
-
-    @GetMapping("/not-noted-list/{id}")
-    public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId){
-        List<UnNotedResponseDTO> staffList = staffService.getUnNotedStaffList(announcementId);
-        return staffList;
-    }
+//
+//    @GetMapping("/noted-list/{id}")
+//    public List<NotedResponseDTO> getNotedStaff(@PathVariable("id") Integer announcementId){
+//        List<NotedResponseDTO> staffList =staffService.getNotedStaffList(announcementId);
+//        return staffList;
+//    }
+//
+//    @GetMapping("/not-noted-list/{id}")
+//    public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId){
+//        List<UnNotedResponseDTO> staffList = staffService.getUnNotedStaffList(announcementId);
+//        return staffList;
+//    }
 }

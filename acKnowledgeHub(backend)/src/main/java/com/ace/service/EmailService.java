@@ -61,7 +61,7 @@ public class EmailService {
                     + "</body>"
                     + "</html>";
             mimeMessageHelper.setText(htmlContent,true);
-            mimeMessageHelper.addAttachment(file.getOriginalFilename(), file);
+//            mimeMessageHelper.addAttachment(file.getOriginalFilename(), file);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
             e.printStackTrace();

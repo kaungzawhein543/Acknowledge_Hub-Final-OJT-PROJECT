@@ -73,100 +73,71 @@ public class AnnouncementController {
     }
 
 
-
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Announcement> createAnnouncement(
-            @RequestBody AnnouncementDTO request,
+            @RequestPart AnnouncementDTO request,
+            @RequestPart(name = "userIds", required = false) List<Integer> userIds,
+            @RequestPart(name = "groupId", required = false) List<Integer> groupId,
+            @RequestPart(name = "files", required = false) List<MultipartFile> files,
             @RequestParam(name = "requestId", required = false) Integer requestId) {
         try {
-            Staff user = staffService.findById(1);
-            Category category = new Category();
-            log.info("Request Data  is "+ request);
+            // Find Create Staff From Announcement DTO
+            Staff user = staffService.findById(request.getCreateStaff().getId());
+
             // Map DTO to Entity
             Announcement announcement = mapper.map(request, Announcement.class);
-            log.info("Changed to entitty"+announcement);
             announcement.setFile("N/A");
-            user.setId(1);
             announcement.setCreateStaff(user);
-            category.setId(1);
-
-
-            announcement.setCategory(category);
-            log.info("category "+category);
-
-            LocalDateTime scheduledTime = LocalDateTime.of(2024,8,15,22,59);
-            announcement.setScheduleAt(scheduledTime);
-
+            announcement.setCategory(request.getCategory());
 
             // If ScheduledAt is null assign default
-            if(announcement.getScheduleAt() == null){
-                LocalDateTime PublishDateTime = announcement.getScheduleAt();
-                announcement.setScheduleAt(PublishDateTime);
+            if (announcement.getScheduleAt() == null) {
+                LocalDateTime publishDateTime = LocalDateTime.now();
+                announcement.setScheduleAt(publishDateTime);
             }
 
             // Save the announcement
             Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
-            postSchedulerService.schedulePost(savedAnnouncement.getId(), () -> blogService.publishPost(savedAnnouncement.getId()), announcement.getScheduleAt());
 
-            // Generate PDF asynchronously
-            reportService.generateAnnouncementFile(savedAnnouncement.getId(), "Announce" + savedAnnouncement.getId(), new AsyncCallback<byte[]>() {
-                @Override
-                public void onSuccess(byte[] pdfBytes) {
+            if (files != null && !files.isEmpty()) {
+                // Assuming there's only one file to handle, but you can handle multiple if needed
+                MultipartFile file = files.get(0);
+                CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
+                uploadFuture.thenAccept(uploadResult -> {
                     try {
-                        MultipartFile pdfFile = new MockMultipartFile("announcement.pdf", "announcement.pdf", "application/pdf", pdfBytes);
-                        CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadFile(pdfFile, "Announce" + savedAnnouncement.getId());
-                        uploadFuture.thenAccept(uploadResult -> {
-                            try {
-                                String fileName = uploadResult.get("public_id").toString();
+                        String fileName = uploadResult.get("public_id").toString();
 
-
-                                //Sent Announcement to Telegram & email
-                                List<String> AllChatIds = staffService.getAllChatIds();
-                                String email = "kzheindev789@gmail.com";
-                                List<String> staffchatId = staffService.getAllChatIds();
-                                for(String chatId : staffchatId){
-                                    if(chatId != null){
-                                        botService.sendFile(chatId,pdfFile,savedAnnouncement.getId());
-                                    }
-                                }
-                                emailService.sendFileEmail(email,"We Have new Announcement",pdfFile,fileName);
-
-
-                                // Update announcement with the file name
-                                Announcement announce = new Announcement();
-                                announce.setId(savedAnnouncement.getId());
-                                announce.setFile(fileName);
-                                Announcement updateFileUrlAnnounce =  announcement_service.updateFileUrl(announce);
-
-                                //check announcement is post for request or not
-                                if(requestId != null){
-                                    AnnouncementForReq announcementForReq = new AnnouncementForReq();
-                                    announcementForReq.setAnnouncement(updateFileUrlAnnounce);
-
-                                    ReqAnnouncement reqAnnouncement = reqAnnouncementService.getById(requestId);
-                                    announcementForReq.setRequestAnnouncement(reqAnnouncement);
-
-                                    announcementForReqService.createAnnouncementForReq(announcementForReq);
-
-
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        // Send Announcement to Telegram & email
+                        List<String> staffChatIds = staffService.getAllChatIds();
+                        for (String chatId : staffChatIds) {
+                            if (chatId != null) {
+                                botService.sendFile(chatId, file, savedAnnouncement.getId());
                             }
-                        }).exceptionally(uploadEx -> {
-                            uploadEx.printStackTrace();
-                            return null;
-                        });
+                        }
+                        emailService.sendFileEmail("kzheindev789@gmail.com", "We Have a new Announcement", file, fileName);
+
+                        // Update announcement with the file name
+                        savedAnnouncement.setFile(fileName);
+                        Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
+
+                        // Check if the announcement is for a request
+                        if (requestId != null) {
+                            AnnouncementForReq announcementForReq = new AnnouncementForReq();
+                            announcementForReq.setAnnouncement(updateFileUrlAnnounce);
+
+                            ReqAnnouncement reqAnnouncement = reqAnnouncementService.getById(requestId);
+                            announcementForReq.setRequestAnnouncement(reqAnnouncement);
+
+                            announcementForReqService.createAnnouncementForReq(announcementForReq);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-
-                @Override
-                public void onFailure(Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-            });
+                }).exceptionally(uploadEx -> {
+                    uploadEx.printStackTrace();
+                    return null;
+                });
+            }
 
             return ResponseEntity.ok(savedAnnouncement);
         } catch (Exception e) {
@@ -174,6 +145,7 @@ public class AnnouncementController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateAnnouncement(@RequestBody Announcement announcement, @PathVariable int id) {
@@ -279,15 +251,15 @@ public class AnnouncementController {
                 Announcement announcement =  announcement_service.getAnnouncementById(AnnouncementId).orElseThrow();
 
                 //Check Already Noted or not
-                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser,announcement);
-                if(!NotedConditionAnnouncement.isPresent()){
-                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
-                    staffNotedAnnouncement.setStaff(NotedUser);
-                    staffNotedAnnouncement.setAnnouncement(announcement);
-                    staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
-                    //Save Noted User and Announcement
-                    userNotedAnnouncementService.save(staffNotedAnnouncement);
-                }
+//                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser,announcement);
+//                if(!NotedConditionAnnouncement.isPresent()){
+//                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+//                    staffNotedAnnouncement.setStaff(NotedUser);
+//                    staffNotedAnnouncement.setAnnouncement(announcement);
+//                    staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
+//                    //Save Noted User and Announcement
+//                    userNotedAnnouncementService.save(staffNotedAnnouncement);
+//                }
             }
 
             // Prepare the response headers

@@ -11,5 +11,5 @@ import java.util.Optional;
 @Repository
 public interface NotedRepository extends JpaRepository<StaffNotedAnnouncement,Integer> {
 
-    Optional<StaffNotedAnnouncement> findByStaffAndAnnouncement(Staff staff, Announcement announcement);
+//    Optional<StaffNotedAnnouncement> findByStaffAndAnnouncement(Staff staff, Announcement announcement);
 }

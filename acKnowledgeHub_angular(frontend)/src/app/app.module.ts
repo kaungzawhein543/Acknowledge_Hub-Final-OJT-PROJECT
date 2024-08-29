@@ -75,7 +75,7 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     AddPasswordComponent,
     OtpInputComponent,
     OtpRequestComponent,
-    HideEmailPipe
+    HideEmailPipe,
   ],
   imports: [
     BrowserModule,

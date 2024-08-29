@@ -32,7 +32,7 @@ public class GroupService {
             Optional<Staff> selectedUser=staffRepository.findById(userId);
             if (selectedUser.isPresent()){
                 Staff user= selectedUser.get();
-                group.getStaff().add(user);
+//                group.getStaff().add(user);
             }else {
                 throw new IllegalArgumentException("User ID not found : " + userId);
             }
@@ -40,33 +40,33 @@ public class GroupService {
         groupRepository.save(group);
     }
     public void updateGroup(int groupId,String name,List<Integer> userIds){
-        Optional<Group> selectedGroup= groupRepository.findById(groupId);
-        if (selectedGroup.isPresent()){
-            Group group=selectedGroup.get();
-            group.setName(name);
-
-            Set<Staff> newUsers= new HashSet<>();
-            if (userIds !=null){
-                for (Integer userId:userIds){
-                    Optional<Staff> selectedUsers=staffRepository.findById(userId);
-                    selectedUsers.ifPresent(newUsers::add);
-                }
-            }
-            Set<Staff> currentUser=new HashSet<>(group.getStaff());
-
-            Set<Staff> usersToAdd=new HashSet<>(newUsers);
-            usersToAdd.removeAll(currentUser);
-
-            Set<Staff> usersToRemove= new HashSet<>(currentUser);
-            usersToRemove.removeAll(newUsers);
-
-            group.getStaff().addAll(usersToAdd);
-            group.getStaff().removeAll(usersToRemove);
-
-            groupRepository.save(group);
-        }else {
-            throw new RuntimeException("Group not found with ID: " + groupId);
-        }
+//        Optional<Group> selectedGroup= groupRepository.findById(groupId);
+//        if (selectedGroup.isPresent()){
+//            Group group=selectedGroup.get();
+//            group.setName(name);
+//
+//            Set<Staff> newUsers= new HashSet<>();
+//            if (userIds !=null){
+//                for (Integer userId:userIds){
+//                    Optional<Staff> selectedUsers=staffRepository.findById(userId);
+//                    selectedUsers.ifPresent(newUsers::add);
+//                }
+//            }
+//            Set<Staff> currentUser=new HashSet<>(group.getStaff());
+//
+//            Set<Staff> usersToAdd=new HashSet<>(newUsers);
+//            usersToAdd.removeAll(currentUser);
+//
+//            Set<Staff> usersToRemove= new HashSet<>(currentUser);
+//            usersToRemove.removeAll(newUsers);
+//
+//            group.getStaff().addAll(usersToAdd);
+//            group.getStaff().removeAll(usersToRemove);
+//
+//            groupRepository.save(group);
+//        }else {
+//            throw new RuntimeException("Group not found with ID: " + groupId);
+//        }
     }
     public Optional<Group> getGroupById(int groupId) {
         return groupRepository.findById(groupId);

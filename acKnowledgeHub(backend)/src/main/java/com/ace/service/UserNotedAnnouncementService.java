@@ -18,9 +18,9 @@ public class UserNotedAnnouncementService {
         this.notedRepository = notedRepository;
     }
 
-    public Optional<StaffNotedAnnouncement> checkNotedOrNot(Staff user, Announcement announcement){
-       return  notedRepository.findByStaffAndAnnouncement(user,announcement);
-    }
+//    public Optional<StaffNotedAnnouncement> checkNotedOrNot(Staff user, Announcement announcement){
+//       return  notedRepository.findByStaffAndAnnouncement(user,announcement);
+//    }
     public void save(StaffNotedAnnouncement staffNotedAnnouncement){
         notedRepository.save(staffNotedAnnouncement);
     }

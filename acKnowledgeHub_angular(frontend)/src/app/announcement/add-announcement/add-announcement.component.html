@@ -1,1 +1,140 @@
-<p>add-announcement works!</p>
+<div class="p-8 max-w-full mx-auto bg-gray-50 rounded-lg shadow-lg w-full">
+    <h2 class="text-4xl font-bold mb-8 text-gray-900">Create Announcement</h2>
+  
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Title and Description -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="mb-6">
+          <label for="title" class="block text-lg font-semibold text-gray-800">Title</label>
+          <input
+            id="title"
+            [(ngModel)]="announcementTitle"
+            name="title"
+            type="text"
+            class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+            placeholder="Enter announcement title"
+            required
+          />
+        </div>
+  
+        <div>
+          <label for="description" class="block text-lg font-semibold text-gray-800">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="announcementDescription"
+            name="description"
+            rows="4"
+            class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+            placeholder="Enter announcement description (optional)"
+          ></textarea>
+        </div>
+      </div>
+  
+      <!-- Radio Buttons -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <fieldset>
+          <legend class="text-lg font-semibold text-gray-800">Announce to</legend>
+          <div class="mt-4 flex space-x-6">
+            <label class="inline-flex items-center">
+              <input
+                type="radio"
+                name="announceTo"
+                value="group"
+                [(ngModel)]="selectedOption"
+                (change)="onOptionChange('group')"
+                class="form-radio h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+              />
+              <span class="ml-3 text-gray-700">Groups</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input
+                type="radio"
+                name="announceTo"
+                value="staff"
+                [(ngModel)]="selectedOption"
+                (change)="onOptionChange('staff')"
+                class="form-radio h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+              />
+              <span class="ml-3 text-gray-700">Staff</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+  
+      <!-- Group Selection -->
+      <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md">
+        <label class="block text-lg font-semibold text-gray-800">Select Groups</label>
+        <select
+          multiple
+          (change)="onGroupChange($event)"
+          class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+        >
+          <option *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
+        </select>
+        <div class="mt-4">
+          <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li *ngFor="let group of selectedGroups" class="text-gray-700">{{ group.name }}</li>
+          </ul>
+        </div>
+      </div>
+  
+      <!-- Staff Selection -->
+      <div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md">
+        <label class="block text-lg font-semibold text-gray-800">Select Staff</label>
+        <div class="mt-2 space-y-3">
+          <div *ngFor="let staff of staffs" class="flex items-center">
+            <input
+              type="checkbox"
+              [value]="staff.id"
+              (change)="onStaffChange($event)"
+              class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+            />
+            <label class="ml-3 text-gray-700">{{ staff.name }} ({{ staff.position }})</label>
+          </div>
+        </div>
+        <div class="mt-4">
+          <p *ngIf="selectedStaffs.length > 0" class="text-sm font-semibold text-gray-800">Selected Staff:</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li *ngFor="let staff of selectedStaffs" class="text-gray-700">{{ staff.name }} ({{ staff.position }})</li>
+          </ul>
+        </div>
+      </div>
+  
+      <!-- Schedule Date -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <label for="scheduleDate" class="block text-lg font-semibold text-gray-800">Schedule Date (Optional)</label>
+        <input
+          id="scheduleDate"
+          [(ngModel)]="scheduleDate"
+          name="scheduleDate"
+          type="date"
+          class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+        />
+      </div>
+  
+      <!-- Category Selection -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <label class="block text-lg font-semibold text-gray-800">Category</label>
+        <select
+          [(ngModel)]="selectedCategory"
+          name="category"
+          class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+        >
+          <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+        </select>
+        <p *ngIf="selectedCategory" class="text-sm text-gray-600 mt-2">Description for selected category goes here (if applicable).</p>
+      </div>
+  
+      <!-- Submit Button -->
+      <div>
+        <button
+          type="submit"
+          class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+  

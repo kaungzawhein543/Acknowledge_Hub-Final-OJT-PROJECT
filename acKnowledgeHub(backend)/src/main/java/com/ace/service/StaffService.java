@@ -27,13 +27,13 @@ public class StaffService implements UserDetailsService {
      return staffRepository.findByEmail(email);
     }
 
-    public List<NotedResponseDTO> getNotedStaffList(Integer announcementId){
-        return staffRepository.getNotedStaffByAnnouncement(announcementId);
-    }
-
-    public List<UnNotedResponseDTO> getUnNotedStaffList(Integer announcementId){
-        return staffRepository.getUnNotedStaffByAnnouncement(announcementId);
-    }
+//    public List<NotedResponseDTO> getNotedStaffList(Integer announcementId){
+//        return staffRepository.getNotedStaffByAnnouncement(announcementId);
+//    }
+//
+//    public List<UnNotedResponseDTO> getUnNotedStaffList(Integer announcementId){
+//        return staffRepository.getUnNotedStaffByAnnouncement(announcementId);
+//    }
     public List<Staff> getStaffByPositionId(Integer positionId) {
     return staffRepository.findByPositionId(positionId);
 }

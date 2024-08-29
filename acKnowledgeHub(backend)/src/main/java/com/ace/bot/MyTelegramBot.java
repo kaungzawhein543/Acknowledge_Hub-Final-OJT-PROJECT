@@ -55,61 +55,61 @@ public class MyTelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        try {
-            if (update.hasMessage()) {
-                if (update.getMessage().hasText()) {
-                    String messageText = update.getMessage().getText();
-                    String chatId = update.getMessage().getChatId().toString();
-                    if ("/start".equals(messageText)) {
-                        startRequest(chatId);
-                        Optional<Staff> user = staffService.findByChatId(chatId);
-                        System.out.println(user);
-                        if (!user.isPresent()) {
-                            sendMessage(chatId, "Please provide your email address.");
-                        }
-                    } else if (isValidEmail(messageText)) {
-                        Staff user= staffService.findByEmail(messageText);
-                        if (user == null) {
-                            sendMessage(chatId, "Please provide a valid email address that gives to company.");
-                        } else {
-                            sendMessage(chatId, "Thank you for providing your email address!");
-                            staffService.saveChatId(chatId, messageText);
-                        }
-                    } else if (update.getMessage().hasText()) {
-                        Optional<Staff> user = staffService.findByChatId(chatId);
-                        if (user == null) {
-                            sendMessage(chatId, "Please provide a valid email address.");
-                        }
-                    }
-                }
-            } else if (update.hasCallbackQuery()) {
-                CallbackQuery callbackQuery = update.getCallbackQuery();
-                String callbackData = callbackQuery.getData();
-                String chatId = callbackQuery.getMessage().getChatId().toString();
-                Integer messageId = callbackQuery.getMessage().getMessageId();
-
-                String[] callbackParts = callbackData.split(":");
-                String action = callbackParts[0];
-                String fileId = callbackParts.length > 1 ? callbackParts[1] : null;
-                if ("button".equals(action)) {
-                    updateMessageWithDoneButton(chatId, messageId);
-                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
-                    Optional<Announcement> announcement = announcementService.getAnnouncementById(Integer.parseInt(fileId));
-                    staffNotedAnnouncement.setAnnouncement(announcement.get());
-                    Optional<Staff> user = staffService.findByChatId(chatId);
-                    staffNotedAnnouncement.setStaff(user.get());
-                    Optional<StaffNotedAnnouncement> notedAnnouncement =  userNotedAnnouncementService.checkNotedOrNot(user.get(),announcement.get());
-                    if(!notedAnnouncement.isPresent()){
-                        userNotedAnnouncementService.save(staffNotedAnnouncement);
-                    }
-                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
-                    execute(answerCallbackQuery);
-                }
-            }
-        } catch (TelegramApiException e) {
-            log.error("Error handling update", e);
-        }
+//        try {
+//            if (update.hasMessage()) {
+//                if (update.getMessage().hasText()) {
+//                    String messageText = update.getMessage().getText();
+//                    String chatId = update.getMessage().getChatId().toString();
+//                    if ("/start".equals(messageText)) {
+//                        startRequest(chatId);
+//                        Optional<Staff> user = staffService.findByChatId(chatId);
+//                        System.out.println(user);
+//                        if (!user.isPresent()) {
+//                            sendMessage(chatId, "Please provide your email address.");
+//                        }
+//                    } else if (isValidEmail(messageText)) {
+//                        Staff user= staffService.findByEmail(messageText);
+//                        if (user == null) {
+//                            sendMessage(chatId, "Please provide a valid email address that gives to company.");
+//                        } else {
+//                            sendMessage(chatId, "Thank you for providing your email address!");
+//                            staffService.saveChatId(chatId, messageText);
+//                        }
+//                    } else if (update.getMessage().hasText()) {
+//                        Optional<Staff> user = staffService.findByChatId(chatId);
+//                        if (user == null) {
+//                            sendMessage(chatId, "Please provide a valid email address.");
+//                        }
+//                    }
+//                }
+//            } else if (update.hasCallbackQuery()) {
+//                CallbackQuery callbackQuery = update.getCallbackQuery();
+//                String callbackData = callbackQuery.getData();
+//                String chatId = callbackQuery.getMessage().getChatId().toString();
+//                Integer messageId = callbackQuery.getMessage().getMessageId();
+//
+//                String[] callbackParts = callbackData.split(":");
+//                String action = callbackParts[0];
+//                String fileId = callbackParts.length > 1 ? callbackParts[1] : null;
+//                if ("button".equals(action)) {
+//                    updateMessageWithDoneButton(chatId, messageId);
+//                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+//                    Optional<Announcement> announcement = announcementService.getAnnouncementById(Integer.parseInt(fileId));
+//                    staffNotedAnnouncement.setAnnouncement(announcement.get());
+//                    Optional<Staff> user = staffService.findByChatId(chatId);
+//                    staffNotedAnnouncement.setStaff(user.get());
+//                    Optional<StaffNotedAnnouncement> notedAnnouncement =  userNotedAnnouncementService.checkNotedOrNot(user.get(),announcement.get());
+//                    if(!notedAnnouncement.isPresent()){
+//                        userNotedAnnouncementService.save(staffNotedAnnouncement);
+//                    }
+//                    AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+//                    answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+//                    execute(answerCallbackQuery);
+//                }
+//            }
+//        } catch (TelegramApiException e) {
+//            log.error("Error handling update", e);
+//        }
     }
 
     public void sendPdf(String chatId, MultipartFile multipartFile,Integer announcementId) {

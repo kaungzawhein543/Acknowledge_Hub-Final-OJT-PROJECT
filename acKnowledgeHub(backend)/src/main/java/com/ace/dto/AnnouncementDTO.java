@@ -23,6 +23,5 @@ public class AnnouncementDTO {
     private Staff createStaff;
     private Category category;
     private List<Group> group;
-    private List<Department> department;
-    private List<Company> company;
+
 }
