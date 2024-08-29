@@ -95,13 +95,13 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                     updateMessageWithDoneButton(chatId, messageId);
                     StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
                     Optional<Announcement> announcement = announcementService.getAnnouncementById(Integer.parseInt(fileId));
-                    staffNotedAnnouncement.setAnnouncement(announcement.get());
+//                    staffNotedAnnouncement.setAnnouncement(announcement.get());
                     Optional<Staff> user = staffService.findByChatId(chatId);
-                    staffNotedAnnouncement.setStaff(user.get());
-                    Optional<StaffNotedAnnouncement> notedAnnouncement =  userNotedAnnouncementService.checkNotedOrNot(user.get(),announcement.get());
-                    if(!notedAnnouncement.isPresent()){
-                        userNotedAnnouncementService.save(staffNotedAnnouncement);
-                    }
+//                    staffNotedAnnouncement.setStaff(user.get());
+//                    Optional<StaffNotedAnnouncement> notedAnnouncement =  userNotedAnnouncementService.checkNotedOrNot(user.get(),announcement.get());
+//                    if(!notedAnnouncement.isPresent()){
+//                        userNotedAnnouncementService.save(staffNotedAnnouncement);
+//                    }
                     AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
                     execute(answerCallbackQuery);

@@ -279,15 +279,15 @@ public class AnnouncementController {
                 Announcement announcement =  announcement_service.getAnnouncementById(AnnouncementId).orElseThrow();
 
                 //Check Already Noted or not
-                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser,announcement);
-                if(!NotedConditionAnnouncement.isPresent()){
-                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
-                    staffNotedAnnouncement.setStaff(NotedUser);
-                    staffNotedAnnouncement.setAnnouncement(announcement);
-                    staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
-                    //Save Noted User and Announcement
-                    userNotedAnnouncementService.save(staffNotedAnnouncement);
-                }
+//                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser,announcement);
+//                if(!NotedConditionAnnouncement.isPresent()){
+//                    StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+////                    staffNotedAnnouncement.setStaff(NotedUser);
+////                    staffNotedAnnouncement.setAnnouncement(announcement);
+//                    staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
+//                    //Save Noted User and Announcement
+//                    userNotedAnnouncementService.save(staffNotedAnnouncement);
+//                }
             }
 
             // Prepare the response headers

@@ -27,13 +27,13 @@ public class Group {
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")
     private Date createdAt;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "staff_has_group",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "staff_id")
-    )
-    private List<Staff> staff = new ArrayList<>();
+    //    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "staff_has_group",
+//            joinColumns = @JoinColumn(name = "group_id"),
+//            inverseJoinColumns = @JoinColumn(name = "staff_id")
+//    )
+//    private List<Staff> staff = new ArrayList<>();
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "group_has_announcement",

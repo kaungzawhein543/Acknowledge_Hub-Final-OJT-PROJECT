@@ -37,7 +37,7 @@ public class GroupController {
             @RequestParam String name,
             @RequestParam List<Integer> userIds
     ) {
-        groupService.updateGroup(groupId, name, userIds);
+//        groupService.updateGroup(groupId, name, userIds);
     }
     @GetMapping("/{groupId}")
     public Group getGroup(@PathVariable int groupId){

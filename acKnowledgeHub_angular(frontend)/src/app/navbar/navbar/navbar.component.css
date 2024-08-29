@@ -1,8 +1,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-div >  span{
+div >  h4{
   font-family: "Lora", serif;
   font-weight: 700;
   font-size:40px;
   color:#1b4980;
   height: 20px;
+}
+/* Styles for the notification box */
+.notification-box {
+  max-height: 400px; /* Limit height to fit screen */
+  overflow-y: auto; /* Scroll if content exceeds the box height */
+}
+
+/* Styles for individual notification items */
+.notification-item {
+  border-bottom: 1px solid #e5e7eb; /* Light border for separating notifications */
+}
+
+/* Hide the notification count if no notifications */
+.notification-box .text-center {
+  padding: 16px; /* Ensure adequate padding */
+  font-size: 14px; /* Adjust font size for 'No new notifications' message */
+}
+
+/* Optional: Style the notification box and item hover effects */
+.notification-item:hover {
+  background-color: #f9fafb; /* Light gray background on hover */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+/* Optional: Style the button and count */
+button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button .fas {
+  font-size: 1.25rem; /* Adjust the size of the bell icon */
+}
+
+button .notification-count {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  background-color: #f87171; /* Red background for the count */
+  color: white;
+  border-radius: 9999px; /* Fully rounded count badge */
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem; /* Adjust font size for the count */
 }

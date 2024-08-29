@@ -55,8 +55,8 @@ public class Staff implements UserDetails {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "department_id")
     private Department department;
-    @ManyToMany(mappedBy = "staff")
-    private List<Group> groups;
+//    @ManyToMany(mappedBy = "staff")
+//    private List<Group> groups;
 
 
 

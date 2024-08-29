@@ -20,12 +20,17 @@ public class StaffNotedAnnouncement {
     private int id;
     @Column(name = "noted_at")
     private Timestamp notedAt ;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "staff_id",nullable = false)
-    private Staff staff;
-    @ManyToOne(cascade =  CascadeType.MERGE)
-    @JoinColumn(name = "announcement_id",nullable = false)
-    private Announcement announcement;
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "noted_staff_id",nullable = false)
+    private StaffHasAnnouncement notedStaff;
+//    @ManyToOne(cascade = CascadeType.MERGE)
+//    @JoinColumn(name = "staff_id",nullable = false)
+//    private Staff staff;
+//    @ManyToOne(cascade =  CascadeType.MERGE)
+//    @JoinColumn(name = "announcement_id",nullable = false)
+//    private Announcement announcement;
+
+
     @PrePersist
     protected void onCreate() {
         if (this.notedAt == null) {
