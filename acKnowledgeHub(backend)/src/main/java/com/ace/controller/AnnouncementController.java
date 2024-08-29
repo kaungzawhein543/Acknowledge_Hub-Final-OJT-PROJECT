@@ -1,5 +1,6 @@
 package com.ace.controller;
 
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
@@ -122,7 +123,7 @@ public class AnnouncementController {
 
                                 //Sent Announcement to Telegram & email
                                 List<String> AllChatIds = staffService.getAllChatIds();
-                                String email = "kzheindev789@gmail.com";
+                                String email = "swunhtetaung@gmail.com";
                                 List<String> staffchatId = staffService.getAllChatIds();
                                 for(String chatId : staffchatId){
                                     if(chatId != null){
@@ -304,5 +305,9 @@ public class AnnouncementController {
         }
     }
 
+    @GetMapping("/staff-counts")
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_service.getAnnouncementStaffCounts();
+    }
 
 }

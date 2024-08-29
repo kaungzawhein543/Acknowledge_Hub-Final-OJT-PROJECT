@@ -35,7 +35,6 @@ public class DepartmentService {
             Department department = existingDepartment.get();
             department.setName(updatedDepartment.getName());
             department.setCompany(updatedDepartment.getCompany());
-            department.setAnnouncement(updatedDepartment.getAnnouncement());
             return departmentRepository.save(department);
         } else {
             throw new RuntimeException("Department not found");

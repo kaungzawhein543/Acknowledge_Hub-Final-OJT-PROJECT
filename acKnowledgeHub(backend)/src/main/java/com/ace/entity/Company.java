@@ -20,11 +20,5 @@ public class Company {
     private int id;
     @Column(name = "name",nullable = false)
     private String name;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "company_has_announcement",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "announcement_id")
-    )
-    private List<Announcement> announcement = new ArrayList<>();
+
 }

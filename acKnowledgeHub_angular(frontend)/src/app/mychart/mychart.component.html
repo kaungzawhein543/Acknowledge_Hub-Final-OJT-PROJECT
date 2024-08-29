@@ -1,1 +1,17 @@
-<canvas id="barChart" class="myChart"></canvas>
+<div class="chart-container">
+    <div class="date-picker-container">
+      <div class="date-picker">
+        <label for="startDate" class="date-label">Start Date:</label>
+        <input type="date" id="startDate" class="date-input" (change)="onDateChange()">
+      </div>
+  
+      <div class="date-picker">
+        <label for="endDate" class="date-label">End Date:</label>
+        <input type="date" id="endDate" class="date-input" (change)="onDateChange()">
+      </div>
+    </div>
+  
+    <canvas id="barChart" class="myChart" ></canvas>
+   
+  </div>
+  

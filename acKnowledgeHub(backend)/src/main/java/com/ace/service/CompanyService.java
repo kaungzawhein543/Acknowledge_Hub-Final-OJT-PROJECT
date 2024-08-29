@@ -30,7 +30,6 @@ public class CompanyService {
         if (existingCompany.isPresent()) {
             Company company = existingCompany.get();
             company.setName(updatedCompany.getName());
-            company.setAnnouncement(updatedCompany.getAnnouncement());
             return companyRepository.save(company);
         } else {
             throw new RuntimeException("Company not found");

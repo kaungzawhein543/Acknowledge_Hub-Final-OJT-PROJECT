@@ -1,5 +1,6 @@
 package com.ace.service;
 
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,6 @@ public class AnnouncementService {
             newAnnouncement.setTitle(announcementDetails.getTitle());
             newAnnouncement.setDescription(announcementDetails.getDescription());
             newAnnouncement.setFile(announcementDetails.getFile());
-            newAnnouncement.setCompany(announcementDetails.getCompany());
             newAnnouncement.setCategory(announcementDetails.getCategory());
             newAnnouncement.setCreateStaff(announcementDetails.getCreateStaff());
             Announcement announcement = announcement_repo.save(newAnnouncement);
@@ -74,5 +74,11 @@ public class AnnouncementService {
     public List<Announcement> getPublishedAnnouncements() {
         return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
     }
+
+    //Method to get the staffnotedAnnoucement
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_repo.findAnnouncementStaffCounts();
+    }
+
 
 }

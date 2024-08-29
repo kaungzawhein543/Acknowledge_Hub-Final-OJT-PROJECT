@@ -27,6 +27,8 @@ import { ListUserComponent } from './user/list-user/list-user.component';
 import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { AddPasswordComponent } from './user/add-password/add-password.component';
+import { ListAnnouncementComponent } from './announcement/list-announcement/list-announcement.component';
+import { AddAnnouncementComponent } from './announcement/add-announcement/add-announcement.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -55,8 +57,8 @@ const routes: Routes = [
     { path:'list',component:ListGroupComponent}
   ]},
   { path: 'announcement', canActivate: [AuthGuard], children: [
-      { path: 'list', component: UpdateAnnouncementComponent, canActivate: [AuthGuard] },
-      { path: 'add', component: UpdateAnnouncementComponent,canActivate: [AuthGuard,RoleGuard],data: { roles: ['ADMIN','USER'], positions: ['HR_MAIN'] } },
+      { path: 'list', component: ListAnnouncementComponent, canActivate: [AuthGuard] },
+      { path: 'add', component: AnnouncementComponent,canActivate: [AuthGuard,RoleGuard],data: { roles: ['ADMIN','USER'], positions: ['HR_MAIN'] } },
       { path: 'update/:id', component: UpdateAnnouncementComponent,canActivate: [AuthGuard,RoleGuard], data: { roles: ['ADMIN'],positions:['HR_MAIN']} },
       { path: 'notNoted-announceemnt', component: NotNotedAnnouncementComponent, canActivate: [AuthGuard,RoleGuard], data: {  roles: ['USER'], excludedRoles: ['ADMIN'],excludedPositions: ['HR_MAIN']  } },  
       { path: 'noted-announcement',component:NotedAnnouncementComponent,canActivate: [AuthGuard,RoleGuard], data: {  roles: ['USER'], excludedRoles: ['ADMIN'],excludedPositions: ['HR_MAIN']  } },

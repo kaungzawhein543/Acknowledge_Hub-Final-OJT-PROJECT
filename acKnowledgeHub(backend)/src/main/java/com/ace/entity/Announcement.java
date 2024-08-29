@@ -43,10 +43,6 @@ public class Announcement {
     private Category category;
     @ManyToMany(mappedBy = "announcement")
     private List<Group> group;
-    @ManyToMany(mappedBy = "announcement")
-    private List<Department> department;
-    @ManyToMany(mappedBy = "announcement")
-    private List<Company> company;
 
     @PrePersist
     protected void onCreate() {
