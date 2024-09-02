@@ -27,6 +27,10 @@ public class StaffService implements UserDetailsService {
      return staffRepository.findByEmail(email);
     }
 
+    public List<Staff> getAllStaff() {
+        return staffRepository.findAll();
+    }
+
     public List<NotedResponseDTO> getNotedStaffList(Integer announcementId){
         return staffRepository.getNotedStaffByAnnouncement(announcementId);
     }

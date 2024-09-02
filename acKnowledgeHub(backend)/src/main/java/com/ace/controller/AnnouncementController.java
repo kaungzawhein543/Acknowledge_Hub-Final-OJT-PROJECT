@@ -7,6 +7,7 @@ import com.ace.dto.AnnouncementDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -72,6 +73,30 @@ public class AnnouncementController {
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
+    @GetMapping("/all")
+    public List<Announcement> getAllAnnouncements() {
+        return announcement_service.getAllAnnouncements();
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<?> getAnnouncementsBetween(
+            @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDateTime,
+            @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDateTime) {
+        try {
+            System.out.println("hello the world");
+            // Check if startDateTime and endDateTime are valid
+            if (startDateTime == null || endDateTime == null || endDateTime.isBefore(startDateTime)) {
+                return ResponseEntity.badRequest().body("Invalid date range provided.");
+            }
+
+            // Fetch announcements
+            List<Announcement> announcements = announcement_service.findAnnouncementsDate(startDateTime, endDateTime);
+            return ResponseEntity.ok(announcements);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
 
 
     @PostMapping("/create")

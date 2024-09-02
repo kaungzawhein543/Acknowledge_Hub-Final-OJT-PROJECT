@@ -4,6 +4,7 @@ import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,4 +76,7 @@ public class AnnouncementService {
         return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
     }
 
+    public List<Announcement> findAnnouncementsDate(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return announcement_repo.findByScheduleAtDate(startDateTime, endDateTime);
+    }
 }

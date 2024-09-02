@@ -3,6 +3,8 @@ package com.ace.controller;
 import com.ace.dto.NotedResponseDTO;
 import com.ace.dto.StaffGroupDTO;
 import com.ace.dto.UnNotedResponseDTO;
+import com.ace.entity.Announcement;
+import com.ace.entity.Staff;
 import com.ace.service.StaffService;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,12 @@ public class StaffController {
         this.staffService = staffService;
         this.mapper = mapper;
     }
+
+    @GetMapping("/all")
+    public List<Staff> getAllAnnouncements() {
+        return staffService.getAllStaff();
+    }
+
 
     @GetMapping("/group-staff")
     public List<StaffGroupDTO> getStaffListByDepartmentId(){
