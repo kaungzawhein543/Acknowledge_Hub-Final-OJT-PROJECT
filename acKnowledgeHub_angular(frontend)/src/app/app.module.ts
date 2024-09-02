@@ -45,6 +45,10 @@ import { AddPasswordComponent } from './user/add-password/add-password.component
 import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { HideEmailPipe } from './pipe/hide-email.pipe';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -89,12 +93,17 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     MatRadioModule,
     MtxGridModule,
     RouterModule,
+    MatMenuModule,
     MatCheckboxModule,
     MatListModule,
     MatOption,
     MatButtonToggleModule,
     ScrollingModule,
-    MatListOption
+    MatListOption,
+    MatTableModule,
+    MatPaginatorModule,
+    FontAwesomeModule,
+
   ],
   providers: [
     provideClientHydration(),

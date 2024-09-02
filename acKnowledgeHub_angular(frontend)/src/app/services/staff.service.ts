@@ -18,6 +18,11 @@ export class StaffService {
 
   constructor(private http: HttpClient) { }
 
+   //Get All
+ getStaff(): Observable<Staff[]> {
+  return this.http.get<Staff[]>(`${this.baseURL}/all`);
+}
+
   getNotedUserByAnnouncementList(id: number): Observable<NotedUser[]> {
     return this.http.get<NotedUser[]>(`${this.baseURL}/noted-list/${id}`);
   }
