@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @EnableAsync
 @RestController
-@RequestMapping("/api/bot")
+@RequestMapping("/api/v1/bot")
 public class BotController {
 
     private final BotService botService;

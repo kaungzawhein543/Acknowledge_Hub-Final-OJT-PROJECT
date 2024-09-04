@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http'; 
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { ListCategoryComponent } from './category/list-category/list-category.component'; 
+import { ListCategoryComponent } from './category/list-category/list-category.component';
 import { UpdateCategoryComponent } from './category/update-category/update-category.component';
 import { AnnouncementComponent } from './announcement/announcement/announcement.component';
 import { UpdateAnnouncementComponent } from './announcement/update-announcement/update-announcement.component';
@@ -45,6 +45,16 @@ import { AddPasswordComponent } from './user/add-password/add-password.component
 import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { HideEmailPipe } from './pipe/hide-email.pipe';
+import { AddUserComponent } from './user/add-user/add-user.component';
+import { UserNotedComponent } from './user/user-noted/user-noted.component';
+import { UserUnnotedComponent } from './user/user-unnoted/user-unnoted.component';
+import { AddCompanyComponent } from './company/add-company/add-company.component';
+import { AddDepartmentComponent } from './department/add-department/add-department.component';
+import { AddPositionComponent } from './position/add-position/add-position.component';
+import { FeedbackListComponent } from './announcement/feedback-list/feedback-list.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -75,7 +85,14 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     AddPasswordComponent,
     OtpInputComponent,
     OtpRequestComponent,
-    HideEmailPipe
+    HideEmailPipe,
+    AddUserComponent,
+    UserNotedComponent,
+    UserUnnotedComponent,
+    AddCompanyComponent,
+    AddDepartmentComponent,
+    AddPositionComponent,
+    FeedbackListComponent
   ],
   imports: [
     BrowserModule,
@@ -94,7 +111,15 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     MatOption,
     MatButtonToggleModule,
     ScrollingModule,
-    MatListOption
+    MatListOption,
+    MatButtonModule,
+    MatRadioModule,
+    MtxGridModule,
+    RouterModule,
+    MatMenuModule,
+    ScrollingModule,
+    MatTableModule,
+    MatPaginatorModule,
   ],
   providers: [
     provideClientHydration(),

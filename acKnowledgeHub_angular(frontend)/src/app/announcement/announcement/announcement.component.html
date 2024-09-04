@@ -1,35 +1,36 @@
 <div class="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
-    <h2 class="text-2xl font-bold mb-4">Create Announcement</h2>
-    <form class="space-y-4" #announcementForm="ngForm" (ngSubmit)="onSubmit(announcementForm)">
-      <div>
-        <label for="title" class="block text-gray-700 font-medium mb-1">Title:</label>
-        <input
-          id="title"
-          name="title"
-          [(ngModel)]="announcement.title"
-          required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
+  <h2 class="text-2xl font-bold mb-4">Create Announcement</h2>
+  <form class="space-y-4" #announcementForm="ngForm" (ngSubmit)="onSubmit(announcementForm)">
+
+
+    <div>
+      <label for="description" class="block text-gray-700 font-medium mb-1">Description:</label>
+      <textarea id="description" name="description" [(ngModel)]="feedback.content"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+    </div>
+
+    <button type="submit"
+      class="w-full bg-blue-500 text-white py-2 px-4 rounded-md bg-color focus:outline-none focus:ring-2 ">
+      Submit
+    </button>
+  </form>
+</div>
+<div class="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
+  <div *ngFor="let feedback of feedbackList; let i = index">
+    <div>{{feedback.content}} ({{feedback.staffName}})
+    </div>
+
+    <div class="reply" *ngIf="feedback.replyBy != null && feedback.content != null">
+      Reply--- {{feedback.reply}} ({{feedback.replyBy}})
+    </div>
+
+    <div *ngIf="role == 'admin' && feedback.replyBy == null">
+      <button (click)="showInput(i)" class="bg-color">click me</button>
+      <div *ngIf="feedback.showInput">
+        <input type="text" id="reply-{{i}}" name="reply-{{i}}" style="border: 1px solid;"
+          [(ngModel)]="feedback.replyText">
+        <button (click)="sendReply(feedback, i)">send</button>
       </div>
-      
-      <div>
-        <label for="description" class="block text-gray-700 font-medium mb-1">Description:</label>
-        <textarea
-          id="description"
-          name="description"
-          [(ngModel)]="announcement.description"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        ></textarea>
-      </div>
-      
-      <button
-        type="submit"
-        class="w-full bg-blue-500 text-white py-2 px-4 rounded-md bg-color focus:outline-none focus:ring-2 "
-      >
-        Submit
-      </button>
-    </form>
+    </div>
   </div>
-    
-  <router-outlet></router-outlet>
-  
+</div>

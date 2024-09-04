@@ -12,8 +12,8 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string = '';
   logoutMessage: string = '';
-
-  constructor(private authService: AuthService, private router: Router) {}
+  showPassword: boolean = false;
+  constructor(private authService: AuthService, private router: Router) { }
 
   onLogin() {
     this.authService.login(this.staffId, this.password).subscribe(
@@ -32,11 +32,11 @@ export class LoginComponent {
         } else {
           this.authService.getUser().subscribe(user => {
             console.log('User data:', user);
-            if(user.user.role === "USER" && user.position !== "HR_MAIN"){
+            if (user.user.role === "USER" && user.position !== "HR_MAIN") {
               this.router.navigate(['/staff-dashboard']);
-            }else if(user.user.role === "ADMIN"){
+            } else if (user.user.role === "ADMIN") {
               this.router.navigate(['/admindashboard']);
-            }else{
+            } else {
               this.router.navigate(['/hr-dashboard']);
             }
           });
@@ -51,7 +51,7 @@ export class LoginComponent {
   onLogout() {
     this.authService.logout().subscribe(
       response => {
-        console.log(response); 
+        console.log(response);
         this.logoutMessage = "Logout Successfully";
       },
       error => {
@@ -59,4 +59,10 @@ export class LoginComponent {
       }
     );
   }
+
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
 }

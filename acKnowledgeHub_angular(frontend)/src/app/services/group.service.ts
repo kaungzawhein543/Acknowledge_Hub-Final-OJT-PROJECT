@@ -14,19 +14,19 @@ export class GroupService {
 
   constructor(private http: HttpClient) { }
 
-  getAllCompanies(): Observable<Company[]> {
-    return this.http.get<Company[]>(`${this.apiUrl}/companies`);
-  }
+  // getAllCompanies(): Observable<Company[]> {
+  //   return this.http.get<Company[]>(`${this.apiUrl}/companies`);
+  // }
 
-  getDepartmentsByCompany(companyId: number): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.apiUrl}/departments/${companyId}`);
-  }
+  // getDepartmentsByCompany(companyId: number): Observable<Department[]> {
+  //   return this.http.get<Department[]>(`${this.apiUrl}/departments/${companyId}`);
+  // }
 
-  getPositionsByDepartment(departmentId: number): Observable<Position[]> {
-    return this.http.get<Position[]>(`${this.apiUrl}/positions/${departmentId}`);
-  }
+  // getPositionsByDepartment(departmentId: number): Observable<Position[]> {
+  //   return this.http.get<Position[]>(`${this.apiUrl}/positions/${departmentId}`);
+  // }
 
-  getStaffByPosition(positionId: number): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/staffs/${positionId}`);
-  }
+  // getStaffByPosition(positionId: number): Observable<User[]> {
+  //   return this.http.get<User[]>(`${this.apiUrl}/staffs/${positionId}`);
+  // }
 }

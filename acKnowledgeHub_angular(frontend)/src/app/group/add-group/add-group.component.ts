@@ -5,6 +5,8 @@ import { Company } from '../../models/Company';
 import { Department } from '../../models/Department';
 import { MatSelectionList, MatSelectionListChange } from '@angular/material/list';
 import { StaffService } from '../../services/staff.service';
+import { CompanyService } from '../../services/company.service';
+import { DepartmentService } from '../../services/department.service';
 
 @Component({
   selector: 'app-add-group',
@@ -22,22 +24,22 @@ export class AddGroupComponent {
   departmentstatus: number | undefined;
   @ViewChild('staff') staff!: MatSelectionList;
 
-  constructor(private service: StaffService) { }
+  constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService) { }
 
   ngOnInit(): void {
-    this.service.getAllCompany().subscribe({
+    this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
       },
       error: (e) => console.log(e)
     });
-    this.service.getDepartmentListByCompanyId(1).subscribe({
+    this.departmentService.getDepartmentListByCompanyId(1).subscribe({
       next: (data) => {
         this.departments = data;
       },
       error: (e) => console.log(e)
     });
-    this.service.getStaffList().subscribe({
+    this.staffService.getStaffList().subscribe({
       next: (data) => {
         this.staffList = data;
         this.showStaff(1);
@@ -64,7 +66,7 @@ export class AddGroupComponent {
   }
 
   showDepartment(id: number): void {
-    this.service.getDepartmentListByCompanyId(id).subscribe({
+    this.departmentService.getDepartmentListByCompanyId(id).subscribe({
       next: (data) => {
         this.departments = data;
         this.companystatus = id;

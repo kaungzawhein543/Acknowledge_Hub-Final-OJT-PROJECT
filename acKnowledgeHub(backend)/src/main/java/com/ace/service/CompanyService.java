@@ -17,6 +17,9 @@ public class CompanyService {
         return companyRepository.findAll();
     }
 
+    public Optional<Company> findById(int id ){
+        return companyRepository.findById(id);
+    }
     public Company getCompanyById(int id) {
         return companyRepository.findById(id).orElseThrow(() -> new RuntimeException("Company not found"));
     }

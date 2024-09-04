@@ -26,6 +26,7 @@ import { map } from 'rxjs/operators';
 export class SidebarComponent implements OnInit, AfterViewInit {
   isAdmin = false;
   isHr = false;
+  staffId !: number;
   isSidebarOpen = true;
   private currentOpenMenu: string | null = null;
 
@@ -54,7 +55,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   }
 
 
-  constructor(private sidebarService: SidebarService, private authService: AuthService) { 
+  constructor(private sidebarService: SidebarService, private authService: AuthService) {
 
   }
 
@@ -70,16 +71,20 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.authService.hasRole("ADMIN").subscribe(
-      (data) =>{
-         this.isAdmin = data;
+      (data) => {
+        this.isAdmin = data;
       }
     )
     this.authService.hasPostion("HR_MAIN").subscribe(
-      (data) =>{
+      (data) => {
         this.isHr = data;
       }
     )
+    this.authService.getUserInfo().subscribe(
+      (data) => {
+        this.staffId = data.user.id;
+      }
+    )
   }
+
 }
-
-

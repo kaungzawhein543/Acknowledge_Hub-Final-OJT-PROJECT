@@ -1,0 +1,60 @@
+.data-grid-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.search-bar {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+
+}
+
+.search-bar input {
+    width: 300px;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #3f51b5;
+    /* Color when focused */
+    box-shadow: 0 0 5px rgba(63, 81, 181, 0.5);
+}
+
+
+.mat-checkbox {
+    color: #1c39e1;
+
+}
+
+.mtx-grid {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mtx-grid-header {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.mtx-grid-row:hover {
+    background-color: #1d1dc1;
+}
+
+.mtx-grid-row.striped:nth-child(odd) {
+    background-color: #fafafa;
+}
+
+.custom-grid .mat-toolbar-row .mat-toolbar-title {
+    font-weight: bold;
+    font-size: 40px;
+    /* Adjust the font size as needed */
+}

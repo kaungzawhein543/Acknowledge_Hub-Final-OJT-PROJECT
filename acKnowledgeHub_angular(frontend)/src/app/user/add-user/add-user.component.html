@@ -1,1 +1,85 @@
-<p>add-user works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
+        <p class="text-3xl font-bold text-gray-800 text-center mb-6">
+            Add Staff
+        </p>
+        <form #staffForm="ngForm" (ngSubmit)="onSubmit(staffForm)" class="space-y-6">
+            <div>
+                <label for="companyStaffId" class="block text-gray-700 font-medium mb-2">
+                    Staff ID
+                </label>
+                <input type="text" id="companyStaffId" name="companyStaffId" [(ngModel)]="staff.companyStaffId" required
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+            </div>
+
+            <div>
+                <label for="name" class="block text-gray-700 font-medium mb-2">
+                    Name
+                </label>
+                <input type="text" id="name" name="name" [(ngModel)]="staff.name" required
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+            </div>
+
+            <div>
+                <label for="email" class="block text-gray-700 font-medium mb-2">
+                    Email
+                </label>
+                <input type="text" id="email" name="email" [(ngModel)]="staff.email" required
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+            </div>
+
+            <div>
+                <label for="role" class="block text-gray-700 font-medium mb-2">
+                    Role
+                </label>
+                <select id="role" name="role" [(ngModel)]="staff.role"
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
+                    <option *ngFor="let role of roles" [ngValue]="role">{{ role }}</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="companyId" class="block text-gray-700 font-medium mb-2">
+                    Company
+                </label>
+                <select id="companyId" name="companyId" [(ngModel)]="staff.companyId" (change)="onCompanyChange()"
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
+                    <option [ngValue]="null" disabled>Select Company</option>
+                    <option *ngFor="let company of companies" [ngValue]="company.id">
+                        {{company.name}}
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="departmentId" class="block text-gray-700 font-medium mb-2">
+                    Department
+                </label>
+                <select id="departmentId" name="departmentId" [(ngModel)]="staff.departmentId"
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
+                    <option [ngValue]="null" disabled>Select Department</option>
+                    <option *ngFor="let department of filteredDepartments" [ngValue]="department.id">{{department.name}}
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="position" class="block text-gray-700 font-medium mb-2">
+                    Position
+                </label>
+                <select id="position" name="position" [(ngModel)]="staff.positionId"
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
+                    <option [ngValue]="null" disabled>Select position</option>
+                    <option *ngFor="let position of positions" [ngValue]="position.id">{{position.name}}
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                ADD
+            </button>
+
+        </form>
+    </div>
+</div>

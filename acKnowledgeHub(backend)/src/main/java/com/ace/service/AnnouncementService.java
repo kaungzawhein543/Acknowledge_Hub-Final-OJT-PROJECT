@@ -1,9 +1,12 @@
 package com.ace.service;
 
+import com.ace.dto.AnnouncementResponseDTO;
+import com.ace.dto.StaffNotedResponseDTO;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,4 +77,27 @@ public class AnnouncementService {
         return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
     }
 
+    public List<StaffNotedResponseDTO> getStaffNoted(Integer staffId) {
+        return announcement_repo.getStaffNoted(staffId);
+    }
+
+    public List<AnnouncementResponseDTO> getStaffUnNoted(Integer staffId) {
+        List<AnnouncementResponseDTO> staffAnnouncements = announcement_repo.getNotStaffNoted(staffId);
+        List<AnnouncementResponseDTO> groupAnnouncements = announcement_repo.getNotStaffNotedGroup(staffId);
+        List<AnnouncementResponseDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
+        combinedAnnouncements.addAll(groupAnnouncements);
+        return combinedAnnouncements;
+    }
+
+    public List<AnnouncementResponseDTO> getStaffAnnouncement(Integer staffId) {
+        List<AnnouncementResponseDTO> staffAnnouncements = announcement_repo.getStaffAnnouncement(staffId);
+        List<AnnouncementResponseDTO> groupAnnouncements = announcement_repo.getStaffAnnouncementGroup(staffId);
+        List<AnnouncementResponseDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
+        combinedAnnouncements.addAll(groupAnnouncements);
+        return combinedAnnouncements;
+    }
+
+    public List<AnnouncementResponseDTO> getPendingAnnouncement(){
+        return announcement_repo.getPendingAnnouncement();
+    }
 }

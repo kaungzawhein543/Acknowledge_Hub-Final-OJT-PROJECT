@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { announcement } from '../models/announcement';
 import saveAs from 'file-saver';
+import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
+import { announcementList } from '../models/announcement-list';
 
 @Injectable({
   providedIn: 'root'
@@ -19,22 +21,22 @@ export class AnnouncementService {
   }
 
   //Edit Announcement
-  editAnnouncement(announcement: announcement): Observable<any>{
-    return this.http.put<String>(`${this.BaseUrl}/${announcement.id}`,announcement);
+  editAnnouncement(announcement: announcement): Observable<any> {
+    return this.http.put<String>(`${this.BaseUrl}/${announcement.id}`, announcement);
   }
 
   //Get Announcement
-  getAnnouncementById(id : number): Observable<announcement>{
+  getAnnouncementById(id: number): Observable<announcement> {
     return this.http.get<announcement>(`${this.BaseUrl}/${id}`);
   }
 
   //Get Published Announcement
-  getPublishAnnouncements() : Observable<announcement[]>{
+  getPublishAnnouncements(): Observable<announcement[]> {
     return this.http.get<announcement[]>(`${this.BaseUrl}/getPublishedAnnouncements`);
   }
 
   //Delete Announcement
-  deleteAnnouncement(id : number): Observable<string>{
+  deleteAnnouncement(id: number): Observable<string> {
     return this.http.delete<string>(`${this.BaseUrl}/${id}`);
   }
 
@@ -42,5 +44,21 @@ export class AnnouncementService {
   downloadPdf(publicId: string): Observable<Blob> {
     const headers = new HttpHeaders({ 'Accept': 'application/pdf' });
     return this.http.get(`${this.BaseUrl}/download/${publicId}`, { headers, responseType: 'blob' });
+  }
+
+  userNotedAnnouncement(staffId: number): Observable<staffNotedAnnouncement[]> {
+    return this.http.get<staffNotedAnnouncement[]>(`${this.BaseUrl}/staff-noted/${staffId}`);
+  }
+
+  userUnNotedAnnouncement(staffId: number): Observable<announcementList[]> {
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/staff-unnoted/${staffId}`);
+  }
+
+  userAnnouncement(staffId: number): Observable<announcementList[]> {
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/staff/${staffId}`);
+  }
+
+  pendingAnnouncementBySchedule(): Observable<announcementList[]> {
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/pending-list`)
   }
 }

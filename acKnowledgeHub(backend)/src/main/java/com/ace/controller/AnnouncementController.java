@@ -1,5 +1,7 @@
 package com.ace.controller;
 
+import com.ace.dto.AnnouncementResponseDTO;
+import com.ace.dto.StaffNotedResponseDTO;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
@@ -304,5 +306,27 @@ public class AnnouncementController {
         }
     }
 
+    @GetMapping("/staff-noted/{staffId}")
+    public List<StaffNotedResponseDTO> getStaffNotedList(@PathVariable Integer staffId){
+        List<StaffNotedResponseDTO> announcementList = announcement_service.getStaffNoted(staffId);
+        return announcementList;
+    }
+
+    @GetMapping("/staff-unnoted/{staffId}")
+    public List<AnnouncementResponseDTO> getStaffUnNotedList(@PathVariable Integer staffId){
+        List<AnnouncementResponseDTO> announcementList = announcement_service.getStaffUnNoted(staffId);
+        return announcementList;
+    }
+
+    @GetMapping("/staff/{staffId}")
+    public List<AnnouncementResponseDTO> getStaffAnnouncement(@PathVariable Integer staffId){
+        List<AnnouncementResponseDTO> announcementList = announcement_service.getStaffAnnouncement(staffId);
+        return announcementList;
+    }
+
+    @GetMapping("/pending-list")
+    public List<AnnouncementResponseDTO> getPendingAnnouncement(){
+        return announcement_service.getPendingAnnouncement();
+    }
 
 }
