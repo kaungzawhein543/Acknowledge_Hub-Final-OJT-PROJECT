@@ -20,6 +20,10 @@ public class DepartmentService {
         return departmentRepository.findByCompanyId(companyId);
     }
 
+    public Optional<Department> findById(int id){
+        return departmentRepository.findById(id);
+    }
+
 
     public Department getDepartmentById(int id) {
         return departmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Department not found"));

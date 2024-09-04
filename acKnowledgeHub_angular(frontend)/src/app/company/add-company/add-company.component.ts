@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { CompanyService } from '../../services/company.service';
+import { Company } from '../../models/Company';
+
 
 @Component({
   selector: 'app-add-company',
@@ -6,5 +10,20 @@ import { Component } from '@angular/core';
   styleUrl: './add-company.component.css'
 })
 export class AddCompanyComponent {
+  company: Company = {
+    id: 0,
+    name: ''
+  };
+  constructor(private companyService: CompanyService) { }
+  onSubmit(form: NgForm) {
+    if (form.valid) {
+      this.companyService.addCompany(this.company).subscribe({
+        next: (data) => {
+          console.log('successful')
+        },
+        error: (e) => console.log(e)
+      })
+    }
 
+  }
 }

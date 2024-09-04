@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import autoTable from 'jspdf-autotable';
 import { AnnouncementService } from '../../services/announcement.service';
-import { FormsModule } from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-list-announcement',
@@ -48,7 +48,7 @@ export class ListAnnouncementComponent {
     private announcementService: AnnouncementService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
@@ -66,7 +66,7 @@ export class ListAnnouncementComponent {
         this.announcements = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        }));        this.filteredAnnouncements = data;
+        })); this.filteredAnnouncements = data;
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
@@ -172,18 +172,18 @@ export class ListAnnouncementComponent {
 
     // Save the PDF file
     doc.save(filename);
-}
+  }
 
 
-generateExcel(announcements: announcement[], fileName: string) {
-  const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
-  const headers = visibleColumns.map(col => col.header);
-  const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
-  const worksheet = XLSX.utils.aoa_to_sheet(data);
-  const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  this.saveAsExcelFile(excelBuffer, fileName);
-}
+  generateExcel(announcements: announcement[], fileName: string) {
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const headers = visibleColumns.map(col => col.header);
+    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, fileName);
+  }
 
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });

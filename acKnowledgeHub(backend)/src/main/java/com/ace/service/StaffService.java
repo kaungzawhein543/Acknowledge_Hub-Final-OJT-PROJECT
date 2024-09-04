@@ -74,23 +74,28 @@ public class StaffService implements UserDetailsService {
      return staffRepository.findByEmail(email);
     }
 
-    public List<NotedResponseDTO> getNotedStaffList(Integer announcementId){
+    public List<NotedResponseDTO> getNotedStaffList(Integer announcementId) {
         return staffRepository.getNotedStaffByAnnouncement(announcementId);
     }
 
-    public List<UnNotedResponseDTO> getUnNotedStaffList(Integer announcementId){
-        return staffRepository.getUnNotedStaffByAnnouncement(announcementId);
+    public List<UnNotedResponseDTO> getUnNotedStaffListWithGroup(Integer announcementId) {
+        return staffRepository.getUnNotedStaffByAnnouncementWithGroup(announcementId);
     }
+
+    public List<UnNotedResponseDTO> getUnNotedStaffList(Integer announcementId) {
+        return staffRepository.getUnNotedStaffByAnnouncementWithEach(announcementId);
+    }
+
     public List<Staff> getStaffByPositionId(Integer positionId) {
-    return staffRepository.findByPositionId(positionId);
-}
+        return staffRepository.findByPositionId(positionId);
+    }
 
     public Staff getStaffByStaffId(String staffId) {
         return staffRepository.findByCompanyStaffId(staffId);
     }
 
-    public Staff findById(Integer id){
-        return staffRepository.findById(id). orElseThrow();
+    public Staff findById(Integer id) {
+        return staffRepository.findById(id).orElseThrow();
     }
 
 
@@ -139,27 +144,39 @@ public class StaffService implements UserDetailsService {
         return new Staff();
     }
 
-    public void updatePassword(PasswordResponseDTO dto){
+    public void updatePassword(PasswordResponseDTO dto) {
         Staff user = staffRepository.findByEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
         staffRepository.save(user);
     }
 
-    public Optional<Staff> findByChatId(String chatId){
+    public Optional<Staff> findByChatId(String chatId) {
         return staffRepository.findByChatId(chatId);
     }
 
-    public void saveChatId(String chatId,String email){
-        Staff user =  staffRepository.findByEmail(email);
+    public void saveChatId(String chatId, String email) {
+        Staff user = staffRepository.findByEmail(email);
         user.setChatId(chatId);
         staffRepository.save(user);
     }
 
-    public List<String> getAllChatIds(){
-        return  staffRepository.findAllChatIds();
+    public List<String> getAllChatIds() {
+        return staffRepository.findAllChatIds();
     }
 
-    public List<StaffGroupDTO> getStaffListForGroup(){
+    public List<StaffGroupDTO> getStaffListForGroup() {
         return staffRepository.getStaffListForGroup();
+    }
+
+    public void addStaff(Staff staff) {
+        staffRepository.save(staff);
+    }
+
+    public List<StaffResponseDTO> getStaffList(){
+        return staffRepository.getStaffList();
+    }
+
+    public List<ActiveStaffResponseDTO> getActiveStaffList(){
+        return staffRepository.getActiveStaffList();
     }
 }
