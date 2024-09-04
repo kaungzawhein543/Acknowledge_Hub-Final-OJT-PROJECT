@@ -14,10 +14,10 @@ import { announcement } from '../../models/announcement';
   templateUrl: './request-announcement.component.html',
   styleUrls: ['./request-announcement.component.css']
 })
-export class RequestAnnouncementComponent{
+export class RequestAnnouncementComponent {
 
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
-  
+
   groups: Group[] = [];
   staffs: Staff[] = [];
   selectedOption: string = 'group'; // Default to group
@@ -30,10 +30,10 @@ export class RequestAnnouncementComponent{
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
   fileName = '';
-  groupotion : boolean = true;
-  staffoption : boolean = false;
-  selectedOptionsBox : boolean = false;
-  optionStaffOfGroup : string = "Groups";
+  groupotion: boolean = true;
+  staffoption: boolean = false;
+  selectedOptionsBox: boolean = false;
+  optionStaffOfGroup: string = "Groups";
   isScrolledDown = false;
   announcement !: announcement;
   selectedFile: File | null = null;
@@ -47,12 +47,12 @@ export class RequestAnnouncementComponent{
   searchTerm: string = ''; // Search term for filtering
 
   constructor(
-    private groupService: GroupService, 
+    private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService : AuthService
-  ) {}
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.loadGroups();
@@ -94,34 +94,33 @@ export class RequestAnnouncementComponent{
       console.log('Skipping loadStaffs: isLoading=', this.isLoading, ', hasMore=', this.hasMore);
       return;
     }
-  
+
     this.isLoading = true;
-  
+
     const query = this.searchTerm.trim();
     console.log('Searching for term:', query);
-  
+
     this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
         this.isLoading = false;
         console.log('Received response:', response);
-  
+
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content
-            .filter((staff: { company: { name: string; }; }) => {
-              const companyName = staff.company.name;
+            .filter((staff: { company?: { name?: string }; }) => {
+              // Null check for company and company name
+              const companyName = staff.company?.name;
               const matchesCompany = companyName === this.currentHrCompany;
-              console.log('Staff company name:', companyName, 'Matches:', matchesCompany);
               return matchesCompany;
             })
             .map((staff: { position: string; }) => {
               const positionName = this.extractPositionName(staff.position);
-              console.log('Original position:', staff.position, 'Extracted position name:', positionName);
               return {
                 ...staff,
                 position: positionName
               };
             });
-  
+
           console.log('Processed staffs:', processedStaffs);
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
@@ -138,14 +137,18 @@ export class RequestAnnouncementComponent{
       }
     );
   }
-  
-  
-  
-  
-  
+
+
+
+
+
+
 
   // Helper method to extract the position name
   extractPositionName(position: string): string {
+    if (!position) {
+      return "";
+    }
     const match = position.match(/Position\(id=\d+, name=(.*?)\)/);
     return match ? match[1] : position;
   }
@@ -168,7 +171,7 @@ export class RequestAnnouncementComponent{
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
-      scheduleAt  : this.scheduleDate,
+      scheduleAt: this.scheduleDate,
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -192,7 +195,7 @@ export class RequestAnnouncementComponent{
     }
 
     // Call the service to create the announcement
-    this.announcementService.createAnnouncement(formData,this.createStaffId).subscribe(
+    this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
 
       },
@@ -202,7 +205,7 @@ export class RequestAnnouncementComponent{
     );
   }
 
-  
+
 
   onOptionChange(option: string): void {
     this.selectedOption = option;
@@ -232,61 +235,61 @@ export class RequestAnnouncementComponent{
     }
   }
 
-  
-onStaffChange(event: Event): void {
-  const target = event.target as HTMLInputElement;
-  const selectedStaffId = target.value; // Get the selected staffId
-  
-  const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
-  if (selectedStaff) {
-    if (target.checked) {
-      if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-        this.selectedStaffs.push(selectedStaff);
+  onStaffChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedStaffId = target.value; // Get the selected staffId
+
+    const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
+
+    if (selectedStaff) {
+      if (target.checked) {
+        if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
+          this.selectedStaffs.push(selectedStaff);
+        }
+      } else {
+        this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
       }
     } else {
-      this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
+      console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
-  } else {
-    console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
   }
-}
 
 
-onFileChange(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  
-  if (input.files && input.files.length > 0) {
-    this.selectedFile = input.files[0];
-    this.fileName = this.selectedFile.name;
-    this.fileSelected = true;
-  } else {
-    this.selectedFile = null;
-    this.fileName = '';
-    this.fileSelected = false;
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.fileName = this.selectedFile.name;
+      this.fileSelected = true;
+    } else {
+      this.selectedFile = null;
+      this.fileName = '';
+      this.fileSelected = false;
+    }
   }
-}
 
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
-    this.searchTerm = inputElement.value.trim(); 
-    
+    this.searchTerm = inputElement.value.trim();
+
     if (this.searchTerm) {
-      this.filterStaffs(); 
+      this.filterStaffs();
     }
   }
-  
+
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
-    this.staffs = []; 
+    this.staffs = [];
     this.loadStaffs(); // Reload staff with the search term
   }
-  
-  showSelectedOptionBox():void{
-    if(this.selectedOptionsBox === false){
+
+  showSelectedOptionBox(): void {
+    if (this.selectedOptionsBox === false) {
       this.selectedOptionsBox = true;
-    }else{
+    } else {
       this.selectedOptionsBox = false;
     }
   }

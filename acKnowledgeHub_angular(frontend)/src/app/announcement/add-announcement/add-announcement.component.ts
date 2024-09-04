@@ -15,7 +15,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class AddAnnouncementComponent implements OnInit {
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
-  
+
   groups: Group[] = [];
   staffs: Staff[] = [];
   selectedOption: string = 'group'; // Default to group
@@ -28,10 +28,10 @@ export class AddAnnouncementComponent implements OnInit {
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
   fileName = '';
-  groupotion : boolean = true;
-  staffoption : boolean = false;
-  selectedOptionsBox : boolean = false;
-  optionStaffOfGroup : string = "Groups";
+  groupotion: boolean = true;
+  staffoption: boolean = false;
+  selectedOptionsBox: boolean = false;
+  optionStaffOfGroup: string = "Groups";
   isScrolledDown = false;
   announcement !: announcement;
   selectedFile: File | null = null;
@@ -45,12 +45,12 @@ export class AddAnnouncementComponent implements OnInit {
   searchTerm: string = ''; // Search term for filtering
 
   constructor(
-    private groupService: GroupService, 
+    private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService : AuthService
-  ) {}
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.loadGroups();
@@ -88,13 +88,13 @@ export class AddAnnouncementComponent implements OnInit {
 
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) return;
-  
+
     this.isLoading = true;
-  
-    this.staffService.getStaffs(this.page,this.pageSize,this.searchTerm).subscribe(
+
+    this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
-        
+
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
             ...staff,
@@ -114,10 +114,13 @@ export class AddAnnouncementComponent implements OnInit {
       }
     );
   }
-  
+
 
   // Helper method to extract the position name
   extractPositionName(position: string): string {
+    if (!position) {
+      return "";
+    }
     const match = position.match(/Position\(id=\d+, name=(.*?)\)/);
     return match ? match[1] : position;
   }
@@ -140,7 +143,7 @@ export class AddAnnouncementComponent implements OnInit {
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
-      scheduleAt  : this.scheduleDate,
+      scheduleAt: this.scheduleDate,
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -164,7 +167,7 @@ export class AddAnnouncementComponent implements OnInit {
     }
 
     // Call the service to create the announcement
-    this.announcementService.createAnnouncement(formData,this.createStaffId).subscribe(
+    this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
         console.log(response);
       },
@@ -174,7 +177,7 @@ export class AddAnnouncementComponent implements OnInit {
     );
   }
 
-  
+
 
   onOptionChange(option: string): void {
     this.selectedOption = option;
@@ -204,52 +207,52 @@ export class AddAnnouncementComponent implements OnInit {
     }
   }
 
-  
-onStaffChange(event: Event): void {
-  const target = event.target as HTMLInputElement;
-  const selectedStaffId = target.value; // Get the selected staffId
-  console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
-  
-  const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
-  if (selectedStaff) {
-    if (target.checked) {
-      if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-        this.selectedStaffs.push(selectedStaff);
+  onStaffChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedStaffId = target.value; // Get the selected staffId
+    console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
+
+    const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
+
+    if (selectedStaff) {
+      if (target.checked) {
+        if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
+          this.selectedStaffs.push(selectedStaff);
+        }
+      } else {
+        this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
       }
+      console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
     } else {
-      this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
+      console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
-    console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
-  } else {
-    console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
   }
-}
 
 
-onFileChange(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  
-  if (input.files && input.files.length > 0) {
-    this.selectedFile = input.files[0];
-    this.fileName = this.selectedFile.name;
-    this.fileSelected = true;
-  } else {
-    this.selectedFile = null;
-    this.fileName = '';
-    this.fileSelected = false;
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.fileName = this.selectedFile.name;
+      this.fileSelected = true;
+    } else {
+      this.selectedFile = null;
+      this.fileName = '';
+      this.fileSelected = false;
+    }
   }
-}
 
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
-    this.searchTerm = inputElement.value.trim(); 
-    
+    this.searchTerm = inputElement.value.trim();
+
     if (this.searchTerm) {
-      this.filterStaffs(); 
+      this.filterStaffs();
     }
   }
-  
+
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
@@ -257,11 +260,11 @@ onFileChange(event: Event): void {
     console.log("This is A")
     this.loadStaffs(); // Reload staff with the search term
   }
-  
-  showSelectedOptionBox():void{
-    if(this.selectedOptionsBox === false){
+
+  showSelectedOptionBox(): void {
+    if (this.selectedOptionsBox === false) {
       this.selectedOptionsBox = true;
-    }else{
+    } else {
       this.selectedOptionsBox = false;
     }
   }
