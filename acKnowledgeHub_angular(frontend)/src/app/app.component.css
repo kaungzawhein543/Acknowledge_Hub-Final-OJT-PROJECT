@@ -10,3 +10,17 @@
 .notLoginPage{
   padding-top: 70px;
 }
+#toast-container {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  padding: 1rem; /* Optional: Adds some padding around the container */
+  width: 100%; /* Optional: Full width container */
+  max-width: 500px; /* Optional: Limits the container's width */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  gap: 0.5rem; /* Space between toasts */
+}

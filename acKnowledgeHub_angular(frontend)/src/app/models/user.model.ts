@@ -8,14 +8,13 @@ export interface User {
   }
   
   export interface Staff {
-    id: number;
     name: string;
     staffId: string;
     email: string;
-    ph1: string;
-    ph2: string;
     address: string;
     createdAt: Date;
     status: string;
+    position: string;
+    department: string | null
   }
   

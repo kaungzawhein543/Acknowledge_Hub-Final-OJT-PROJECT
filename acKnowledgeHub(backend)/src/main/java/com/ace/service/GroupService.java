@@ -5,6 +5,8 @@ import com.ace.repository.GroupRepository;
 
 import com.ace.entity.Group;
 import com.ace.repository.StaffRepository;
+import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,10 @@ public class GroupService {
 
     public List<Group> getAllGroups() {
         return groupRepository.findAll();
+    }
+
+    public List<Group> findGroupsByIds(List<Integer> ids){
+        return groupRepository.findGroupsByIds(ids);
     }
 
     public void createGroup(String name, List<Integer> userIds){
@@ -92,4 +98,14 @@ public class GroupService {
         }
     }
 
+    @Transactional
+    public List<Staff> getStaffsByGroupId(Integer groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        // Explicitly initialize the staff collection
+        Hibernate.initialize(group.getStaff());
+
+        return group.getStaff();
+    }
 }

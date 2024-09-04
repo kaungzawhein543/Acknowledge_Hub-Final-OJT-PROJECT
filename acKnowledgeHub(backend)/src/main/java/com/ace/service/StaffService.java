@@ -1,30 +1,77 @@
 package com.ace.service;
 
 import com.ace.dto.*;
+import com.ace.entity.Group;
 import com.ace.entity.Staff;
 import com.ace.repository.StaffRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Lazy
 public class StaffService implements UserDetailsService {
     private final StaffRepository staffRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public StaffService(StaffRepository staffRepository) {
         this.staffRepository = staffRepository;
     }
 
-    public Staff findByEmail(String email) {
-        return staffRepository.findByEmail(email);
+
+    public List<Staff> findStaffsByIds(List<Integer> ids){
+        return staffRepository.findStaffsByIds(ids);
+    }
+
+    public List<String> findStaffsChatIdByIds(List<Integer> ids){
+        return staffRepository.findStaffsChatIdByIds(ids);
+    }
+
+
+    public Page<StaffDTO> getStaffs(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Staff> outputStaff = staffRepository.findAll(pageRequest);
+
+        // Map each Staff entity to StaffGroupDTO
+        List<StaffDTO> staffDtos = outputStaff.getContent().stream()
+                .map(staff -> modelMapper.map(staff, StaffDTO.class))
+                .collect(Collectors.toList());
+
+        // Create a Page<StaffGroupDTO> from the list of DTOs
+        return new PageImpl<>(staffDtos, pageRequest, outputStaff.getTotalElements());
+    }
+
+
+    public Page<StaffDTO> searchStaffs(String searchTerm, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Staff> outputStaff = staffRepository.searchByTerm(searchTerm,pageRequest);
+
+        // Map each Staff entity to StaffGroupDTO
+        List<StaffDTO> staffDtos = outputStaff.getContent().stream()
+                .map(staff -> modelMapper.map(staff, StaffDTO.class))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(staffDtos,pageRequest,outputStaff.getTotalElements());
+    }
+
+    public Staff findByEmail(String email){
+     return staffRepository.findByEmail(email);
     }
 
     public List<NotedResponseDTO> getNotedStaffList(Integer announcementId) {

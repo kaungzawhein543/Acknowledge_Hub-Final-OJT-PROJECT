@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { NotedUser } from '../models/noted-user';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Company } from '../models/Company';
 import { Department } from '../models/Department';
 import { StaffGroup } from '../models/staff-group';
 import { UnNotedUser } from '../models/un-noted-user';
 import { Staff } from '../models/staff';
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +31,25 @@ export class StaffService {
   getUnNotedStaffByAnnouncementList(id: number): Observable<UnNotedUser[]> {
     return this.http.get<UnNotedUser[]>(`${this.baseURL}/not-noted-list/${id}`);
   }
+
+  getAllCompany(): Observable<Company[]> {
+    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company`);
+  }
+
+  getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
+    return this.http.get<Department[]>(`http://localhost:8080/api/v1/department/company/${companyId}`);
+  }
+
+  getAllDepartment(): Observable<Department[]> {
+    return this.http.get<Department[]>(`http://localhost:8080/api/v1/department`);
+  }
+
+
+  getStaffs(page: number, size: number, searchTerm: string): Observable<any> {
+    const apiUrl = `${this.baseURL}?page=${page}&size=${size}&searchTerm=${searchTerm}`;
+    return this.http.get<any>(apiUrl);
+  }
+
 
   getStaffList(): Observable<StaffGroup[]> {
     return this.http.get<StaffGroup[]>(`${this.baseURL}/group-staff`);

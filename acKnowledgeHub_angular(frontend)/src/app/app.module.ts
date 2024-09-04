@@ -12,7 +12,6 @@ import { UpdateAnnouncementComponent } from './announcement/update-announcement/
 import { AddCategoryComponent } from './category/add-category/add-category.component';
 import { SidebarComponent } from './sidebar/sidebar/sidebar.component';
 import { NavbarComponent } from './navbar/navbar/navbar.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MychartComponent } from './mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
@@ -55,6 +54,9 @@ import { FeedbackListComponent } from './announcement/feedback-list/feedback-lis
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 @NgModule({
   declarations: [
@@ -93,13 +95,14 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     AddDepartmentComponent,
     AddPositionComponent,
     FeedbackListComponent
+    RequestAnnouncementComponent
   ],
   imports: [
+    BrowserAnimationsModule, // required for toastr
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    BrowserAnimationsModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatPseudoCheckboxModule,

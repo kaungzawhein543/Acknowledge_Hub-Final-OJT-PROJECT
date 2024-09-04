@@ -64,3 +64,7 @@ mat-selection-list {
     font-size: 1.2rem;
     color: #333;
 }
+
+.toast{
+    z-index: 9999;
+}

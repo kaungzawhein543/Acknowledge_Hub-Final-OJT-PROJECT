@@ -32,16 +32,15 @@ import { UserUnnotedComponent } from './user/user-unnoted/user-unnoted.component
 import { AnnouncementComponent } from './announcement/announcement/announcement.component';
 import { AddPositionComponent } from './position/add-position/add-position.component';
 import { FeedbackListComponent } from './announcement/feedback-list/feedback-list.component';
+import { AddAnnouncementComponent } from './announcement/add-announcement/add-announcement.component';
+import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
+import { ListAnnouncementComponent } from './announcement/list-announcement/list-announcement.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'change-password/:staffId', component: ChangepasswordComponent },
   { path: 'import-excel', component: ExcelImportComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
   { path: '404', component: Page404Component },
-  { path: 'pending', component: PendingAnnouncementComponent },
-  { path: 'list', component: FeedbackListComponent },
-  { path: 'add-user', component: AddUserComponent },
-  { path: 'announcement', component: AnnouncementComponent },
   { path: 'otp-input', component: OtpInputComponent },
   { path: 'otp-request', component: OtpRequestComponent },
   { path: 'add-password', component: AddPasswordComponent },
@@ -71,8 +70,9 @@ const routes: Routes = [
   },
   {
     path: 'announcement', canActivate: [AuthGuard], children: [
-      { path: 'list', component: UpdateAnnouncementComponent, canActivate: [AuthGuard] },
-      { path: 'add', component: UpdateAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['HR_MAIN'] } },
+      { path: 'list', component: ListAnnouncementComponent, canActivate: [AuthGuard] },
+      { path: 'request', component: RequestAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], positions: ['HR'] } },
+      { path: 'add', component: AddAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['HR_MAIN'] } },
       { path: 'update/:id', component: UpdateAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'], positions: ['HR_MAIN'] } },
       { path: 'notNoted-announceemnt/:id', component: NotNotedAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['HR_MAIN'] } },
       { path: 'noted-announcement/:id', component: NotedAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['HR_MAIN'] } },

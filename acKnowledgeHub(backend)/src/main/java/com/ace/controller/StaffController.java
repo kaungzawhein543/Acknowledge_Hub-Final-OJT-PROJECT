@@ -13,12 +13,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/staff")
@@ -29,13 +41,14 @@ public class StaffController {
     private final CompanyService companyService;
     private final DepartmentService departmentService;
     private final PositionService positionService;
-
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService) {
+private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService,PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
         this.departmentService = departmentService;
         this.positionService = positionService;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @GetMapping("/list")
@@ -68,8 +81,7 @@ public class StaffController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding staff: " + e.getMessage());
         }
-    }
-
+    
     @GetMapping("/group-staff")
     public List<StaffGroupDTO> getStaffListByDepartmentId() {
         List<StaffGroupDTO> staffList = staffService.getStaffListForGroup();
@@ -91,7 +103,22 @@ public class StaffController {
             staffList = staffService.getUnNotedStaffList(announcementId);
         }
         return staffList;
-    }
+        }
 
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedResponse<StaffDTO>> getStaffs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String searchTerm) {
+        Page<StaffDTO> staffPage;
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            staffPage = staffService.searchStaffs(searchTerm, page, size);
+        }else{
+            staffPage = staffService.getStaffs(page, size);
+        }
+
+       PaginatedResponse<StaffDTO> response = new PaginatedResponse<>(staffPage);
+        return ResponseEntity.ok(response);
+    }
 
 }

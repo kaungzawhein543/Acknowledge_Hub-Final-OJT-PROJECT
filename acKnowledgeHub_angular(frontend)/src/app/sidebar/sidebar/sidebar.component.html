@@ -13,7 +13,7 @@
     </li>
   </div>
 
-  <div *ngIf="isHr">
+  <div *ngIf="isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         routerLink="hr-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
@@ -23,7 +23,9 @@
     </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+
+
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         routerLink="staff-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
@@ -33,7 +35,17 @@
     </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+  <div *ngIf="!isAdmin && !isMainHr && isHr">
+    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="announcement/request" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-solid fa-plus"></i>
+        <span> Request Announcement</span>
+      </a>
+    </li>
+  </div>
+
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         [routerLink]="'announcement/list-by-staff/' + staffId"
@@ -44,7 +56,7 @@
     </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         [routerLink]="'announcement/staff-noted/' + staffId"
@@ -55,7 +67,7 @@
     </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         [routerLink]="'announcement/staff-unnoted/' + staffId"
@@ -68,7 +80,7 @@
 
 
 
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('announcementMenu')">
       <span class="flex items-center space-x-3">
@@ -121,12 +133,12 @@
     </ul>
   </li>
 
-  <li *ngIf="isAdmin || isHr">
+  <li *ngIf="isAdmin || isMainHr">
     <span class="text-gray-600 p-3 font-semibold">Additional Links</span>
   </li>
 
   <!-- Company with Sub-items -->
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('companyMenu')">
       <span class="flex items-center space-x-3">
@@ -154,7 +166,7 @@
   </li>
 
   <!-- Department with Sub-items -->
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('departmentMenu')">
       <span class="flex items-center space-x-3">
@@ -181,7 +193,7 @@
     </ul>
 
   </li>
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md"
       routerLink="users/list">
       <i class="fa-solid fa-users"></i>

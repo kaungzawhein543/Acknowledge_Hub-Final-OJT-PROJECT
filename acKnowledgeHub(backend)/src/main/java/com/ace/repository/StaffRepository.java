@@ -2,6 +2,8 @@ package com.ace.repository;
 
 import com.ace.dto.*;
 import com.ace.entity.Staff;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,12 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     @Query("SELECT s FROM Staff s where s.email = :email")
     public Staff findByEmail(@Param("email") String email);
+
+    @Query("SELECT s FROM Staff s WHERE s.id IN :ids")
+    List<Staff> findStaffsByIds(List<Integer> ids);
+
+    @Query("SELECT s.chatId FROM Staff s WHERE s.id IN :ids")
+    List<String> findStaffsChatIdByIds(List<Integer> ids);
 
 
     public Optional<Staff> findByChatId(String id);
@@ -48,6 +56,17 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     Staff findByCompanyStaffId(String staffId);
 
     Optional<Staff> findByName(String name);
+
+    Page<Staff> findAll(Pageable pageable);
+
+    @Query("SELECT s FROM Staff s WHERE " +
+            "LOWER(s.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(s.position.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(s.department.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(s.company.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    Page<Staff> searchByTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+
 
     List<Staff> findByPositionId(Integer positionId);
 
