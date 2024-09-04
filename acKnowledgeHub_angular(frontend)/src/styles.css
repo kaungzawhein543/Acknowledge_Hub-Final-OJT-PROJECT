@@ -5,3 +5,21 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Define the fade-out animation */
+@keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+  
+  /* Apply animation to the toast */
+  .toast-fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+  }
+  

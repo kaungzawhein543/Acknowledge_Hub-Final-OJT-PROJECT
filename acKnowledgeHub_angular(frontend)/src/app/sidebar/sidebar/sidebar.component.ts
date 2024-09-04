@@ -25,6 +25,7 @@ import { map } from 'rxjs/operators';
 })
 export class SidebarComponent implements OnInit, AfterViewInit {
   isAdmin = false;
+  isMainHr = false;
   isHr = false;
   isSidebarOpen = true;
   private currentOpenMenu: string | null = null;
@@ -76,7 +77,12 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     )
     this.authService.hasPostion("HR_MAIN").subscribe(
       (data) =>{
-        this.isHr = data;
+        this.isMainHr = data;
+        this.authService.hasPostion("HR").subscribe(
+          (data) =>{
+              this.isHr = data;
+          }
+        )
       }
     )
   }

@@ -1,6 +1,7 @@
 package com.ace.dto;
 
 import com.ace.entity.*;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,4 +26,6 @@ public class AnnouncementDTO {
     private List<Group> group;
     private List<Department> department;
     private List<Company> company;
+    private byte groupStatus;
+    private int forRequest;
 }

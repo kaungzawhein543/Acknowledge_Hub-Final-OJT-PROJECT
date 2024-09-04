@@ -12,7 +12,6 @@ import { UpdateAnnouncementComponent } from './announcement/update-announcement/
 import { AddCategoryComponent } from './category/add-category/add-category.component';
 import { SidebarComponent } from './sidebar/sidebar/sidebar.component';
 import { NavbarComponent } from './navbar/navbar/navbar.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { MychartComponent } from './mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
@@ -45,11 +44,17 @@ import { AddPasswordComponent } from './user/add-password/add-password.component
 import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { HideEmailPipe } from './pipe/hide-email.pipe';
+import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    AnnouncementComponent,
+    AnnouncementComponent, 
     UpdateAnnouncementComponent,
     AddCategoryComponent,
     UpdateCategoryComponent,
@@ -75,14 +80,15 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     AddPasswordComponent,
     OtpInputComponent,
     OtpRequestComponent,
-    HideEmailPipe
+    HideEmailPipe,
+    RequestAnnouncementComponent
   ],
   imports: [
+    BrowserAnimationsModule, // required for toastr
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    BrowserAnimationsModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatPseudoCheckboxModule,
@@ -94,7 +100,10 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     MatOption,
     MatButtonToggleModule,
     ScrollingModule,
-    MatListOption
+    MatListOption,
+    MatPaginatorModule,
+    MatTableModule,
+    MatMenuModule
   ],
   providers: [
     provideClientHydration(),

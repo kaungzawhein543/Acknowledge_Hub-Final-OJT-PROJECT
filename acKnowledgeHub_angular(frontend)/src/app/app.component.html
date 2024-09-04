@@ -1,6 +1,9 @@
 <app-navbar *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page"></app-navbar>
 
 <div class="flex h-screen overflow-hidden bg-gray-300 " [ngClass]="{ 'login-page': isLoginPage && !isChangePasswordPage && !is404Page, 'app-container': !isLoginPage && !isChangePasswordPage && !is404Page,'notLoginPage':!isLoginPage && !isChangePasswordPage && !is404Page }" >
+  <!-- Toast Container -->
+  <div id="toast-container" ></div>
+
   <!-- Sidebar -->
   <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black ">
     <app-sidebar></app-sidebar>

@@ -1,19 +1,21 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Group } from '../../models/Group';
-import { Staff } from '../../models/staff';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AddAnnouncementComponent } from '../add-announcement/add-announcement.component';
+import { AnnouncementService } from '../../services/announcement.service';
 import { GroupService } from '../../services/group.service';
 import { CategoryService } from '../../services/category.service';
 import { StaffService } from '../../services/staff.service';
-import { AnnouncementService } from '../../services/announcement.service';
-import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { Group } from '../../models/Group';
+import { Staff } from '../../models/staff';
+import { announcement } from '../../models/announcement';
 
 @Component({
-  selector: 'app-add-announcement',
-  templateUrl: './add-announcement.component.html',
-  styleUrls: ['./add-announcement.component.css']
+  selector: 'app-request-announcement',
+  templateUrl: './request-announcement.component.html',
+  styleUrls: ['./request-announcement.component.css']
 })
-export class AddAnnouncementComponent implements OnInit {
+export class RequestAnnouncementComponent{
+
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
   
   groups: Group[] = [];
@@ -36,7 +38,7 @@ export class AddAnnouncementComponent implements OnInit {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-
+  currentHrCompany !: string;
 
   private page = 0;
   private pageSize = 20;
@@ -59,6 +61,7 @@ export class AddAnnouncementComponent implements OnInit {
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
+        this.currentHrCompany = data.company;
       }
     )
   }
@@ -87,24 +90,45 @@ export class AddAnnouncementComponent implements OnInit {
   }
 
   loadStaffs(): void {
-    if (this.isLoading || !this.hasMore) return;
+    if (this.isLoading || !this.hasMore) {
+      console.log('Skipping loadStaffs: isLoading=', this.isLoading, ', hasMore=', this.hasMore);
+      return;
+    }
   
     this.isLoading = true;
   
-    this.staffService.getStaffs(this.page,this.pageSize,this.searchTerm).subscribe(
+    const query = this.searchTerm.trim();
+    console.log('Searching for term:', query);
+  
+    this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
         this.isLoading = false;
-        
+        console.log('Received response:', response);
+  
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
-            ...staff,
-            position: this.extractPositionName(staff.position) // Extract only the name
-          }));
-
+          const processedStaffs = response.data.content
+            .filter((staff: { company: { name: string; }; }) => {
+              const companyName = staff.company.name;
+              const matchesCompany = companyName === this.currentHrCompany;
+              console.log('Staff company name:', companyName, 'Matches:', matchesCompany);
+              return matchesCompany;
+            })
+            .map((staff: { position: string; }) => {
+              const positionName = this.extractPositionName(staff.position);
+              console.log('Original position:', staff.position, 'Extracted position name:', positionName);
+              return {
+                ...staff,
+                position: positionName
+              };
+            });
+  
+          console.log('Processed staffs:', processedStaffs);
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
+          console.log('Updated page:', this.page, 'Has more:', this.hasMore);
         } else {
+          console.log('No valid content found.');
           this.hasMore = false;
         }
       },
@@ -114,6 +138,10 @@ export class AddAnnouncementComponent implements OnInit {
       }
     );
   }
+  
+  
+  
+  
   
 
   // Helper method to extract the position name
@@ -166,7 +194,7 @@ export class AddAnnouncementComponent implements OnInit {
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData,this.createStaffId).subscribe(
       response => {
-        console.log(response);
+
       },
       error => {
         console.error(error);
@@ -208,7 +236,6 @@ export class AddAnnouncementComponent implements OnInit {
 onStaffChange(event: Event): void {
   const target = event.target as HTMLInputElement;
   const selectedStaffId = target.value; // Get the selected staffId
-  console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
   
   const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
@@ -220,7 +247,6 @@ onStaffChange(event: Event): void {
     } else {
       this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
     }
-    console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
   } else {
     console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
   }
@@ -253,8 +279,7 @@ onFileChange(event: Event): void {
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
-    this.staffs = []; // Clear current staff list
-    console.log("This is A")
+    this.staffs = []; 
     this.loadStaffs(); // Reload staff with the search term
   }
   
@@ -265,7 +290,4 @@ onFileChange(event: Event): void {
       this.selectedOptionsBox = false;
     }
   }
-
-
-
 }

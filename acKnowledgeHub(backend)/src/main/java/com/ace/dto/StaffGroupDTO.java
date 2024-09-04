@@ -2,8 +2,10 @@ package com.ace.dto;
 
 import com.ace.entity.Department;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class StaffGroupDTO {
     private Integer staffId;
     private String name;
