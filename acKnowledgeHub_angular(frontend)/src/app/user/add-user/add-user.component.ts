@@ -8,9 +8,9 @@ import { CompanyService } from '../../services/company.service';
 import { Position } from '../../models/Position';
 import { Department } from '../../models/Department';
 import { Company } from '../../models/Company';
-import { Staff } from '../../models/staff';
 import { Role } from '../../models/ROLE';
 import { NgForm } from '@angular/forms';
+import { AddStaff } from '../../models/addStaff';
 
 @Component({
   selector: 'app-add-user',
@@ -23,7 +23,7 @@ export class AddUserComponent implements OnInit {
   departments: Department[] = [];
   companies: Company[] = [];
   filteredDepartments: Department[] = [];
-  staff: Staff = {
+  staff: AddStaff = {
     companyStaffId: '',
     email: '',
     name: '',

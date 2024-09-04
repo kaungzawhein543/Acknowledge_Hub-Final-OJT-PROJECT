@@ -54,8 +54,8 @@ import { FeedbackListComponent } from './announcement/feedback-list/feedback-lis
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
 
 
 @NgModule({
@@ -94,7 +94,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AddCompanyComponent,
     AddDepartmentComponent,
     AddPositionComponent,
-    FeedbackListComponent
+    FeedbackListComponent,
     RequestAnnouncementComponent
   ],
   imports: [

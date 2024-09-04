@@ -7,6 +7,7 @@ import { Department } from '../models/Department';
 import { StaffGroup } from '../models/staff-group';
 import { UnNotedUser } from '../models/un-noted-user';
 import { Staff } from '../models/staff';
+import { AddStaff } from '../models/addStaff';
 
 
 
@@ -20,7 +21,7 @@ export class StaffService {
 
   constructor(private http: HttpClient) { }
 
-  addStaff(staff: Staff): Observable<any> {
+  addStaff(staff: AddStaff): Observable<any> {
     return this.http.post(`${this.baseURL}/add`, staff);
   }
 

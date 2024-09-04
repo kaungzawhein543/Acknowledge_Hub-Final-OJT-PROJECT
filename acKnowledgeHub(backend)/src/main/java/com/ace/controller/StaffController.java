@@ -41,8 +41,9 @@ public class StaffController {
     private final CompanyService companyService;
     private final DepartmentService departmentService;
     private final PositionService positionService;
-private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService,PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler) {
+    private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
+
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
@@ -52,12 +53,12 @@ private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
     }
 
     @GetMapping("/list")
-    public List<StaffResponseDTO> getStaffList(){
+    public List<StaffResponseDTO> getStaffList() {
         return staffService.getStaffList();
     }
 
     @GetMapping("/active-list")
-    public List<ActiveStaffResponseDTO> getActiveStaffList(){
+    public List<ActiveStaffResponseDTO> getActiveStaffList() {
         return staffService.getActiveStaffList();
     }
 
@@ -81,7 +82,8 @@ private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding staff: " + e.getMessage());
         }
-    
+    }
+
     @GetMapping("/group-staff")
     public List<StaffGroupDTO> getStaffListByDepartmentId() {
         List<StaffGroupDTO> staffList = staffService.getStaffListForGroup();
@@ -103,7 +105,7 @@ private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
             staffList = staffService.getUnNotedStaffList(announcementId);
         }
         return staffList;
-        }
+    }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedResponse<StaffDTO>> getStaffs(
@@ -113,12 +115,11 @@ private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
         Page<StaffDTO> staffPage;
         if (searchTerm != null && !searchTerm.isEmpty()) {
             staffPage = staffService.searchStaffs(searchTerm, page, size);
-        }else{
+        } else {
             staffPage = staffService.getStaffs(page, size);
         }
 
-       PaginatedResponse<StaffDTO> response = new PaginatedResponse<>(staffPage);
+        PaginatedResponse<StaffDTO> response = new PaginatedResponse<>(staffPage);
         return ResponseEntity.ok(response);
     }
-
 }
