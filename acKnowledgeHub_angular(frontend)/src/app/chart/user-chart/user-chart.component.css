@@ -1,0 +1,73 @@
+/* Overall container to center and manage layout */
+.container {
+  max-width: 1200px; /* Set max-width for larger screens */
+  margin: 0 auto; /* Center the container */
+  padding: 20px; /* Add padding around the content */
+}
+
+/* Container for date pickers */
+.date-picker-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+/* Individual date picker styling */
+.date-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Styling for labels */
+.date-label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Styling for date inputs */
+.date-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.date-input:hover,
+.date-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold; /* Make labels stand out */
+}
+
+input[type="date"] {
+  width: 100%;
+  padding: 8px; /* Adjust padding for a smaller look */
+  border: 1px solid #ccc;
+  border-radius: 4px; /* Rounded corners for inputs */
+  box-sizing: border-box;
+  font-size: 14px; /* Slightly smaller font size */
+}
+
+.chart-container {
+  width: 100%; /* Make the container full width */
+  position: relative; /* Allow responsive sizing of canvas */
+}
+
+.myChart {
+  width: 100% !important; /* Force the canvas to take up full width */
+  height: 400px; /* Set a fixed height for the chart */
+  border: 1px solid #ddd; /* Add border for better visual separation */
+  border-radius: 8px; /* Rounded corners for canvas */
+  background-color: #f9f9f9; /* Light background color for the chart */
+}
+

@@ -1,11 +1,10 @@
 package com.ace.dto;
 
-import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 public class AnnouncementResponseDTO {
-    private Integer id;
+    private int id;
     private String title;
     private String description;
     private LocalDateTime createdAt;

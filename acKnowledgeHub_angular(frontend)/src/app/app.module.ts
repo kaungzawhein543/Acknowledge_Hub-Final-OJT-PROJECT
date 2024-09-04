@@ -13,7 +13,7 @@ import { AddCategoryComponent } from './category/add-category/add-category.compo
 import { SidebarComponent } from './sidebar/sidebar/sidebar.component';
 import { NavbarComponent } from './navbar/navbar/navbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { MychartComponent } from './mychart/mychart.component';
+import { MychartComponent } from './chart/mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
 import { ExcelImportComponent } from './excel-import/excel-import.component';
 import { LoginComponent } from './user/login/login.component';
@@ -57,6 +57,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
 
+import { UserChartComponent } from './chart/user-chart/user-chart.component';
+import { ProfileComponent } from './user/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -96,6 +98,8 @@ import { RequestAnnouncementComponent } from './announcement/request-announcemen
     AddPositionComponent,
     FeedbackListComponent,
     RequestAnnouncementComponent
+    UserChartComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

@@ -2,6 +2,7 @@ package com.ace.controller;
 
 import com.ace.dto.AnnouncementResponseDTO;
 import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
@@ -489,5 +490,11 @@ public ResponseEntity<Announcement> createAnnouncement(
     public List<AnnouncementResponseDTO> getPendingAnnouncement(){
         return announcement_service.getPendingAnnouncement();
     }
+    //Mapping for staffNotedAnnouncement
+    @GetMapping("/staff-counts")
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_service.getAnnouncementStaffCounts();
+    }
+
 
 }

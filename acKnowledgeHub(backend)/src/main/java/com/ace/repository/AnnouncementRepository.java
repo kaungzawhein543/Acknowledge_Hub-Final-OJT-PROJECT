@@ -2,6 +2,7 @@ package com.ace.repository;
 
 import com.ace.dto.AnnouncementResponseDTO;
 import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.Announcement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -59,5 +60,13 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("select NEW com.ace.dto.AnnouncementResponseDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name , a.file,  a.category.name) " +
             "from Announcement a WHERE a.isPublished = true ")
     List<AnnouncementResponseDTO> getPendingAnnouncement();
+    //Query for staffNotedAnnouncement
+    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
+            "FROM Announcement a " +
+            "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
+            "GROUP BY a.id, a.title, a.created_at")
+    List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
+
+
 
 }

@@ -35,12 +35,14 @@ import { FeedbackListComponent } from './announcement/feedback-list/feedback-lis
 import { AddAnnouncementComponent } from './announcement/add-announcement/add-announcement.component';
 import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
 import { ListAnnouncementComponent } from './announcement/list-announcement/list-announcement.component';
+import { ProfileComponent } from './user/profile/profile.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'change-password/:staffId', component: ChangepasswordComponent },
   { path: 'import-excel', component: ExcelImportComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
   { path: '404', component: Page404Component },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard,RoleGuard], data: {  roles: ['USER','ADMIN']  }},
   { path: 'otp-input', component: OtpInputComponent },
   { path: 'otp-request', component: OtpRequestComponent },
   { path: 'add-password', component: AddPasswordComponent },

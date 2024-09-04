@@ -2,6 +2,7 @@ package com.ace.service;
 
 import com.ace.dto.AnnouncementResponseDTO;
 import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
@@ -100,4 +101,9 @@ public class AnnouncementService {
     public List<AnnouncementResponseDTO> getPendingAnnouncement(){
         return announcement_repo.getPendingAnnouncement();
     }
+    //Method to get the staffnotedAnnoucement
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_repo.findAnnouncementStaffCounts();
+    }
+
 }

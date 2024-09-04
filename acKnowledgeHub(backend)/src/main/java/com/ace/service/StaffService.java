@@ -2,7 +2,11 @@ package com.ace.service;
 
 import com.ace.dto.*;
 import com.ace.entity.Group;
+import com.ace.entity.Announcement;
 import com.ace.entity.Staff;
+import com.ace.entity.StaffNotedAnnouncement;
+import com.ace.repository.AnnouncementRepository;
+import com.ace.repository.NotedRepository;
 import com.ace.repository.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +21,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Lazy
 public class StaffService implements UserDetailsService {
     private final StaffRepository staffRepository;
+    private final AnnouncementRepository announcement_repo;
+    private final NotedRepository notedRepository;
+    private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
+
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
 
-    public StaffService(StaffRepository staffRepository) {
+
+    public StaffService(StaffRepository staffRepository,AnnouncementRepository announcement_repo,NotedRepository notedRepository) {
         this.staffRepository = staffRepository;
+        this.announcement_repo = announcement_repo;
+        this.notedRepository = notedRepository;
     }
 
 
@@ -179,4 +191,64 @@ public class StaffService implements UserDetailsService {
     public List<ActiveStaffResponseDTO> getActiveStaffList(){
         return staffRepository.getActiveStaffList();
     }
+
+    public List<Map<String, Object>> getStaffCountByAnnouncement() {
+        return staffRepository.countStaffByAnnouncement();
+    }
+
+    public List<Announcement> getAnnouncementsByStaffId(int staffId) {
+        return staffRepository.findById(staffId)
+                .map(Staff::getAnnouncement)
+                .orElse(new ArrayList<>());
+    }
+
+    public Map<String, Long> getMonthlyAnnouncementCount(int staffId) {
+        List<Announcement> announcements = getAnnouncementsByStaffId(staffId);
+        Map<String, Long> monthlyCount = new HashMap<>();
+
+        // Count announcements per month
+        for (Announcement announcement : announcements) {
+            if (announcement.getScheduleAt() != null) {
+                String monthYear = String.format("%d-%02d",
+                        announcement.getScheduleAt().getYear(),
+                        announcement.getScheduleAt().getMonthValue());
+                monthlyCount.put(monthYear, monthlyCount.getOrDefault(monthYear, 0L) + 1);
+            }
+        }
+        return monthlyCount;
+    }
+
+    public Map<String, Long> getNotesCountByMonthForStaff(String staffId) {
+        // Get the staff member
+        Staff staff = findByStaffId(staffId);
+        if (staff == null) {
+            throw new IllegalArgumentException("Staff not found");
+        }
+
+        // Get all notes for the staff
+        List<StaffNotedAnnouncement> notedAnnouncements = notedRepository.findByStaff(staff);
+
+        // Collect counts of notes by month
+        return notedAnnouncements.stream()
+                .filter(note -> {
+                    Announcement announcement = note.getAnnouncement();
+                    LocalDateTime announcementDate = announcement.getScheduleAt();
+                    LocalDateTime notedDate = note.getNotedAt().toLocalDateTime();
+
+                    // Check if the months match
+                    return announcementDate.getMonth().equals(notedDate.getMonth())
+                            && announcementDate.getYear() == notedDate.getYear();
+                })
+                .collect(Collectors.groupingBy(
+                        note -> {
+                            Announcement announcement = note.getAnnouncement();
+                            LocalDateTime announcementDate = announcement.getScheduleAt();
+                            return MONTH_FORMATTER.format(announcementDate);
+                        },
+                        Collectors.counting()
+                ));
+    }
+
+
+
 }
