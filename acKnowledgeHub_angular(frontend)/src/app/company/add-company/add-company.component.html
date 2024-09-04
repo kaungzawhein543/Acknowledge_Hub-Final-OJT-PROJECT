@@ -1,1 +1,28 @@
-<p>add-company works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
+        <p class="text-3xl font-bold text-gray-800 text-center mb-6">
+            Add Company
+        </p>
+        <form #companyForm="ngForm" (ngSubmit)="onSubmit(companyForm)" class="space-y-6">
+            <div>
+                <label for="companyStaffId" class="block text-gray-700 font-medium mb-2">
+                    Company Name
+                </label>
+            </div>
+
+            <input type="text" id="name" name="name" [(ngModel)]="company.name" required
+                class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+            <span *ngIf="companyForm.submitted && companyForm.controls['name'].errors">
+                <small class="error" *ngIf="companyForm.controls['name'].errors?.['required']">
+                    <i class="fa-solid fa-circle-exclamation"></i>Company Name is required
+                </small>
+            </span>
+
+            <button type="submit"
+                class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                ADD
+            </button>
+
+        </form>
+    </div>
+</div>

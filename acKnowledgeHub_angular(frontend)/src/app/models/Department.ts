@@ -1,5 +1,7 @@
-export interface Department{
+import { Company } from "./Company";
+
+export interface Department {
     id: number;
     name: string;
-    companyId: number;
+    company: Company;
 }

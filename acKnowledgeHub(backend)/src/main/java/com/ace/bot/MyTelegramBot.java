@@ -171,7 +171,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         editMessage.setText("You have noted");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("Noted");
+        button.setText("✅Noted");
         button.setCallbackData("button:done");
         List<InlineKeyboardButton> row = Arrays.asList(button);
         List<List<InlineKeyboardButton>> keyboard = Arrays.asList(row);

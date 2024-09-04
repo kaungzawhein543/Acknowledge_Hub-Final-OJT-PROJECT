@@ -94,13 +94,12 @@ export class AddAnnouncementComponent implements OnInit {
     this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
-
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
             ...staff,
             position: this.extractPositionName(staff.position) // Extract only the name
           }));
-
+          console.log(this.staffs)
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
@@ -116,14 +115,15 @@ export class AddAnnouncementComponent implements OnInit {
   }
 
 
-  // Helper method to extract the position name
-  extractPositionName(position: string): string {
+  extractPositionName(position: string | null): string {
     if (!position) {
-      return "";
+      return ''; // or handle null/empty string appropriately
     }
-    const match = position.match(/Position\(id=\d+, name=(.*?)\)/);
+
+    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
     return match ? match[1] : position;
   }
+
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
@@ -257,7 +257,6 @@ export class AddAnnouncementComponent implements OnInit {
     this.page = 0; // Reset pagination
     this.hasMore = true;
     this.staffs = []; // Clear current staff list
-    console.log("This is A")
     this.loadStaffs(); // Reload staff with the search term
   }
 

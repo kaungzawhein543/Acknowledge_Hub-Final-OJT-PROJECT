@@ -15,24 +15,21 @@ export class GroupService {
 
   constructor(private http: HttpClient) { }
 
-  getAllCompanies(): Observable<Company[]> {
-    return this.http.get<Company[]>(`${this.apiUrl}/companies`);
-  }
 
   getAllGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.apiUrl}/group`, { withCredentials: true });
   }
-  
 
-  
+
+
   createGroup(userIds: number[], groupName: string): Observable<string> {
     const encodedGroupName = encodeURIComponent(groupName);
 
     const url = `${this.apiUrl}/group/create?name=${encodedGroupName}`;
 
-    return this.http.post(url, userIds, { 
+    return this.http.post(url, userIds, {
       responseType: 'text', // Expect plain text response
-      withCredentials: true 
+      withCredentials: true
     })
       .pipe(
         catchError((error: HttpErrorResponse) => {
@@ -47,11 +44,4 @@ export class GroupService {
     return this.http.get<Department[]>(`${this.apiUrl}/departments/${companyId}`);
   }
 
-  getPositionsByDepartment(departmentId: number): Observable<Position[]> {
-    return this.http.get<Position[]>(`${this.apiUrl}/positions/${departmentId}`);
-  }
-
-  getStaffByPosition(positionId: number): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/staffs/${positionId}`);
-  }
 }

@@ -62,6 +62,7 @@ export class RequestAnnouncementComponent {
       data => {
         this.createStaffId = data.user.id;
         this.currentHrCompany = data.company;
+        console.log(this.currentHrCompany)
       }
     )
   }
@@ -141,15 +142,12 @@ export class RequestAnnouncementComponent {
 
 
 
-
-
-
-  // Helper method to extract the position name
-  extractPositionName(position: string): string {
+  extractPositionName(position: string | null): string {
     if (!position) {
-      return "";
+      return ''; // or handle null/empty string appropriately
     }
-    const match = position.match(/Position\(id=\d+, name=(.*?)\)/);
+
+    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
     return match ? match[1] : position;
   }
 
