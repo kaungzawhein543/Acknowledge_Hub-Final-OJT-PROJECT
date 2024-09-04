@@ -27,6 +27,7 @@ import { ListUserComponent } from './user/list-user/list-user.component';
 import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { AddPasswordComponent } from './user/add-password/add-password.component';
+import { ProfileComponent } from './user/profile/profile.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -39,6 +40,8 @@ const routes: Routes = [
   { path: 'admindashboard', component: AdminDashboardComponent, canActivate: [AuthGuard,RoleGuard],data: { roles: ['ADMIN']} },
   { path: 'hr-dashboard', component: HRdashboardComponent, canActivate: [AuthGuard,RoleGuard],data: { roles: ['USER'], positions: ['HR_MAIN'] } },
   { path: 'staff-dashboard', component: DashboardComponent, canActivate: [AuthGuard,RoleGuard], data: {  roles: ['USER'], excludedRoles: ['ADMIN'],excludedPositions: ['HR_MAIN']  }},
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard,RoleGuard], data: {  roles: ['USER','ADMIN']  }},
+
   { path: 'add-category', component: AddCategoryComponent, canActivate: [AuthGuard,RoleGuard],data: { roles: ['ADMIN']}},
   { path: 'list-category', component: ListCategoryComponent, canActivate: [AuthGuard,RoleGuard],data: { roles: ['ADMIN']} },
   { path: 'update-category/:id', component: UpdateCategoryComponent,  canActivate: [AuthGuard,RoleGuard],data: { roles: ['ADMIN']} },

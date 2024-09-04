@@ -1,0 +1,30 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <img src="assets/images/profile.jpg" alt="Default User" class="profile-image" />
+    <h3>{{ profile?.name }}</h3>
+    <p class="position">{{ profile?.position }}</p>
+  </div>
+  
+  <div class="profile-details">
+    <div class="details-row">
+      <div class="details-column">
+        <h4>Full Name</h4>
+        <p>{{ profile?.name }}</p>
+        
+        <h4>Email</h4>
+        <p>{{ profile?.email }}</p>
+      </div>
+      <div class="details-column">
+        <h4>Company</h4>
+        <p>{{ profile?.company }}</p>
+        
+        <h4>Department</h4>
+        <p>{{ profile?.department }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!profile">
+  <p>Loading profile data...</p>
+</div>

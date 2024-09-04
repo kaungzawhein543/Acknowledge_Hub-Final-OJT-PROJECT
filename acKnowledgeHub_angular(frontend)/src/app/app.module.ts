@@ -14,7 +14,7 @@ import { SidebarComponent } from './sidebar/sidebar/sidebar.component';
 import { NavbarComponent } from './navbar/navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { MychartComponent } from './mychart/mychart.component';
+import { MychartComponent } from './chart/mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
 import { ExcelImportComponent } from './excel-import/excel-import.component';
 import { LoginComponent } from './user/login/login.component';
@@ -45,6 +45,8 @@ import { AddPasswordComponent } from './user/add-password/add-password.component
 import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { HideEmailPipe } from './pipe/hide-email.pipe';
+import { UserChartComponent } from './chart/user-chart/user-chart.component';
+import { ProfileComponent } from './user/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +77,9 @@ import { HideEmailPipe } from './pipe/hide-email.pipe';
     AddPasswordComponent,
     OtpInputComponent,
     OtpRequestComponent,
-    HideEmailPipe
+    HideEmailPipe,
+    UserChartComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

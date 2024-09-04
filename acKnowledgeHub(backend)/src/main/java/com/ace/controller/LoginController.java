@@ -3,6 +3,7 @@ package com.ace.controller;
 import com.ace.dto.ChangePasswordRequest;
 import com.ace.dto.LoginRequest;
 import com.ace.dto.LoginUserInfo;
+import com.ace.dto.ProfileDTO;
 import com.ace.entity.Staff;
 import com.ace.service.StaffService;
 import com.ace.service.TokenBlacklistService;
@@ -168,5 +169,67 @@ public class LoginController {
 
         return ResponseEntity.ok("Logged out successfully");
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(HttpServletRequest request) {
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token != null) {
+            try {
+                // Parse the JWT token
+                Claims claims = Jwts.parserBuilder()
+                        .setSigningKey(jwtSecret)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+
+                String staffId = claims.getSubject();
+
+                // Check if the token is blacklisted
+                if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is blacklisted. Please log in again.");
+                }
+
+                // Retrieve the staff member by their ID
+                Staff staff = staffService.findByStaffId(staffId);
+                if (staff != null) {
+                    // Map Staff entity to StaffProfileDTO
+                    ProfileDTO profileDTO = new ProfileDTO(
+                            staff.getId(),
+                            staff.getName(),
+                            staff.getCompanyStaffId(),
+                            staff.getEmail(),
+                            staff.getStatus(),
+                            staff.getRole(),
+                            staff.getPosition().getName(),
+                            staff.getDepartment().getName(),
+                            staff.getCompany().getName(),
+                            staff.getCreatedAt(),
+                            staff.getChatId()
+                    );
+
+                    return ResponseEntity.ok(profileDTO);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found.");
+                }
+            } catch (JwtException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");
+    }
+
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.ace.controller;
 
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
@@ -302,6 +303,12 @@ public class AnnouncementController {
             // Handle errors appropriately
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    //Mapping for staffNotedAnnouncement
+    @GetMapping("/staff-counts")
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_service.getAnnouncementStaffCounts();
     }
 
 

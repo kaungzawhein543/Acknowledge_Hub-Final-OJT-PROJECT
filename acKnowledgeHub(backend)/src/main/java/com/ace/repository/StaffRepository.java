@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -45,4 +46,9 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , p.name, s.department ) FROM Staff s JOIN Position p on p.id = s.position.id")
     List<StaffGroupDTO> getStaffListForGroup();
+
+    @Query(value = "SELECT sa.announcement_id AS announcementId, COUNT(sa.staff_id) AS staffCount " +
+            "FROM staff_has_announcement sa " +
+            "GROUP BY sa.announcement_id", nativeQuery = true)
+    List<Map<String, Object>> countStaffByAnnouncement();
 }

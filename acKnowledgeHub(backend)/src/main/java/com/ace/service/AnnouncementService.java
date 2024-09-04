@@ -1,5 +1,6 @@
 package com.ace.service;
 
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,11 @@ public class AnnouncementService {
     // Method to get published announcements
     public List<Announcement> getPublishedAnnouncements() {
         return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
+    }
+
+    //Method to get the staffnotedAnnoucement
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_repo.findAnnouncementStaffCounts();
     }
 
 }

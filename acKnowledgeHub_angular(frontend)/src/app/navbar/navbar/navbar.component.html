@@ -42,12 +42,12 @@
         <button class="relative hover:bg-gray-100 rounded-full px-3" (click)="toggleDropdown()">
           <div class="flex items-center justify-evenly w-50 space-x-4">
             <strong>Junior Developer</strong>
-            <img class="w-10 h-10 rounded-full" src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg" alt="Profile">
+            <img class="w-10 h-10 rounded-full" src="assets/images/profile.jpg" alt="Profile">
           </div>
         </button>
         <!-- Dropdown menu -->
         <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-          <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+          <a routerLink="profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
           <a (click)="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
         </div>
       </div>
