@@ -46,11 +46,9 @@ public class AnnouncementController {
     private final StaffService staffService;
     private final EmailService emailService;
     private final GroupService groupService;
-    private final ReqAnnouncementService reqAnnouncementService;
-    private final AnnouncementForReqService announcementForReqService;
     private final UserNotedAnnouncementService userNotedAnnouncementService;
 
-    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, GroupService groupService, ReqAnnouncementService reqAnnouncementService, AnnouncementForReqService announcementForReqService, UserNotedAnnouncementService userNotedAnnouncementService) {
+    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, GroupService groupService, UserNotedAnnouncementService userNotedAnnouncementService) {
         this.announcement_service = announcement_service;
         this.cloudinaryService = cloudinaryService;
         this.mapper = mapper;
@@ -61,8 +59,6 @@ public class AnnouncementController {
         this.staffService = staffService;
         this.emailService = emailService;
         this.groupService = groupService;
-        this.reqAnnouncementService = reqAnnouncementService;
-        this.announcementForReqService = announcementForReqService;
         this.userNotedAnnouncementService = userNotedAnnouncementService;
     }
 
@@ -313,8 +309,8 @@ public ResponseEntity<Announcement> createAnnouncement(
 
                     // Check if the announcement is for a request
 //                    if (forRequest != null) {
-                        AnnouncementForReq announcementForReq = new AnnouncementForReq();
-                        announcementForReq.setAnnouncement(updateFileUrlAnnounce);
+//                        AnnouncementForReq announcementForReq = new AnnouncementForReq();
+//                        announcementForReq.setAnnouncement(updateFileUrlAnnounce);
 
 //                        ReqAnnouncement reqAnnouncement = reqAnnouncementService.getById(requestId);
 //                        announcementForReq.setRequestAnnouncement(reqAnnouncement);

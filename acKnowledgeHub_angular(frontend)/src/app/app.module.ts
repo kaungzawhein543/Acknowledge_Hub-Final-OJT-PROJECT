@@ -97,7 +97,7 @@ import { ProfileComponent } from './user/profile/profile.component';
     AddDepartmentComponent,
     AddPositionComponent,
     FeedbackListComponent,
-    RequestAnnouncementComponent
+    RequestAnnouncementComponent, 
     UserChartComponent,
     ProfileComponent
   ],
