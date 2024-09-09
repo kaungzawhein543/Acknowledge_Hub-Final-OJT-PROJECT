@@ -49,6 +49,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
+import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import { MatMenuModule } from '@angular/material/menu';
     AddPasswordComponent,
     OtpInputComponent,
     OtpRequestComponent,
-    HideEmailPipe
+    HideEmailPipe,
+    DetailAnnouncementComponent
   ],
   imports: [
     BrowserModule,

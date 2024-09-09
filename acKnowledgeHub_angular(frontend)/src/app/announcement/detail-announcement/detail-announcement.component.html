@@ -1,0 +1,74 @@
+<div class="container bg-gray-100 w-full h-full p-10 pt-5 rounded-md">
+ <div class="w-9/12 flex mx-auto flex-col  border-b border-black ">
+     <!-- Header Section -->
+  <div class="relative bg-gradient-to-r from-blue-800 to-blue-800 text-white p-8 rounded-t-lg flex justify-between shadow-lg">
+    <div>
+      <span class="text-3xl font-extrabold text-center text-white drop-shadow-md tracking-wide font-poppins">
+        Detail Announcement
+      </span>
+    </div>
+    <div class="relative flex flex-col justify-end">
+      <span class="absolute text-sm font-semibold text-white opacity-50 -top-4 left-16">created_by:</span>
+      <span class="text-white text-3xl font-semibold">John Doe</span>
+    </div>
+  </div>
+  
+
+  <!-- Flex container for main content -->
+  <div class="flex flex-col bg-white p-6 rounded-b-lg shadow-lg space-y-4  ">
+          <!-- Date Section -->
+          <div class="flex flex-row-reverse justify-between items-start mb-3 border-b border-gray-400">
+            <!-- Date and Category Container -->
+            <div class="flex flex-col space-y-2">
+              <div class="flex items-center justify-end space-x-2">
+                <i class="fas fa-calendar-alt"></i>
+                <b><span>{{ announcement.date | date: 'medium' }}</span></b>
+              </div>
+              <div class="flex flex-col items-start space-y-1">
+                <span class="text-xl font-bold text-black min-w-[200px]  text-end"><span class="open-sans ">Category</span> : Training Sessions</span>
+              </div>
+            </div>
+          
+            <!-- Company-Wide Section -->
+            <div class="flex flex-col items-center gap-0 space-x-1.5 mb-6">
+              <p class="text-gray-800 text-3xl font-semibold uppercase roboto-black" style="word-spacing: 1px !important;">New Employee Orientation Scheduled</p>
+            </div>
+          </div>
+          
+
+          <!-- Description Section -->
+          <div class="space-y-2 ">
+
+            
+              <div class="flex items-start flex-col space-x-4 gap-10">
+                  <p class="text-black  text-xl tracking-wide border-1 border-gray-50 text-justify ">
+                      The Q2 financial report has been published, detailing the company's revenue, expenses, and profit margins. This
+                      document outlines key metrics and provides insights into the company's performance over the past quarter.
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim illo consequuntur dicta, labore facilis ducimus non cum minus dolores ipsum magni dolore? Odio, quidem quia vel in necessitatibus aliquid fugiat!
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia repudiandae quam velit nihil autem ratione harum maxime iste ducimus adipisci sed, aspernatur dolore vel temporibus labore. Quis corporis itaque expedita?
+                  </p>
+              </div>
+
+              <div class="flex items-center mt-4 text-gray-700">
+                <i class="fas fa-file-alt mr-2"></i>
+                <span>Attached File: <a href="#" class="text-blue-600 underline">Download</a></span>
+              </div>
+        
+          </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end space-x-4 mt-6">
+          <button
+              class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 transform hover:scale-105"
+              (click)="editAnnouncement()">
+              <i class="fas fa-edit mr-1"></i>Edit
+          </button>
+          <button
+              class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded transition duration-200 transform hover:scale-105"
+              (click)="deleteAnnouncement()">
+              <i class="fas fa-trash mr-1"></i>Delete
+          </button>
+      </div>
+  </div>
+ </div>
+</div>

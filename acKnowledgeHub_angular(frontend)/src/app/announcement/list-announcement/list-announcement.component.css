@@ -42,4 +42,18 @@ p.data-grid-options {
   .checkbox-item {
     margin-bottom: 5px; /* Spacing between checkboxes */
   }
- 
+ /* Center headers */
+.header-center {
+    text-align: left;
+  }
+  
+  /* Right-align cell data */
+  .data-right {
+    text-align: left;
+  }
+  
+  /* Optional: Adjust padding and spacing if needed */
+  .mat-header-cell, .mat-cell {
+    padding: 8px;
+  }
+  

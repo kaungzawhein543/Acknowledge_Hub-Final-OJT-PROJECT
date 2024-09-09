@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
@@ -8,7 +7,6 @@ import { announcement } from '../../models/announcement';
 import { AnnouncementService } from '../../services/announcement.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormsModule } from '@angular/forms'; // For ngModel
 
 @Component({
   selector: 'app-list-announcement',
@@ -25,12 +23,11 @@ export class ListAnnouncementComponent implements OnInit {
   startDateTime: string | null = null;
   endDateTime: string | null = null;
   todayDate: string | undefined;
+  
   activeChecked = false;
   inactiveChecked = false;
-
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
-
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
@@ -41,13 +38,12 @@ export class ListAnnouncementComponent implements OnInit {
     { field: 'scheduleAt', header: 'Schedule At' },
   ];
 
-  columnVisibility: { [key: string]: boolean } = {};
+   columnVisibility: { [key: string]: boolean } = {};
+  
   selectedColumns = this.columns.map(col => col.field);
 
   constructor(
     private announcementService: AnnouncementService,
-    private router: Router,
-    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -65,8 +61,9 @@ export class ListAnnouncementComponent implements OnInit {
       (data) => {
         this.announcements = data.map((item, index) => ({
           ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        }));        this.filteredAnnouncements = data;
+          autoNumber: this.generateAutoNumber(index + 1)
+        }));    
+        this.filteredAnnouncements = data;
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
@@ -139,25 +136,41 @@ export class ListAnnouncementComponent implements OnInit {
     }
   }
 
-  generatePDF(announcements: announcement[], filename: string) {
+  generatePDF(announcements: any[], filename: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    // Define column headers and data rows
     const headers = visibleColumns.map(col => col.header);
     const rows = announcements.map(announcement =>
       visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], announcement) || '')
     );
 
+    // Calculate column widths based on content length or set manually
+    const columnWidths = visibleColumns.map(col => {
+      return col.field === 'description' ? 60 : 30; // Adjust widths as needed
+    });
+
+    // Use autoTable to generate the table in PDF
     autoTable(doc, {
       head: [headers],
       body: rows,
       startY: 20,
       margin: { top: 20 },
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
       headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
+      columnStyles: {
+        0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
+        1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+        // Add more column styles as needed
+      },
+      tableWidth: 'auto', // Auto width adjustment for table
     });
 
+    // Save the PDF file
     doc.save(filename);
-  }
+}
+
 
   generateExcel(announcements: announcement[], fileName: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
@@ -199,4 +212,13 @@ export class ListAnnouncementComponent implements OnInit {
     this.selectedColumns = visibleColumns.map(col => col.field);
     this.dataSource.data = [...this.filteredAnnouncements];
   }
+
+  formatDateTime(datetime: string): string {
+    const date = new Date(datetime);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }
+  
 }
