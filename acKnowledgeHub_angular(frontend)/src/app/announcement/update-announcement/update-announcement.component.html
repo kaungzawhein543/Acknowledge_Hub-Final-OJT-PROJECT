@@ -1,17 +1,21 @@
 <div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full">
-    <div class="flex justify-between border-b border-gray-300 mb-2">
-      <h2 class="text-4xl font-bold mb-10 text-gray-900 roboto-bold  text-center" >Create Announcement</h2>
-      <div>
-        <!-- Schedule Date -->
-        <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
-        <input
-          id="scheduleDate"
-          [(ngModel)]="scheduleDate"
-          name="scheduleDate"
-          type="datetime-local"
-          class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
-      </div>
+  <div class="flex justify-between border-b border-gray-300 mb-2">
+    <span class="text-4xl font-semibold mb-10 text-gray-900 roboto-bold  text-center" >Update Announcement</span>
+    <div>
+      <!-- Schedule Date -->
+      <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
+      <input
+      id="scheduleDate"
+      [(ngModel)]="scheduleDate"
+      name="scheduleDate"
+      type="datetime-local"
+      class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
     </div>
+  </div>
+  <div class="border-2 border-gray-300 p-2 rounded-lg">
+    <span style="backdrop-filter: blur;">Previous Announce File </span>
+    <a class="text-blue-600 underline hover:text-blue-800" [href]="downloadUrl" target="_blank" download>Download</a>
+  </div>
     <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">
       <!-- Title and Description -->
       <div class="col-span-6 flex flex-col">
@@ -164,11 +168,13 @@
     <div class="overflow-auto">
       <div *ngFor="let staff of staffs" class="flex items-center p-2">
         <input
-          type="checkbox" 
-          [value]="staff.staffId"
-          (change)="onStaffChange($event)"
-          class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-        />
+
+        type="checkbox"   
+        [value]="staff.staffId"
+        [checked]="staff.selected"  
+        (change)="onStaffChange($event)"
+        class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+      />
         <label class="ml-3 text-gray-700 flex-1">
           <div>
             {{ staff.name }} ({{ staff.position }})

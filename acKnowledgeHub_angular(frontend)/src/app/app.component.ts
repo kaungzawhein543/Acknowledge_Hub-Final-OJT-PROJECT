@@ -1,9 +1,11 @@
-import { Component, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, HostListener, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { SidebarService } from './services/sidebar.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, debounceTime } from 'rxjs';
 import { Subject } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { LoadingService } from './services/loading.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -18,10 +20,12 @@ export class AppComponent implements OnInit {
   is404Page = false;
   screenWidth: number = 0;
   resizeSubject = new Subject<void>();
-
-  constructor(private sidebarService: SidebarService, private router: Router,@Inject(PLATFORM_ID) private platformId: Object) { }
+  isLoading = true;
+  
+  constructor(    private authService: AuthService,private sidebarService: SidebarService, private router: Router,@Inject(PLATFORM_ID) private platformId: Object,private loadingService:LoadingService) { }
 
   ngOnInit(): void {
+    this.loadingService.show(); 
     if (isPlatformBrowser(this.platformId)) {
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
@@ -41,8 +45,15 @@ export class AppComponent implements OnInit {
       ).subscribe(() => {
         this.updateSidebarState();
       });
+      this.authService.isLoggedIn().subscribe(isAuthenticated => {
+        this.isLoading = false;
+        this.loadingService.hide();
+        if (!isAuthenticated) {
+          this.router.navigate(['/login']);
+        }
+      });
     }
-
+    
   }
 
   @HostListener('window:resize', ['$event'])

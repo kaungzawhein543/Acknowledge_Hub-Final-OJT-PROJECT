@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -86,5 +87,9 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
             "from Staff s where s.status = 'active' ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
-
+    
+    @Query(value = "SELECT sa.announcement_id AS announcementId, COUNT(sa.staff_id) AS staffCount " +
+            "FROM staff_has_announcement sa " +
+            "GROUP BY sa.announcement_id", nativeQuery = true)
+    List<Map<String, Object>> countStaffByAnnouncement();
 }

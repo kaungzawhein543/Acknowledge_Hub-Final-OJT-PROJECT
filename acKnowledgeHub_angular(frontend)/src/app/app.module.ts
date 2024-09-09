@@ -13,7 +13,7 @@ import { AddCategoryComponent } from './category/add-category/add-category.compo
 import { SidebarComponent } from './sidebar/sidebar/sidebar.component';
 import { NavbarComponent } from './navbar/navbar/navbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { MychartComponent } from './mychart/mychart.component';
+import { MychartComponent } from './chart/mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
 import { ExcelImportComponent } from './excel-import/excel-import.component';
 import { AuthGuard } from './guard/auth.guard';
@@ -61,6 +61,10 @@ import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { LoginComponent } from './user/login/login.component';
 import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
 
+import { UserChartComponent } from './chart/user-chart/user-chart.component';
+import { ProfileComponent } from './user/profile/profile.component';
+import { LoaderComponent } from './loader/loader/loader.component';
+import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
 
 @NgModule({
   declarations: [
@@ -104,6 +108,10 @@ import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
     OtpInputComponent,
     OtpRequestComponent,
     AddHRMainComponent
+    UserChartComponent,
+    ProfileComponent,
+    LoaderComponent,
+    DetailAnnouncementComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

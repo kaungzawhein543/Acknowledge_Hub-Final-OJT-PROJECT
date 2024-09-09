@@ -4,6 +4,7 @@ import com.ace.dto.AnnouncementListDTO;
 import com.ace.dto.AnnouncementResponseListDTO;
 import com.ace.dto.AnnouncementVersionDTO;
 import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.Announcement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,6 +30,12 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Transactional
     @Query("update Announcement a set a.status = 'inactive' where a.id = ?1")
     void softDeleteAnnouncement(Integer id);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
+    List<Announcement> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
 
     @Query("select NEW com.ace.dto.StaffNotedResponseDTO(a.id , a.title , a.description, a.scheduleAt, sn.notedAt, a.createStaff.name) from Announcement a " +
@@ -67,7 +74,15 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 
     @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name,  a.category.name) " +
             "from Announcement a WHERE a.isPublished = true ")
-    List<AnnouncementResponseListDTO> getPendingAnnouncement();
+    List<AnnouncementResponseDTO> getPendingAnnouncement();
+    //Query for staffNotedAnnouncement
+    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
+            "FROM Announcement a " +
+            "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
+            "GROUP BY a.id, a.title, a.created_at")
+    List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
+
+
 
 
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file)  FROM Announcement a WHERE a.file like %?1%")

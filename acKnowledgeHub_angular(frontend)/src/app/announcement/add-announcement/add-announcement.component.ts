@@ -36,6 +36,7 @@ export class AddAnnouncementComponent implements OnInit {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
+  fileErrorMessage !: boolean;
 
 
   private page = 0;
@@ -94,8 +95,6 @@ export class AddAnnouncementComponent implements OnInit {
     this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
-        console.log("HERE ")
-        console.log(response);
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
             ...staff,
@@ -146,6 +145,7 @@ export class AddAnnouncementComponent implements OnInit {
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category: this.selectedCategory
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -166,6 +166,9 @@ export class AddAnnouncementComponent implements OnInit {
     // Append the selected file if any
     if (this.selectedFile) {
       formData.append('files', this.selectedFile);
+    }else{
+      this.fileErrorMessage = true;
+      return;
     }
 
     // Call the service to create the announcement
@@ -239,6 +242,7 @@ export class AddAnnouncementComponent implements OnInit {
       this.selectedFile = input.files[0];
       this.fileName = this.selectedFile.name;
       this.fileSelected = true;
+      this.fileErrorMessage = false;
     } else {
       this.selectedFile = null;
       this.fileName = '';
@@ -252,6 +256,8 @@ export class AddAnnouncementComponent implements OnInit {
 
     if (this.searchTerm) {
       this.filterStaffs();
+    }else{
+      this.resetStaffList();
     }
   }
 
@@ -260,6 +266,14 @@ export class AddAnnouncementComponent implements OnInit {
     this.hasMore = true;
     this.staffs = []; // Clear current staff list
     this.loadStaffs(); // Reload staff with the search term
+  }
+
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
   }
 
   showSelectedOptionBox(): void {

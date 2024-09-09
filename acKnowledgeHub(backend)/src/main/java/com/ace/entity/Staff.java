@@ -59,7 +59,7 @@ public class Staff implements UserDetails {
     @ManyToMany(mappedBy = "staff")
     private List<Group> groups;
     @ManyToMany(mappedBy = "staff")
-    private List<Announcement> announcement = new ArrayList<>();
+    private List<Announcement> announcement;
 
 
     @PrePersist

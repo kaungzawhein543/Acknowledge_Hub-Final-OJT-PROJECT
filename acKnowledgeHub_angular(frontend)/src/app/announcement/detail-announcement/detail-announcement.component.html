@@ -1,0 +1,127 @@
+<div class="container bg-gray-100 w-full h-fit min-h-full p-6 pt-4 rounded-md">
+    <div class="lg:w-9/12 md:w-10/12 sm:w-full flex mx-auto flex-col border-b border-gray-300">
+      <!-- Header Section -->
+      <div class="relative bg-gradient-to-r from-blue-700 to-blue-900 text-white p-6 rounded-t-lg flex justify-between items-center shadow-lg">
+        <span class="text-2xl font-extrabold tracking-wide font-poppins drop-shadow-md">Detail Announcement</span>
+        <div class="text-right">
+          <span class="block text-sm font-medium opacity-75">Created by:</span>
+          <span class="block text-xl font-semibold">John Doe</span>
+        </div>
+      </div>
+  
+      <!-- Main Content -->
+      <div class="flex flex-col bg-white p-5 rounded-b-lg shadow-lg space-y-6">
+        <!-- Date and Category Section -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-6 border-b pb-4 border-gray-200">
+          <div class="text-center lg:text-right">
+            <i class="fas fa-calendar-alt text-gray-500"></i>
+            <span class="text-md font-medium"> {{ announcement.date | date: 'medium' }}</span>
+          </div>
+          <div class="text-center lg:text-left mt-3 lg:mt-0">
+            <span class="text-md font-medium text-gray-800 me-2">Category: Training Sessions</span>
+            <button class="bg-white border-2 editbtn w-auto border-blue-300 hover:bg-blue-600 hover:text-white text-blue-400 py-2 px-2 rounded-md ">
+              <i class="fas fa-edit icon"></i>
+              <span class="edit-text">Edit</span>
+            </button>
+          </div>
+        </div>
+  
+        <!-- Title Section -->
+        <div class="text-center">
+          <p class="text-xl font-semibold text-gray-900 uppercase">New Employee Orientation Scheduled</p>
+        </div>
+  
+
+    
+        <!-- Description Section -->
+        <div class="text-justify space-y-4">
+          <p class="text-lg tracking-wide text-gray-700">
+            The Q2 financial report has been published, detailing the company's revenue, expenses, and profit margins. This document outlines key metrics and provides insights into the company's performance over the past quarter.
+          </p>
+          <div class="flex items-center text-gray-700">
+            <i class="fas fa-file-alt mr-2"></i>
+            <span class="text-sm">Attached File: <a href="#" class="text-blue-500 underline">Download</a></span>
+          </div>
+        </div>
+  
+        <!-- Action Buttons for Announcement -->
+
+        
+        <!-- Feedback Section -->
+        <div class="border-t pt-6 mt-6">
+            <!-- Feedbacks Report Buttons -->
+            <div class="flex justify-end relative">
+                <button
+                  class="bg-blue-800  text-white py-2 px-4 rounded hover:bg-blue-700"
+                  (click)="toggleReportDropdown()">
+                  Generate Report <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <!-- Dropdown for Report Types -->
+                <ul
+                  class="absolute right-2 w-41 bg-gray-100 text-black top-10 shadow-md rounded z-10"
+                  *ngIf="isReportDropdownOpen">
+                  <li
+                    class="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                  >
+                    <i class="fa-regular fa-file-pdf"></i> Generate PDF
+                  </li>
+                  <li
+                    class="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                    >
+                    <i class="fa-regular fa-file-excel"></i> Generate Excel
+                  </li>
+                </ul>
+              </div>
+          <!-- Feedback Header -->
+          <div class="flex flex-col mb-4">
+            <span class="text-lg font-bold text-gray-900">Feedbacks</span>
+            <!-- Feedback Form -->
+            <div class="bg-gray-50 p-3 rounded-lg shadow-inner">
+              <span class="block text-md font-semibold text-gray-800 mb-2">Leave your feedback:</span>
+              <form (ngSubmit)="submitFeedback()">
+                <div class="mb-2">
+                  <label for="feedback" class="block text-xs font-medium text-gray-700">Your Feedback:</label>
+                  <textarea id="feedback" [(ngModel)]="feedback" name="feedback" class="w-full mt-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2"></textarea>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white float-end py-1 px-3 rounded-md transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300">Submit</button>
+              </form>
+            </div>
+          </div>
+  
+          <!-- Display Feedbacks and Replies -->
+          <div class="space-y-4">
+            <!-- Feedback 1 -->
+            <div *ngFor="let feedback of feedbacks" class="bg-gray-100 p-3 rounded-lg shadow-md">
+              <div class="flex justify-between items-center text-sm">
+                <span class="font-semibold text-gray-800">{{ feedback.author }}</span>
+                <span class="text-xs text-gray-500">{{ feedback.timestamp | date:'short' }}</span>
+              </div>
+              <p class="text-gray-700 mt-1 text-sm">
+                {{ feedback.text }}
+              </p>
+              <!-- Reply Form -->
+              <div class="mt-2">
+                <button (click)="toggleReplyForm(feedback.id)" class="text-blue-500 text-xs hover:underline focus:outline-none">Reply</button>
+                <form *ngIf="replyFormsVisible[feedback.id]" (ngSubmit)="submitReply(feedback.id)" class="mt-2">
+                  <textarea [(ngModel)]="replyText[feedback.id]" name="reply" class="w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs" rows="2" placeholder="Write a reply..."></textarea>
+                  <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md mt-2 text-xs">Submit</button>
+                </form>
+              </div>
+  
+              <!-- Replies -->
+              <div *ngIf="feedback.replies && feedback.replies.length" class="mt-2 ml-4">
+                <div *ngFor="let reply of feedback.replies" class="bg-gray-50 p-2 rounded-lg shadow-inner">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-medium text-gray-700">{{ reply.author }}</span>
+                    <span class="text-xs text-gray-500">{{ reply.timestamp | date:'short' }}</span>
+                  </div>
+                  <p class="text-gray-700 mt-1 text-xs">{{ reply.text }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

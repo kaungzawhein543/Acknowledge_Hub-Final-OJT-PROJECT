@@ -4,9 +4,11 @@ import com.ace.dto.AnnouncementListDTO;
 import com.ace.dto.AnnouncementResponseListDTO;
 import com.ace.dto.AnnouncementVersionDTO;
 import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.AnnouncementStaffCountDTO;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +24,20 @@ public class AnnouncementService {
     }
 
     // Create a new announcement
+    @Transactional
     public Announcement createAnnouncement(Announcement announcement) {
         return announcement_repo.save(announcement);
     }
+
+    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
+        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+    }
+
+    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+    }
+
 
     // Read an announcement by ID
     public Optional<Announcement> getAnnouncementById(Integer id) {
@@ -107,4 +120,9 @@ public class AnnouncementService {
         String baseFileName = "Announce".concat(Integer.toString(id));
         return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
     }
+    //Method to get the staffnotedAnnoucement
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_repo.findAnnouncementStaffCounts();
+    }
+
 }

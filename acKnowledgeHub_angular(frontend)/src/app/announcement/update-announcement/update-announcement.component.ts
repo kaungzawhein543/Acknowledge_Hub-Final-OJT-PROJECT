@@ -7,7 +7,9 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
-
+import { ActivatedRoute } from '@angular/router';
+import { Category } from '../../models/category';
+import { toArray } from 'rxjs';
 
 @Component({
   selector: 'app-update-announcement',
@@ -37,32 +39,79 @@ export class UpdateAnnouncementComponent implements OnInit{
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-
+  public downloadUrl : string = 'https://res.cloudinary.com/djqxznfjm/raw/upload/v1725614114/';
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  announcementId : string | null ='';
+
 
   constructor(
     private groupService: GroupService, 
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService : AuthService
+    private authService : AuthService,
+    private route: ActivatedRoute
   ) {}
-
+  
   ngOnInit(): void {
+    this.announcementId = this.route.snapshot.paramMap.get('id');
     this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
+        this.announcementService.getAnnouncementById(Number(this.announcementId)).subscribe(
+          data =>{
+            this.announcementService.getLatestVersionAnnouncement("Announce"+this.announcementId).subscribe(
+              latestVersionUrl =>{
+                this.announcementService.getUrlOfAnnouncement(latestVersionUrl).subscribe(
+                  url =>{
+                    this.downloadUrl = url;
+                  }
+                )
+              }
+            )
+            this.announcementTitle = data.title;
+            this.announcementDescription = data.description;
+            const selectedCategory = this.categories.find(category => category.id === data.category.id);
+            if (selectedCategory) {
+              this.selectedCategory = selectedCategory;
+            } else {
+              console.log('Category not found');
+            }
+            if(data['group'].length > 0 ){
+              this.onOptionChange('group')
+            }else{
+              this.optionStaffOfGroup = "Staffs";
+              this.selectedStaffs = data['staff'];
+        
+              this.onOptionChange('staff');
+            }
+          }
+        )
       }
     )
   }
+  onStaffSelectionChange(staff: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const isChecked = inputElement.checked;
+  
+    if (isChecked) {
+      if (!this.selectedStaffs.some(s => s.id === staff.id)) {
+        this.selectedStaffs.push(staff);
+      }
+    } else {
+      this.selectedStaffs = this.selectedStaffs.filter(s => s.id !== staff.id);
+    }
+  }
+  
+  
 
   loadGroups() {
     this.groupService.getAllGroups().subscribe(
@@ -105,6 +154,9 @@ export class UpdateAnnouncementComponent implements OnInit{
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
           this.hasMore = false;
         }
@@ -138,6 +190,7 @@ export class UpdateAnnouncementComponent implements OnInit{
 
     // Create the announcement object
     const announcement = {
+      id: this.announcementId,
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
@@ -173,6 +226,13 @@ export class UpdateAnnouncementComponent implements OnInit{
         console.error(error);
       }
     );
+  }
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
   }
 
   
@@ -248,6 +308,8 @@ onFileChange(event: Event): void {
     
     if (this.searchTerm) {
       this.filterStaffs(); 
+    }else{
+      this.resetStaffList();
     }
   }
   

@@ -1,0 +1,21 @@
+<div class="date-picker-container">
+    <div class="date-picker">
+      <label for="startDate">Start Date:</label>
+      <input type="date" id="startDate"  [max]="getCurrentDate()" (change)="onStartDateChange($event)" />
+    </div>
+    
+    <div class="date-picker">
+      <label for="endDate">End Date:</label>
+      <input type="date" id="endDate"  [max]="getCurrentDate()" (change)="onEndDateChange($event)" />
+    </div>
+  </div>
+  
+  <div class="chart-container">
+    <div *ngIf="!showNoData">
+      <canvas id="combinedChart" class="myChart"></canvas>
+    </div>
+    <div *ngIf="showNoData" class="no-data-message">
+      No data available for the selected dates.
+    </div>
+  </div>
+  

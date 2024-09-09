@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @EnableAsync
@@ -61,10 +62,17 @@ public class AnnouncementController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Announcement> getAnnouncementById(@PathVariable int id) {
-        Announcement announcement = announcement_service.getAnnouncementById(id).orElseThrow();
-        return ResponseEntity.ok(announcement);
+    public ResponseEntity<AnnouncementDTO> getAnnouncementById(@PathVariable int id) {
+        return announcement_service.getAnnouncementById(id)
+                .map(announcement -> {
+                    // Create DTO and manually map required fields
+                    AnnouncementDTO dto = mapper.map(announcement, AnnouncementDTO.class);
+                    dto.setCreateStaff(announcement.getCreateStaff().getName());
+                    return ResponseEntity.ok(dto);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 
     @GetMapping("/getPublishedAnnouncements")
     public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
@@ -72,32 +80,74 @@ public class AnnouncementController {
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
+    // //    Create and update method (because update is also insert the row in database)
+    // @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // public ResponseEntity<Announcement> createAnnouncement(
+    //         @RequestPart AnnouncementDTO request,
+    //         @RequestPart(name = "userIds", required = false) List<Integer> userIds,
+    //         @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
+    //         @RequestPart(name = "files", required = false) List<MultipartFile> files,
+    //         @RequestParam(name = "createUserId") Integer createUserId) {
+    //     try {        // Find Create Staff From Announcement DTO
+    //         Staff user = staffService.findById(createUserId);
+
+
+    @GetMapping("/announcement-versions/{baseFileName}")
+    public List<Announcement> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
+        for(Announcement announce : announcement_service.getAllVersionsByFilePattern(baseFileName)){
+            System.out.println(announce.getFile());
+        }
+        return announcement_service.getAllVersionsByFilePattern(baseFileName);
+    }
+    @GetMapping("/announcement-get-url")
+    public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
+        // Step 1: Check if the fileName ends with '.pdf'
+        if(fileName.endsWith(".pdf")) {
+            // Step 2: Remove the '.pdf' extension from the fileName
+            fileName = fileName.substring(0, fileName.length() - 4);
+        }
+
+        // Step 3: Get the download URL by passing the modified file name to the Cloudinary service
+        String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
+
+        // Step 4: Return the URL in the response
+        return ResponseEntity.ok().body(Url);
+    }
+
+
+    @GetMapping("/announcement-latest-version/{fileName}")
+    public ResponseEntity<String> getLatestVersion(@PathVariable("fileName") String baseFileName){
+        Announcement resultAnnouncement = announcement_service.getLatestVersionByFilePattern(baseFileName);
+        if(resultAnnouncement.getFile().contains("documents")) {
+            resultAnnouncement.setFile(resultAnnouncement.getFile()+".pdf");
+            System.out.println(resultAnnouncement.getFile());
+        }
+        return ResponseEntity.ok().body(resultAnnouncement.getFile());
+    }
+
+
     //    Create and update method (because update is also insert the row in database)
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Announcement> createAnnouncement(
-            @RequestPart AnnouncementDTO request,
-            @RequestPart(name = "userIds", required = false) List<Integer> userIds,
-            @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
-            @RequestPart(name = "files", required = false) List<MultipartFile> files,
-            @RequestParam(name = "createUserId") Integer createUserId) {
-        try {        // Find Create Staff From Announcement DTO
-            Staff user = staffService.findById(createUserId);
+@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<Announcement> createAnnouncement(
+        @RequestPart AnnouncementDTO request,
+        @RequestPart(name = "userIds", required = false) List<Integer> userIds,
+        @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
+        @RequestPart(name = "files", required = false) List<MultipartFile> files,
+        @RequestParam(name = "createUserId") Integer createUserId) {
+    try {
+        // Find Create Staff From Announcement DTO
+        Staff user = staffService.findById(createUserId);
 
 
-            List<Group> groupsForAnnounce = new ArrayList<>();
-            List<Staff> staffForAnnounce = new ArrayList<>();
+        List<Group> groupsForAnnounce = new ArrayList<>();
+        List<Staff> staffForAnnounce = new ArrayList<>();
 
-            //Announce People
-            if (request.getGroupStatus() == 1) {
-                groupsForAnnounce = groupService.findGroupsByIds(groupIds);
-                // Initialize staff list before async operation
-                for (Group group : groupsForAnnounce) {
-                    group.getStaff().size(); // Force initialization
-                }
-                staffForAnnounce = null;
-            } else {
-                staffForAnnounce = staffService.findStaffsByIds(userIds);
-                groupsForAnnounce = null;
+        //Announce People
+        if (request.getGroupStatus() == 1) {
+            groupsForAnnounce = groupService.findGroupsByIds(groupIds);
+            // Initialize staff list before async operation
+            for (Group group : groupsForAnnounce) {
+                group.getStaff().size(); // Force initialization
             }
 
             // Map DTO to Entity
@@ -107,10 +157,39 @@ public class AnnouncementController {
             announcement.setCategory(request.getCategory());
 
 
-            // If ScheduledAt is null assign default
-            if (announcement.getScheduleAt() == null) {
-                LocalDateTime publishDateTime = LocalDateTime.now();
-                announcement.setScheduleAt(publishDateTime);
+        // If ScheduledAt is null assign default
+        if (announcement.getScheduleAt() == null) {
+            LocalDateTime publishDateTime = LocalDateTime.now();
+            announcement.setScheduleAt(publishDateTime);
+        }
+
+        //initialize the project Announce people
+        if(groupsForAnnounce != null) {
+            System.out.println("Group size is "+groupsForAnnounce.size());
+            announcement.setGroup(groupsForAnnounce);
+        }
+        if(staffForAnnounce != null){
+            System.out.println("Staff size is "+staffForAnnounce.size());
+            announcement.setStaff(staffForAnnounce);
+        }
+
+
+
+        // Save the announcement
+        Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
+
+
+//        ============================== TO FIX ====================================
+
+        //Publish the post
+        if(request.getForRequest() == 1){
+            if(request.getScheduleAt() != null){
+                LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
+                savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
+                blogService.createPost(savedAnnouncement);
+            }else{
+                savedAnnouncement.setPublished(true);
+                announcement_service.updateAnnouncement( savedAnnouncement.getId(),savedAnnouncement);
             }
 
             //initialize the project Announce people
@@ -280,33 +359,40 @@ public class AnnouncementController {
     public Map getFile(@PathVariable String publicId) {
         return cloudinaryService.getFile(publicId);
     }
-
     @GetMapping("/download/{publicId}")
-    public ResponseEntity<byte[]> downloadPdf(@PathVariable String publicId) {
+    public ResponseEntity<byte[]> downloadFile(@PathVariable String publicId) {
         try {
-            byte[] pdfBytes = cloudinaryService.downloadPdf(publicId);
+            Map<String, Object> fileData = cloudinaryService.downloadFile(publicId);
+            byte[] fileBytes = (byte[]) fileData.get("fileBytes");
+            String contentType = (String) fileData.get("contentType");
+            String fileName = (String) fileData.get("fileName");
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("attachment", publicId + ".pdf");
+            headers.setContentType(MediaType.parseMediaType(contentType));
+            headers.setContentDispositionFormData("attachment", fileName);
 
-            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+            return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (IOException | InterruptedException e) {
             System.out.println(e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
+
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadPdfFromEmail(@RequestParam("publicId") String publicId, @RequestParam("userEmail") String userEmail, HttpServletResponse response) {
         try {
-            // Use the service method to download the PDF file
-            byte[] pdfContent = cloudinaryService.downloadPdf(publicId);
+            // Use the service method to download the file
+            Map<String, Object> fileData = cloudinaryService.downloadFile(publicId);
+            byte[] fileContent = (byte[]) fileData.get("fileBytes");
+            String contentType = (String) fileData.get("contentType");
+            String fileName = (String) fileData.get("fileName");
 
-            //Noted User
-            Staff NotedUser = staffService.findByEmail(userEmail);
+            // Noted User
+            Staff notedUser = staffService.findByEmail(userEmail);
 
-            //Find Id From publicId
+            // Find Id From publicId
             Pattern pattern = Pattern.compile("(\\d+)$");
             Matcher matcher = pattern.matcher(publicId);
             if (matcher.find()) {
@@ -317,27 +403,28 @@ public class AnnouncementController {
                 Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser, announcement);
                 if (!NotedConditionAnnouncement.isPresent()) {
                     StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
-                    staffNotedAnnouncement.setStaff(NotedUser);
+                    staffNotedAnnouncement.setStaff(notedUser);
                     staffNotedAnnouncement.setAnnouncement(announcement);
                     staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
-                    //Save Noted User and Announcement
+                    // Save Noted User and Announcement
                     userNotedAnnouncementService.save(staffNotedAnnouncement);
                 }
             }
 
             // Prepare the response headers
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + publicId + ".pdf");
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 
-            // Return the PDF file content
-            return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+            // Return the file content
+            return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
 
         } catch (IOException | InterruptedException e) {
             // Handle errors appropriately
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/staff-noted/{staffId}")
     public List<StaffNotedResponseDTO> getStaffNotedList(@PathVariable Integer staffId) {
@@ -361,6 +448,12 @@ public class AnnouncementController {
     public List<AnnouncementResponseListDTO> getPendingAnnouncement() {
         return announcement_service.getPendingAnnouncement();
     }
+    //Mapping for staffNotedAnnouncement
+    @GetMapping("/staff-counts")
+    public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
+        return announcement_service.getAnnouncementStaffCounts();
+    }
+
 
     @GetMapping("/versions/{id}")
     public List<AnnouncementVersionDTO> getAnnouncementVersion(@PathVariable Integer id){
