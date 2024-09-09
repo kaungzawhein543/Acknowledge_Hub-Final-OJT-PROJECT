@@ -18,4 +18,7 @@ public interface PositionRepository extends JpaRepository<Position,Integer> {
             "JOIN Department d ON s.department.id = d.id " +
             "WHERE d.id = :departmentId")
     List<Position> findByDepartmentId(@Param("departmentId") Integer departmentId);
+
+    @Query("select p from Position p where p.name= ?1")
+    Position findByHRName(String name);
 }

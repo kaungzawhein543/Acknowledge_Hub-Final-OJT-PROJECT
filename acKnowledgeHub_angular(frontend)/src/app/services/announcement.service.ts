@@ -4,7 +4,8 @@ import { map, Observable } from 'rxjs';
 import { announcement } from '../models/announcement';
 import saveAs from 'file-saver';
 import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
-import { announcementList } from '../models/announcement-list';
+import { announcementList, listAnnouncement } from '../models/announcement-list';
+import { announcementVersion } from '../models/announcement-version';
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +32,8 @@ export class AnnouncementService {
   }
 
   //Get Published Announcement
-  getPublishAnnouncements(): Observable<announcement[]> {
-    return this.http.get<announcement[]>(`${this.BaseUrl}/getPublishedAnnouncements`);
+  getPublishAnnouncements(): Observable<listAnnouncement[]> {
+    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/getPublishedAnnouncements`);
   }
 
   //Delete Announcement
@@ -76,6 +77,8 @@ export class AnnouncementService {
     return this.http.get<announcement[]>(`${this.BaseUrl}/report`, { params, withCredentials: true });
   }
 
-
+  getAnnouncementVersions(id: number): Observable<announcementVersion[]> {
+    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/versions/${id}`)
+  }
 
 }

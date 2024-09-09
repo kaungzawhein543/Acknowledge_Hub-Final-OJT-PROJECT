@@ -58,12 +58,7 @@ public class Staff implements UserDetails {
     private Department department;
     @ManyToMany(mappedBy = "staff")
     private List<Group> groups;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "staff_has_announcement",
-            joinColumns = @JoinColumn(name = "staff_id"),
-            inverseJoinColumns = @JoinColumn(name = "announcement_id")
-    )
+    @ManyToMany(mappedBy = "staff")
     private List<Announcement> announcement = new ArrayList<>();
 
 

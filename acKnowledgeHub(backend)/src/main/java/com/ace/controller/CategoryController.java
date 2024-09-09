@@ -17,8 +17,11 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:4200")
 public class CategoryController {
 
-    @Autowired
-    private CategoryService service;
+    private final CategoryService service;
+
+    public CategoryController(CategoryService service) {
+        this.service = service;
+    }
 
     @PostMapping(value = "/save")
     public Category save(

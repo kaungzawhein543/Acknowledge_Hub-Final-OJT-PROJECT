@@ -38,6 +38,9 @@ export class AddGroupComponent {
   departmentstatus: number | undefined;
   status: boolean = false;
 
+  selectedOptionsBox = false;
+
+
   @ViewChild('staff') staff!: MatSelectionList;
 
   constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
@@ -220,5 +223,12 @@ export class AddGroupComponent {
 
   showInfoToast() {
     this.toastService.showToast('Here is some information.', 'info');
+  }
+  showSelectedOptionBox(): void {
+    if (this.selectedOptionsBox === false) {
+      this.selectedOptionsBox = true;
+    } else {
+      this.selectedOptionsBox = false;
+    }
   }
 }

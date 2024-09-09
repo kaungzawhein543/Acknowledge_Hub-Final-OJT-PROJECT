@@ -17,11 +17,13 @@ import java.util.Set;
 
 @Service
 public class GroupService {
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+    private final StaffRepository staffRepository;
 
-    @Autowired
-    private StaffRepository staffRepository;
+    public GroupService(GroupRepository groupRepository, StaffRepository staffRepository) {
+        this.groupRepository = groupRepository;
+        this.staffRepository = staffRepository;
+    }
 
     public List<Group> getAllGroups() {
         return groupRepository.findAll();

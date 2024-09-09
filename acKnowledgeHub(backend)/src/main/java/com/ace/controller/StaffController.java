@@ -96,8 +96,8 @@ public class StaffController {
         return staffList;
     }
 
-    @PostMapping("/not-noted-list/{id}")
-    public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @RequestParam("groupStatus") byte groupStatus) {
+    @GetMapping("/not-noted-list/{id}/{groupStatus}")
+    public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @PathVariable("groupStatus") byte groupStatus) {
         List<UnNotedResponseDTO> staffList = new ArrayList<UnNotedResponseDTO>();
         if (groupStatus == 1) {
             staffList = staffService.getUnNotedStaffListWithGroup(announcementId);
@@ -122,4 +122,26 @@ public class StaffController {
         PaginatedResponse<StaffDTO> response = new PaginatedResponse<>(staffPage);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/hr-list")
+    public List<StaffResponseDTO> getHRList() {
+        return staffService.getHRStaffList();
+    }
+
+    @GetMapping("put-HR/{id}")
+    public List<StaffResponseDTO> putStaffHRMain(@PathVariable("id") Integer staffId) {
+        Staff staffMain = staffService.getHRMainStaff("Human Resource(Main)");
+        if(staffMain != null){
+            Position position1 = positionService.findByName("Human Resource");
+            staffMain.setPosition(position1);
+            staffService.save(staffMain);
+        }
+        Staff staff = staffService.findById(staffId);
+        Position position2 = positionService.findByName("Human Resource(Main)");
+        staff.setPosition(position2);
+        staffService.save(staff);
+        return staffService.getHRStaffList();
+
+    }
+
 }

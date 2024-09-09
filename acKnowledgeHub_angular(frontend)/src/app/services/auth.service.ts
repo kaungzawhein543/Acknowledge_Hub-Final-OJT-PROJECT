@@ -11,12 +11,12 @@ import { ResponseEmail } from '../models/response-email';
 export class AuthService {
   private apiUrl = 'http://localhost:8080/auth'; // Your backend URL
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   login(staffId: string, password: string): Observable<HttpResponse<string>> {
     return this.http.post(`${this.apiUrl}/login`, { staffId, password }, { observe: 'response', responseType: 'text', withCredentials: true });
   }
-  
+
 
   changePassword(staffId: string, oldPassword: string, newPassword: string): Observable<string> {
     const payload = {
@@ -24,7 +24,7 @@ export class AuthService {
       oldPassword: oldPassword,
       newPassword: newPassword
     };
-    return this.http.post(`${this.apiUrl}/changePassword`, payload, { responseType: 'text',withCredentials: true });
+    return this.http.post(`${this.apiUrl}/changePassword`, payload, { responseType: 'text', withCredentials: true });
   }
 
   getUser(): Observable<any> {
@@ -48,12 +48,11 @@ export class AuthService {
       catchError(error => of({ isLoggedIn: false })) // Handle errors (e.g., unauthorized or server errors)
     );
   }
-  
+
   isLoggedIn(): Observable<boolean> {
     return this.http.get<{ isLoggedIn: boolean }>(`${this.apiUrl}/me`, { withCredentials: true })
       .pipe(
         map(response => {
-          console.log('Backend response:', response);
           return response.isLoggedIn;
         }),
         catchError(error => {
@@ -62,8 +61,8 @@ export class AuthService {
         })
       );
   }
-  
-  
+
+
   hasRole(expectedRole: string): Observable<boolean> {
     return this.getUserInfo().pipe(
       map(userInfo => {
@@ -72,17 +71,17 @@ export class AuthService {
       catchError(() => of(false))
     );
   }
-  
+
   hasPostion(expectedPosition: string): Observable<boolean> {
     return this.getUserInfo().pipe(
       map(userInfo => userInfo?.position === expectedPosition),
       catchError(() => of(false))
     );
   }
-  
+
   // Method to get user information including roles
   getUserInfo(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/me`,{withCredentials: true}).pipe(
+    return this.http.get<any>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
       catchError(() => of(null))  // In case of error, return null
     );
   }
@@ -96,7 +95,7 @@ export class AuthService {
   }
 
   addPassword(email: string, password: string): Observable<any> {
-    return this.http.post(`http://localhost:8080/api/v1/email/verify-otp`, { email, password }, { withCredentials: true })
+    return this.http.post(`http://localhost:8080/api/v1/email/update-password`, { email, password }, { withCredentials: true })
   }
 
 }

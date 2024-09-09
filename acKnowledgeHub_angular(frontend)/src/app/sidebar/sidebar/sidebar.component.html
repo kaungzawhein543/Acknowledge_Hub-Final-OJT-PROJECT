@@ -59,8 +59,7 @@
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        [routerLink]="'announcement/staff-noted/' + staffId"
-        routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="announcement/staff-noted" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-regular fa-check-circle"></i>
         <span>Noted Announcement</span>
       </a>
@@ -70,10 +69,9 @@
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        [routerLink]="'announcement/staff-unnoted/' + staffId"
-        routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="announcement/staff-unnoted" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-regular fa-circle-xmark"></i>
-        <span>Not Noted Announcement</span>
+        <span>Un-Noted Announcement</span>
       </a>
     </li>
   </div>
@@ -127,8 +125,9 @@
     </a>
     <ul id="categoryMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="list-category" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-layer-group"></i> Sub Category
+        routerLink="category/list" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-solid fa-list"></i>
+        <span> Category List</span>
       </li>
     </ul>
   </li>

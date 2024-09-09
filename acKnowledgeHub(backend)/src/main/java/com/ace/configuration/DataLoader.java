@@ -64,6 +64,10 @@ public class DataLoader {
                 adminStaff.setPosition(position);
                 adminStaff.setRole(Role.ADMIN);
                 staffRepository.save(adminStaff);
+
+                Position position1 = new Position();
+                position1.setName("Human Resource(Main)");
+                positionRepository.save(position1);
             }
         };
     }

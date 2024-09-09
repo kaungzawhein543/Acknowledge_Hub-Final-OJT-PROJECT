@@ -1,7 +1,7 @@
-<div class="container mx-auto p-4">
+<div class="container bg-white mx-auto p-4">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-8">
-        <span class="text-5xl font-semibold">Announcements List</span>
+        <span class="text-5xl font-semibold" style="font-size: 30px;">Pending Announcements List</span>
         <!-- Search Input on the Right Side -->
         <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
             (input)="onSearchChange()" />
@@ -12,7 +12,7 @@
     <div class="flex justify-between mb-4">
 
         <div class="flex gap-4">
-            <!-- 
+
             <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate" [value]="startDateTime"
                 (change)="onStartDateChange($event)" />
             <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
@@ -36,7 +36,7 @@
                         Inactive
                     </label>
                 </div>
-            </div> -->
+            </div>
         </div>
 
 

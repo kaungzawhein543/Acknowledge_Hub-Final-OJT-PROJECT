@@ -16,7 +16,6 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { MychartComponent } from './mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
 import { ExcelImportComponent } from './excel-import/excel-import.component';
-import { LoginComponent } from './user/login/login.component';
 import { AuthGuard } from './guard/auth.guard';
 import { RoleGuard } from './guard/role.guard';
 import { AddAnnouncementComponent } from './announcement/add-announcement/add-announcement.component';
@@ -41,8 +40,6 @@ import { MatListModule, MatListOption } from '@angular/material/list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AddPasswordComponent } from './user/add-password/add-password.component';
-import { OtpInputComponent } from './user/otp-input/otp-input.component';
-import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { HideEmailPipe } from './pipe/hide-email.pipe';
 import { AddUserComponent } from './user/add-user/add-user.component';
 import { UserNotedComponent } from './user/user-noted/user-noted.component';
@@ -56,10 +53,18 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
+import { ListUserComponent } from './user/list-user/list-user.component';
+import { ListCompaniesComponent } from './company/list-companies/list-companies.component';
+import { ListDepartmentsComponent } from './department/list-departments/list-departments.component';
+import { OtpInputComponent } from './user/otp-input/otp-input.component';
+import { OtpRequestComponent } from './user/otp-request/otp-request.component';
+import { LoginComponent } from './user/login/login.component';
+import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
 
 
 @NgModule({
   declarations: [
+    LoginComponent,
     AppComponent,
     AnnouncementComponent,
     UpdateAnnouncementComponent,
@@ -72,7 +77,6 @@ import { RequestAnnouncementComponent } from './announcement/request-announcemen
     MychartComponent,
     ChangepasswordComponent,
     ExcelImportComponent,
-    LoginComponent,
     AddAnnouncementComponent,
     ListAnnouncementComponent,
     AddGroupComponent,
@@ -85,8 +89,6 @@ import { RequestAnnouncementComponent } from './announcement/request-announcemen
     PendingAnnouncementComponent,
     ConfirmationModalComponent,
     AddPasswordComponent,
-    OtpInputComponent,
-    OtpRequestComponent,
     HideEmailPipe,
     AddUserComponent,
     UserNotedComponent,
@@ -95,7 +97,13 @@ import { RequestAnnouncementComponent } from './announcement/request-announcemen
     AddDepartmentComponent,
     AddPositionComponent,
     FeedbackListComponent,
-    RequestAnnouncementComponent
+    RequestAnnouncementComponent,
+    ListUserComponent,
+    ListCompaniesComponent,
+    ListDepartmentsComponent,
+    OtpInputComponent,
+    OtpRequestComponent,
+    AddHRMainComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

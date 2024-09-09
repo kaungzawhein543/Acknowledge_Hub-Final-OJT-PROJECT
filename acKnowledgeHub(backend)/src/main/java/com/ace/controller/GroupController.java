@@ -14,10 +14,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("api/v1/group")
 public class GroupController {
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private ModelMapper mapper;
+
+    private final GroupService groupService;
+    private final ModelMapper mapper;
+
+    public GroupController(GroupService groupService, ModelMapper mapper) {
+        this.groupService = groupService;
+        this.mapper = mapper;
+    }
 
     @GetMapping
     public ResponseEntity<List<GroupDTO>> getAllGroups() {

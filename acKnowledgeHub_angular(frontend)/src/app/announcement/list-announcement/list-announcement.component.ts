@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import autoTable from 'jspdf-autotable';
 import { AnnouncementService } from '../../services/announcement.service';
-import { FormsModule } from '@angular/forms';
+import { listAnnouncement } from '../../models/announcement-list';
 
 @Component({
   selector: 'app-list-announcement',
@@ -18,9 +18,9 @@ import { FormsModule } from '@angular/forms';
 export class ListAnnouncementComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  announcements: announcement[] = [];
-  filteredAnnouncements: announcement[] = [];
-  dataSource = new MatTableDataSource<announcement>([]);
+  announcements: listAnnouncement[] = [];
+  filteredAnnouncements: listAnnouncement[] = [];
+  dataSource = new MatTableDataSource<listAnnouncement>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
@@ -35,10 +35,12 @@ export class ListAnnouncementComponent {
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createStaff.name', header: 'Create/Request Staff' },
-    { field: 'category.name', header: 'Category' },
+    { field: 'createStaff', header: 'Create/Request Staff' },
+    //  { field: 'category', header: 'Category' },
     { field: 'created_at', header: 'Created At' },
     { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'note', header: 'Noted/UnNoted' },
+    { field: 'detail', header: 'Details' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -90,8 +92,8 @@ export class ListAnnouncementComponent {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.category?.name?.toLowerCase() || '',
-        a.createStaff?.name?.toLowerCase() || '',
+        a.category?.toLowerCase() || '',
+        a.createStaff?.toLowerCase() || '',
         new Date(a.created_at).toLocaleString().toLowerCase(),
         new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
@@ -175,7 +177,7 @@ export class ListAnnouncementComponent {
   }
 
 
-  generateExcel(announcements: announcement[], fileName: string) {
+  generateExcel(announcements: listAnnouncement[], fileName: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const headers = visibleColumns.map(col => col.header);
     const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
@@ -222,5 +224,22 @@ export class ListAnnouncementComponent {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
+  }
+
+  onNotedButtonClick(id: number, name: string) {
+    const encodedId = btoa(id.toString());
+    const encoded = btoa(name);
+    this.router.navigate(['announcement/noted-announcement/' + encodedId + '/' + encoded]);
+  }
+
+  onUnNotedButtonClick(id: number, groupStatus: number, name: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedStatus = btoa(groupStatus.toString());
+    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName])
+  }
+
+  onDetailButtonClick(id: number) {
+    this.router.navigate(['announcement/noted-announcement/' + id]);
   }
 }

@@ -11,8 +11,11 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200/")
 @RequestMapping("api/v1/company")
 public class CompanyController {
-    @Autowired
-    private CompanyService companyService;
+    private final CompanyService companyService;
+
+    public CompanyController(CompanyService companyService) {
+        this.companyService = companyService;
+    }
 
     @GetMapping
     public List<Company> getAllCompanies() {

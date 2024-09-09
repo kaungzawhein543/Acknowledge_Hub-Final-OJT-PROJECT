@@ -10,8 +10,12 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/")
 public class ExcelController {
-    @Autowired
-    private ExcelService excelService;
+
+    private final ExcelService excelService;
+
+    public ExcelController(ExcelService excelService) {
+        this.excelService = excelService;
+    }
 
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {

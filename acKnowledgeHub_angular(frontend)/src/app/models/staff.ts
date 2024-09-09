@@ -1,3 +1,4 @@
+import { Role } from "./ROLE";
 
 export interface Staff {
   id: number;
@@ -13,5 +14,18 @@ export interface Staff {
     id: number;
     name: string;
   };
+}
+
+export interface staffList {
+  id: number;
+  companyStaffId: string;
+  name: string;
+  email: string;
+  role: Role;
+  position: string;
+  department: string;
+  company: string;
+  status: string;
+  [key: string]: any;
 }
 

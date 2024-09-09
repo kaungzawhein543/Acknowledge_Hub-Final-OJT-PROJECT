@@ -24,6 +24,12 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("SELECT s.chatId FROM Staff s WHERE s.id IN :ids")
     List<String> findStaffsChatIdByIds(List<Integer> ids);
 
+    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+            "from Staff s where s.position.name = 'Human Resource' or s.position.name = 'Human Resource(Main)' order by s.companyStaffId")
+    List<StaffResponseDTO> getHRStaffList();
+
+    @Query("select s from Staff s where s.position.name = ?1")
+    Staff findByPosition(String position);
 
     public Optional<Staff> findByChatId(String id);
 
@@ -74,10 +80,11 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<StaffGroupDTO> getStaffListForGroup();
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
-            "from Staff s")
+            "from Staff s order by s.companyStaffId")
     List<StaffResponseDTO> getStaffList();
 
     @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
             "from Staff s where s.status = 'active' ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
+
 }

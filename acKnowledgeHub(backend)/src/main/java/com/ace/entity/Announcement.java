@@ -24,7 +24,6 @@ public class Announcement {
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")
     private Date created_at;
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "schedule_at")
     private LocalDateTime scheduleAt;
     @Column(name = "file")
@@ -43,9 +42,19 @@ public class Announcement {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     private Category category;
-    @ManyToMany(mappedBy = "announcement")
+    @ManyToMany
+    @JoinTable(
+            name = "group_has_announcement",
+            joinColumns = @JoinColumn(name = "announcement_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
     private List<Group> group;
-    @ManyToMany(mappedBy = "announcement")
+    @ManyToMany
+    @JoinTable(
+            name = "staff_has_announcement",
+            joinColumns = @JoinColumn(name = "announcement_id"),
+            inverseJoinColumns = @JoinColumn(name = "staff_id")
+    )
     private List<Staff> staff;
 
 

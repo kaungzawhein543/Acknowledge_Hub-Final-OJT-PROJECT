@@ -3,6 +3,7 @@ package com.ace.service;
 import com.ace.dto.*;
 import com.ace.entity.Group;
 import com.ace.entity.Staff;
+import com.ace.repository.GroupRepository;
 import com.ace.repository.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,21 +28,24 @@ import java.util.stream.Collectors;
 @Lazy
 public class StaffService implements UserDetailsService {
     private final StaffRepository staffRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
+    private final GroupRepository groupRepository;
 
-    public StaffService(StaffRepository staffRepository) {
+
+    public StaffService(StaffRepository staffRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper, GroupRepository groupRepository) {
         this.staffRepository = staffRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.modelMapper = modelMapper;
+        this.groupRepository = groupRepository;
     }
 
 
-    public List<Staff> findStaffsByIds(List<Integer> ids){
+    public List<Staff> findStaffsByIds(List<Integer> ids) {
         return staffRepository.findStaffsByIds(ids);
     }
 
-    public List<String> findStaffsChatIdByIds(List<Integer> ids){
+    public List<String> findStaffsChatIdByIds(List<Integer> ids) {
         return staffRepository.findStaffsChatIdByIds(ids);
     }
 
@@ -60,18 +66,18 @@ public class StaffService implements UserDetailsService {
 
     public Page<StaffDTO> searchStaffs(String searchTerm, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Staff> outputStaff = staffRepository.searchByTerm(searchTerm,pageRequest);
+        Page<Staff> outputStaff = staffRepository.searchByTerm(searchTerm, pageRequest);
 
         // Map each Staff entity to StaffGroupDTO
         List<StaffDTO> staffDtos = outputStaff.getContent().stream()
                 .map(staff -> modelMapper.map(staff, StaffDTO.class))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(staffDtos,pageRequest,outputStaff.getTotalElements());
+        return new PageImpl<>(staffDtos, pageRequest, outputStaff.getTotalElements());
     }
 
-    public Staff findByEmail(String email){
-     return staffRepository.findByEmail(email);
+    public Staff findByEmail(String email) {
+        return staffRepository.findByEmail(email);
     }
 
     public List<NotedResponseDTO> getNotedStaffList(Integer announcementId) {
@@ -146,7 +152,7 @@ public class StaffService implements UserDetailsService {
 
     public void updatePassword(PasswordResponseDTO dto) {
         Staff user = staffRepository.findByEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         staffRepository.save(user);
     }
 
@@ -170,13 +176,37 @@ public class StaffService implements UserDetailsService {
 
     public void addStaff(Staff staff) {
         staffRepository.save(staff);
+        Group companyGroup = groupRepository.findByName(staff.getCompany().getName());
+        if (companyGroup != null) {
+            companyGroup.getStaff().add(staff);
+            groupRepository.save(companyGroup);
+        }
+
+        Group departmentGroup = groupRepository.findByName(staff.getDepartment().getName() + " (" + staff.getCompany().getName() + ")");
+        if (departmentGroup != null) {
+            departmentGroup.getStaff().add(staff);
+            groupRepository.save(departmentGroup);
+        }
     }
 
-    public List<StaffResponseDTO> getStaffList(){
+    public List<StaffResponseDTO> getStaffList() {
         return staffRepository.getStaffList();
     }
 
-    public List<ActiveStaffResponseDTO> getActiveStaffList(){
+    public List<ActiveStaffResponseDTO> getActiveStaffList() {
         return staffRepository.getActiveStaffList();
     }
+
+    public List<StaffResponseDTO> getHRStaffList(){
+        return staffRepository.getHRStaffList();
+    }
+
+    public void save(Staff  staff){
+         staffRepository.save(staff);
+    }
+
+    public Staff getHRMainStaff(String position){
+        return staffRepository.findByPosition(position);
+    }
+
 }

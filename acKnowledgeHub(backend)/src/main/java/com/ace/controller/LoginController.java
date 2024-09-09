@@ -30,18 +30,19 @@ import java.util.Map;
 @Slf4j
 public class LoginController {
 
-    @Autowired
-    private StaffService staffService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private TokenBlacklistService tokenBlacklistService;
+    private final StaffService staffService;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService) {
+        this.staffService = staffService;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenBlacklistService = tokenBlacklistService;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
