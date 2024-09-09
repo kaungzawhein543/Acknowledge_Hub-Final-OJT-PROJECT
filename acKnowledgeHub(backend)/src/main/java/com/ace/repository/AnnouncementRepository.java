@@ -23,6 +23,12 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("update Announcement a set a.status = 'inactive' where a.id = ?1")
     void softDeleteAnnouncement(Integer id);
 
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
+    List<Announcement> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
 
     @Query("select NEW com.ace.dto.StaffNotedResponseDTO(a.title , a.description, a.scheduleAt, sn.notedAt, a.file) from Announcement a " +
             "JOIN StaffNotedAnnouncement sn ON a.id = sn.announcement.id " +

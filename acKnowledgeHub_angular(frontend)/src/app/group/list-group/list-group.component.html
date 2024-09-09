@@ -1,1 +1,46 @@
-<p>list-group works!</p>
+<div class="container  bg-white shadow-lg rounded-lg w-full">
+    <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
+        <h3 class="text-lg font-semibold">Group List</h3>
+        <!-- <a class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded" routerLink="/add-category"><i class="fas fa-add"></i>Add Category</a> -->
+      </div>
+    <div *ngIf="errorMessage" class="mb-4 text-red-600">{{ errorMessage }}</div>
+  
+    <div class="bg-white p-6 rounded-b shadow-md">
+    <table class="min-w-full table-auto divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Group Name</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created At</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Members</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let group of groups;let i = index">
+            <td class="px-4 py-2">{{ i + 1 }}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">{{ group.name }}</td>
+          <td class="px-4 py-2 text-sm text-gray-500">{{ group.createdAt | date }}</td>
+          <td class="px-4 py-2 text-sm text-gray-500">{{ group.staff.length }} Members</td>
+          <td class="px-4 py-2 text-sm w-full text-gray-500 flex" style="gap: 20px;">
+            <button (click)="showStaffs(group)" class="px-2 py-1 bg-green-500 text-white rounded">Show Staffs</button>
+            <button (click)="editGroup(group)" class="px-2 py-1 bg-blue-500 text-white rounded">Edit</button>
+            <button (click)="deleteGroup(group.id)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  
+    <!-- Modal for Showing Staffs -->
+    <div *ngIf="selectedGroup" class="fixed inset-0 bg-gray-800 bg-opacity-50  flex items-center justify-center" style="z-index: 9999;">
+      <div class="bg-white rounded-lg shadow-lg w-1/2 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Staff Members</h3>
+        <ol class="list-decimal pl-5">
+          <li *ngFor="let staff of selectedGroup.staff" class="p-2  hover:bg-gray-200">{{ staff }} {{staff.position}}</li>
+        </ol>
+        <button (click)="closeModal()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+      </div>
+    </div>
+  </div>
+  

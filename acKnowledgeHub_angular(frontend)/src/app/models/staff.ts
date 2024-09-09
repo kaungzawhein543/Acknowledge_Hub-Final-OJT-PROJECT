@@ -1,5 +1,6 @@
 
 export interface Staff {
+  selected: boolean;
   id: number;
   staffId: string;
   name: string;
@@ -13,5 +14,6 @@ export interface Staff {
     id: number;
     name: string;
   };
+
 }
 

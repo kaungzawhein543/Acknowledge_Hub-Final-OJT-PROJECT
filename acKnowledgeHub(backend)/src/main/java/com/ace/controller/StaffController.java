@@ -104,6 +104,7 @@ public class StaffController {
         return staffList;
     }
 
+
     @PostMapping("/not-noted-list/{id}")
     public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @RequestParam("groupStatus") byte groupStatus) {
         List<UnNotedResponseDTO> staffList = new ArrayList<UnNotedResponseDTO>();

@@ -63,13 +63,14 @@ export class ListAnnouncementComponent {
   fetchAnnouncements() {
     this.announcementService.getPublishAnnouncements().subscribe(
       (data) => {
-        this.announcements = data.map((item, index) => ({
-          ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredAnnouncements = data;
-        this.dataSource.data = this.filteredAnnouncements;
-        this.dataSource.paginator = this.paginator;
-        this.filterAnnouncements();
+        // this.announcements = data.map((item, index) => ({
+        //   ...item,
+        //   autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
+        // })); this.filteredAnnouncements = data;
+        // this.dataSource.data = this.filteredAnnouncements;
+        // this.dataSource.paginator = this.paginator;
+        // this.filterAnnouncements();
+
       },
       (error) => console.error('Error fetching announcements:', error)
     );

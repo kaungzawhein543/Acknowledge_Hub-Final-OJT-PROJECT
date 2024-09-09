@@ -6,4 +6,5 @@ export interface announcementList {
     createStaff: string;
     file: string;
     category: string;
+    [key: string]:any;
 }

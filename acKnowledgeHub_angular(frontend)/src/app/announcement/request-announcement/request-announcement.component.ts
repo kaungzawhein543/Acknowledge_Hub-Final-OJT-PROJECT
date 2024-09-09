@@ -274,6 +274,8 @@ export class RequestAnnouncementComponent {
 
     if (this.searchTerm) {
       this.filterStaffs();
+    }else{
+      this.resetStaffList();
     }
   }
 
@@ -282,6 +284,14 @@ export class RequestAnnouncementComponent {
     this.hasMore = true;
     this.staffs = [];
     this.loadStaffs(); // Reload staff with the search term
+  }
+
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
   }
 
   showSelectedOptionBox(): void {

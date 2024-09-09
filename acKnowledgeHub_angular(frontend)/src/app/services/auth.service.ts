@@ -54,7 +54,6 @@ export class AuthService {
     return this.http.get<{ isLoggedIn: boolean }>(`${this.apiUrl}/me`, { withCredentials: true })
       .pipe(
         map(response => {
-          console.log('Backend response:', response);
           return response.isLoggedIn;
         }),
         catchError(error => {

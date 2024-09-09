@@ -5,8 +5,6 @@ export interface announcement {
   id: number;
   title: string;
   description: string;
-  groups: [];
-  staffs: [];
   category: Category;
   createStaff: Staff;
   status: string;
@@ -14,6 +12,8 @@ export interface announcement {
   scheduleAt: Date;
   groupStatus: number;
   [key: string]: any;
+  oldVersionStaff :[];
+  oldVersionGroup : [];
   file?: File;  // File is handled separately
 }
 

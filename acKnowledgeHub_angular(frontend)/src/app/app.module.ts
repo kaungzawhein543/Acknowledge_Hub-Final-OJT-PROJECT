@@ -59,6 +59,8 @@ import { RequestAnnouncementComponent } from './announcement/request-announcemen
 
 import { UserChartComponent } from './chart/user-chart/user-chart.component';
 import { ProfileComponent } from './user/profile/profile.component';
+import { LoaderComponent } from './loader/loader/loader.component';
+import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +101,9 @@ import { ProfileComponent } from './user/profile/profile.component';
     FeedbackListComponent,
     RequestAnnouncementComponent, 
     UserChartComponent,
-    ProfileComponent
+    ProfileComponent,
+    LoaderComponent,
+    DetailAnnouncementComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

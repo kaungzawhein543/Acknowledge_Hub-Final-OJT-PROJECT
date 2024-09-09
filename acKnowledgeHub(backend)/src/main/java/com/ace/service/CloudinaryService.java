@@ -8,6 +8,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -91,7 +93,7 @@ public class CloudinaryService {
                 "resource_type", resourceType
         );
         Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
-
+        System.out.println(uploadResult);
         return CompletableFuture.completedFuture(uploadResult);
     }
 
@@ -194,9 +196,26 @@ public class CloudinaryService {
             return null;
         }
     }
-    public byte[] downloadPdf(String publicId) throws IOException, InterruptedException {
-        // Generate the URL to download the PDF
-        String url = cloudinary.url().generate( publicId + ".pdf");
+    public String getUrlsOfAnnouncements(String publicId){
+        try{
+            // Step 1: Request the resource with the `attachment` flag to force a download
+            Map result = cloudinary.api().resource(publicId, ObjectUtils.asMap(
+                    "flags", "attachment"  // This ensures the URL is for downloading
+            ));
+
+            // Step 2: Return the secure URL that triggers the download
+            return result.get("secure_url").toString();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return "";
+        }
+    }
+
+
+    public Map<String, Object> downloadFile(String publicId) throws IOException, InterruptedException {
+        // Generate the URL to download the file
+        String url = cloudinary.url().generate(publicId);
+
         // Create an HTTP client and request
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -208,9 +227,34 @@ public class CloudinaryService {
 
         // Check the response status code
         if (response.statusCode() == 200) {
-            return response.body();
+            // Extract content type from response headers if available
+            String contentType = response.headers().firstValue("Content-Type").orElse("application/octet-stream");
+
+            // Determine file extension based on content type
+            String fileExtension = determineFileExtension(contentType);
+
+            Map<String, Object> fileData = new HashMap<>();
+            fileData.put("fileBytes", response.body());
+            fileData.put("contentType", contentType);
+            fileData.put("fileName", publicId + fileExtension);
+
+            return fileData;
         } else {
-            throw new IOException("Failed to download PDF, status code: " + response.statusCode());
+            throw new IOException("Failed to download file, status code: " + response.statusCode());
+        }
+    }
+
+    private String determineFileExtension(String contentType) {
+        switch (contentType) {
+            case "application/pdf":
+                return ".pdf";
+            case "application/vnd.ms-excel":
+                return ".xls";
+            case "application/zip":
+                return ".zip";
+            // Add more cases as needed
+            default:
+                return ".bin"; // Default extension for unknown types
         }
     }
 
