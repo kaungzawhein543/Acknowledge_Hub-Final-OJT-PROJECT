@@ -16,7 +16,7 @@ public class BotService {
         this.myTelegramBot = myTelegramBot;
     }
 
-    @Async
+    @Async("taskExecutor")
     public void sendFile(String chatId,MultipartFile file,Integer announcementId) {
         myTelegramBot.sendPdf(chatId, file,announcementId);
     }

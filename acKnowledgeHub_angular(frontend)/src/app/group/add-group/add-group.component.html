@@ -23,7 +23,8 @@
               <ul class="list-none p-0 m-0">
                 <li *ngFor="let staff of selectedStaff"
                   class="flex items-center  p-3 hover:bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
-                  <i class="fa-solid fa-circle-user me-2"></i> <span class="truncate">{{ staff.name }}</span>
+                  <i class="fa-solid fa-circle-user me-2"></i> <span class="truncate">{{ staff.name }}
+                    ({{staff.position }} - {{staff.department.name}}) </span>
                 </li>
               </ul>
             </div>

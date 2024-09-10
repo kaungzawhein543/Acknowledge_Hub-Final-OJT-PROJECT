@@ -14,7 +14,7 @@
         <label for="staffId" class="block text-gray-700 font-medium mb-2">
           Staff ID
         </label>
-        <input type="text" id="staffId" name="staffId" [(ngModel)]="staffId" required
+        <input type="text" id="staffId" name="staffId" [(ngModel)]="staffId" required [disabled]="isLocked"
           class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
           style="background-color: #f3f4f6;" />
       </div>
@@ -25,7 +25,7 @@
         </label>
         <div class="relative">
           <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
-            required
+            required [disabled]="isLocked"
             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
             style="background-color: #f3f4f6;" />
           <button type="button" (click)="togglePasswordVisibility()"
@@ -37,12 +37,18 @@
       </div>
 
       <button type="submit"
-        class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+        class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center"
+        [disabled]="isLocked">
         Login
       </button>
+      <div *ngIf="isLocked">
+        Too many failed attempts. Please wait for {{ formattedCountdown }}.
+      </div>
+
       <div class="flex items-center justify-center hover:underline">
         <a routerLink="/otp-request">Forgot Password?</a>
       </div>
+
     </form>
   </div>
 

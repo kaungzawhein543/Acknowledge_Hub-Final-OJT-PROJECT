@@ -7,6 +7,7 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -14,9 +15,9 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './update-announcement.component.html',
   styleUrl: './update-announcement.component.css'
 })
-export class UpdateAnnouncementComponent implements OnInit{
+export class UpdateAnnouncementComponent implements OnInit {
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
-  
+
   groups: Group[] = [];
   staffs: Staff[] = [];
   selectedOption: string = 'group'; // Default to group
@@ -29,40 +30,87 @@ export class UpdateAnnouncementComponent implements OnInit{
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
   fileName = '';
-  groupotion : boolean = true;
-  staffoption : boolean = false;
-  selectedOptionsBox : boolean = false;
-  optionStaffOfGroup : string = "Groups";
+  groupotion: boolean = true;
+  staffoption: boolean = false;
+  selectedOptionsBox: boolean = false;
+  optionStaffOfGroup: string = "Groups";
   isScrolledDown = false;
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-
+  public downloadUrl: string = 'https://res.cloudinary.com/djqxznfjm/raw/upload/v1725614114/';
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  announcementId: string | null = '';
+
 
   constructor(
-    private groupService: GroupService, 
+    private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService : AuthService
-  ) {}
+    private authService: AuthService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
+    this.announcementId = this.route.snapshot.paramMap.get('id');
     this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
+        this.announcementService.getAnnouncementById(Number(this.announcementId)).subscribe(
+          data => {
+            this.announcementService.getLatestVersionAnnouncement("Announce" + this.announcementId).subscribe(
+              latestVersionUrl => {
+                this.announcementService.getUrlOfAnnouncement(latestVersionUrl).subscribe(
+                  url => {
+                    this.downloadUrl = url;
+                  }
+                )
+              }
+            )
+            this.announcementTitle = data.title;
+            this.announcementDescription = data.description;
+            const selectedCategory = this.categories.find(category => category.id === data.category.id);
+            if (selectedCategory) {
+              this.selectedCategory = selectedCategory;
+            } else {
+              console.log('Category not found');
+            }
+            if (data['group'].length > 0) {
+              this.onOptionChange('group')
+            } else {
+              this.optionStaffOfGroup = "Staffs";
+              this.selectedStaffs = data['staff'];
+
+              this.onOptionChange('staff');
+            }
+          }
+        )
       }
     )
   }
+  onStaffSelectionChange(staff: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const isChecked = inputElement.checked;
+
+    if (isChecked) {
+      if (!this.selectedStaffs.some(s => s.id === staff.id)) {
+        this.selectedStaffs.push(staff);
+      }
+    } else {
+      this.selectedStaffs = this.selectedStaffs.filter(s => s.id !== staff.id);
+    }
+  }
+
+
 
   loadGroups() {
     this.groupService.getAllGroups().subscribe(
@@ -89,13 +137,13 @@ export class UpdateAnnouncementComponent implements OnInit{
 
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) return;
-  
+
     this.isLoading = true;
-  
-    this.staffService.getStaffs(this.page,this.pageSize,this.searchTerm).subscribe(
+
+    this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
-        
+
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
             ...staff,
@@ -105,6 +153,9 @@ export class UpdateAnnouncementComponent implements OnInit{
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
           this.hasMore = false;
         }
@@ -115,7 +166,7 @@ export class UpdateAnnouncementComponent implements OnInit{
       }
     );
   }
-  
+
 
   // Helper method to extract the position name
   extractPositionName(position: string): string {
@@ -138,10 +189,11 @@ export class UpdateAnnouncementComponent implements OnInit{
 
     // Create the announcement object
     const announcement = {
+      id: this.announcementId,
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
-      scheduleAt  : this.scheduleDate,
+      scheduleAt: this.scheduleDate,
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -165,7 +217,7 @@ export class UpdateAnnouncementComponent implements OnInit{
     }
 
     // Call the service to create the announcement
-    this.announcementService.createAnnouncement(formData,this.createStaffId).subscribe(
+    this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
         console.log(response);
       },
@@ -174,8 +226,15 @@ export class UpdateAnnouncementComponent implements OnInit{
       }
     );
   }
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
+  }
 
-  
+
 
   onOptionChange(option: string): void {
     this.selectedOption = option;
@@ -205,52 +264,54 @@ export class UpdateAnnouncementComponent implements OnInit{
     }
   }
 
-  
-onStaffChange(event: Event): void {
-  const target = event.target as HTMLInputElement;
-  const selectedStaffId = target.value; // Get the selected staffId
-  console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
-  
-  const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
-  if (selectedStaff) {
-    if (target.checked) {
-      if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-        this.selectedStaffs.push(selectedStaff);
+  onStaffChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedStaffId = target.value; // Get the selected staffId
+    console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
+
+    const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
+
+    if (selectedStaff) {
+      if (target.checked) {
+        if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
+          this.selectedStaffs.push(selectedStaff);
+        }
+      } else {
+        this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
       }
+      console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
     } else {
-      this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
+      console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
-    console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
-  } else {
-    console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
   }
-}
 
 
-onFileChange(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  
-  if (input.files && input.files.length > 0) {
-    this.selectedFile = input.files[0];
-    this.fileName = this.selectedFile.name;
-    this.fileSelected = true;
-  } else {
-    this.selectedFile = null;
-    this.fileName = '';
-    this.fileSelected = false;
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.fileName = this.selectedFile.name;
+      this.fileSelected = true;
+    } else {
+      this.selectedFile = null;
+      this.fileName = '';
+      this.fileSelected = false;
+    }
   }
-}
 
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
-    this.searchTerm = inputElement.value.trim(); 
-    
+    this.searchTerm = inputElement.value.trim();
+
     if (this.searchTerm) {
-      this.filterStaffs(); 
+      this.filterStaffs();
+    } else {
+      this.resetStaffList();
     }
   }
-  
+
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
@@ -258,11 +319,11 @@ onFileChange(event: Event): void {
     console.log("This is A")
     this.loadStaffs(); // Reload staff with the search term
   }
-  
-  showSelectedOptionBox():void{
-    if(this.selectedOptionsBox === false){
+
+  showSelectedOptionBox(): void {
+    if (this.selectedOptionsBox === false) {
       this.selectedOptionsBox = true;
-    }else{
+    } else {
       this.selectedOptionsBox = false;
     }
   }

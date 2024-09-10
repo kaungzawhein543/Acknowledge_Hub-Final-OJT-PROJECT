@@ -71,5 +71,11 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 
 
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file)  FROM Announcement a WHERE a.file like %?1%")
-    List<AnnouncementVersionDTO> getAllVersionsOfAnnouncement(String baseFileName);
+    List<AnnouncementVersionDTO> getAllVersions(String baseFileName);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
+    List<Announcement> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 }

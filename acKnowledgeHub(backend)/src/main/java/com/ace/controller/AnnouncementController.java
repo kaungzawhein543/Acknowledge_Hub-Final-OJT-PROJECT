@@ -366,4 +366,37 @@ public class AnnouncementController {
     public List<AnnouncementVersionDTO> getAnnouncementVersion(@PathVariable Integer id){
         return announcement_service.getAnnouncementVersion(id);
     }
+
+    @GetMapping("/announcement-versions/{baseFileName}")
+    public List<Announcement> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
+        for(Announcement announce : announcement_service.getAllVersionsByFilePattern(baseFileName)){
+            System.out.println(announce.getFile());
+        }
+        return announcement_service.getAllVersionsByFilePattern(baseFileName);
+    }
+//    @GetMapping("/announcement-get-url")
+//    public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
+//        // Step 1: Check if the fileName ends with '.pdf'
+//        if(fileName.endsWith(".pdf")) {
+//            // Step 2: Remove the '.pdf' extension from the fileName
+//            fileName = fileName.substring(0, fileName.length() - 4);
+//        }
+//
+//        // Step 3: Get the download URL by passing the modified file name to the Cloudinary service
+//        String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
+//
+//        // Step 4: Return the URL in the response
+//        return ResponseEntity.ok().body(Url);
+//    }
+
+
+    @GetMapping("/announcement-latest-version/{fileName}")
+    public ResponseEntity<String> getLatestVersion(@PathVariable("fileName") String baseFileName){
+        Announcement resultAnnouncement = announcement_service.getLatestVersionByFilePattern(baseFileName);
+        if(resultAnnouncement.getFile().contains("documents")) {
+            resultAnnouncement.setFile(resultAnnouncement.getFile()+".pdf");
+            System.out.println(resultAnnouncement.getFile());
+        }
+        return ResponseEntity.ok().body(resultAnnouncement.getFile());
+    }
 }

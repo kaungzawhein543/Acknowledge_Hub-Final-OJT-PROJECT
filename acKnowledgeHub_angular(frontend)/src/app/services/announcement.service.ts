@@ -81,4 +81,13 @@ export class AnnouncementService {
     return this.http.get<announcementVersion[]>(`${this.BaseUrl}/versions/${id}`)
   }
 
+  //Get Latest Version of Announcement
+  getLatestVersionAnnouncement(baseFile: string): Observable<any> {
+    return this.http.get(`${this.BaseUrl} /announcement-latest-version/${baseFile}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  getUrlOfAnnouncement(fileName: string): Observable<any> {
+    return this.http.get(`${this.BaseUrl} /announcement-get-url?fileName=${fileName}`, { responseType: "text" as "json", withCredentials: true });
+  }
+
 }

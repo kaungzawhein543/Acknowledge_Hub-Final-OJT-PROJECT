@@ -105,6 +105,15 @@ public class AnnouncementService {
 
     public List<AnnouncementVersionDTO> getAnnouncementVersion(Integer id){
         String baseFileName = "Announce".concat(Integer.toString(id));
+        return announcement_repo.getAllVersions(baseFileName);
+    }
+
+    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
         return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+    }
+
+    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
     }
 }

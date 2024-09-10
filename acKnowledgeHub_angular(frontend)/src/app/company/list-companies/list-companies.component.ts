@@ -17,7 +17,7 @@ import { Department } from '../../models/Department';
 export class ListCompaniesComponent implements OnInit {
   private itemIdToDelete: number | null = null;
   companies: Company[] = [];
-  selectedDepartment: Department[] | null = [];;
+  selectedDepartment: Department[] | null = null;
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
   constructor(private companyService: CompanyService, private router: Router, private departmentService: DepartmentService) { }
 
@@ -42,10 +42,6 @@ export class ListCompaniesComponent implements OnInit {
       },
       error: (e) => console.log(e)
     });
-  }
-  openDeleteModal(itemId: number) {
-    this.itemIdToDelete = itemId;
-    this.modal.open();
   }
 
   closeModal(): void {
