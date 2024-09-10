@@ -2,16 +2,27 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { userInfo } from 'os';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, Subject } from 'rxjs';
 import { ResponseEmail } from '../models/response-email';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth'; // Your backend URL
+  private apiUrl = 'http://localhost:8080/auth';
+  private loginSubject = new Subject<void>();   
+  private logoutSubject = new Subject<void>();
 
   constructor(private http: HttpClient, private router: Router) {}
+  // Emits when the user logs in successfully
+  onLogin(): Observable<void> {
+    return this.loginSubject.asObservable();
+  }
+
+  // Emits when the user logs out
+  onLogout(): Observable<void> {
+    return this.logoutSubject.asObservable();
+  }
 
   login(staffId: string, password: string): Observable<HttpResponse<string>> {
     return this.http.post(`${this.apiUrl}/login`, { staffId, password }, { observe: 'response', responseType: 'text', withCredentials: true });
@@ -35,25 +46,17 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/logout`, {}, { responseType: 'text', withCredentials: true });
   }
 
-  getUserStatus(): Observable<{ isLoggedIn: boolean, userInfo?: any }> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.get<any>(this.apiUrl, { headers: headers, withCredentials: true }).pipe(
-      map(data => ({
-        isLoggedIn: true,
-        userInfo: data
-      })),
-      catchError(error => of({ isLoggedIn: false })) // Handle errors (e.g., unauthorized or server errors)
-    );
-  }
+ 
   
   isLoggedIn(): Observable<boolean> {
-    return this.http.get<{ isLoggedIn: boolean }>(`${this.apiUrl}/me`, { withCredentials: true })
+    return this.http.get<{ isLoggedIn: boolean;id: number  }>(`${this.apiUrl}/me`, { withCredentials: true })
       .pipe(
         map(response => {
           console.log('Backend response:', response);
+          if (response.isLoggedIn && response.id) {
+            localStorage.setItem('id', response.id.toString());
+            console.log('Staff ID set in local storage:', response.id);
+          }
           return response.isLoggedIn;
         }),
         catchError(error => {

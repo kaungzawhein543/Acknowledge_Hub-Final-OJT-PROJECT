@@ -1,9 +1,13 @@
 package com.ace.controller;
 
+import com.ace.dto.GroupDTO;
 import com.ace.entity.Group;
 import com.ace.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -40,9 +44,10 @@ public class GroupController {
         groupService.updateGroup(groupId, name, userIds);
     }
     @GetMapping("/{groupId}")
-    public Group getGroup(@PathVariable int groupId){
+    public ResponseEntity<GroupDTO> getGroup(@PathVariable int groupId) {
         return groupService.getGroupById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group Id is not Found"+ groupId));
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group ID not found: " + groupId));
     }
 
     @DeleteMapping("/softDelete/{groupId}")

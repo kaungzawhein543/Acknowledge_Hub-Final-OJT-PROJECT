@@ -2,10 +2,12 @@ package com.ace.entity;
 
 import com.ace.enums.DefaultPassword;
 import com.ace.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,13 +59,10 @@ public class Staff implements UserDetails {
     @JoinColumn(name = "department_id")
     private Department department;
     @ManyToMany(mappedBy = "staff")
+    @JsonIgnore
     private List<Group> groups;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "staff_has_announcement",
-            joinColumns = @JoinColumn(name = "staff_id"),
-            inverseJoinColumns = @JoinColumn(name = "announcement_id")
-    )
+    @ManyToMany(mappedBy = "staff")
+    @JsonIgnore
     private List<Announcement> announcement = new ArrayList<>();
 
 
@@ -113,5 +112,10 @@ public class Staff implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Staff{id=" + id + ", name='" + name + "', companyStaffId='" + companyStaffId + "', email='" + email + "', createdAt=" + createdAt + "}";
     }
 }

@@ -1,57 +1,83 @@
 <nav class="bg-white shadow-md text-black p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
-    <!-- Navbar Left Section -->
-    <div class="flex items-center space-x-4">
-      <!-- Sidebar Toggle Button -->
-      <button (click)="toggleSidebar()" class="p-2 px-3.5 hover:bg-gray-200 rounded-3xl">
-        <i class="fas fa-bars text-gray-700 text-lg"></i>
-      </button>
+  <!-- Navbar Left Section -->
+  <div class="flex items-center space-x-4">
+    <!-- Sidebar Toggle Button -->
+    <button (click)="toggleSidebar()" class="p-2 px-3.5 hover:bg-gray-200 rounded-3xl">
+      <i class="fas fa-bars text-gray-700 text-lg"></i>
+    </button>
+
+    <!-- Brand Name -->
+    <div class="text-2xl font-bold">
+      <a href="#" class="flex items-center space-x-2 hover:text-gray-400">
+          <div style="display: flex;flex-direction: column;position: relative;justify-content: center;align-items: center;gap:0;">
+              <span >ACE</span>
+              <span style="font-size: 10px;">Acknowledge Hub.</span>
+            </div>
+      </a>
+    </div>
+  </div>
   
-      <!-- Brand Name -->
-      <div class="text-2xl font-bold">
-        <a href="#" class="flex items-center space-x-2 hover:text-gray-400">
-            <div style="display: flex;flex-direction: column;position: relative;justify-content: center;align-items: center;gap:0;">
-                <span >ACE</span>
-                <span style="font-size: 10px;">Acknowledge Hub.</span>
-              </div>
-        </a>
+  <div class="flex items-center space-x-4">
+    <div class="relative w-12/12"> <!-- Increase width here -->
+      <input 
+        type="text" 
+        id="searchicon" 
+        placeholder="Search..."
+        class="border border-gray-300 rounded-full px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <i class="fa-solid fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+    </div>
+  </div>
+  
+  <!-- Navbar Right Section -->
+  <div class="flex items-center space-x-4">
+   <!-- Notifications Icon -->
+<button
+class="relative p-2 px-4 hover:bg-gray-200 rounded-full"
+(click)="toggleNotifications()"
+aria-label="Notifications"
+role="button"
+aria-controls="notifications-dropdown"
+>
+<i class="fas fa-bell text-gray-600 text-lg" aria-hidden="true"></i>
+<span
+  *ngIf="unreadNotificationCount > 0"
+  class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-2 py-1"
+  aria-live="polite"
+>
+  {{ unreadNotificationCount }}
+</span>
+</button>
+
+<div
+*ngIf="showNotifications"
+id="notifications-dropdown"
+class="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
+aria-labelledby="notifications-header"
+>
+<div 
+  *ngIf="notifications.length === 0" 
+  class="p-4 text-center text-gray-600"
+  id="notifications-header"
+>
+  No new notifications
+</div>
+<div
+  *ngFor="let notification of notifications; trackBy: trackNotificationById"
+  class="p-4 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer"
+>
+  <strong class="block font-semibold">
+    {{ notification?.title || 'No Title' }}
+  </strong>
+  <p>{{ notification?.description || 'No Description' }}</p>
+</div>
+</div>
+      <!-- Dropdown menu -->
+      <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+        <a (click)="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
       </div>
     </div>
     
-    <div class="flex items-center space-x-4">
-      <div class="relative w-12/12"> <!-- Increase width here -->
-        <input 
-          type="text" 
-          id="searchicon" 
-          placeholder="Search..."
-          class="border border-gray-300 rounded-full px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <i class="fa-solid fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-      </div>
-    </div>
-    
-    <!-- Navbar Right Section -->
-    <div class="flex items-center space-x-4">
-      <!-- Notifications Icon -->
-      <button class="relative p-2 px-4 hover:bg-gray-200 rounded-full">
-        <i class="fas fa-bell text-gray-600 text-lg"></i>
-        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-2 py-1">3</span>
-      </button>
   
-      <!-- Profile Icon -->
-      <div class="relative">
-        <button class="relative hover:bg-gray-100 rounded-full px-3" (click)="toggleDropdown()">
-          <div class="flex items-center justify-evenly w-50 space-x-4">
-            <strong>Junior Developer</strong>
-            <img class="w-10 h-10 rounded-full" src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg" alt="Profile">
-          </div>
-        </button>
-        <!-- Dropdown menu -->
-        <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-          <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-          <a (click)="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
-        </div>
-      </div>
-      
-    </div>
-  </nav>
-  
+</nav>

@@ -1,7 +1,9 @@
 package com.ace.service;
 
 import com.ace.entity.Announcement;
+import com.ace.entity.Notification;
 import com.ace.repository.AnnouncementRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class AnnouncementService {
     }
 
     // Create a new announcement
+    @Transactional
     public Announcement createAnnouncement(Announcement announcement) {
         return announcement_repo.save(announcement);
     }

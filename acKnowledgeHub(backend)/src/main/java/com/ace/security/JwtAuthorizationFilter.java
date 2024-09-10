@@ -68,7 +68,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         .getBody();
 
                 username = claims.getSubject();
-                String role = claims.get("role", String.class); // Extract role
+                String role = claims.get("role", String.class);
                 if (role != null) {
                     var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                     var userDetails = staffService.loadUserByUsername(username);

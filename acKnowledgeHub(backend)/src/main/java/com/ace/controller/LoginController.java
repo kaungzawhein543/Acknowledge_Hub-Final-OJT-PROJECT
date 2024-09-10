@@ -13,6 +13,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +48,7 @@ public class LoginController {
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Staff user = staffService.authenticate(loginRequest.getStaffId(), loginRequest.getPassword());
         if (user != null) {
+
             if (passwordEncoder.matches("acknowledgeHub", user.getPassword())) {
                 return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
             } else {
@@ -66,6 +68,7 @@ public class LoginController {
                 cookie.setMaxAge(86400);
                 cookie.setSecure(true);
                 response.addCookie(cookie);
+
                 return ResponseEntity.ok("Login successful\n" + token);
             }
         } else {
@@ -121,6 +124,7 @@ public class LoginController {
                 String staffId = claims.getSubject();
                 String position = claims.get("position",String.class);
                 response.put("position",position);
+                response.put("staffId",staffId);
 
                 // Check if the token is blacklisted
                 if (tokenBlacklistService.isTokenBlacklisted(token)) {
@@ -132,7 +136,8 @@ public class LoginController {
                 Staff user = staffService.findByStaffId(staffId);
                 if (user != null) {
                     response.put("isLoggedIn", true);
-                    response.put("user", new LoginUserInfo(user.getId(), user.getName(), user.getCompanyStaffId(), user.getRole(), user.getPosition().getName()));
+                    response.put("id", user.getId());
+                    response.put("user", new LoginUserInfo(user.getId(), user.getCompanyStaffId(), user.getName(), user.getRole(), user.getPosition().getName()));
                     return ResponseEntity.ok(response);
                 }
             } catch (JwtException e) {

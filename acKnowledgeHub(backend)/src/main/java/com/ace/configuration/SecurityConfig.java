@@ -30,6 +30,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/api/v1/staff/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/notifications/status").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

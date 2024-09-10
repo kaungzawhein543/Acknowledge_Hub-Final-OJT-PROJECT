@@ -24,6 +24,7 @@ public class EmailService {
 
 
     private final JavaMailSender javaMailSender;
+    private final String TELEGRAM_CHANNEL_LINK = "https://t.me/AcKnowledgeHubBot";
 
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
@@ -91,6 +92,28 @@ public class EmailService {
             return 1;
         }
         return 0;
+    }
+    public void sendTelegramChannelInvitation(String recipientEmail) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(recipientEmail);
+            helper.setSubject("Join Our Telegram Channel!");
+            helper.setText(
+                    "Hello,\n\nWe invite you to join our Telegram channel for the latest updates and notifications.\n\n" +
+                            "Click the link below to join our channel:\n" + TELEGRAM_CHANNEL_LINK +
+                            "\n\nThank you!",
+                    true
+            );
+
+            // Send the email
+            javaMailSender.send(message);
+            System.out.println("Email sent successfully to: " + recipientEmail);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Error sending email to: " + recipientEmail);
+        }
     }
 
 }

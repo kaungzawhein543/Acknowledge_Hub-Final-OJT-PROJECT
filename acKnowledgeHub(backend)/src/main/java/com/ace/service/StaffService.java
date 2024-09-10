@@ -115,4 +115,30 @@ public class StaffService implements UserDetailsService {
     public List<StaffGroupDTO> getStaffListForGroup(){
         return staffRepository.getStaffListForGroup();
     }
+
+
+    // Method to find all staff by their IDs
+    public List<Staff> findAllByIds(List<Integer> staffIds) {
+        return staffRepository.findAllById(staffIds);
+    }
+    public Staff save(Staff staff) {
+        return staffRepository.save(staff);
+    }
+
+    public List<Staff> findByCompanyStaffIds(List<String> companyStaffIds) {
+        return staffRepository.findByCompanyStaffIdIn(companyStaffIds);
+    }
+    // Method to find staff members by group ID
+    public List<Staff> findStaffByGroupId(int groupId) {
+        return staffRepository.findStaffByGroupId(groupId);
+    }
+
+    public List<Staff> findStaffsByIds(List<Integer> ids){
+        return staffRepository.findStaffsByIds(ids);
+    }
+
+    public List<Staff> findByIds(List<Integer> ids) {
+        return staffRepository.findByIds(ids);
+    }
 }
+

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor
@@ -19,10 +20,16 @@ public class AnnouncementDTO {
     private LocalDateTime scheduleAt;
     private String file;
     private String description;
+    private  byte groupStatus;
     private String status = "active";
     private Staff createStaff;
     private Category category;
     private List<Group> group;
     private List<Department> department;
     private List<Company> company;
+    private List<Integer> staffIds;
+    private List<Integer> groupIds;
+    private int forRequest;
+
+
 }

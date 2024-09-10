@@ -40,4 +40,6 @@ public class Notification {
             this.createdAt = new java.util.Date();
         }
     }
+
+
 }
