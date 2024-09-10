@@ -26,7 +26,6 @@ public class Announcement {
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")
     private Date created_at;
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "schedule_at")
     private LocalDateTime scheduleAt;
     @Column(name = "file")

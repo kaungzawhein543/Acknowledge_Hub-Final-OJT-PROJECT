@@ -9,37 +9,35 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ExcelService {
 
-    @Autowired
-    private StaffRepository staffRepository;
-
-    @Autowired
-    private PositionRepository positionRepository;
-
-    @Autowired
-    private CompanyRepository companyRepository;
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final StaffRepository staffRepository;
+    private final PositionRepository positionRepository;
+    private final CompanyRepository companyRepository;
+    private final DepartmentRepository departmentRepository;
+    private final GroupRepository groupRepository;
     private final JavaMailSender javaMailSender;
     private final EmailService emailService;
 
-    public ExcelService(JavaMailSender javaMailSender, EmailService emailService) {
+    public ExcelService(StaffRepository staffRepository, PositionRepository positionRepository, CompanyRepository companyRepository, DepartmentRepository departmentRepository, GroupRepository groupRepository,JavaMailSender javaMailSender, EmailService emailService) {
+        this.staffRepository = staffRepository;
+        this.positionRepository = positionRepository;
+        this.companyRepository = companyRepository;
+        this.departmentRepository = departmentRepository;
+        this.groupRepository = groupRepository;
         this.javaMailSender = javaMailSender;
         this.emailService = emailService;
     }
 
+    @Transactional
     public String processExcelFile(MultipartFile file) throws IOException {
         Set<String> emailsToSend = new HashSet<>();
         try (InputStream inputStream = file.getInputStream()) {
@@ -57,6 +55,7 @@ public class ExcelService {
                 if (staffEmail != null && !staffEmail.isEmpty() && staffRepository.findByEmail(staffEmail.trim()) == null) {
                     emailsToSend.add(staffEmail.trim());
                 }
+                
 
                 String positionName = dataFormatter.formatCellValue(row.getCell(3));
                 String companyName = dataFormatter.formatCellValue(row.getCell(4));
@@ -112,6 +111,42 @@ public class ExcelService {
 
                 // Save or update the staff
                 staffRepository.save(staff);
+
+                Group companyGroup = groupRepository.findByName(companyName);
+                if(companyGroup == null){
+                    Group group1 = new Group();
+                    group1.setName(companyName);
+                    List<Staff> staffList = new ArrayList<>();
+                    staffList.add(staff);
+                    group1.setStaff(staffList);
+                    groupRepository.save(group1);
+                }else{
+                    Integer result = groupRepository.hasStaffInGroup(staff,companyGroup);
+                    if(result  == 0){
+                        List<Staff> staffList=companyGroup.getStaff();
+                        staffList.add(staff);
+                        companyGroup.setStaff(staffList);
+                        groupRepository.save(companyGroup);
+                    }
+                }
+
+                Group departmentGroup = groupRepository.findByName(departmentName +" ("+ companyName + ")" );
+                if(departmentGroup == null){
+                    Group group2 = new Group();
+                    group2.setName(departmentName +" ("+ companyName + ")" );
+                    List<Staff> staffList = new ArrayList<>();
+                    staffList.add(staff);
+                    group2.setStaff(staffList);
+                    groupRepository.save(group2);
+                }else{
+                    Integer result = groupRepository.hasStaffInGroup(staff,departmentGroup);
+                    if(result  == 0){
+                        List<Staff> staffList=departmentGroup.getStaff();
+                        staffList.add(staff);
+                        departmentGroup.setStaff(staffList);
+                        groupRepository.save(departmentGroup);
+                    }
+                }
             }
 
             // Update status of existing staff
@@ -135,6 +170,9 @@ public class ExcelService {
         } catch (IOException e) {
             e.printStackTrace();
             return "Error processing file.";
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error processing file", e);
         }
     }
     private void sendEmails(Set<String> emailsToSend) {

@@ -1,19 +1,197 @@
-<div>
-    <h2>Edit Announcement</h2>
-    <form #announcementForm="ngForm" (ngSubmit)="onSubmit(announcementForm)">
-        <label for="title">Title:</label>
-        <input id="title" name="title" [(ngModel)]="announcement.title" required>
-        
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" [(ngModel)]="announcement.description"></textarea>
-        
-        <button type="submit">Submit</button>
-    </form>
-    <h2 style="margin: 10px 0;">Enter the ID for deletion</h2>
-    <input type="text" [(ngModel)]="deleteAnnounceId" placeholder="Enter ID">
-    <button (click)="deleteAnnouncementById()">Delete</button>
-    
-
-    <button (click)="downloadPdf()">Download announcement</button>
+<div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full">
+  <div class="flex justify-between border-b border-gray-300 mb-2">
+    <span class="text-4xl font-semibold mb-10 text-gray-900 roboto-bold  text-center">Update Announcement</span>
+    <div>
+      <!-- Schedule Date -->
+      <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
+      <input id="scheduleDate" [(ngModel)]="scheduleDate" name="scheduleDate" type="datetime-local"
+        class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
+    </div>
   </div>
-  
+  <div class="border-2 border-gray-300 p-2 rounded-lg">
+    <span style="backdrop-filter: blur;">Previous Announce File </span>
+    <a class="text-blue-600 underline hover:text-blue-800" [href]="downloadUrl" target="_blank" download>Download</a>
+  </div>
+  <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">
+    <!-- Title and Description -->
+    <div class="col-span-6 flex flex-col">
+      <div class="bg-white p-6 rounded-lg shadow-md pt-9">
+        <div class="mb-6">
+          <label for="title" class="block text-lg font-semibold text-gray-800">Title</label>
+          <input id="title" [(ngModel)]="announcementTitle" name="title" type="text"
+            class="mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+            placeholder="Enter announcement title" required />
+        </div>
+
+        <div>
+          <label for="description" class="block text-lg font-semibold text-gray-800">Description</label>
+          <textarea id="description" [(ngModel)]="announcementDescription" name="description" rows="4"
+            class="mt-2 p-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+            placeholder="Enter announcement description (optional)"></textarea>
+        </div>
+      </div>
+
+      <!-- Category Selection -->
+      <div class="bg-white p-6 rounded-lg shadow-md mt-2 h-fit">
+        <label class="block text-lg font-semibold text-gray-800">Category</label>
+        <select [(ngModel)]="selectedCategory" name="category"
+          class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+          <option *ngFor="let category of categories" [ngValue]="category">{{ category.name }}</option>
+        </select>
+        <p *ngIf="selectedCategory" class="text-sm text-gray-600 mt-2 p-2">
+          Description : {{ selectedCategory.description }}
+        </p>
+      </div>
+
+    </div>
+
+    <div class="col-span-6 flex flex-col ">
+      <div class="bg-white p-6 rounded-lg shadow-md  flex-1 hover:bg-gray-100 w-full relative">
+        <label class="p-3.5 cursor-pointer absolute inset-0 flex items-center justify-center">
+          <i class="fas fa-upload pe-2"></i> Upload Announcement File
+          <input type="file" id="announcementFile" name="announcementFile" class="hidden"
+            (change)="onFileChange($event)">
+        </label>
+      </div>
+      <span class="file-selected ms-4 p-2" *ngIf="fileSelected">
+        <i class="fas fa-check-circle text-green-500"></i>
+        {{ fileName }}
+      </span>
+
+      <!-- Radio Buttons -->
+      <div class="bg-white p-4 rounded-lg shadow-md flex-1 mt-2">
+        <fieldset>
+          <div class="flex justify-between">
+            <legend class="text-lg font-semibold text-gray-800">Announce to</legend>
+            <div class="relative">
+              <div class="bg-white w-80 h-80 absolute right-12 rounded-md shadow-md z-10" *ngIf="selectedOptionsBox">
+                <span class="p-4 text-lg">Selected {{optionStaffOfGroup}}</span>
+                <div class="border-t border-gray-200 mx-4 mt-2 h-64 overflow-y-auto">
+                  <ul class="space-y-2">
+                    <div *ngIf="selectedGroups.length > 0">
+                      <li *ngFor="let group of selectedGroups"
+                        class="flex items-center  p-3 hover:bg-gray-100 rounded-lg cursor-pointer">
+                        <i class="fa-solid fa-users me-2"></i><span>{{ group.name }}</span>
+                      </li>
+                    </div>
+                    <div *ngIf="selectedStaffs.length > 0">
+                      <ul class="list-none p-0 m-0">
+                        <li *ngFor="let staff of selectedStaffs"
+                          class="flex items-center  p-3 hover:bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
+                          <i class="fa-solid fa-circle-user me-2"></i> <span class="truncate">{{ staff.name }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div *ngIf="selectedStaffs.length === 0 && selectedGroups.length === 0"
+                      class="mt-6 text-center flex align-content-center">
+                      <span class="block mx-auto p-2 mt-6 text-gray-500">There is no staff<br>or groups selected</span>
+                    </div>
+                  </ul>
+
+                </div>
+              </div>
+
+              <i class="fa-solid fa-users-line p-2 rounded-md cursor-pointer hover:bg-gray-100 mt-2 border shadow-md"
+                *ngIf="groupotion" (click)="showSelectedOptionBox()"><span
+                  class="bg-red-600 text-white p-1 rounded-lg absolute left-6 top-0"
+                  style="font-size: 10px;">{{selectedGroups.length}}</span></i>
+              <i class="fa-solid fa-user p-2 rounded-md cursor-pointer hover:bg-gray-100 mt-2 border shadow-md"
+                *ngIf="staffoption" (click)="showSelectedOptionBox()"><span
+                  class="bg-red-600 text-white p-1 rounded-lg absolute left-6 top-0"
+                  style="font-size: 10px;">{{selectedStaffs.length}}</span></i>
+            </div>
+          </div>
+          <div class="mt-2  flex space-x-6">
+            <label class="inline-flex items-center">
+              <input type="radio" name="announceTo" value="group" [(ngModel)]="selectedOption"
+                (change)="onOptionChange('group')"
+                class="form-radio h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <span class="ml-3 text-gray-700">Groups</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="announceTo" value="staff" [(ngModel)]="selectedOption"
+                (change)="onOptionChange('staff')"
+                class="form-radio h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <span class="ml-3 text-gray-700">Staff</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Group Selection -->
+      <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md mt-3 flex-1"
+        style="min-height: 280px;">
+        <label class="block text-lg font-semibold text-gray-800">Select Groups</label>
+        <select multiple (change)="onGroupChange($event)"
+          class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+          <option class="p-2" *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
+        </select>
+
+        <!-- <div class="mt-4">
+          <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li *ngFor="let group of selectedGroups" class="text-gray-700">{{ group.name }}</li>
+          </ul>
+        </div> -->
+      </div>
+
+      <!-- Staff Selection -->
+      <div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0"
+        style="max-height: 280px;" (scroll)="onScroll($event)">
+        <div class="sticky top-0 w-full bg-white">
+          <label class="block text-lg font-semibold text-gray-800">Select Staffs</label>
+
+          <input type="text" class="border-2 rounded-lg p-2 w-full" placeholder="Enter Staff Name or (Position).."
+            (input)="onInputChange($event)" />
+        </div>
+
+        <div class="mt-2 space-y-3 h-40">
+          <div class="overflow-auto">
+            <div *ngFor="let staff of staffs" class="flex items-center p-2">
+              <input type="checkbox" [value]="staff.staffId" [checked]="staff.selected" (change)="onStaffChange($event)"
+                class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <label class="ml-3 text-gray-700 flex-1">
+                <div>
+                  {{ staff.name }} ({{ staff.position }})
+                </div>
+                <div *ngIf="staff.department?.name">
+                  - {{ staff.department.name }} Department
+                </div>
+                <div *ngIf="staff.company?.name">
+                  - {{ staff.company.name }} Company
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div *ngIf="isLoading" class="text-center mt-4">Loading...</div>
+        </div>
+      </div>
+
+      <!-- <div class="mt-4 bg-white h-auto shadow-lg p-2" *ngIf="selectedStaffs.length > 0">
+    <p *ngIf="selectedStaffs.length > 0" class="text-sm font-semibold text-gray-800">Selected Staff:</p>
+    <ul class="list-disc pl-5 mt-2">
+      <li *ngFor="let staff of selectedStaffs" class="text-gray-700">
+        <div>
+          {{ staff.name }} ({{ staff.position }})
+        </div>
+        <div *ngIf="staff.department?.name">
+          - {{ staff.department.name }} Department
+        </div>
+        <div *ngIf="staff.company?.name">
+          - {{ staff.company.name }} Company
+        </div>
+      </li>
+    </ul>
+  </div> -->
+
+      <!-- Submit Button -->
+      <div class="mt-2 ">
+        <button type="submit"
+          class="w-1/4 float-end py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Create
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

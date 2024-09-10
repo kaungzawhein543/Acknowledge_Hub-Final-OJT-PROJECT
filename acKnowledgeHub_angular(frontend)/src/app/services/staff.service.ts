@@ -6,9 +6,8 @@ import { Company } from '../models/Company';
 import { Department } from '../models/Department';
 import { StaffGroup } from '../models/staff-group';
 import { UnNotedUser } from '../models/un-noted-user';
-import { Staff } from '../models/staff';
-// import { AddStaff } from '../models/addStaff';
-
+import { Staff, staffList } from '../models/staff';
+import { AddStaff } from '../models/addStaff';
 
 
 
@@ -22,29 +21,31 @@ export class StaffService {
 
   constructor(private http: HttpClient) { }
 
-  // addStaff(staff: AddStaff): Observable<any> {
-  //   return this.http.post(`${this.baseURL}/add`, staff);
-  // }
+  addStaff(staff: AddStaff): Observable<any> {
+    return this.http.post(`${this.baseURL}/add`, staff);
+  }
 
   getNotedUserByAnnouncementList(id: number): Observable<NotedUser[]> {
     return this.http.get<NotedUser[]>(`${this.baseURL}/noted-list/${id}`);
   }
 
-  getUnNotedStaffByAnnouncementList(id: number): Observable<UnNotedUser[]> {
-    return this.http.get<UnNotedUser[]>(`${this.baseURL}/not-noted-list/${id}`);
+  getUnNotedStaffByAnnouncementList(id: number, groupStatus: number): Observable<UnNotedUser[]> {
+    return this.http.get<UnNotedUser[]>(`${this.baseURL}/not-noted-list/${id}/${groupStatus}`);
   }
 
-  getAllCompany(): Observable<Company[]> {
-    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company`);
-  }
+  // getAllCompany(): Observable<Company[]> {
+  //   return this.http.get<Company[]>(`http://localhost:8080/api/v1/company`);
+  // }
 
-  getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
-    return this.http.get<Department[]>(`http://localhost:8080/api/v1/department/company/${companyId}`);
-  }
+  // getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
+  //   return this.http.get<Department[]>(`http://localhost:8080/api/v1/department/company/${companyId}`);
+  // }
 
-  getAllDepartment(): Observable<Department[]> {
-    return this.http.get<Department[]>(`http://localhost:8080/api/v1/department`);
-  }
+  // getAllDepartment(): Observable<Department[]> {
+  //   return this.http.get<Department[]>(`http://localhost:8080/api/v1/department`);
+  // }
+
+
 
 
   getStaffs(page: number, size: number, searchTerm: string): Observable<any> {
@@ -55,5 +56,17 @@ export class StaffService {
 
   getStaffList(): Observable<StaffGroup[]> {
     return this.http.get<StaffGroup[]>(`${this.baseURL}/group-staff`);
+  }
+
+  getList(): Observable<staffList[]> {
+    return this.http.get<staffList[]>(`${this.baseURL}/list`);
+  }
+
+  getHRList(): Observable<staffList[]> {
+    return this.http.get<staffList[]>(`${this.baseURL}/hr-list`);
+  }
+
+  putHRMain(id: number): Observable<staffList[]> {
+    return this.http.get<staffList[]>(`${this.baseURL}/put-HR/${id}`);
   }
 }

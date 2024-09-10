@@ -1,1 +1,45 @@
-<p>add-department works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
+        <p class="text-3xl font-bold text-gray-800 text-center mb-6">
+            Add Department
+        </p>
+        <form #departmentForm="ngForm" (ngSubmit)="onSubmit(departmentForm)" class="space-y-6">
+            <div>
+                <label for="company" class="block text-gray-700 font-medium mb-2">
+                    Company
+                </label>
+                <select id="company" name="company" [(ngModel)]="department.company"
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
+                    (change)="onCompanyChange()">
+                    <option [ngValue]="null" disabled>Select Company</option>
+                    <option *ngFor="let company of companies" [ngValue]="company">
+                        {{ company.name }}
+                    </option>
+                </select>
+                <div *ngIf="companyError">
+                    <small style="color: red;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Company is required
+                    </small>
+                </div>
+            </div>
+            <div>
+                <label for="department" class="block text-gray-700 font-medium mb-2">
+                    Department Name
+                </label>
+                <input type="text" id="department" name="department" [(ngModel)]="department.name" required
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <span *ngIf="departmentForm.submitted && departmentForm.controls['department'].errors">
+                    <small style="color: red;" *ngIf="departmentForm.controls['department'].errors?.['required']">
+                        <i class="fa-solid fa-circle-exclamation"></i>Department Name is required
+                    </small>
+                </span>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                ADD
+            </button>
+        </form>
+
+    </div>
+</div>

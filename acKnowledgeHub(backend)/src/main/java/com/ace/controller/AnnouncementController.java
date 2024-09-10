@@ -1,10 +1,9 @@
 package com.ace.controller;
 
-import com.ace.dto.NotificationDTO;
+import com.ace.dto.*;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
-import com.ace.dto.AnnouncementDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -16,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.mock.web.MockMultipartFile;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -44,8 +44,7 @@ public class AnnouncementController {
     private final BotService botService;
     private final StaffService staffService;
     private final EmailService emailService;
-    private final ReqAnnouncementService reqAnnouncementService;
-    private final AnnouncementForReqService announcementForReqService;
+    private final GroupService groupService;
     private final UserNotedAnnouncementService userNotedAnnouncementService;
     private final NotificationService notificationService;
     private final GroupService groupService;
@@ -60,8 +59,7 @@ public class AnnouncementController {
         this.botService = botService;
         this.staffService = staffService;
         this.emailService = emailService;
-        this.reqAnnouncementService = reqAnnouncementService;
-        this.announcementForReqService = announcementForReqService;
+        this.groupService = groupService;
         this.userNotedAnnouncementService = userNotedAnnouncementService;
         this.notificationService = notificationService;
         this.groupService = groupService;
@@ -74,11 +72,12 @@ public class AnnouncementController {
     }
 
     @GetMapping("/getPublishedAnnouncements")
-    public ResponseEntity<List<Announcement>> getPublishedAnnouncements() {
-        List<Announcement> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
+    public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
+        List<AnnouncementListDTO> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
+    //    Create and update method (because update is also insert the row in database)
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Announcement> createAnnouncement(
             @RequestPart AnnouncementDTO request,
@@ -86,8 +85,7 @@ public class AnnouncementController {
             @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
             @RequestPart(name = "files", required = false) List<MultipartFile> files,
             @RequestParam(name = "createUserId") Integer createUserId) {
-        try {
-            // Find Create Staff From Announcement DTO
+        try {        // Find Create Staff From Announcement DTO
             Staff user = staffService.findById(createUserId);
 
 
@@ -118,6 +116,14 @@ public class AnnouncementController {
             if (announcement.getScheduleAt() == null) {
                 LocalDateTime publishDateTime = LocalDateTime.now();
                 announcement.setScheduleAt(publishDateTime);
+            }
+
+            //initialize the project Announce people
+            if (groupsForAnnounce != null) {
+                announcement.setGroup(groupsForAnnounce);
+            }
+            if (staffForAnnounce != null) {
+                announcement.setStaff(staffForAnnounce);
             }
 
             //initialize the project Announce people
@@ -290,6 +296,7 @@ public class AnnouncementController {
         }
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<String> updateAnnouncement(@RequestBody Announcement announcement, @PathVariable int id) {
         try {
@@ -378,7 +385,7 @@ public class AnnouncementController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<byte[]> downloadPdfFromEmail(@RequestParam("publicId") String publicId,@RequestParam("userEmail") String userEmail, HttpServletResponse response) {
+    public ResponseEntity<byte[]> downloadPdfFromEmail(@RequestParam("publicId") String publicId, @RequestParam("userEmail") String userEmail, HttpServletResponse response) {
         try {
             // Use the service method to download the PDF file
             byte[] pdfContent = cloudinaryService.downloadPdf(publicId);
@@ -391,11 +398,11 @@ public class AnnouncementController {
             Matcher matcher = pattern.matcher(publicId);
             if (matcher.find()) {
                 Integer AnnouncementId = Integer.valueOf(matcher.group(1));
-                Announcement announcement =  announcement_service.getAnnouncementById(AnnouncementId).orElseThrow();
+                Announcement announcement = announcement_service.getAnnouncementById(AnnouncementId).orElseThrow();
 
                 //Check Already Noted or not
-                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser,announcement);
-                if(!NotedConditionAnnouncement.isPresent()){
+                Optional<StaffNotedAnnouncement> NotedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(NotedUser, announcement);
+                if (!NotedConditionAnnouncement.isPresent()) {
                     StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
                     staffNotedAnnouncement.setStaff(NotedUser);
                     staffNotedAnnouncement.setAnnouncement(announcement);
@@ -453,5 +460,64 @@ public class AnnouncementController {
                 announcement.getId(),
                 groupIds
         );
+    @GetMapping("/staff-noted/{staffId}")
+    public List<StaffNotedResponseDTO> getStaffNotedList(@PathVariable Integer staffId) {
+        List<StaffNotedResponseDTO> announcementList = announcement_service.getStaffNoted(staffId);
+        return announcementList;
+    }
+
+    @GetMapping("/staff-unnoted/{staffId}")
+    public List<AnnouncementResponseListDTO> getStaffUnNotedList(@PathVariable Integer staffId) {
+        List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffUnNoted(staffId);
+        return announcementList;
+    }
+
+    @GetMapping("/staff/{staffId}")
+    public List<AnnouncementResponseListDTO> getStaffAnnouncement(@PathVariable Integer staffId) {
+        List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffAnnouncement(staffId);
+        return announcementList;
+    }
+
+    @GetMapping("/pending-list")
+    public List<AnnouncementResponseListDTO> getPendingAnnouncement() {
+        return announcement_service.getPendingAnnouncement();
+    }
+
+    @GetMapping("/versions/{id}")
+    public List<AnnouncementVersionDTO> getAnnouncementVersion(@PathVariable Integer id){
+        return announcement_service.getAnnouncementVersion(id);
+    }
+
+    @GetMapping("/announcement-versions/{baseFileName}")
+    public List<Announcement> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
+        for(Announcement announce : announcement_service.getAllVersionsByFilePattern(baseFileName)){
+            System.out.println(announce.getFile());
+        }
+        return announcement_service.getAllVersionsByFilePattern(baseFileName);
+    }
+//    @GetMapping("/announcement-get-url")
+//    public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
+//        // Step 1: Check if the fileName ends with '.pdf'
+//        if(fileName.endsWith(".pdf")) {
+//            // Step 2: Remove the '.pdf' extension from the fileName
+//            fileName = fileName.substring(0, fileName.length() - 4);
+//        }
+//
+//        // Step 3: Get the download URL by passing the modified file name to the Cloudinary service
+//        String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
+//
+//        // Step 4: Return the URL in the response
+//        return ResponseEntity.ok().body(Url);
+//    }
+
+
+    @GetMapping("/announcement-latest-version/{fileName}")
+    public ResponseEntity<String> getLatestVersion(@PathVariable("fileName") String baseFileName){
+        Announcement resultAnnouncement = announcement_service.getLatestVersionByFilePattern(baseFileName);
+        if(resultAnnouncement.getFile().contains("documents")) {
+            resultAnnouncement.setFile(resultAnnouncement.getFile()+".pdf");
+            System.out.println(resultAnnouncement.getFile());
+        }
+        return ResponseEntity.ok().body(resultAnnouncement.getFile());
     }
 }

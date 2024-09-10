@@ -2,78 +2,85 @@
   <li style="margin: 16px; padding: 3px;">
     <span class="text-gray-600 font-semibold">Main Links</span>
   </li>
-  
+
   <div *ngIf="isAdmin">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md" 
-         routerLink="admindashboard" 
-         routerLinkActive="active text-white hover:active hover:text-white">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="admindashboard" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-chart-line"></i>
         <span>Admin Dashboard</span>
       </a>
-    </li> 
+    </li>
   </div>
-  
-  <div *ngIf="isHr">
+
+  <div *ngIf="isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md" 
-         routerLink="hr-dashboard"
-         routerLinkActive="active text-white hover:active hover:text-white">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="hr-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-chart-line"></i>
         <span>HR Dashboard</span>
       </a>
-    </li> 
+    </li>
   </div>
-  
-  <div *ngIf="!isAdmin && !isHr">
+
+
+
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md" 
-         routerLink="staff-dashboard" 
-         routerLinkActive="active text-white hover:active hover:text-white">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="staff-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-chart-line"></i>
         <span>Staff Dashboard</span>
       </a>
-    </li> 
+    </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+  <div *ngIf="!isAdmin && !isMainHr && isHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md" 
-         routerLink="announcement/list" 
-         routerLinkActive="active text-white hover:active hover:text-white">
-         <i class="fa-solid fa-list"></i>
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="announcement/request" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-solid fa-plus"></i>
+        <span> Request Announcement</span>
+      </a>
+    </li>
+  </div>
+
+  <div *ngIf="!isAdmin && !isMainHr">
+    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        [routerLink]="'announcement/list-by-staff/' + staffId"
+        routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-solid fa-list"></i>
         <span>Announcement List</span>
       </a>
-    </li> 
+    </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md" 
-         routerLink="announcement/noted-announcement" 
-         routerLinkActive="active text-white hover:active hover:text-white">
-         <i class="fa-regular fa-check-circle"></i>
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="announcement/staff-noted" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-regular fa-check-circle"></i>
         <span>Noted Announcement</span>
       </a>
-    </li> 
+    </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isHr">
+  <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md" 
-         routerLink="announcement/notNoted-announceemnt" 
-         routerLinkActive="active text-white hover:active hover:text-white">
-         <i class="fa-regular fa-circle-xmark"></i>
-        <span>Not Noted Announcement</span>
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="announcement/staff-unnoted" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-regular fa-circle-xmark"></i>
+        <span>Un-Noted Announcement</span>
       </a>
-    </li> 
+    </li>
   </div>
-  
 
 
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
-    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between" 
-       (click)="toggleMenu('announcementMenu')" >
+
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('announcementMenu')">
       <span class="flex items-center space-x-3">
         <i class="fa-solid fa-bullhorn"></i>
         <span>Announcements</span>
@@ -81,22 +88,23 @@
       <i class="fa-solid fa-chevron-down"></i>
     </a>
     <ul id="announcementMenu" class="space-y-2 pl-8 mt-2 hidden">
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="announcement/add" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="announcement/add" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Create Announcement</span>
         </span>
       </li>
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="announcement/list" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="announcement/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
           <span> Announcement List</span>
         </span>
       </li>
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="announcement/pending-announcement" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="announcement/pending-announcement"
+        routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-spinner"></i>
           <span> Pending Announcement</span>
@@ -104,11 +112,11 @@
       </li>
     </ul>
   </li>
-  
+
   <!-- Category with Sub-items -->
   <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin">
-    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between" 
-       (click)="toggleMenu('categoryMenu')">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('categoryMenu')">
       <span class="flex items-center space-x-3">
         <i class="fa-solid fa-layer-group"></i>
         <span>Category</span>
@@ -116,20 +124,22 @@
       <i class="fa-solid fa-chevron-down"></i>
     </a>
     <ul id="categoryMenu" class="space-y-2 pl-8 mt-2 hidden">
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="list-category" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-layer-group"></i> Sub Category
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="category/list" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-solid fa-list"></i>
+        <span> Category List</span>
       </li>
     </ul>
   </li>
 
-  <li *ngIf="isAdmin || isHr">
+  <li *ngIf="isAdmin || isMainHr">
     <span class="text-gray-600 p-3 font-semibold">Additional Links</span>
   </li>
 
   <!-- Company with Sub-items -->
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
-    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between" 
-       (click)="toggleMenu('companyMenu')" >
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('companyMenu')">
       <span class="flex items-center space-x-3">
         <i class="fa-solid fa-globe"></i>
         <span>Company</span>
@@ -137,15 +147,15 @@
       <i class="fa-solid fa-chevron-down"></i>
     </a>
     <ul id="companyMenu" class="space-y-2 pl-8 mt-2 hidden">
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="company/add" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="company/add" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Add Company</span>
         </span>
       </li>
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="company/list" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="company/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
           <span> Company List</span>
@@ -155,9 +165,9 @@
   </li>
 
   <!-- Department with Sub-items -->
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr">
-    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between" 
-       (click)="toggleMenu('departmentMenu')" >
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('departmentMenu')">
       <span class="flex items-center space-x-3">
         <i class="fa-solid fa-building"></i>
         <span>Department</span>
@@ -165,30 +175,31 @@
       <i class="fa-solid fa-chevron-down"></i>
     </a>
     <ul id="departmentMenu" class="space-y-2 pl-8 mt-2 hidden">
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="department/add" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="department/add" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Add Department</span>
         </span>
       </li>
-      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" routerLink="department/list" 
-      routerLinkActive="active text-white hover:active hover:text-white">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="department/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
           <span> Department List</span>
         </span>
       </li>
     </ul>
-    
+
   </li>
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isHr" >
-    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md" routerLink="users/list">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md"
+      routerLink="users/list">
       <i class="fa-solid fa-users"></i>
       <span>Users</span>
     </a>
   </li>
-  
+
 
   <li class="absolute bottom-0 left-0 w-full p-3">
     <span class="text-gray-400 font-semibold copyrightext">

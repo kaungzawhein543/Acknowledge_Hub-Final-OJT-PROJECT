@@ -3,6 +3,7 @@ package com.ace.controller;
 import com.ace.dto.GroupDTO;
 import com.ace.entity.Group;
 import com.ace.service.GroupService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,23 +11,38 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200/")
-@RequestMapping("api/group")
+@RequestMapping("api/v1/group")
 public class GroupController {
-    @Autowired
-    private GroupService groupService;
+
+    private final GroupService groupService;
+    private final ModelMapper mapper;
+
+    public GroupController(GroupService groupService, ModelMapper mapper) {
+        this.groupService = groupService;
+        this.mapper = mapper;
+    }
 
     @GetMapping
-    public List<Group> getAllGroups() {
-        return groupService.getAllGroups();
+    public ResponseEntity<List<GroupDTO>> getAllGroups() {
+        List<Group> groups = groupService.getAllGroups();
+
+        // Map each Group entity to a GroupDTO
+        List<GroupDTO> groupDTOs = groups.stream()
+                .map(group -> mapper.map(group, GroupDTO.class))
+                .collect(Collectors.toList());
+
+        // Return the list of GroupDTOs in the response
+        return ResponseEntity.ok().body(groupDTOs);
     }
+
 
     @PostMapping("/create")
     public String addGroup(
             @RequestParam String name,
-            @RequestParam List<Integer> userIds
+            @RequestBody List<Integer> userIds
             ){
         if (name.isEmpty()){
             return "Group name is Empty";

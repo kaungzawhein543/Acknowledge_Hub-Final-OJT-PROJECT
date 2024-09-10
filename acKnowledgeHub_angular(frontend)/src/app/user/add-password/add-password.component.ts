@@ -13,6 +13,8 @@ export class AddPasswordComponent {
   errorMessage: string = '';
   successMessage: string = '';
   email!: string;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
   constructor(private authService: AuthService, private router: Router) { }
 
   addPassword() {
@@ -35,4 +37,12 @@ export class AddPasswordComponent {
     );
   }
 
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 }

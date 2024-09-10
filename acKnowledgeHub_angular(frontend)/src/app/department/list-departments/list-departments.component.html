@@ -1,1 +1,32 @@
-<p>list-departments works!</p>
+<div class="container">
+    <div class="flex justify-center">
+        <div class="w-full lg:w-4/4">
+            <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
+                <h3 class="text-lg font-semibold">
+                    Department List</h3>
+
+            </div>
+            <div class="bg-white p-6 rounded-b shadow-md">
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="px-4 py-2 text-left">#</th>
+                            <th class="px-4 py-2 text-left">Department</th>
+                            <th class="px-4 py-2 text-left">Company</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="!departments || departments.length === 0">
+                            <td colspan="5" class="text-center text-gray-500 py-4">There is no data available.</td>
+                        </tr>
+                        <tr *ngFor="let department of departments; let i = index" class="border-b">
+                            <td class="px-4 py-2">{{ i + 1 }}</td>
+                            <td class="px-4 py-2">{{ department.name }}</td>
+                            <td class="px-4 py-2">{{ department.company.name }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,11 +1,16 @@
 package com.ace.service;
 
+import com.ace.dto.AnnouncementListDTO;
+import com.ace.dto.AnnouncementResponseListDTO;
+import com.ace.dto.AnnouncementVersionDTO;
+import com.ace.dto.StaffNotedResponseDTO;
 import com.ace.entity.Announcement;
 import com.ace.entity.Notification;
 import com.ace.repository.AnnouncementRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,8 +78,45 @@ public class AnnouncementService {
     }
 
     // Method to get published announcements
-    public List<Announcement> getPublishedAnnouncements() {
-        return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
+    public List<AnnouncementListDTO> getPublishedAnnouncements() {
+        return announcement_repo.getAnnouncementList(); // Adjust method name based on your repository
     }
 
+    public List<StaffNotedResponseDTO> getStaffNoted(Integer staffId) {
+        return announcement_repo.getStaffNoted(staffId);
+    }
+
+    public List<AnnouncementResponseListDTO> getStaffUnNoted(Integer staffId) {
+        List<AnnouncementResponseListDTO> staffAnnouncements = announcement_repo.getNotStaffNoted(staffId);
+        List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getNotStaffNotedGroup(staffId);
+        List<AnnouncementResponseListDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
+        combinedAnnouncements.addAll(groupAnnouncements);
+        return combinedAnnouncements;
+    }
+
+    public List<AnnouncementResponseListDTO> getStaffAnnouncement(Integer staffId) {
+        List<AnnouncementResponseListDTO> staffAnnouncements = announcement_repo.getStaffAnnouncement(staffId);
+        List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getStaffAnnouncementGroup(staffId);
+        List<AnnouncementResponseListDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
+        combinedAnnouncements.addAll(groupAnnouncements);
+        return combinedAnnouncements;
+    }
+
+    public List<AnnouncementResponseListDTO> getPendingAnnouncement(){
+        return announcement_repo.getPendingAnnouncement();
+    }
+
+    public List<AnnouncementVersionDTO> getAnnouncementVersion(Integer id){
+        String baseFileName = "Announce".concat(Integer.toString(id));
+        return announcement_repo.getAllVersions(baseFileName);
+    }
+
+    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
+        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+    }
+
+    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+    }
 }

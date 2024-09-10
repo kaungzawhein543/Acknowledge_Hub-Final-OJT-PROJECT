@@ -1,10 +1,15 @@
 package com.ace.dto;
 
-import lombok.Data;
+
 import java.util.Date;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class GroupDTO {
     private int id;
     private String name;

@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+/* Logo Background */
+.logo-container {
+  z-index: 0; /* Keep the logo behind the form */
+  opacity: 0.7; /* Increased opacity for a brighter background */
+}
+
+.logo {
+  font-family: "Lora", serif;
+  font-weight: 700;
+  font-size: 320px; /* Large size for prominent background */
+  color: #1b4980; /* Bright color */
+}
+
+.logo-sub {
+  font-family: "Lora", serif;
+
+  font-size: 100px; /* Large size for the subtext */
+  color: #1b4980;
+}
+
+/* Ensure form is on top */
+.w-full {
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(20px);
+  
+}
+.bg-white {
+    background-color: transparent; /* Transparent to let the blur show */
+    position: relative;
+    z-index: 10;
+    padding: 20px; /* Optional: add padding for better appearance */
+    border-radius: 12px; /* Optional: rounded corners for a sleek look */
+  }
+
+  

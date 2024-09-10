@@ -41,7 +41,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     private final UserNotedAnnouncementService userNotedAnnouncementService;
     private final AnnouncementService announcementService;
 
-    @Autowired
     public MyTelegramBot(DefaultBotOptions options, @Value("${bot.token}") String botToken, @Value("${bot.name}")  String botUsername,
                          StaffService staffService, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService) {
         super(options);
@@ -171,7 +170,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         editMessage.setText("You have noted");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("Noted");
+        button.setText("✅Noted");
         button.setCallbackData("button:done");
         List<InlineKeyboardButton> row = Arrays.asList(button);
         List<List<InlineKeyboardButton>> keyboard = Arrays.asList(row);

@@ -62,7 +62,7 @@ public class EmailService {
                     + "</body>"
                     + "</html>";
             mimeMessageHelper.setText(htmlContent,true);
-            mimeMessageHelper.addAttachment(file.getOriginalFilename(), file);
+//            mimeMessageHelper.addAttachment(file.getOriginalFilename(), file);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
             e.printStackTrace();
@@ -70,7 +70,7 @@ public class EmailService {
             throw new RuntimeException(e);
         }
     }
-
+    
     public static class OTPDetails {
         String otp;
         LocalDateTime expiryTime;

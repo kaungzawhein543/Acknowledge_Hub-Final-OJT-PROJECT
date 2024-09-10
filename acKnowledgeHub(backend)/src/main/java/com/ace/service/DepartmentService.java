@@ -1,7 +1,9 @@
 package com.ace.service;
 
+import com.ace.entity.Group;
 import com.ace.repository.DepartmentRepository;
 import com.ace.entity.Department;
+import com.ace.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +12,13 @@ import java.util.Optional;
 
 @Service
 public class DepartmentService {
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
+    private final GroupRepository groupRepository;
+
+    public DepartmentService(DepartmentRepository departmentRepository, GroupRepository groupRepository) {
+        this.departmentRepository = departmentRepository;
+        this.groupRepository = groupRepository;
+    }
 
     public List<Department> getAllDepartments() {
         return departmentRepository.findAll();
@@ -20,12 +27,22 @@ public class DepartmentService {
         return departmentRepository.findByCompanyId(companyId);
     }
 
+    public Optional<Department> findById(int id){
+        return departmentRepository.findById(id);
+    }
+
 
     public Department getDepartmentById(int id) {
         return departmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Department not found"));
     }
 
     public Department saveDepartment(Department department) {
+        Group group = groupRepository.findByName(department.getName());
+        if(group == null){
+            Group group1 = new Group();
+            group1.setName(department.getName());
+            groupRepository.save(group1);
+        }
         return departmentRepository.save(department);
     }
 

@@ -31,25 +31,25 @@ import java.util.Map;
 @Slf4j
 public class LoginController {
 
-    @Autowired
-    private StaffService staffService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private TokenBlacklistService tokenBlacklistService;
+    private final StaffService staffService;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService) {
+        this.staffService = staffService;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenBlacklistService = tokenBlacklistService;
+    }
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Staff user = staffService.authenticate(loginRequest.getStaffId(), loginRequest.getPassword());
         if (user != null) {
-
-            if (passwordEncoder.matches("acknowledgeHub", user.getPassword())) {
+            if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
                 return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
             } else {
                 String token = Jwts.builder()
@@ -57,6 +57,7 @@ public class LoginController {
                         .claim("name", user.getName())
                         .claim("role", user.getRole())
                         .claim("position",user.getPosition().getName())
+                        .claim("company",user.getCompany().getName())
                         .setIssuedAt(new Date())
                         .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                         .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -123,8 +124,10 @@ public class LoginController {
                 //Check Position
                 String staffId = claims.getSubject();
                 String position = claims.get("position",String.class);
+                String company = claims.get("company",String.class);
                 response.put("position",position);
                 response.put("staffId",staffId);
+                response.put("company",company);
 
                 // Check if the token is blacklisted
                 if (tokenBlacklistService.isTokenBlacklisted(token)) {

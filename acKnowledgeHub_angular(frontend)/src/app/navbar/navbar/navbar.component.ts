@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { error } from 'node:console';
 
 import { WebSocketService } from '../../services/web-socket.service';
 import { Notification } from '../../models/Notification';
@@ -17,11 +18,19 @@ export class NavbarComponent implements OnInit {
   showNotifications: boolean = false;
   unreadNotificationCount: number = 0;
   isDropdownOpen = false;
+  position: string = '';
+  name: string = '';
 
   constructor(private sidebarService: SidebarService,private authService: AuthService,private notificationService: NotificationService,
     private webSocketService: WebSocketService,private router : Router) {}
   
   ngOnInit(): void {
+    this.authService.getUserInfo().subscribe(
+      data => {
+        this.position = data.position;
+        this.name = data.user.name;
+      },
+    )
    this.subscribeToNotifications();
    this.subscribeToStatusUpdates();
   }
@@ -65,7 +74,7 @@ export class NavbarComponent implements OnInit {
 
  
   toggleSidebar() {
-    this.sidebarService.toggle(); 
+    this.sidebarService.toggle();
   }
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
@@ -112,8 +121,8 @@ export class NavbarComponent implements OnInit {
       }
     );
   }
-  
-  
+
+
   closeDropdown() {
     this.isDropdownOpen = false;
   }

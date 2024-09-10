@@ -1,11 +1,13 @@
 package com.ace.controller;
 
+import com.ace.dto.EmailResponseDTO;
 import com.ace.dto.OTPEmailDTO;
 import com.ace.dto.PasswordResponseDTO;
 import com.ace.entity.Staff;
 import com.ace.service.EmailService;
 import com.ace.service.StaffService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,25 +27,31 @@ public class EmailController {
     }
 
     @PostMapping(value = "/send-otp")
-    public void verify(@RequestParam("email") String email) {
-        Staff dto = staffService.findByEmail(email);
+    public EmailResponseDTO verify(@RequestParam("staffId") String staffId) {
+        Staff dto = staffService.findByStaffId(staffId);
         if (dto != null) {
             Random random = new Random();
             int otp = random.nextInt(1000000);
             String otpNumber = String.format("%06d", otp);
             String otpAndText = otpNumber + " is your verification code.";
-            emailService.sendOTPEmail(email, "Verification code", otpAndText);
-            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(3);
-            EmailService.storeOTP(email, otpNumber, expiryTime);
-            log.info("Sending Email is successfully");
+            emailService.sendOTPEmail(dto.getEmail(), "Verification code", otpAndText);
+            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
+            EmailService.storeOTP(dto.getEmail(), otpNumber, expiryTime);
+            EmailResponseDTO emailDTO = new EmailResponseDTO();
+            emailDTO.setEmail(dto.getEmail());
+            emailDTO.setExpiryTime(expiryTime);
+            return emailDTO;
         } else {
-            System.out.println("email is not login");
+            return null;
         }
     }
 
+
     @PostMapping(value = "/verify-otp")
-    public int verifyOtp(@RequestBody OTPEmailDTO bean) {
-        int isValid = EmailService.verifyOTP(bean.getEmail(), bean.getOtp());
+    public int verifyOtp(@RequestBody OTPEmailDTO dto) {
+        System.out.println("email "+ dto.getEmail());
+        System.out.println("otp : " +dto.getOtp());
+        int isValid = EmailService.verifyOTP(dto.getEmail(), dto.getOtp());
         if (isValid == 1) {
             return 1;
         } else {

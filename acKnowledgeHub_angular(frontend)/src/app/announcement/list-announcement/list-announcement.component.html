@@ -1,1 +1,124 @@
-<p>list-announcement works!</p>
+<div class="container bg-white mx-auto p-4">
+  <!-- Header Section -->
+  <div class="flex justify-between items-center mb-8">
+    <span class="text-5xl font-semibold" style="font-size: 30px;">Announcements List</span>
+    <!-- Search Input on the Right Side -->
+    <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
+      (input)="onSearchChange()" />
+  </div>
+
+
+  <!-- Search and Filters Section -->
+  <div class="flex justify-between mb-4">
+
+    <div class="flex gap-4">
+      <!-- Date Filters -->
+      <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate" [value]="startDateTime"
+        (change)="onStartDateChange($event)" />
+      <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate" [value]="endDateTime"
+        (change)="onEndDateChange($event)" />
+
+      <!-- Checkbox Filters -->
+      <div class="relative inline-block text-left">
+        <button (click)="toggleFilterDropdown()" class="text-dark py-2 px-2 rounded-md"
+          style="border: 1px solid rgb(174, 174, 174);">
+          <i class="fas fa-filter"></i> Filter <i class="ps-1 fa-solid fa-caret-down"></i>
+        </button>
+        <div *ngIf="isFilterDropdownOpen"
+          class="absolute  w-40 bg-gray-100 border border-gray-300 rounded-md shadow-lg z-60">
+          <label class="block px-3 py-2">
+            <input type="checkbox" [(ngModel)]="activeChecked" (change)="onActiveCheckboxChange($event)" />
+            Active
+          </label>
+          <label class="block px-3 py-2">
+            <input type="checkbox" [(ngModel)]="inactiveChecked" (change)="onInactiveCheckboxChange($event)" />
+            Inactive
+          </label>
+        </div>
+      </div>
+    </div>
+
+
+    <div>
+      <!-- Report Button -->
+      <div class="relative">
+        <button class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700" (click)="toggleReportDropdown()">
+          Generate Report <i class="fa-solid fa-caret-down"></i>
+        </button>
+        <!-- Dropdown for Report Types -->
+        <ul class="absolute left-2 w-41 bg-gray-100 text-black top-10 shadow-md rounded z-10"
+          *ngIf="isReportDropdownOpen">
+          <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('pdf')">
+            <i class="fa-regular fa-file-pdf"></i> Generate PDF
+          </li>
+          <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('excel')">
+            <i class="fa-regular fa-file-excel"></i> Generate Excel
+          </li>
+        </ul>
+        <button mat-button [matMenuTriggerFor]="menu">Columns</button>
+      </div>
+
+      <mat-menu #menu="matMenu">
+        <div class="checkbox-container">
+          <mat-checkbox *ngFor="let col of columns" [(ngModel)]="columnVisibility[col.field]"
+            (change)="onColumnVisibilityChange()" class="checkbox-item">
+            {{ col.header }}
+          </mat-checkbox>
+        </div>
+      </mat-menu>
+    </div>
+
+  </div>
+
+
+  <!-- Table with Pagination -->
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" class="min-w-full">
+      <!-- Define Columns -->
+      <ng-container *ngFor="let col of columns">
+        <ng-container *ngIf="columnVisibility[col.field]">
+          <ng-container [matColumnDef]="col.field">
+            <th mat-header-cell *matHeaderCellDef class="header-center">
+              {{ col.header }}
+            </th>
+            <td mat-cell *matCellDef="let announcement" class="data-right">
+              <ng-container [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'note'">
+                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title)">
+                    Noted
+                  </button>
+                  <button mat-button style="color: rgb(215, 133, 133);"
+                    (click)="onUnNotedButtonClick(announcement.id , announcement.groupStatus,announcement.title)">
+                    UnNoted
+                  </button>
+                </ng-container>
+                <ng-container *ngSwitchCase="'detail'">
+                  <button mat-button (click)="onDetailButtonClick(announcement.id)">
+                    View
+                  </button>
+                </ng-container>
+                <!-- Truncate Description -->
+                <ng-container *ngSwitchCase="'description'">
+                  {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}
+                </ng-container>
+                <!-- Format Schedule -->
+                <ng-container *ngSwitchCase="'schedule'">
+                  {{ (getNestedProperty(announcement, col.field) | date:'HH:mm:ss') }}
+                </ng-container>
+                <!-- Default Handling -->
+                <ng-container *ngSwitchDefault>
+                  {{ getNestedProperty(announcement, col.field) || 'N/A' }}
+                </ng-container>
+              </ng-container>
+            </td>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="selectedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: selectedColumns;"></tr>
+    </table>
+
+    <!-- Paginator -->
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
+  </div>

@@ -1,35 +1,120 @@
-<div class="grid-container mt-5">
-    <div class="scroll-container">
-        <div class="text-center"><b>COMPANY</b></div>
-        <div *ngFor="let company of companies">
-            <div class="button " (click)="showDepartment(company.id)"><button> {{ company.name }}</button><span
-                    *ngIf="company.id == companystatus" class="icon"><i class="fa-solid fa-right-long"></i></span>
+<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-full mx-auto">
+  <div class="text-center font-bold text-2xl text-gray-800 mb-3 border-b-2 pb-4">
+    Create a New Group
+  </div>
+  <div class="w-full flex justify-between">
+    <div>
+      <input [(ngModel)]="groupName" type="text" class="my-2 border-2 w-full min-w-48 p-2"
+        placeholder="Enter a group name ..." (ngModelChange)="onGroupNameChange()">
+      <div *ngIf="validationError">
+        <small class="text-red-500">{{ validationError }}</small>
+      </div>
+    </div>
+    <div class="my-3">
+      <span class=" text-gray-700 font-medium">
+        Selected Staffs :
+      </span>
+
+      <div class="bg-white w-80 h-80 absolute right-12 rounded-md shadow-md z-10" *ngIf="selectedOptionsBox">
+        <span class="p-4 text-lg">Selected Staffs</span>
+        <div class="border-t border-gray-200 mx-4 mt-2 h-64 overflow-y-auto">
+          <ul class="space-y-2">
+            <div *ngIf="selectedStaff.length > 0">
+              <ul class="list-none p-0 m-0">
+                <li *ngFor="let staff of selectedStaff"
+                  class="flex items-center  p-3 hover:bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
+                  <i class="fa-solid fa-circle-user me-2"></i> <span class="truncate">{{ staff.name }}
+                    ({{staff.position }} - {{staff.department.name}}) </span>
+                </li>
+              </ul>
             </div>
+            <div *ngIf="selectedStaff.length === 0 " class="mt-6 text-center flex align-content-center">
+              <span class="block mx-auto p-2 mt-6 text-gray-500">There is no staff selected</span>
+            </div>
+          </ul>
+
         </div>
+      </div>
+
+      <i class="fa-solid fa-user p-2 rounded-md cursor-pointer hover:bg-gray-100 mt-2 border shadow-md"
+        style="position: relative;" (click)="showSelectedOptionBox()">
+        <span class="bg-red-600 text-white p-1 rounded-lg"
+          style="position: absolute; left: 10; top: 0; font-size: 10px;">
+          {{selectedStaff.length}}
+        </span>
+      </i>
+
+    </div>
+  </div>
+
+
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- COMPANY Section -->
+    <div class="bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
+      <div class="text-center font-semibold text-xl mb-5 text-gray-800 border-b pb-2">COMPANY</div>
+      <input [(ngModel)]="companySearchTerm" (input)="filterCompany()"
+        class="mb-4 p-2 w-full rounded-lg border border-gray-300" placeholder="Search Company">
+      <div *ngFor="let company of filteredCompanies">
+        <div class="flex justify-between items-center mb-4">
+          <button class="w-full font-medium py-2 px-4 rounded-lg transition ease-in-out duration-200"
+            [ngClass]="{'bg-[#1b4980] text-white': company.id == companystatus, 'bg-gray-100 text-gray-800 hover:bg-gray-200': company.id != companystatus}"
+            (click)="showDepartment(company.id)">
+            {{ company.name }}
+          </button>
+          <span *ngIf="company.id == companystatus" class="text-blue-600 ml-3">
+            <i class="fa-solid fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
     </div>
 
-    <div class="scroll-container">
-        <div class="text-center"><b>DEPARTMENT</b></div>
-        <div *ngFor="let department of departments">
-            <div class="button " (click)="showStaff(department.id)"><button> {{ department.name }}</button><span
-                    *ngIf="departmentstatus==department.id " class="icon"><i class="fa-solid fa-right-long"></i></span>
-            </div>
+    <!-- DEPARTMENT Section -->
+    <div class="bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
+      <div class="text-center font-semibold text-xl mb-5 text-gray-800 border-b pb-2">DEPARTMENT</div>
+      <input [(ngModel)]="departmentSearchTerm" (input)="filterDepartment()"
+        class="mb-4 p-2 w-full rounded-lg border border-gray-300" placeholder="Search Department">
+      <div *ngFor="let department of filteredDepartments">
+        <div class="flex justify-between items-center mb-4">
+          <button class="w-full font-medium py-2 px-4 rounded-lg transition ease-in-out duration-200"
+            [ngClass]="{'bg-[#1b4980] text-white': departmentstatus == department.id, 'bg-gray-100 text-gray-800 hover:bg-gray-200': departmentstatus != department.id}"
+            (click)="showStaff(department.id)">
+            {{ department.name }}
+          </button>
+          <span *ngIf="departmentstatus == department.id" class="text-green-600 ml-3">
+            <i class="fa-solid fa-arrow-right"></i>
+          </span>
         </div>
+      </div>
     </div>
-    <div class="scroll-container">
-        <div class=" text-center"><b>STAFF</b></div>
-        <mat-selection-list #staff (selectionChange)="toggleSelection($event)">
-            <mat-list-option *ngFor="let staff of filteredStaffList" [value]="staff" [selected]="isSelected(staff)">
-                <div>
-                    {{ staff.name }} ({{ staff.position }})
-                </div>
-            </mat-list-option>
-        </mat-selection-list>
+
+    <!-- STAFF Section -->
+    <div class="bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
+      <div class="text-center font-semibold text-xl mb-5 text-gray-800 border-b pb-2">STAFF</div>
+      <div class="flex items-center mb-4">
+        <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()" class="mr-2" id="selectAll">
+        <label for="selectAll" class="text-sm font-medium text-gray-800">Select All</label>
+      </div>
+      <input [(ngModel)]="staffSearchTerm" (input)="filterStaff()"
+        class="mb-4 p-2 w-full rounded-lg border border-gray-300" placeholder="Search Staff">
+      <mat-selection-list #staff (selectionChange)="toggleSelection($event)">
+        <mat-list-option *ngFor="let staff of filteredStaffList" [value]="staff" [selected]="isSelected(staff)"
+          [ngClass]="{'bg-[#1b4980] text-white': isSelected(staff), '': !isSelected(staff)}">
+          <div class="py-2 px-4 rounded-lg transition ease-in-out duration-200">
+            {{ staff.name }} ({{ staff.position }})
+          </div>
+        </mat-list-option>
+      </mat-selection-list>
     </div>
+  </div>
+
+  <!-- Selected Options and Button -->
+  <div class="flex flex-col sm:flex-row justify-end align-content-center mt-4">
+
+    <button
+      class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition ease-in-out duration-200  sm:mt-0 max-h-12"
+      (click)="getSelectedGroup()" [disabled]="!status">
+      Create Group
+    </button>
+  </div>
 </div>
-
-<p>
-    Options selected: {{ selectedStaffCount }}
-</p>
-<button (click)="getSelectedGroup()" class="cratebutton" [disabled]="!status">Create
-    Group</button>

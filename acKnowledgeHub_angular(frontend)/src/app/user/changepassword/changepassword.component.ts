@@ -8,14 +8,15 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './changepassword.component.html',
   styleUrl: './changepassword.component.css'
 })
-export class ChangepasswordComponent implements OnInit  {
+export class ChangepasswordComponent implements OnInit {
   staffId: string = '';
   oldPassword: string = '';
   newPassword: string = '';
   errorMessage: string = '';
   successMessage: string = '';
-
-  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) {}
+  showPassword: boolean = false;
+  showOldPassword: boolean = false;
+  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -37,5 +38,13 @@ export class ChangepasswordComponent implements OnInit  {
         this.successMessage = '';
       }
     );
+  }
+
+  toggleOldPasswordVisibility(): void {
+    this.showOldPassword = !this.showOldPassword;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

@@ -41,6 +41,7 @@ public class Group {
     )
     @JsonIgnore
     private List<Staff> staff = new ArrayList<>();
+   
 
     @PrePersist
     protected void onCreate() {
