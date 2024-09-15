@@ -22,6 +22,16 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("update Announcement a set a.status = 'inactive' where a.id = ?1")
     void softDeleteAnnouncement(Integer id);
 
+    @Query(value = "SELECT * FROM Announcement a WHERE a.file LIKE %:fileName%", nativeQuery = true)
+    List<Announcement> findAllByFileName(@Param("fileName") String fileName);
+
+
+    @Query("SELECT a.file FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
+    List<String> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
 
     @Query("select NEW com.ace.dto.StaffNotedResponseDTO(a.title , a.description, a.scheduleAt, sn.notedAt, a.file) from Announcement a " +
             "JOIN StaffNotedAnnouncement sn ON a.id = sn.announcement.id " +
@@ -59,7 +69,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("select NEW com.ace.dto.AnnouncementResponseDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name , a.file,  a.category.name) " +
             "from Announcement a WHERE a.isPublished = true ")
     List<AnnouncementResponseDTO> getPendingAnnouncement();
-
     //Query for staffNotedAnnouncement
     @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
             "FROM Announcement a " +
@@ -89,8 +98,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 
     @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId ORDER BY a.created_at DESC")
     List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
-
-
 
 
 

@@ -4,6 +4,7 @@ import com.ace.dto.*;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +20,26 @@ public class AnnouncementService {
     }
 
     // Create a new announcement
+    @Transactional
     public Announcement createAnnouncement(Announcement announcement) {
         return announcement_repo.save(announcement);
     }
+
+    public List<String> getAllVersionsByFilePattern(String baseFileName) {
+        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+    }
+
+//    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+//        List<String> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+//    }
+
+    //Find Lastest Version By File
+    public Optional<Announcement> findLastByFileName(String file) {
+        List<Announcement> announcements = announcement_repo.findAllByFileName(file);
+        return Optional.of(announcements.get(announcements.size() - 1));  // Return the last element
+    }
+
 
     // Read an announcement by ID
     public Optional<Announcement> getAnnouncementById(Integer id) {
@@ -72,9 +90,10 @@ public class AnnouncementService {
     }
 
     // Method to get published announcements
-    public List<AnnouncementListDTO> getPublishedAnnouncements() {
-        return announcement_repo.getAnnouncementList(); // Adjust method name based on your repository
+    public List<Announcement> getPublishedAnnouncements() {
+        return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
     }
+
     public List<StaffNotedResponseDTO> getStaffNoted(Integer staffId) {
         return announcement_repo.getStaffNoted(staffId);
     }
@@ -98,7 +117,6 @@ public class AnnouncementService {
     public List<AnnouncementResponseDTO> getPendingAnnouncement(){
         return announcement_repo.getPendingAnnouncement();
     }
-
     //Method to get the staffnotedAnnoucement
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_repo.findAnnouncementStaffCounts();
