@@ -90,8 +90,8 @@ public class AnnouncementService {
     }
 
     // Method to get published announcements
-    public List<Announcement> getPublishedAnnouncements() {
-        return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
+    public List<AnnouncementListDTO> getPublishedAnnouncements() {
+        return announcement_repo.getAnnouncementList(); // Adjust method name based on your repository
     }
 
     public List<StaffNotedResponseDTO> getStaffNoted(Integer staffId) {

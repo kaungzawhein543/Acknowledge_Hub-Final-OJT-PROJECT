@@ -80,7 +80,7 @@ export class MychartComponent implements AfterViewInit {
         return itemDate >= start && itemDate <= end;
       });
     } else {
-      this.filteredData = this.announcementData;
+      this.filteredData = this.announcementData.slice(0,2);
     }
   
     this.noData = !(this.filteredData.length > 0 && this.announcementByIdData.length > 0);

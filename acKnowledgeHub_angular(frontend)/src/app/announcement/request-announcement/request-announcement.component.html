@@ -13,7 +13,6 @@
           <span *ngIf="dateError">{{dateError}}</span>
       </div>
     </div>
-  </div>
   <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">
     <!-- Title and Description -->
     <div class="card col-span-6 flex flex-col">
@@ -151,12 +150,7 @@
       </select>
     </div>
     
-    <!-- <div class="mt-4">
-      <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>
-      <ul class="list-disc pl-5 mt-2">
-        <li *ngFor="let group of selectedGroups" class="text-gray-700">{{ group.name }}</li>
-      </ul>
-    </div> -->
+   
 
 <!-- Staff Selection -->
 <div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0" style="max-height: 280px;" (scroll)="onScroll($event)">
@@ -198,22 +192,7 @@
 </div>
 </div>
 
-<!-- <div class="mt-4 bg-white h-auto shadow-lg p-2" *ngIf="selectedStaffs.length > 0">
-  <p *ngIf="selectedStaffs.length > 0" class="text-sm font-semibold text-gray-800">Selected Staff:</p>
-  <ul class="list-disc pl-5 mt-2">
-    <li *ngFor="let staff of selectedStaffs" class="text-gray-700">
-      <div>
-        {{ staff.name }} ({{ staff.position }})
-      </div>
-      <div *ngIf="staff.department?.name">
-        - {{ staff.department.name }} Department
-      </div>
-      <div *ngIf="staff.company?.name">
-        - {{ staff.company.name }} Company
-      </div>
-    </li>
-  </ul>
-</div> -->
+
 
     <!-- Submit Button -->
     <div class="mt-2 ">

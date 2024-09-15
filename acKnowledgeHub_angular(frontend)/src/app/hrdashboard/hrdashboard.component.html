@@ -58,10 +58,10 @@
 
   <!-- Card 2 -->
    
-  <div class="card bg-green-100 p-3 rounded-md shadow-lg" *ngFor="let announcement of announcements" >
+  <div class="card bg-green-100 p-3 rounded-md shadow-lg"  >
     <span class="text-base font-semibold text-gray-800 mb-4 block" >Recent Announcements</span>
     <ul class="space-y-2">
-      <li class="bg-white p-2 rounded-sm shadow-sm hover:shadow-md transition-shadow duration-300 text-sm">
+      <li *ngFor="let announcement of announcements" class="bg-white p-2 rounded-sm shadow-sm hover:shadow-md transition-shadow duration-300 text-sm">
         <div class="flex justify-between items-center">
           <p class="font-medium text-gray-800 truncate">{{ announcement.title }}</p>
           <span class="text-sm">{{ announcement.created_at | date:'shortDate' }}</span>

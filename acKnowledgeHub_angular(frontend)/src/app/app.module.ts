@@ -106,7 +106,7 @@ import { CommonModule } from '@angular/common';
     RequestAnnouncementComponent, 
     UserChartComponent,
     ProfileComponent,
-    StaffChartComponent
+    StaffChartComponent,
     LoaderComponent,
     DetailAnnouncementComponent
   ],

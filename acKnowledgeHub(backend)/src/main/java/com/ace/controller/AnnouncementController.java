@@ -148,10 +148,10 @@ public class AnnouncementController {
 
 
     @GetMapping("/getPublishedAnnouncements")
-    public ResponseEntity<List<AnnouncementDTO>> getPublishedAnnouncements() {
-        List<Announcement> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
-        List<AnnouncementDTO> publishedAnnouncementDTOs = publishedAnnouncements.stream()
-                .map(announcement -> mapper.map(announcement, AnnouncementDTO.class))
+    public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
+        List<AnnouncementListDTO> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
+        List<AnnouncementListDTO> publishedAnnouncementDTOs = publishedAnnouncements.stream()
+                .map(announcement -> mapper.map(announcement, AnnouncementListDTO.class))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(publishedAnnouncementDTOs);
     }
@@ -213,9 +213,9 @@ public ResponseEntity<Announcement> createAnnouncement(
             LocalDateTime publishDateTime = LocalDateTime.now();
             announcement.setScheduleAt(publishDateTime);
         }
-        if(request.getForRequest() == 1){
+        if (request.getForRequest() == 1) {
             announcement.setPermission("pending");
-        }else{
+        } else {
             announcement.setPermission("approved");
         }
         //Set id to null because even that is update need to add new row
@@ -225,27 +225,27 @@ public ResponseEntity<Announcement> createAnnouncement(
 
 
         // Send Announcement to Telegram & email
-        if(request.getScheduleAt() != null){
-            if(request.getForRequest() != 1 ){
+        if (request.getScheduleAt() != null) {
+            if (request.getForRequest() != 1) {
                 LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
                 savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
                 blogService.createPost(savedAnnouncement);
             }
-        }else{
-            if(request.getForRequest() != 1){
-                blogService.sendTelegramAndEmail(staffForAnnounce,groupsForAnnounce,files.get(0),savedAnnouncement.getId(),request.getGroupStatus());
+        } else {
+            if (request.getForRequest() != 1) {
+                blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus());
                 savedAnnouncement.setPublished(true);
-                announcement_service.updateAnnouncement( savedAnnouncement.getId(),savedAnnouncement);
+                announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
             }
         }
 
         if (files != null && !files.isEmpty()) {
             MultipartFile file = files.get(0);
             CompletableFuture<Map<String, Object>> uploadFuture;
-            if(request.getId() != 0){
-                 uploadFuture = cloudinaryService.uploadFile(file, "Announce" + request.getId());
-            }else{
-                 uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
+            if (request.getId() != 0) {
+                uploadFuture = cloudinaryService.uploadFile(file, "Announce" + request.getId());
+            } else {
+                uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
             }
 
             uploadFuture.thenAccept(uploadResult -> {
@@ -270,13 +270,8 @@ public ResponseEntity<Announcement> createAnnouncement(
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
+}
 
-    @GetMapping("/announcement-get-url")
-    public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
-    String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
-
-        return ResponseEntity.ok().body(Url);
-    }
     @GetMapping("/downloadfile")
     public ResponseEntity<byte[]> downloadFile(@RequestParam String file) {
         try {
