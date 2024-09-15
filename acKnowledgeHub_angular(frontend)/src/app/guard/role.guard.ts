@@ -33,9 +33,9 @@ export class RoleGuard implements CanActivate {
         if (currentRoute.includes('/staff-dashboard')) {
           // Staff-dashboard: Accessible to any role/position except ADMIN and HR_MAIN
           hasPosition = userInfo.user.role !== 'ADMIN' && userInfo.position !== 'HR_MAIN';
-        } else if (currentRoute.includes('/hr-dashboard')) {
-          // HR-dashboard: Only accessible to HR_MAIN
-          hasPosition = userInfo.position === 'HR_MAIN';
+        } else if (currentRoute.includes('/dashboard')) {
+          // HR-dashboard: Accessible to HR_MAIN and ADMIN roles
+          hasPosition = userInfo.position === 'HR_MAIN' || userInfo.user.role === 'ADMIN';
         } else if (currentRoute.includes('/admin-dashboard')) {
           // Admin-dashboard: Only accessible to ADMIN
           hasPosition = userInfo.position === 'ADMIN';
@@ -48,9 +48,8 @@ export class RoleGuard implements CanActivate {
             // USER can only access if they have the HR_MAIN position
             hasPosition = userInfo.position === 'HR_MAIN';
           }
-        }
-        else if (currentRoute.includes('/department')) {
-          // Company route logic
+        } else if (currentRoute.includes('/department')) {
+          // Department route logic
           if (userInfo.user.role === 'ADMIN') {
             // ADMIN can access regardless of position
             hasPosition = true;
@@ -58,8 +57,7 @@ export class RoleGuard implements CanActivate {
             // USER can only access if they have the HR_MAIN position
             hasPosition = userInfo.position === 'HR_MAIN';
           }
-        }
-        else if (requiredPositions.length > 0) {
+        } else if (requiredPositions.length > 0) {
           // Check if ADMIN role is present in required roles
           if (requiredRoles.includes('ADMIN') && userInfo.user.role === 'ADMIN') {
             hasPosition = true; // ADMIN can access regardless of position

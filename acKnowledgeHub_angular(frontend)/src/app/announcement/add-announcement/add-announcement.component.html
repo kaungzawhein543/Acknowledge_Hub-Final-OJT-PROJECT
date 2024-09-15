@@ -1,5 +1,5 @@
-<div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full">
-    <div class="flex justify-between border-b border-gray-300 mb-2">
+<div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full"  @cardAnimation>
+    <div class=" card flex justify-between border-b border-gray-300 mb-2">
       <h2 class="text-4xl font-bold mb-10 text-gray-900 roboto-bold  text-center" >Create Announcement</h2>
       <div>
         <!-- Schedule Date -->
@@ -14,7 +14,7 @@
     </div>
     <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">
       <!-- Title and Description -->
-      <div class="col-span-6 flex flex-col">
+      <div class="card col-span-6 flex flex-col">
         <div class="bg-white p-6 rounded-lg shadow-md pt-9">
             <div class="mb-6">
               <label for="title" class="block text-lg font-semibold text-gray-800">Title</label>
@@ -43,7 +43,7 @@
         </div>
     
         <!-- Category Selection -->
-        <div class="bg-white p-6 rounded-lg shadow-md mt-2 h-fit">
+        <div class="card bg-white p-6 rounded-lg shadow-md mt-2 h-fit">
           <label class="block text-lg font-semibold text-gray-800">Category</label>
           <select
             [(ngModel)]="selectedCategory"
@@ -59,7 +59,7 @@
         
       </div>
     
-      <div class="col-span-6 flex flex-col ">
+      <div class="card col-span-6 flex flex-col ">
         <div class="bg-white p-6 rounded-lg shadow-md  flex-1 hover:bg-gray-100 w-full relative">
           <label class="p-3.5 cursor-pointer absolute inset-0 flex items-center justify-center">
             <i class="fas fa-upload pe-2"></i> Upload Announcement File
@@ -137,7 +137,11 @@
         <label class="block text-lg font-semibold text-gray-800">Select Groups</label>
         <select multiple (change)="onGroupChange($event)" class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
           <option class="p-2" *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
+          <option *ngIf="groups.length === 0" class="p-2 text-gray-500 text-center border-0 outline-none" disabled>
+            There are no groups available
+          </option>
         </select>
+        
         
         <!-- <div class="mt-4">
           <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>

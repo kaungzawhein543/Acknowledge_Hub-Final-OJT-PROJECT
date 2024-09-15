@@ -36,6 +36,7 @@ import { AddAnnouncementComponent } from './announcement/add-announcement/add-an
 import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
 import { ListAnnouncementComponent } from './announcement/list-announcement/list-announcement.component';
 import { ProfileComponent } from './user/profile/profile.component';
+import { roleBaseRedirectGuard } from './guard/role-base-redirect.guard';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -46,12 +47,15 @@ const routes: Routes = [
   { path: 'otp-input', component: OtpInputComponent },
   { path: 'otp-request', component: OtpRequestComponent },
   { path: 'add-password', component: AddPasswordComponent },
-  { path: 'admindashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
-  { path: 'hr-dashboard', component: HRdashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], positions: ['HR_MAIN'] } },
+  // { path: 'admindashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
+  { path: 'dashboard', component: HRdashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER', 'ADMIN'], positions: ['HR_MAIN'] } },
   { path: 'staff-dashboard', component: DashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['HR_MAIN'] } },
   { path: 'add-category', component: AddCategoryComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
   { path: 'list-category', component: ListCategoryComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
   { path: 'update-category/:id', component: UpdateCategoryComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN'] } },
+
+  { path: '', canActivate: [roleBaseRedirectGuard], children: [] },
+
   {
     path: 'company', canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['HR_MAIN'] }, children: [
       { path: 'add', component: AddCompanyComponent },
@@ -84,12 +88,23 @@ const routes: Routes = [
       { path: 'pending-announcement', component: PendingAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['HR_MAIN'] } }
     ]
   },
-  { path: '', redirectTo: '/announcement', pathMatch: 'full' },
   {
-    path: 'users/list', canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['HR_MAIN'] }, children: [
-      { path: 'list', component: ListUserComponent }
+  
+    path: '', 
+    canActivate: [roleBaseRedirectGuard], 
+    pathMatch: 'full',
+    children: [] 
+  },
+
+  {
+    path: 'users', canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['HR_MAIN'] }, children: [
+      { path: 'list', component: ListUserComponent },
+      { path: 'add',component:AddUserComponent}
     ]
-  }
+  },
+
+  { path: '**', redirectTo: '/404' }
+
 ];
 
 
@@ -97,4 +112,7 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
+  
+
+
 export class AppRoutingModule { }

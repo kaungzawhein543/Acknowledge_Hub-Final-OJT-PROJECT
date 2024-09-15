@@ -16,6 +16,7 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   onLogin() {
+    
     this.authService.login(this.staffId, this.password).subscribe(
       response => {
         const body = response.body;
@@ -33,13 +34,11 @@ export class LoginComponent {
           this.authService.getUser().subscribe(user => {
             console.log('User data:', user);
             if (user.user.role === "USER" && user.position !== "HR_MAIN") {
-              this.router.navigate(['/staff-dashboard']);
-            } else if (user.user.role === "ADMIN") {
-              this.router.navigate(['/admindashboard']);
-            } else {
-              this.router.navigate(['/hr-dashboard']);
+                this.router.navigate(['/staff-dashboard']);
+            } else if (user.user.role === "ADMIN" || user.position === "HR_MAIN") {
+                this.router.navigate(['/dashboard']);
             }
-          });
+        });
         }
       },
       error => {

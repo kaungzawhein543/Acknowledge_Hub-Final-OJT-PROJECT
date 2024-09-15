@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 import { Group } from '../../models/Group';
 import { Staff } from '../../models/staff';
 import { GroupService } from '../../services/group.service';
@@ -8,10 +10,23 @@ import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
 
+
 @Component({
   selector: 'app-add-announcement',
   templateUrl: './add-announcement.component.html',
-  styleUrls: ['./add-announcement.component.css']
+  styleUrls: ['./add-announcement.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddAnnouncementComponent implements OnInit {
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
@@ -37,7 +52,6 @@ export class AddAnnouncementComponent implements OnInit {
   selectedFile: File | null = null;
   createStaffId !: number;
 
-
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
@@ -60,7 +74,7 @@ export class AddAnnouncementComponent implements OnInit {
       data => {
         this.createStaffId = data.user.id;
       }
-    )
+    );
   }
 
   loadGroups() {
@@ -99,7 +113,6 @@ export class AddAnnouncementComponent implements OnInit {
             ...staff,
             position: this.extractPositionName(staff.position) // Extract only the name
           }));
-          console.log(this.staffs)
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
@@ -114,16 +127,14 @@ export class AddAnnouncementComponent implements OnInit {
     );
   }
 
-
   extractPositionName(position: string | null): string {
     if (!position) {
-      return ''; // or handle null/empty string appropriately
+      return ''; // Handle null/empty string appropriately
     }
 
     const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
     return match ? match[1] : position;
   }
-
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
@@ -144,6 +155,7 @@ export class AddAnnouncementComponent implements OnInit {
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category: this.selectedCategory
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -177,8 +189,6 @@ export class AddAnnouncementComponent implements OnInit {
     );
   }
 
-
-
   onOptionChange(option: string): void {
     this.selectedOption = option;
     if (option === 'group') {
@@ -207,7 +217,6 @@ export class AddAnnouncementComponent implements OnInit {
     }
   }
 
-
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
@@ -229,7 +238,6 @@ export class AddAnnouncementComponent implements OnInit {
     }
   }
 
-
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -250,6 +258,9 @@ export class AddAnnouncementComponent implements OnInit {
 
     if (this.searchTerm) {
       this.filterStaffs();
+    } else {
+      // Reset to show all staff when search term is cleared
+      this.resetStaffList();
     }
   }
 
@@ -260,14 +271,15 @@ export class AddAnnouncementComponent implements OnInit {
     this.loadStaffs(); // Reload staff with the search term
   }
 
-  showSelectedOptionBox(): void {
-    if (this.selectedOptionsBox === false) {
-      this.selectedOptionsBox = true;
-    } else {
-      this.selectedOptionsBox = false;
-    }
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
   }
 
-
-
+  showSelectedOptionBox(): void {
+    this.selectedOptionsBox = !this.selectedOptionsBox;
+  }
 }

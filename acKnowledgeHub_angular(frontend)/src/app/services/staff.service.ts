@@ -6,8 +6,10 @@ import { Company } from '../models/Company';
 import { Department } from '../models/Department';
 import { StaffGroup } from '../models/staff-group';
 import { UnNotedUser } from '../models/un-noted-user';
-import { Staff } from '../models/staff';
+import { Staff, StaffSummaryCount } from '../models/staff';
 import { AddStaff } from '../models/addStaff';
+import { announcementList } from '../models/announcement-list';
+import { AnnouncementListDTO } from '../models/announcement';
 
 
 
@@ -54,5 +56,22 @@ export class StaffService {
 
   getStaffList(): Observable<StaffGroup[]> {
     return this.http.get<StaffGroup[]>(`${this.baseURL}/group-staff`);
+  }
+
+  //method to get staff summary count
+  getStaffCount():Observable<StaffSummaryCount>{
+    return this.http.get<StaffSummaryCount>(`${this.baseURL}/summary`,{withCredentials :true});
+  }
+
+  //method to get announcment by staff id card
+  getAnnouncementDESC():Observable<AnnouncementListDTO[]>{
+    return this.http.get<AnnouncementListDTO[]>(`${this.baseURL}/staff-announcements`,{withCredentials :true});
+  }
+
+  uploadProfilePhoto(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(`${this.baseURL}/profile/upload-photo`, formData, { withCredentials :true,responseType: 'text' as 'json' });
   }
 }

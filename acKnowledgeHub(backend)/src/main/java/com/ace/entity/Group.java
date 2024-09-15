@@ -34,13 +34,8 @@ public class Group {
             inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
     private List<Staff> staff = new ArrayList<>();
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "group_has_announcement",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "announcement_id")
-    )
-    private List<Announcement> announcement = new ArrayList<>();
+    @ManyToMany(mappedBy = "group")
+    private List<Announcement> announcement;
 
     @PrePersist
     protected void onCreate() {

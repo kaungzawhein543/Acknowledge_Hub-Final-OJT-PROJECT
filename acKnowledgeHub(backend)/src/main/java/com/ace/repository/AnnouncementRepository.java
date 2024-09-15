@@ -1,8 +1,6 @@
 package com.ace.repository;
 
-import com.ace.dto.AnnouncementResponseDTO;
-import com.ace.dto.StaffNotedResponseDTO;
-import com.ace.dto.AnnouncementStaffCountDTO;
+import com.ace.dto.*;
 import com.ace.entity.Announcement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +14,7 @@ import java.util.List;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
+
     List<Announcement> findByStatus(String status);
 
     @Modifying
@@ -60,12 +59,38 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("select NEW com.ace.dto.AnnouncementResponseDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name , a.file,  a.category.name) " +
             "from Announcement a WHERE a.isPublished = true ")
     List<AnnouncementResponseDTO> getPendingAnnouncement();
+
     //Query for staffNotedAnnouncement
     @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
             "FROM Announcement a " +
             "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
             "GROUP BY a.id, a.title, a.created_at")
     List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
+
+    //Query for announcement stats card
+    @Query("SELECT new com.ace.dto.AnnouncementStatsDTO( " +
+            "COUNT(a), " +
+            "SUM(CASE WHEN a.isPublished = TRUE THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN a.isPublished = FALSE THEN 1 ELSE 0 END)) " +
+            "FROM Announcement a")
+    AnnouncementStatsDTO getAnnouncementCounts();
+
+    //Query for announcement desc card
+    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus) " +
+            "from Announcement a where a.status = 'active' order by a.scheduleAt DESC")
+    List<AnnouncementListDTO> getAnnouncementList();
+
+    //Query for all announcement count by month
+    @Query("select new com.ace.dto.MonthlyCountDTO(YEAR(a.scheduleAt), MONTH(a.scheduleAt), count(a)) " +
+            "from Announcement a where a.status = 'active' " +
+            "group by YEAR(a.scheduleAt), MONTH(a.scheduleAt)")
+    List<MonthlyCountDTO> countActiveAnnouncementsByMonth();
+
+
+    @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId ORDER BY a.created_at DESC")
+    List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
+
+
 
 
 

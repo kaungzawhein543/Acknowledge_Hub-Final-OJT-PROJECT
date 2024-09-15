@@ -1,12 +1,9 @@
 package com.ace.controller;
 
-import com.ace.dto.AnnouncementResponseDTO;
-import com.ace.dto.StaffNotedResponseDTO;
-import com.ace.dto.AnnouncementStaffCountDTO;
+import com.ace.dto.*;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
-import com.ace.dto.AnnouncementDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -69,245 +66,144 @@ public class AnnouncementController {
     }
 
     @GetMapping("/getPublishedAnnouncements")
-    public ResponseEntity<List<Announcement>> getPublishedAnnouncements() {
-        List<Announcement> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
+    public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
+        List<AnnouncementListDTO> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
 
 
-//    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<Announcement> createAnnouncement(
-//            @RequestPart AnnouncementDTO request,
-//            @RequestPart(name = "userIds", required = false) List<Integer> userIds,
-//            @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
-//            @RequestPart(name = "files", required = false) List<MultipartFile> files,
-//            @RequestParam(name = "requestId", required = false) Integer requestId,
-//            @RequestParam(name = "createUserId") Integer createUserId) {
-//        try {
-//            // Find Create Staff From Announcement DTO
-//            Staff user = staffService.findById(createUserId);
-//
-//            List<Group> groupsForAnnounce = new ArrayList<>();
-//            List<Staff> staffForAnnounce = new ArrayList<>();
-//
-//            //Announce People
-//            if (request.getGroupStatus() == 1) {
-//                groupsForAnnounce = groupService.findGroupsByIds(groupIds);
-//                staffForAnnounce = null;
-//            } else {
-//                staffForAnnounce = staffService.findStaffsByIds(userIds);
-//                groupsForAnnounce = null;
-//            }
-//
-//            // Map DTO to Entity
-//            Announcement announcement = mapper.map(request, Announcement.class);
-//            announcement.setFile("N/A");
-//            announcement.setCreateStaff(user);
-//            announcement.setCategory(request.getCategory());
-//
-//            // If ScheduledAt is null assign default
-//            if (announcement.getScheduleAt() == null) {
-//                LocalDateTime publishDateTime = LocalDateTime.now();
-//                announcement.setScheduleAt(publishDateTime);
-//            }
-//
-//            // Save the announcement
-//            Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
-//
-//            if (files != null && !files.isEmpty()) {
-//                // Assuming there's only one file to handle, but you can handle multiple if needed
-//                MultipartFile file = files.get(0);
-//                CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
-//
-//                List<Staff> finalStaffForAnnounce = staffForAnnounce;
-//                List<Group> finalGroupForAnnounce = groupsForAnnounce;
-//
-//                uploadFuture.thenAccept(uploadResult -> {
-//                    try {
-//                        String fileName = uploadResult.get("public_id").toString();
-//
-//                        // Send Announcement to Telegram & email
-//                       if(request.getGroupStatus() == 0){
-//                           for (Staff AnnounceStaff : finalStaffForAnnounce) {
-//                               if (AnnounceStaff != null) {
-//                                   botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
-//                               }
-//                               if(AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()){
-//                                   emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
-//                               }
-//
-//                           }
-//                       }else{
-//                           for(Group group : finalGroupForAnnounce){
-//                               if(group != null){
-//                                    List<Staff> staffFromGroup = groupService.getStaffsByGroupId(group.getId());
-//                                   for (Staff AnnounceStaff : staffFromGroup) {
-//                                       if (AnnounceStaff != null) {
-//                                           botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
-//                                       }
-//                                       if(AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()){
-//                                           emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
-//                                       }
-//                                   }
-//                               }
-//                           }
-//                       }
-////                        emailService.sendFileEmail("kzheindev789@gmail.com", "We Have a new Announcement", file, fileName);
-//
-//                        // Update announcement with the file name
-//                        savedAnnouncement.setFile(fileName);
-//                        Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
-//
-//                        // Check if the announcement is for a request
-//                        if (requestId != null) {
-//                            AnnouncementForReq announcementForReq = new AnnouncementForReq();
-//                            announcementForReq.setAnnouncement(updateFileUrlAnnounce);
-//
-//                            ReqAnnouncement reqAnnouncement = reqAnnouncementService.getById(requestId);
-//                            announcementForReq.setRequestAnnouncement(reqAnnouncement);
-//
-//                            announcementForReqService.createAnnouncementForReq(announcementForReq);
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }).exceptionally(uploadEx -> {
-//                    uploadEx.printStackTrace();
-//                    return null;
-//                });
-//            }
-//
-//            return ResponseEntity.ok(savedAnnouncement);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-//        }
-//    }
-
 //    Create and update method (because update is also insert the row in database)
-@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<Announcement> createAnnouncement(
-        @RequestPart AnnouncementDTO request,
-        @RequestPart(name = "userIds", required = false) List<Integer> userIds,
-        @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
-        @RequestPart(name = "files", required = false) List<MultipartFile> files,
-        @RequestParam(name = "createUserId") Integer createUserId) {
-    try {        // Find Create Staff From Announcement DTO
-        Staff user = staffService.findById(createUserId);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Announcement> createAnnouncement(
+            @RequestPart AnnouncementDTO request,
+            @RequestPart(name = "userIds", required = false) List<Integer> userIds,
+            @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
+            @RequestPart(name = "files", required = false) List<MultipartFile> files,
+            @RequestParam(name = "createUserId") Integer createUserId) {
+        try {
+            // Find Create Staff From Announcement DTO
+            Staff user = staffService.findById(createUserId);
 
 
-        List<Group> groupsForAnnounce = new ArrayList<>();
-        List<Staff> staffForAnnounce = new ArrayList<>();
+            List<Group> groupsForAnnounce = new ArrayList<>();
+            List<Staff> staffForAnnounce = new ArrayList<>();
 
-        //Announce People
-        if (request.getGroupStatus() == 1) {
-            groupsForAnnounce = groupService.findGroupsByIds(groupIds);
-            // Initialize staff list before async operation
-            for (Group group : groupsForAnnounce) {
-                group.getStaff().size(); // Force initialization
+            //Announce People
+            if (request.getGroupStatus() == 1) {
+                groupsForAnnounce = groupService.findGroupsByIds(groupIds);
+                // Initialize staff list before async operation
+                for (Group group : groupsForAnnounce) {
+                    group.getStaff().size(); // Force initialization
+                }
+                staffForAnnounce = null;
+            } else {
+                staffForAnnounce = staffService.findStaffsByIds(userIds);
+                groupsForAnnounce = null;
             }
-            staffForAnnounce = null;
-        } else {
-            staffForAnnounce = staffService.findStaffsByIds(userIds);
-            groupsForAnnounce = null;
-        }
 
-        // Map DTO to Entity
-        Announcement announcement = mapper.map(request, Announcement.class);
-        announcement.setFile("N/A");
-        announcement.setCreateStaff(user);
-        announcement.setCategory(request.getCategory());
+            // Map DTO to Entity
+            Announcement announcement = mapper.map(request, Announcement.class);
+            announcement.setFile("N/A");
+            announcement.setCreateStaff(user);
+            announcement.setCategory(request.getCategory());
 
 
-        // If ScheduledAt is null assign default
-        if (announcement.getScheduleAt() == null) {
-            LocalDateTime publishDateTime = LocalDateTime.now();
-            announcement.setScheduleAt(publishDateTime);
-        }
+            // If ScheduledAt is null assign default
+            if (announcement.getScheduleAt() == null) {
+                LocalDateTime publishDateTime = LocalDateTime.now();
+                announcement.setScheduleAt(publishDateTime);
+            }
 
-        //initialize the project Announce people
-        if(groupsForAnnounce != null) {
-            announcement.setGroup(groupsForAnnounce);
-        }
-        if(staffForAnnounce != null){
-            announcement.setStaff(staffForAnnounce);
-        }
+            //initialize the project Announce people
+            if(groupsForAnnounce != null) {
+                System.out.println("Group size is "+groupsForAnnounce.size());
+                announcement.setGroup(groupsForAnnounce);
+            }
+            if(staffForAnnounce != null){
+                System.out.println("Staff size is "+staffForAnnounce.size());
+                announcement.setStaff(staffForAnnounce);
+            }
 
 
-        // Save the announcement
-        Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
 
-        //Publish the post
-        if(request.getForRequest() == 1){
-            if(request.getScheduleAt() != null){
-                LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
-                savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
-                blogService.createPost(savedAnnouncement);
+            // Save the announcement
+            Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
+
+
+//        ============================== TO FIX ====================================
+
+            //Publish the post
+            if(request.getForRequest() == 1){
+                if(request.getScheduleAt() != null){
+                    LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
+                    savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
+                    blogService.createPost(savedAnnouncement);
+                }else{
+                    savedAnnouncement.setPublished(true);
+                    announcement_service.updateAnnouncement( savedAnnouncement.getId(),savedAnnouncement);
+                }
             }else{
-                savedAnnouncement.setPublished(true);
-                announcement_service.updateAnnouncement( savedAnnouncement.getId(),savedAnnouncement);
+                if(request.getScheduleAt() != null){
+                    LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
+                    savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
+                    blogService.createPost(savedAnnouncement);
+                }else{
+                    savedAnnouncement.setPublished(true);
+                    announcement_service.updateAnnouncement(savedAnnouncement.getId(),savedAnnouncement);
+                }
             }
-        }else{
-            if(request.getScheduleAt() != null){
-                LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
-                savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
-                blogService.createPost(savedAnnouncement);
-            }else{
-                savedAnnouncement.setPublished(true);
-                announcement_service.updateAnnouncement(savedAnnouncement.getId(),savedAnnouncement);
-            }
-        }
+//            ==========================================================================
+
+            if (files != null && !files.isEmpty()) {
+                MultipartFile file = files.get(0);
+                CompletableFuture<Map<String, Object>> uploadFuture;
+                if(request.getId() != 0){
+                    uploadFuture = cloudinaryService.uploadFile(file, "Announce" + request.getId());
+                }else{
+                    uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
+                }
 
 
-        if (files != null && !files.isEmpty()) {
-            MultipartFile file = files.get(0);
-            CompletableFuture<Map<String, Object>> uploadFuture;
-            if(request.getId() != 0){
-                 uploadFuture = cloudinaryService.uploadFile(file, "Announce" + request.getId());
-            }else{
-                 uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
-            }
+                List<Staff> finalStaffForAnnounce = staffForAnnounce;
+                List<Group> finalGroupForAnnounce = groupsForAnnounce;
 
 
-            List<Staff> finalStaffForAnnounce = staffForAnnounce;
-            List<Group> finalGroupForAnnounce = groupsForAnnounce;
+                uploadFuture.thenAccept(uploadResult -> {
+                    try {
+                        String fileName = uploadResult.get("public_id").toString();
 
-            uploadFuture.thenAccept(uploadResult -> {
-                try {
-                    String fileName = uploadResult.get("public_id").toString();
-
-                    // Send Announcement to Telegram & email
-                    if (request.getGroupStatus() != 1) {
-                        for (Staff AnnounceStaff : finalStaffForAnnounce) {
-                            if (AnnounceStaff != null) {
-                                botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
+                        // Send Announcement to Telegram & email
+                        if (request.getGroupStatus() != 1) {
+                            for (Staff AnnounceStaff : finalStaffForAnnounce) {
+                                if (AnnounceStaff != null) {
+                                    botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
+                                }
+                                if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
+                                    emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
+                                }
                             }
-                            if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                                emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
-                            }
-                        }
-                    } else {
-                        for (Group group : finalGroupForAnnounce) {
-                            if (group != null) {
-                                List<Staff> staffFromGroup = group.getStaff(); // Accessing initialized collection
-                                for (Staff AnnounceStaff : staffFromGroup) {
-                                    if (AnnounceStaff.getChatId() != null) {
-                                        botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
-                                    }
-                                    if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
+                        } else {
+                            for (Group group : finalGroupForAnnounce) {
+                                if (group != null) {
+                                    List<Staff> staffFromGroup = group.getStaff(); // Accessing initialized collection
+                                    for (Staff AnnounceStaff : staffFromGroup) {
+                                        if (AnnounceStaff.getChatId() != null) {
+                                            botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
+                                        }
+                                        if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
+                                            emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    // Update announcement with the file name
-                    savedAnnouncement.setFile(fileName);
-                    Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
+                        // Update announcement with the file name
+                        savedAnnouncement.setFile(fileName);
+                        Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
 
-                    // Check if the announcement is for a request
+                        // Check if the announcement is for a request
 //                    if (forRequest != null) {
 //                        AnnouncementForReq announcementForReq = new AnnouncementForReq();
 //                        announcementForReq.setAnnouncement(updateFileUrlAnnounce);
@@ -317,21 +213,21 @@ public ResponseEntity<Announcement> createAnnouncement(
 
 //                        announcementForReqService.createAnnouncementForReq(announcementForReq);
 //                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).exceptionally(uploadEx -> {
-                uploadEx.printStackTrace();
-                return null;
-            });
-        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).exceptionally(uploadEx -> {
+                    uploadEx.printStackTrace();
+                    return null;
+                });
+            }
 
-        return ResponseEntity.ok(savedAnnouncement);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.ok(savedAnnouncement);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
-}
 
 
 
@@ -490,6 +386,18 @@ public ResponseEntity<Announcement> createAnnouncement(
     @GetMapping("/staff-counts")
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_service.getAnnouncementStaffCounts();
+    }
+
+    @GetMapping("/stats")
+    public AnnouncementStatsDTO getAnnouncementStats() {
+        // Fetch the announcement statistics using the service
+        return announcement_service.getAnnouncementStats();
+    }
+
+    //Mapping to get all announcement monthly count
+    @GetMapping("/monthly-counts")
+    public List<MonthlyCountDTO> getMonthlyAnnouncementCounts() {
+        return announcement_service.getMonthlyAnnouncementCounts();
     }
 
 

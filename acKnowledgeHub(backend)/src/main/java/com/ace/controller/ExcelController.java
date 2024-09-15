@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1")
 public class ExcelController {
     @Autowired
     private ExcelService excelService;
@@ -18,8 +18,11 @@ public class ExcelController {
         if (file.isEmpty()) {
             return "Please select a file to upload.";
         }
-
-        excelService.processExcelFile(file);
+        try{
+            excelService.processExcelFile(file);
+        }catch (Exception e){
+            System.out.println(e.toString());
+        }
         return "File uploaded successfully!";
     }
 }

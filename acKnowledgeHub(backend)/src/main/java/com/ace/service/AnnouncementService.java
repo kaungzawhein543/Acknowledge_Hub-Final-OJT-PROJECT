@@ -1,8 +1,6 @@
 package com.ace.service;
 
-import com.ace.dto.AnnouncementResponseDTO;
-import com.ace.dto.StaffNotedResponseDTO;
-import com.ace.dto.AnnouncementStaffCountDTO;
+import com.ace.dto.*;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
@@ -74,10 +72,9 @@ public class AnnouncementService {
     }
 
     // Method to get published announcements
-    public List<Announcement> getPublishedAnnouncements() {
-        return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
+    public List<AnnouncementListDTO> getPublishedAnnouncements() {
+        return announcement_repo.getAnnouncementList(); // Adjust method name based on your repository
     }
-
     public List<StaffNotedResponseDTO> getStaffNoted(Integer staffId) {
         return announcement_repo.getStaffNoted(staffId);
     }
@@ -101,9 +98,24 @@ public class AnnouncementService {
     public List<AnnouncementResponseDTO> getPendingAnnouncement(){
         return announcement_repo.getPendingAnnouncement();
     }
+
     //Method to get the staffnotedAnnoucement
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_repo.findAnnouncementStaffCounts();
     }
+
+    //Method to get announcement stats card
+    public AnnouncementStatsDTO getAnnouncementStats() {
+        // Fetch the announcement statistics from the repository
+        return announcement_repo.getAnnouncementCounts();
+    }
+
+    //Method to get all announcement monthly count
+    public List<MonthlyCountDTO> getMonthlyAnnouncementCounts() {
+        return announcement_repo.countActiveAnnouncementsByMonth();
+    }
+
+
+
 
 }

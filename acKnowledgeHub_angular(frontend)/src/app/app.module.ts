@@ -59,6 +59,9 @@ import { RequestAnnouncementComponent } from './announcement/request-announcemen
 
 import { UserChartComponent } from './chart/user-chart/user-chart.component';
 import { ProfileComponent } from './user/profile/profile.component';
+import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
+
+
 
 @NgModule({
   declarations: [
@@ -99,7 +102,8 @@ import { ProfileComponent } from './user/profile/profile.component';
     FeedbackListComponent,
     RequestAnnouncementComponent, 
     UserChartComponent,
-    ProfileComponent
+    ProfileComponent,
+    StaffChartComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr
@@ -127,6 +131,9 @@ import { ProfileComponent } from './user/profile/profile.component';
     ScrollingModule,
     MatTableModule,
     MatPaginatorModule,
+    BrowserAnimationsModule,
+    
+
   ],
   providers: [
     provideClientHydration(),

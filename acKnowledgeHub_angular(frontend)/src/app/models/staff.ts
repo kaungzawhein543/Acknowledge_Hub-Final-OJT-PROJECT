@@ -15,3 +15,25 @@ export interface Staff {
   };
 }
 
+export interface StaffProfileDTO {
+  id: number;
+  name: string;
+  companyStaffId: string;
+  email: string;
+  status: string;
+  role: string; // or Role if you have an enum for Role
+  photoPath: string;
+  position: string;
+  department: string;
+  company: string;
+  createdAt: Date;
+  chatId: string;
+  monthlyCount: { [month: string]: number };
+}
+
+export interface StaffSummaryCount{
+  totalStaff :number;
+  activeStaff :number;
+  inactiveStaff :number
+}
+

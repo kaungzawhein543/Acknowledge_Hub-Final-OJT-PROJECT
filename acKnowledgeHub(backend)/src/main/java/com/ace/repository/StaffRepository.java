@@ -81,8 +81,18 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
             "from Staff s where s.status = 'active' ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
+
     @Query(value = "SELECT sa.announcement_id AS announcementId, COUNT(sa.staff_id) AS staffCount " +
             "FROM staff_has_announcement sa " +
             "GROUP BY sa.announcement_id", nativeQuery = true)
     List<Map<String, Object>> countStaffByAnnouncement();
+
+    //@Query to get staff summary count
+    @Query("SELECT new com.ace.dto.StaffSummaryDTO(" +
+            "COUNT(s), " +
+            "SUM(CASE WHEN s.status = 'active' THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN s.status = 'inactive' THEN 1 ELSE 0 END)) " +
+            "FROM Staff s")
+    StaffSummaryDTO getStaffSummary();
+
 }

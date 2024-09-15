@@ -43,9 +43,23 @@ public class Announcement {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     private Category category;
-    @ManyToMany(mappedBy = "announcement")
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "group_has_ announcement",
+            joinColumns = @JoinColumn(name = "announcement_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
     private List<Group> group;
-    @ManyToMany(mappedBy = "announcement")
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "staff_has_announcement",
+            joinColumns = @JoinColumn(name = "announcement_id"),
+            inverseJoinColumns = @JoinColumn(name = "staff_id")
+    )
     private List<Staff> staff;
 
 

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { userInfo } from 'os';
 import { catchError, map, Observable, of } from 'rxjs';
 import { ResponseEmail } from '../models/response-email';
-import { StaffProfileDTO } from '../models/announcement';
+import { StaffProfileDTO } from '../models/staff';
 
 @Injectable({
   providedIn: 'root'

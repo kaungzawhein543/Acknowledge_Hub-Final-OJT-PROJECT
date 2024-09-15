@@ -10,6 +10,7 @@ import com.ace.repository.NotedRepository;
 import com.ace.repository.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class StaffService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
+
 
 
     public StaffService(StaffRepository staffRepository,AnnouncementRepository announcement_repo,NotedRepository notedRepository) {
@@ -248,6 +250,26 @@ public class StaffService implements UserDetailsService {
                         Collectors.counting()
                 ));
     }
+
+    //Method to get staff summary count
+    public StaffSummaryDTO getStaffSummary() {
+        return staffRepository.getStaffSummary();
+    }
+
+    // Method to get announcement by staff id desc
+    public List<AnnouncementListbyStaff> getAnnouncementsForStaff(int staffId) {
+        List<Announcement> announcements = announcement_repo.findAnnouncementsByStaffId(staffId);
+        return announcements.stream()
+                .map(a -> new AnnouncementListbyStaff(a.getId(), a.getTitle(), a.getCreated_at()))
+                .collect(Collectors.toList());
+    }
+
+    //Method to update profile photo
+    public Staff updateStaff(Staff staff) {
+        return staffRepository.save(staff);
+    }
+
+
 
 
 

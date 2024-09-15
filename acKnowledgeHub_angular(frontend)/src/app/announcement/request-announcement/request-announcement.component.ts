@@ -1,4 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 import { AddAnnouncementComponent } from '../add-announcement/add-announcement.component';
 import { AnnouncementService } from '../../services/announcement.service';
 import { GroupService } from '../../services/group.service';
@@ -12,7 +14,19 @@ import { announcement } from '../../models/announcement';
 @Component({
   selector: 'app-request-announcement',
   templateUrl: './request-announcement.component.html',
-  styleUrls: ['./request-announcement.component.css']
+  styleUrls: ['./request-announcement.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class RequestAnnouncementComponent {
 
@@ -274,6 +288,8 @@ export class RequestAnnouncementComponent {
 
     if (this.searchTerm) {
       this.filterStaffs();
+    }else{
+      this.resetStaffList();
     }
   }
 
@@ -282,6 +298,14 @@ export class RequestAnnouncementComponent {
     this.hasMore = true;
     this.staffs = [];
     this.loadStaffs(); // Reload staff with the search term
+  }
+
+   resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
   }
 
   showSelectedOptionBox(): void {

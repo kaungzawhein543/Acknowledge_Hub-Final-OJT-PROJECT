@@ -1,4 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 import { MatPaginator } from '@angular/material/paginator';
 import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +15,19 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-list-announcement',
   templateUrl: './list-announcement.component.html',
-  styleUrl: './list-announcement.component.css'
+  styleUrl: './list-announcement.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ListAnnouncementComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

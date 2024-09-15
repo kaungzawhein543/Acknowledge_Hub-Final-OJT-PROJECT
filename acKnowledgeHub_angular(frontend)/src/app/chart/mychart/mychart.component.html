@@ -1,21 +1,27 @@
 <div class="chart-container">
-  <div class="date-picker-container">
-    <div class="date-picker">
-      <label for="startDate" class="date-label">Start Date:</label>
-      <input type="date" id="startDate" class="date-input" [max]="getCurrentDate()" (change)="onDateChange()">
+  <!-- Date pickers and chart are together -->
+  <div class="chart-and-date-container">
+    <div class="date-picker-container">
+      <div class="date-picker">
+        <label for="startDate" class="date-label">Start Date:</label>
+        <input type="date" id="startDate" class="date-input" [max]="getCurrentDate()" (change)="onDateChange()">
+      </div>
+      <div class="date-picker">
+        <label for="endDate" class="date-label">End Date:</label>
+        <input type="date" id="endDate" class="date-input" [max]="getCurrentDate()" (change)="onDateChange()">
+      </div>
     </div>
-  
-    <div class="date-picker">
-      <label for="endDate" class="date-label">End Date:</label>
-      <input type="date" id="endDate" class="date-input" [max]="getCurrentDate()" (change)="onDateChange()">
+
+    <!-- Chart only section -->
+    <div *ngIf="!noData" class="myChart">
+      <canvas id="chart"></canvas>
+    </div>
+
+    <div *ngIf="noData" class="no-data-message">
+      No announcements found for the selected dates.
     </div>
   </div>
 
-  <div *ngIf="!noData" class="myChart">
-    <canvas id="chart"></canvas>
-  </div>
-
-  <div *ngIf="noData" class="no-data-message">
-    No announcements found for the selected dates.
-  </div>
+  <!-- Staff chart component beside the chart -->
+  <app-staff-chart></app-staff-chart>
 </div>

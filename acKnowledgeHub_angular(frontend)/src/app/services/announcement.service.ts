@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { announcement } from '../models/announcement';
+import { announcement, AnnouncementListDTO, AnnouncementStatsDTO, MonthlyCountDTO } from '../models/announcement';
 import saveAs from 'file-saver';
 import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
 import { announcementList } from '../models/announcement-list';
@@ -76,6 +76,17 @@ export class AnnouncementService {
     return this.http.get<announcement[]>(`${this.BaseUrl}/report`, { params, withCredentials: true });
   }
 
+  //Announcement stats card
+  getAnnouncementStats(): Observable<AnnouncementStatsDTO> {
+    return this.http.get<AnnouncementStatsDTO>(`${this.BaseUrl}/stats`, { withCredentials: true });
+  }
 
+  getPublishedAnnouncements(): Observable<AnnouncementListDTO[]> {
+    return this.http.get<AnnouncementListDTO[]>(`${this.BaseUrl}/getPublishedAnnouncements`,{ withCredentials: true });
+  }
+
+  getMonthlyAnnouncementCounts(): Observable<MonthlyCountDTO[]> {
+    return this.http.get<MonthlyCountDTO[]>(`${this.BaseUrl}/monthly-counts`,{ withCredentials: true });
+  }
 
 }
