@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -25,10 +26,12 @@ public class AnnouncementDTO {
     private String status = "active";
     private String createStaff;
     private Category category;
-    private List<Group > group;
-    private List<String> department;
-    private List<String> company;
-    private List<StaffDTO> staff;
+    private List<Integer> group;
+//    private List<String> department;
+//    private List<String> company;
+    private List<Integer> staff;
     private byte groupStatus;
     private int forRequest;
+    private Integer createdStaffId;
+    private Set<Integer> staffInGroups;
 }

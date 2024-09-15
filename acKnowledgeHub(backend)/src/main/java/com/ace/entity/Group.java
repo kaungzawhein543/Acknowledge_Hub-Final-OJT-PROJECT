@@ -30,7 +30,7 @@ public class Group {
     @ManyToMany(mappedBy = "group")
     private List<Announcement> announcement;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinTable(
             name = "staff_has_group",
             joinColumns = @JoinColumn(name = "group_id"),

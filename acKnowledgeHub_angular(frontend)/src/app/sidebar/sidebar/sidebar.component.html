@@ -3,7 +3,7 @@
     <span class="text-gray-600 font-extrabold">Main Links</span>
   </li>
 
-  <div *ngIf="isAdmin">
+  <!-- <div *ngIf="isAdmin">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         routerLink="admindashboard" routerLinkActive="active text-white hover:active hover:text-white">
@@ -11,14 +11,14 @@
         <span>Admin Dashboard</span>
       </a>
     </li>
-  </div>
+  </div> -->
 
-  <div *ngIf="isMainHr">
+  <div *ngIf="isMainHr || isAdmin">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         routerLink="hr-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-chart-line"></i>
-        <span>HR Dashboard</span>
+        <span>Dashboard</span>
       </a>
     </li>
   </div>
@@ -128,7 +128,7 @@
     <ul id="categoryMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
         routerLink="list-category" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-layer-group"></i> Sub Category
+        <i class="fa-solid fa-layer-group"></i>  Category
       </li>
     </ul>
   </li>

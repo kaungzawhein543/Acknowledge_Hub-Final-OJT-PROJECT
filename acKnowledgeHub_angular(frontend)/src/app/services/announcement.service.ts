@@ -5,6 +5,7 @@ import { announcement } from '../models/announcement';
 import saveAs from 'file-saver';
 import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
 import { announcementList } from '../models/announcement-list';
+import { updateAnnouncement } from '../models/updateAnnouncement';
 
 @Injectable({
   providedIn: 'root'
@@ -35,13 +36,26 @@ export class AnnouncementService {
   }
 
   //Get Announcement
-  getAnnouncementById(id: number): Observable<announcement> {
+  getAnnouncementById(id: number): Observable<updateAnnouncement> {
     return this.http.get(`${this.BaseUrl}/${id}`, { responseType: 'text' }).pipe(
       map(response => {
-        console.log(`Response length: ${response.length}`); // Log the length of the response
-  
         try {
-          return JSON.parse(response) as announcement; // Parse JSON response
+          return JSON.parse(response) as updateAnnouncement; // Parse JSON response
+        } catch (e) {
+          console.error('Error parsing JSON:', e);
+          throw new Error('Invalid JSON response');
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+   //Get Announcement
+   getLatestAnnouncementById(id: number): Observable<updateAnnouncement> {
+    return this.http.get(`${this.BaseUrl}/latest-version-by-id/${id}`, { responseType: 'text' }).pipe(
+      map(response => {
+        try {
+          return JSON.parse(response) as updateAnnouncement; // Parse JSON response
         } catch (e) {
           console.error('Error parsing JSON:', e);
           throw new Error('Invalid JSON response');
@@ -105,6 +119,28 @@ export class AnnouncementService {
     }
     return throwError(() => new Error('Something went wrong; please try again later.'));
   }
+  downloadFile(filePath: string): void {
+    const params = new HttpParams().set('file', filePath);
+    this.http.get(`${this.BaseUrl}/downloadfile`, { params, responseType: 'blob' }).subscribe(blob => {
+      // Create a new Blob object using the response data of the file
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = this.getFileName(filePath); // Set the file name for the download
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Download error:', error);
+    });
+  }
 
+  private getFileName(filePath: string): string {
+    // Extract file name from filePath if needed
+    return filePath.split('/').pop() || 'downloaded-file';
+  }
+  getAnnouncementVersion(file : string):Observable<string[]>{
+    return this.http.get<string[]>(`${this.BaseUrl}/announcement-versions/${file}`);
+  }
 
 }

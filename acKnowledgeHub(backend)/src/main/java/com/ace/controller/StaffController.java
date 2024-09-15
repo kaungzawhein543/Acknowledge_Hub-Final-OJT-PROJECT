@@ -1,16 +1,9 @@
 package com.ace.controller;
 
 import com.ace.dto.*;
-import com.ace.entity.Company;
-import com.ace.entity.Department;
-import com.ace.entity.Position;
-import com.ace.entity.Staff;
-import com.ace.service.CompanyService;
-import com.ace.service.DepartmentService;
-import com.ace.service.PositionService;
+import com.ace.entity.*;
+import com.ace.service.*;
 
-import com.ace.service.StaffService;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.Cookie;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,16 +43,20 @@ public class StaffController {
     private final DepartmentService departmentService;
     private final PositionService positionService;
     private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
+    private final UserNotedAnnouncementService userNotedAnnouncementService;
+    private final AnnouncementService announcementService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler) {
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
         this.departmentService = departmentService;
         this.positionService = positionService;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.userNotedAnnouncementService = userNotedAnnouncementService;
+        this.announcementService = announcementService;
     }
 
     @GetMapping("/list")
@@ -105,7 +104,7 @@ public class StaffController {
     }
 
 
-    @PostMapping("/not-noted-list/{id}")
+    @GetMapping("/not-noted-list/{id}")
     public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @RequestParam("groupStatus") byte groupStatus) {
         List<UnNotedResponseDTO> staffList = new ArrayList<UnNotedResponseDTO>();
         if (groupStatus == 1) {
@@ -234,5 +233,42 @@ public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletReque
     response.put("error", "Unauthorized");
     return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(response);     }
+            .body(response);
+    }
+
+    @GetMapping("/noted")
+    public ResponseEntity<String> makeNotedAnnouncement(@RequestParam Integer userId ,@RequestParam Integer announcementId){
+        // Noted User
+        Staff notedUser = staffService.findById(userId);
+        Announcement announcement = announcementService.getAnnouncementById(announcementId)
+                .orElseThrow();
+        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService
+                .checkNotedOrNot(notedUser, announcement);
+        if (!notedConditionAnnouncement.isPresent()) {
+            StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+            staffNotedAnnouncement.setStaff(notedUser);
+            staffNotedAnnouncement.setAnnouncement(announcement);
+            staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
+            // Save Noted User and Announcement
+            userNotedAnnouncementService.save(staffNotedAnnouncement);
+            return ResponseEntity.ok("Noted Successfully");
+        }else{
+            return ResponseEntity.ok("You are ALready Noted");
+        }
+    }
+
+    @GetMapping("/check-noted")
+    public ResponseEntity<Boolean> checkNotedOrNot(@RequestParam Integer userId,@RequestParam Integer announcementId){
+        Staff notedUser = staffService.findById(userId);
+        Announcement announcement = announcementService.getAnnouncementById(announcementId)
+                .orElseThrow();
+        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService
+                .checkNotedOrNot(notedUser, announcement);
+        if (notedConditionAnnouncement.isPresent()){
+            return ResponseEntity.ok(true);
+        }else{
+            return ResponseEntity.ok(false);
+        }
+    }
 }
+

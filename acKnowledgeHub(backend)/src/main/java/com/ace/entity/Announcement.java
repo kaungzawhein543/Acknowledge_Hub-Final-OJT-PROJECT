@@ -37,6 +37,8 @@ public class Announcement {
     private String status="active";
     @Column(name ="group_status")
     private byte groupStatus;
+    @Column(name ="permission")
+    private String permission;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "create_staff_id")
     private Staff createStaff;
@@ -46,7 +48,7 @@ public class Announcement {
 
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "group_has_ announcement",
             joinColumns = @JoinColumn(name = "announcement_id"),
@@ -55,7 +57,7 @@ public class Announcement {
     private List<Group> group;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "staff_has_announcement",
             joinColumns = @JoinColumn(name = "announcement_id"),

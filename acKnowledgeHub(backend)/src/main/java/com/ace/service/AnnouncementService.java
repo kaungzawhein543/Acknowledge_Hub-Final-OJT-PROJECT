@@ -27,13 +27,19 @@ public class AnnouncementService {
         return announcement_repo.save(announcement);
     }
 
-    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
+    public List<String> getAllVersionsByFilePattern(String baseFileName) {
         return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
     }
 
-    public Announcement getLatestVersionByFilePattern(String baseFileName) {
-        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
-        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+//    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+//        List<String> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+//    }
+
+    //Find Lastest Version By File
+    public Optional<Announcement> findLastByFileName(String file) {
+        List<Announcement> announcements = announcement_repo.findAllByFileName(file);
+        return Optional.of(announcements.get(announcements.size() - 1));  // Return the last element
     }
 
 

@@ -122,6 +122,10 @@ public class StaffService implements UserDetailsService {
         return null;
     }
 
+    public List<Staff> findStaffByAnnouncementId(Integer announcementId){
+        return staffRepository.findStaffByAnnouncementId(announcementId);
+    }
+
 
     public boolean changePassword(String staffId, String oldPassword, String newPassword) {
         Staff staff = staffRepository.findByCompanyStaffId(staffId);

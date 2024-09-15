@@ -85,4 +85,8 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "FROM staff_has_announcement sa " +
             "GROUP BY sa.announcement_id", nativeQuery = true)
     List<Map<String, Object>> countStaffByAnnouncement();
+
+    @Query("SELECT s FROM Staff s JOIN s.announcement a WHERE a.id = :announcementId")
+    List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
+
 }

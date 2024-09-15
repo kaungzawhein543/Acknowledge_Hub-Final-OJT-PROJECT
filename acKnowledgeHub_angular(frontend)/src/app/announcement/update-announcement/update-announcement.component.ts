@@ -27,6 +27,8 @@ export class UpdateAnnouncementComponent implements OnInit{
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
+  minDateTime: string ='';
+  dateError : string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -39,6 +41,8 @@ export class UpdateAnnouncementComponent implements OnInit{
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
+  showPreviousVersion : boolean = false;
+  announcementVersions : string[] = [];
   public downloadUrl : string = 'https://res.cloudinary.com/djqxznfjm/raw/upload/v1725614114/';
 
   private page = 0;
@@ -47,7 +51,7 @@ export class UpdateAnnouncementComponent implements OnInit{
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
   announcementId : string | null ='';
-
+  intervalId: any;
 
   constructor(
     private groupService: GroupService, 
@@ -63,18 +67,19 @@ export class UpdateAnnouncementComponent implements OnInit{
     this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
+    this.setMinDateTime();
+    this.intervalId = setInterval(() => {
+        this.setMinDateTime();
+      }, 60000);
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
-        this.announcementService.getAnnouncementById(Number(this.announcementId)).subscribe(
+        this.announcementService.getLatestAnnouncementById(Number(this.announcementId)).subscribe(
           data =>{
-            this.announcementService.getLatestVersionAnnouncement("Announce"+this.announcementId).subscribe(
-              latestVersionUrl =>{
-                this.announcementService.getUrlOfAnnouncement(latestVersionUrl).subscribe(
-                  url =>{
-                    this.downloadUrl = url;
-                  }
-                )
+            this.announcementService.getAnnouncementVersion("Announce"+this.announcementId).subscribe(
+              versions =>{
+                console.log("versions are " +versions)
+                this.announcementVersions = versions;
               }
             )
             this.announcementTitle = data.title;
@@ -85,12 +90,13 @@ export class UpdateAnnouncementComponent implements OnInit{
             } else {
               console.log('Category not found');
             }
-            if(data['group'].length > 0 ){
+
+            if(data['group'].length &&  data['group'].length > 0 ){
+              this.selectedGroups = data['staff'];
               this.onOptionChange('group')
             }else{
               this.optionStaffOfGroup = "Staffs";
               this.selectedStaffs = data['staff'];
-        
               this.onOptionChange('staff');
             }
           }
@@ -188,6 +194,10 @@ export class UpdateAnnouncementComponent implements OnInit{
   onSubmit(): void {
     const formData = new FormData();
 
+    if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
+      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      return;
+    }
     // Create the announcement object
     const announcement = {
       id: this.announcementId,
@@ -195,6 +205,7 @@ export class UpdateAnnouncementComponent implements OnInit{
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt  : this.scheduleDate,
+      category  :this.selectedCategory
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -328,7 +339,37 @@ onFileChange(event: Event): void {
       this.selectedOptionsBox = false;
     }
   }
+  showPreviousVersionBox():void{
+    if(this.showPreviousVersion === false){
+      this.showPreviousVersion = true;
+    }else{
+      this.showPreviousVersion = false;
+    }
+  }
+
+  closeModal():void{
+    this.showPreviousVersion = false;
+  }
+
+  downloadFile(version: string): void {
+    this.announcementService.downloadFile(version);
+  }
 
 
+  setMinDateTime(): void {
+    const now = new Date();
+  
+    // Adjust the time to 2 minutes before the current time
+    now.setMinutes(now.getMinutes() - 2);
+  
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+  
+    // Set the minimum datetime to 2 minutes before the current date and time
+    this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
 
 }

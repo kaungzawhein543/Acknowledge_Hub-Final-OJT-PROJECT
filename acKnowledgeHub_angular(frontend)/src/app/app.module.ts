@@ -61,6 +61,7 @@ import { UserChartComponent } from './chart/user-chart/user-chart.component';
 import { ProfileComponent } from './user/profile/profile.component';
 import { LoaderComponent } from './loader/loader/loader.component';
 import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -131,6 +132,7 @@ import { DetailAnnouncementComponent } from './announcement/detail-announcement/
     ScrollingModule,
     MatTableModule,
     MatPaginatorModule,
+    CommonModule
   ],
   providers: [
     provideClientHydration(),

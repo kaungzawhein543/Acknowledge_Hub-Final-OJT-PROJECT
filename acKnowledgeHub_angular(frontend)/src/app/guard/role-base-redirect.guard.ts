@@ -10,11 +10,14 @@ export const roleBaseRedirectGuard: CanActivateFn = (route, state) => {
 
   return authService.getUserInfo().pipe(
     switchMap(userInfo => {
-      if (userInfo.user.role === 'ADMIN') {
-        router.navigate(['/admindashboard']);
+
+      if (!userInfo) {
+        // If no user is logged in, redirect to the login page
+        router.navigate(['/login']);
         return of(false);
-      } else if (userInfo.user.role === 'USER' && userInfo.position === 'HR_MAIN') {
-        router.navigate(['/hr-dashboard']);
+      }
+      if (userInfo.user.role === 'ADMIN' || userInfo.position === 'HR_MAIN') {
+        router.navigate(['/dashboard']);
         return of(false);
       } else if (userInfo.user.role === 'USER') {
         router.navigate(['/staff-dashboard']);

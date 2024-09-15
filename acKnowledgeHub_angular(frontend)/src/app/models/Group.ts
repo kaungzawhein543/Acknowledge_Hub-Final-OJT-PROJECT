@@ -6,4 +6,5 @@ export interface Group{
     status?: string;
     createdAt: Date;
     staff : Staff[];
+    selected : boolean;
 }

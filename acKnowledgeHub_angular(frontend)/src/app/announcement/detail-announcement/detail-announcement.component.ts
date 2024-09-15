@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AnnouncementService } from '../../services/announcement.service';
+import { feedbackResponse } from '../../models/feedResponse';
+import { FeedbackService } from '../../services/feedback.service';
+import { AuthService } from '../../services/auth.service';
+import { FeedbackReply } from '../../models/feedbackReply';
+import { NgForm } from '@angular/forms';
+import { Feedback } from '../../models/feedback';
+import { StaffService } from '../../services/staff.service';
 
 @Component({
   selector: 'app-detail-announcement',
@@ -8,70 +15,192 @@ import { AnnouncementService } from '../../services/announcement.service';
   styleUrl: './detail-announcement.component.css'
 })
 export class DetailAnnouncementComponent {
-   feedback: string = '';
-   isReportDropdownOpen = false;
-   isFilterDropdownOpen = false;
+  isReportDropdownOpen = false;
+  isFilterDropdownOpen = false;
+  isQAModalOpen = false;
   replyText: { [key: number]: string } = {};
   replyFormsVisible: { [key: number]: boolean } = {};
-  feedbacks: Array<{ id: number, author: string, text: string, timestamp: Date, replies: Array<{ author: string, text: string, timestamp: Date }> }> = [
-    // Sample feedback data
-    { id: 1, author: 'Jane Smith', text: 'This announcement was very helpful. Looking forward to the orientation!', timestamp: new Date(), replies: [{ author: 'Admin', text: 'Thank you, Jane! We\'re glad you found it helpful.', timestamp: new Date() }] },
-    { id: 2, author: 'Mark Johnson', text: 'Great information! The schedule fits perfectly with our team\'s planning.', timestamp: new Date(), replies: [] }
-  ];
+  questionList : feedbackResponse[] = [];
+  loginId !: number;
+  currentUserId !: number;
+  replyPermission : boolean = false;
+  isAdmin : boolean = false;
+  createdStaff : number = 1;
+  accessStaffs : number[] = [];
+  noted : boolean = false;
+  notedCount : number = 0;
+  unNotedCount : number = 0;
   announcement: any = {
     id: 1,
     title: 'Sample Announcement',
     description: 'This is a detailed description of the announcement.',
-    date: new Date()
+    createdAt: ''
   };
+ feedback: Feedback = {
+   staffId: 0,
+   announcementId: 0,
+   content: ''
+ };
 
-  constructor(
-    private route: ActivatedRoute,
-    private announcementService: AnnouncementService
-  ) {}
+ constructor(
+   private route: ActivatedRoute,
+   private announcementService: AnnouncementService,
+   private feedbackService: FeedbackService,
+   private authService: AuthService,
+   private router : Router,
+   private staffService : StaffService
+ ) {}
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.getAnnouncementDetails(+id);
-    }
-  }
+ ngOnInit(): void {
+   this.authService.getUserInfo().subscribe({
+     next: (data) => {
+        this.currentUserId = data.user.id;
+       if(data.user.role === 'ADMIN'){
+         this.isAdmin = true;
+       }else{
+         this.isAdmin = false;
+       }
+       const id = this.route.snapshot.paramMap.get('id');
+   if (id) {
+    this.announcementService.getAnnouncementById(Number(id)).subscribe(detailAnnouncement => {
+      this.announcement = detailAnnouncement;
+      if (!this.isAdmin ) {
+        if (this.currentUserId === this.announcement.createdStaffId) {
+          return; 
+        } else if (!this.accessStaffs.some(staff => staff === this.currentUserId)) {
+          this.router.navigate(['/404']); // Redirect if not in access list
+        }
+      }
+      this.staffService.checkNotedAnnouncement(this.currentUserId,this.announcement.id).subscribe(
+        data => {
+          this.noted = data;
+          this.staffService.getNotedUserByAnnouncementList(this.announcement.id).subscribe(
+            notedStaff =>{
+              this.notedCount = notedStaff.length;
+            }
+          )
+          this.staffService.getUnNotedStaffByAnnouncementList(this.announcement.id,this.announcement.groupStatus).subscribe(
+            unNotedStaff => {
+              this.unNotedCount = unNotedStaff.length;
+            }
+          )
+        }
+      )
+      this.createdStaff  = detailAnnouncement.createdStaffId;
+      if(detailAnnouncement.groupStatus == 1){
+        this.accessStaffs = detailAnnouncement.staffInGroups;
+      }else{
+        this.accessStaffs = detailAnnouncement.staff;
+      }
+      if(this.currentUserId === detailAnnouncement.createdStaffId){
+        this.replyPermission = true;
+      }else{
+        this.replyPermission = false;
+      }
+      
+      this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id).subscribe({
+        next: (data) => {
+          this.questionList = data.map(feedback => ({
+            ...feedback,
+            showInput: false,
+            replyText: ''
+          }));
+        }
+      });
+    });
+   }
 
-  getAnnouncementDetails(id: number): void {
-    // Call service to get the announcement details
-    this.announcementService.getAnnouncementById(id).subscribe(data => {
+     },
+     error: (e) => console.log(e)
+   });
+   
+   
+ }
+ openQAModal() {
+   this.isQAModalOpen = true;
+ }
+
+ closeQAModal() {
+   this.isQAModalOpen = false;
+ }
+
+
+ editAnnouncement(): void {
+   console.log('Edit clicked for announcement:', this.announcement.id);
+ }
+
+
+ toggleReplyForm(id: number) {
+   this.replyFormsVisible[id] = !this.replyFormsVisible[id];
+ }
+ sendReply(feedback: feedbackResponse, index: number) {
+   const feedbackReply: FeedbackReply = {
+     replyText: feedback.replyText!,
+     replyBy: this.currentUserId,
+     feedbackId: feedback.feedbackId
+   };
+   this.feedbackService.sendRepliedFeedback(feedbackReply).subscribe({
+     next: (data) => {
+       this.questionList![index].reply = feedbackReply.replyText;
+       this.questionList![index].replyBy = feedbackReply.replyBy;
+       this.questionList![index].showInput = false;
+       this.fetchAnnouncementData();
+       this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id).subscribe({
+        next: (data) => {
+          this.questionList = data.map(feedback => ({
+            ...feedback,
+            showInput: false,
+            replyText: ''
+          }));
+        }
+      });
+     },
+     error: (e) => console.log(e)
+   });
+ }
+ onSubmit(form: NgForm): void {
+   if (form.valid) {
+     this.feedback.staffId = this.currentUserId;
+     this.feedback.announcementId = this.announcement.id;
+     this.feedbackService.sendFeedback(this.feedback).subscribe({
+       next: (data) => {
+         this.fetchAnnouncementData();
+         form.reset();
+       },
+       error: (e) => console.log(e)
+     });
+   }
+ }
+ private fetchAnnouncementData(): void {
+  const id = this.route.snapshot.paramMap.get('id');
+  if (id) {
+    this.announcementService.getAnnouncementById(Number(id)).subscribe(data => {
       this.announcement = data;
+      this.replyPermission = this.currentUserId === data.createdStaffId;
+      
+      this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id).subscribe({
+        next: (data) => {
+          this.questionList = data.map(feedback => ({
+            ...feedback,
+            showInput: false,
+            replyText: ''
+          }));
+        },
+        error: (e) => console.log(e)
+      });
     });
   }
-  toggleReportDropdown() {
-    this.isReportDropdownOpen = !this.isReportDropdownOpen;
-    if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
+}
+notedAnnouncement(userId: number,announcementId : number){
+  this.staffService.makeNotedAnnouncement(userId,announcementId).subscribe(
+    (data) =>{
+      console.log(data);
+      this.fetchAnnouncementData();
+    }
+  )
+}
+  downloadFile(version: string): void {
+    this.announcementService.downloadFile(version);
   }
 
-  editAnnouncement(): void {
-    // Logic to edit announcement
-    console.log('Edit clicked for announcement:', this.announcement.id);
-  }
-
-  deleteAnnouncement(): void {
-    // Logic to delete announcement
-    console.log('Delete clicked for announcement:', this.announcement.id);
-  }
-
-  submitFeedback() {
-    // Handle feedback submission logic here
-    console.log('Feedback submitted:', this.feedback);
-    this.feedback = '';
-  }
-
-  toggleReplyForm(id: number) {
-    this.replyFormsVisible[id] = !this.replyFormsVisible[id];
-  }
-
-  submitReply(feedbackId: number) {
-    // Handle reply submission logic here
-    console.log('Reply submitted for feedback id:', feedbackId, 'Reply text:', this.replyText[feedbackId]);
-    this.replyText[feedbackId] = '';
-    this.replyFormsVisible[feedbackId] = false;
-  }
 }

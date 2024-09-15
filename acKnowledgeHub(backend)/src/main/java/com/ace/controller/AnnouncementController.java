@@ -21,10 +21,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,17 +60,94 @@ public class AnnouncementController {
         this.userNotedAnnouncementService = userNotedAnnouncementService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AnnouncementDTO> getAnnouncementById(@PathVariable int id) {
-        return announcement_service.getAnnouncementById(id)
+    @GetMapping("/latest-version-by-id/{id}")
+    public ResponseEntity<AnnouncementDTO> getLatestAnnouncementById(@PathVariable int id) {
+        Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
+        String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
+        return announcement_service.findLastByFileName(pathParts[2])
                 .map(announcement -> {
-                    // Create DTO and manually map required fields
-                    AnnouncementDTO dto = mapper.map(announcement, AnnouncementDTO.class);
-                    dto.setCreateStaff(announcement.getCreateStaff().getName());
+                    // Create DTO manually
+                    AnnouncementDTO dto = new AnnouncementDTO();
+                    dto.setId(announcement.getId());
+                    dto.setTitle(announcement.getTitle());
+                    dto.setDescription(announcement.getDescription());
+                    dto.setCategory(announcement.getCategory());
+                    dto.setCreatedStaffId(announcement.getCreateStaff().getId());
+                    dto.setGroupStatus(announcement.getGroupStatus());
+                    dto.setFile(announcement.getFile());
+                    // Manually map groups and staff to prevent recursion
+                    List<Integer> groupIds = announcement.getGroup().stream()
+                            .map(Group::getId)
+                            .collect(Collectors.toList());
+                    dto.setGroup(groupIds);
+
+                    // Initialize a Set to store unique staff IDs
+                    Set<Integer> allStaff = new HashSet<>();
+                    // Fetch staff for each group ID
+                    for (Integer groupId : groupIds) {
+                        List<Staff> staffInGroup = groupService.getStaffsByGroupId(groupId);
+                        for (Staff staff : staffInGroup) {
+                            allStaff.add(staff.getId());
+                        }
+                    }
+                    dto.setStaffInGroups(allStaff);
+                    System.out.println(allStaff);
+
+                    List<Integer> staffIds = announcement.getStaff().stream()
+                            .map(Staff::getId)
+                            .collect(Collectors.toList());
+                    dto.setStaff(staffIds);
+
                     return ResponseEntity.ok(dto);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AnnouncementDTO> getAnnouncementById(@PathVariable Integer id) {
+//        Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
+//        String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
+        return announcement_service.getAnnouncementById(id)
+                .map(announcement -> {
+                    // Create DTO manually
+                    AnnouncementDTO dto = new AnnouncementDTO();
+                    dto.setId(announcement.getId());
+                    dto.setTitle(announcement.getTitle());
+                    dto.setDescription(announcement.getDescription());
+                    dto.setCategory(announcement.getCategory());
+                    dto.setCreatedStaffId(announcement.getCreateStaff().getId());
+                    dto.setGroupStatus(announcement.getGroupStatus());
+                    dto.setFile(announcement.getFile());
+                    // Manually map groups and staff to prevent recursion
+                    List<Integer> groupIds = announcement.getGroup().stream()
+                            .map(Group::getId)
+                            .collect(Collectors.toList());
+                    dto.setGroup(groupIds);
+
+                    // Initialize a Set to store unique staff IDs
+                    Set<Integer> allStaff = new HashSet<>();
+                    // Fetch staff for each group ID
+                    for (Integer groupId : groupIds) {
+                        List<Staff> staffInGroup = groupService.getStaffsByGroupId(groupId);
+                        for (Staff staff : staffInGroup) {
+                            allStaff.add(staff.getId());
+                        }
+                    }
+                    dto.setStaffInGroups(allStaff);
+                    System.out.println(allStaff);
+
+                    List<Integer> staffIds = announcement.getStaff().stream()
+                            .map(Staff::getId)
+                            .collect(Collectors.toList());
+                    dto.setStaff(staffIds);
+
+                    return ResponseEntity.ok(dto);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
 
 
     @GetMapping("/getPublishedAnnouncements")
@@ -88,38 +162,17 @@ public class AnnouncementController {
 
 
     @GetMapping("/announcement-versions/{baseFileName}")
-    public List<Announcement> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
-        for(Announcement announce : announcement_service.getAllVersionsByFilePattern(baseFileName)){
-            System.out.println(announce.getFile());
-        }
+    public List<String> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
         return announcement_service.getAllVersionsByFilePattern(baseFileName);
     }
+
     @GetMapping("/announcement-get-url")
     public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
-        // Step 1: Check if the fileName ends with '.pdf'
-        if(fileName.endsWith(".pdf")) {
-            // Step 2: Remove the '.pdf' extension from the fileName
-            fileName = fileName.substring(0, fileName.length() - 4);
-        }
 
-        // Step 3: Get the download URL by passing the modified file name to the Cloudinary service
         String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
 
-        // Step 4: Return the URL in the response
         return ResponseEntity.ok().body(Url);
     }
-
-
-    @GetMapping("/announcement-latest-version/{fileName}")
-    public ResponseEntity<String> getLatestVersion(@PathVariable("fileName") String baseFileName){
-        Announcement resultAnnouncement = announcement_service.getLatestVersionByFilePattern(baseFileName);
-        if(resultAnnouncement.getFile().contains("documents")) {
-            resultAnnouncement.setFile(resultAnnouncement.getFile()+".pdf");
-            System.out.println(resultAnnouncement.getFile());
-        }
-        return ResponseEntity.ok().body(resultAnnouncement.getFile());
-    }
-
 
     //    Create and update method (because update is also insert the row in database)
 @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -132,7 +185,7 @@ public ResponseEntity<Announcement> createAnnouncement(
     try {
         // Find Create Staff From Announcement DTO
         Staff user = staffService.findById(createUserId);
-
+        Announcement announcement = mapper.map(request, Announcement.class);
 
         List<Group> groupsForAnnounce = new ArrayList<>();
         List<Staff> staffForAnnounce = new ArrayList<>();
@@ -144,14 +197,15 @@ public ResponseEntity<Announcement> createAnnouncement(
             for (Group group : groupsForAnnounce) {
                 group.getStaff().size(); // Force initialization
             }
+            announcement.setGroup(groupsForAnnounce);
             staffForAnnounce = null;
         } else {
             staffForAnnounce = staffService.findStaffsByIds(userIds);
+            announcement.setStaff(staffForAnnounce);
             groupsForAnnounce = null;
         }
 
         // Map DTO to Entity
-        Announcement announcement = mapper.map(request, Announcement.class);
         announcement.setFile("N/A");
         announcement.setCreateStaff(user);
         announcement.setCategory(request.getCategory());
@@ -162,46 +216,31 @@ public ResponseEntity<Announcement> createAnnouncement(
             LocalDateTime publishDateTime = LocalDateTime.now();
             announcement.setScheduleAt(publishDateTime);
         }
-
-        //initialize the project Announce people
-        if(groupsForAnnounce != null) {
-            System.out.println("Group size is "+groupsForAnnounce.size());
-            announcement.setGroup(groupsForAnnounce);
+        if(request.getForRequest() == 1){
+            announcement.setPermission("pending");
+        }else{
+            announcement.setPermission("approved");
         }
-        if(staffForAnnounce != null){
-            System.out.println("Staff size is "+staffForAnnounce.size());
-            announcement.setStaff(staffForAnnounce);
-        }
-
-
-
+        //Set id to null because even that is update need to add new row
+        announcement.setId(null);
         // Save the announcement
         Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
 
 
-//        ============================== TO FIX ====================================
-
-        //Publish the post
-        if(request.getForRequest() == 1){
-            if(request.getScheduleAt() != null){
+        // Send Announcement to Telegram & email
+        if(request.getScheduleAt() != null){
+            if(request.getForRequest() != 1 ){
                 LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
                 savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
                 blogService.createPost(savedAnnouncement);
-            }else{
+            }
+        }else{
+            if(request.getForRequest() != 1){
+                blogService.sendTelegramAndEmail(staffForAnnounce,groupsForAnnounce,files.get(0),savedAnnouncement.getId(),request.getGroupStatus());
                 savedAnnouncement.setPublished(true);
                 announcement_service.updateAnnouncement( savedAnnouncement.getId(),savedAnnouncement);
             }
-        }else{
-            if(request.getScheduleAt() != null){
-                LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
-                savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
-                blogService.createPost(savedAnnouncement);
-            }else{
-                savedAnnouncement.setPublished(true);
-                announcement_service.updateAnnouncement(savedAnnouncement.getId(),savedAnnouncement);
-            }
         }
-//            ==========================================================================
 
         if (files != null && !files.isEmpty()) {
             MultipartFile file = files.get(0);
@@ -212,54 +251,14 @@ public ResponseEntity<Announcement> createAnnouncement(
                  uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
             }
 
-
-            List<Staff> finalStaffForAnnounce = staffForAnnounce;
-            List<Group> finalGroupForAnnounce = groupsForAnnounce;
-
             uploadFuture.thenAccept(uploadResult -> {
                 try {
                     String fileName = uploadResult.get("public_id").toString();
-
-                    // Send Announcement to Telegram & email
-                    if (request.getGroupStatus() != 1) {
-                        for (Staff AnnounceStaff : finalStaffForAnnounce) {
-                            if (AnnounceStaff != null) {
-                                botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
-                            }
-                            if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                                emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
-                            }
-                        }
-                    } else {
-                        for (Group group : finalGroupForAnnounce) {
-                            if (group != null) {
-                                List<Staff> staffFromGroup = group.getStaff(); // Accessing initialized collection
-                                for (Staff AnnounceStaff : staffFromGroup) {
-                                    if (AnnounceStaff.getChatId() != null) {
-                                        botService.sendFile(AnnounceStaff.getChatId(), file, savedAnnouncement.getId());
-                                    }
-                                    if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, fileName);
-                                    }
-                                }
-                            }
-                        }
-                    }
 
                     // Update announcement with the file name
                     savedAnnouncement.setFile(fileName);
                     Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
 
-                    // Check if the announcement is for a request
-//                    if (forRequest != null) {
-//                        AnnouncementForReq announcementForReq = new AnnouncementForReq();
-//                        announcementForReq.setAnnouncement(updateFileUrlAnnounce);
-
-//                        ReqAnnouncement reqAnnouncement = reqAnnouncementService.getById(requestId);
-//                        announcementForReq.setRequestAnnouncement(reqAnnouncement);
-
-//                        announcementForReqService.createAnnouncementForReq(announcementForReq);
-//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -277,95 +276,41 @@ public ResponseEntity<Announcement> createAnnouncement(
 }
 
 
-
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateAnnouncement(@RequestBody Announcement announcement, @PathVariable int id) {
+    @GetMapping("/downloadfile")
+    public ResponseEntity<byte[]> downloadFile(@RequestParam String file) {
         try {
-            // Update announcement
-            Announcement updatedAnnouncement = announcement_service.updateAnnouncement(id, announcement);
-            if (updatedAnnouncement != null) {
-                LocalDateTime newPublishDateTime = announcement.getScheduleAt();
-                blogService.updateScheduledPost(id, newPublishDateTime);
-
-                // Generate PDF asynchronously
-                reportService.generateAnnouncementFile(updatedAnnouncement.getId(), "Announce" + updatedAnnouncement.getId(), new AsyncCallback<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] pdfBytes) {
-                        try {
-                            MultipartFile pdfFile = new MockMultipartFile("announcement.pdf", "announcement.pdf", "application/pdf", pdfBytes);
-                            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadFile(pdfFile, "Announce" + updatedAnnouncement.getId());
-
-                            uploadFuture.thenAccept(uploadResult -> {
-                                try {
-                                    String fileName = uploadResult.get("public_id").toString();
-
-                                    Announcement announce = new Announcement();
-                                    announce.setId(updatedAnnouncement.getId());
-                                    announce.setFile(fileName);
-                                    announcement_service.updateFileUrl(announce);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }).exceptionally(uploadEx -> {
-                                uploadEx.printStackTrace();
-                                return null;
-                            });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        // Handle error
-                        throwable.printStackTrace();
-                    }
-                });
-
-                return ResponseEntity.ok("Announcement Updated Successfully");
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Announcement Fail To Update");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating announcement");
-        }
-    }
-
-    @PostMapping("/{id}")
-    public ResponseEntity<String> deleteAnnouncement(@PathVariable int id) {
-        System.out.println("hay");
-        try {
-            cloudinaryService.deleteFile("Announce" + id);//is only accept multipartfile
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
-        announcement_service.deleteAnnouncement(id);
-        return ResponseEntity.ok("Announcement Deleted Successfully");
-    }
-
-    @GetMapping("/getAnnounceFile/{publicId}")
-    public Map getFile(@PathVariable String publicId) {
-        return cloudinaryService.getFile(publicId);
-    }
-    @GetMapping("/download/{publicId}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable String publicId) {
-        try {
-            Map<String, Object> fileData = cloudinaryService.downloadFile(publicId);
+            Map<String, Object> fileData = cloudinaryService.downloadFile(file);
             byte[] fileBytes = (byte[]) fileData.get("fileBytes");
             String contentType = (String) fileData.get("contentType");
-            String fileName = (String) fileData.get("fileName");
+            String finalFileName = getFileNameWithVersion(file);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(contentType));
-            headers.setContentDispositionFormData("attachment", fileName);
+            headers.setContentDispositionFormData("attachment", finalFileName);
 
             return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (IOException | InterruptedException e) {
-            System.out.println(e.toString());
+            System.out.println(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    private String getFileNameWithVersion(String fileName) {
+        // Regex to find version patterns like "V1", "V2", etc.
+        Pattern pattern = Pattern.compile("V(\\d+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(fileName);
+
+        String versionSuffix = "";
+        if (matcher.find()) {
+            versionSuffix = "version" + matcher.group(1);  // Extract version number
+        }
+
+        // Remove any version indicators from original name and add the new version suffix
+        String baseName = fileName.replaceAll("_V\\d+", ""); // Removes version like "_V1" or "_V2"
+
+        return versionSuffix.isEmpty() ? baseName : versionSuffix + ".xlsx"; // Return the version as file name
+    }
+
 
 
 
@@ -444,6 +389,8 @@ public ResponseEntity<Announcement> createAnnouncement(
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_service.getAnnouncementStaffCounts();
     }
+
+
 
 
 }

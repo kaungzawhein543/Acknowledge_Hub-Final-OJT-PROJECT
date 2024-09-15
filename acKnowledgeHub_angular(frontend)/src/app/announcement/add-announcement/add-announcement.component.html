@@ -9,7 +9,9 @@
           [(ngModel)]="scheduleDate"
           name="scheduleDate"
           type="datetime-local"
+          [min]="minDateTime"
           class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
+          <span *ngIf="dateError">{{dateError}}</span>
       </div>
     </div>
     <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">
@@ -139,13 +141,7 @@
         <select multiple (change)="onGroupChange($event)" class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
           <option class="p-2" *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
         </select>
-        
-        <!-- <div class="mt-4">
-          <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>
-          <ul class="list-disc pl-5 mt-2">
-            <li *ngFor="let group of selectedGroups" class="text-gray-700">{{ group.name }}</li>
-          </ul>
-        </div> -->
+
       </div>
   
 <!-- Staff Selection -->
@@ -188,25 +184,10 @@
   </div>
 </div>
 
-  <!-- <div class="mt-4 bg-white h-auto shadow-lg p-2" *ngIf="selectedStaffs.length > 0">
-    <p *ngIf="selectedStaffs.length > 0" class="text-sm font-semibold text-gray-800">Selected Staff:</p>
-    <ul class="list-disc pl-5 mt-2">
-      <li *ngFor="let staff of selectedStaffs" class="text-gray-700">
-        <div>
-          {{ staff.name }} ({{ staff.position }})
-        </div>
-        <div *ngIf="staff.department?.name">
-          - {{ staff.department.name }} Department
-        </div>
-        <div *ngIf="staff.company?.name">
-          - {{ staff.company.name }} Company
-        </div>
-      </li>
-    </ul>
-  </div> -->
 
       <!-- Submit Button -->
       <div class="mt-2 ">
+        <a (click)="playNotificationSound()">Click To Noti</a>
         <button
           type="submit"
           class="w-1/4 float-end py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
