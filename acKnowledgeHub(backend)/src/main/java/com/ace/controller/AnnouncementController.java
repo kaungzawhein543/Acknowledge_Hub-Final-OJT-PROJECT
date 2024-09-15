@@ -103,8 +103,7 @@ public class AnnouncementController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AnnouncementDTO> getAnnouncementById(@PathVariable Integer id) {
-//        Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
-//        String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
+
         return announcement_service.getAnnouncementById(id)
                 .map(announcement -> {
                     // Create DTO manually
