@@ -47,6 +47,7 @@ public class Announcement {
     private Category category;
 
 
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "group_has_ announcement",
@@ -63,7 +64,6 @@ public class Announcement {
             inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
     private List<Staff> staff;
-
 
 
     @PrePersist

@@ -34,7 +34,6 @@ export class AnnouncementComponent implements OnInit {
       },
       error: (e) => console.log(e)
     });
-
     this.feedbackService.getFeedbackAndReplyByAnnouncement(1).subscribe({
       next: (data) => {
         this.feedbackList = data.map(feedback => ({

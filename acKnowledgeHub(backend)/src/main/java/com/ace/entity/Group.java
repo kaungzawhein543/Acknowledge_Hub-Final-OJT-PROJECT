@@ -27,15 +27,16 @@ public class Group {
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")
     private Date createdAt;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "group")
+    private List<Announcement> announcement;
+
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinTable(
             name = "staff_has_group",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
     private List<Staff> staff = new ArrayList<>();
-    @ManyToMany(mappedBy = "group")
-    private List<Announcement> announcement;
 
     @PrePersist
     protected void onCreate() {

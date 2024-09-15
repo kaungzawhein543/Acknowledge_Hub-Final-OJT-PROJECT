@@ -1,21 +1,64 @@
 <div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full">
-    <div class="flex justify-between border-b border-gray-300 mb-2">
-      <h2 class="text-4xl font-bold mb-10 text-gray-900 roboto-bold  text-center" >Create Announcement</h2>
-      <div>
+  <div class="flex justify-between border-b border-gray-300 mb-2">
+    <span class="text-4xl font-semibold mb-10 text-gray-900 roboto-bold  text-center" >Update Announcement</span>
+    <div class="flex flex-row items-center">
+      <div class="border-2 border-gray-300 w-fit p-2 rounded-lg">
+        <span>Previous versions</span>
+        <a class="p-1 text-md bg-blue-500 cursor-pointer ms-3 rounded-md hover:bg-blue-600 text-white" (click)="showPreviousVersionBox()">Show</a>
+      </div>
+      <div class="ms-5">
         <!-- Schedule Date -->
         <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
         <input
-          id="scheduleDate"
-          [(ngModel)]="scheduleDate"
-          name="scheduleDate"
-          type="datetime-local"
-          class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
+        id="scheduleDate"
+        [(ngModel)]="scheduleDate"
+        name="scheduleDate"
+        type="datetime-local"
+        class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
+        <span *ngIf="dateError">{{dateError}}</span>
       </div>
     </div>
+  </div>
+  
+  <div *ngIf="showPreviousVersion" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center" style="z-index: 9999;">
+    <div class="bg-white rounded-lg shadow-lg w-1/2 p-6 max-h-80 relative overflow-y-auto">
+      <div class="flex justify-between  w-full items-center mb-4">
+        <span class="text-xl font-bold  text-gray-800">Previous Versions</span>
+        <button (click)="closeModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="fa-solid fa-times rounded-full hover:bg-gray-300 p-2"></i>
+        </button>
+      </div>
+  
+      <!-- Previous Versions List -->
+      <div class="relative h-full flex flex-col">
+        <div class="max-h-32 overflow-y-auto">  
+          <ol class="list-decimal pl-5 space-y-2">
+            <li  *ngFor="let version of announcementVersions;let i = index" class="p-2 hover:bg-gray-200">
+              <i class="fa-solid fa-folder-open text-gray-700"></i>
+              Version {{i+1}}
+              <a (click)="downloadFile(version)" class="cursor-pointer text-blue-500 hover:underline ml-2">Download</a>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+<!--   
+  <div class="relative h-full flex flex-col">
+    <div class="max-h-32 overflow-y-auto">
+      <ol class="list-decimal pl-5 space-y-2">
+        <li *ngFor="let version of announcementVersions"><a  class="text-blue-500 hover:underline ml-2">{{version}}</a></li>
+      
+      </ol>
+    </div>
+  </div>
+  
+   -->
+  
     <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">
       <!-- Title and Description -->
       <div class="col-span-6 flex flex-col">
-        <div class="bg-white p-6 rounded-lg shadow-md pt-9">
+        <div class="bg-white p-6 rounded-lg shadow-md pt-2">
             <div class="mb-6">
               <label for="title" class="block text-lg font-semibold text-gray-800">Title</label>
               <input
@@ -138,81 +181,51 @@
         <select multiple (change)="onGroupChange($event)" class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
           <option class="p-2" *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
         </select>
-        
-        <!-- <div class="mt-4">
-          <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>
-          <ul class="list-disc pl-5 mt-2">
-            <li *ngFor="let group of selectedGroups" class="text-gray-700">{{ group.name }}</li>
-          </ul>
-        </div> -->
+
       </div>
   
 <!-- Staff Selection -->
-<div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0" style="max-height: 280px;" (scroll)="onScroll($event)">
- <div class="sticky top-0 w-full bg-white">
-    <label class="block text-lg font-semibold text-gray-800">Select Staffs</label>
-    
-    <input
-      type="text"
-      class="border-2 rounded-lg p-2 w-full"
-      placeholder="Enter Staff Name or (Position).."
-      (input)="onInputChange($event)"
-    />
- </div>
-
-  <div class="mt-2 space-y-3 h-40">
-    <div class="overflow-auto">
-      <div *ngFor="let staff of staffs" class="flex items-center p-2">
-        <input
-          type="checkbox" 
-          [value]="staff.staffId"
-          (change)="onStaffChange($event)"
-          class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-        />
-        <label class="ml-3 text-gray-700 flex-1">
-          <div>
-            {{ staff.name }} ({{ staff.position }})
-          </div>
-          <div *ngIf="staff.department?.name">
-            - {{ staff.department.name }} Department
-          </div>
-          <div *ngIf="staff.company?.name">
-            - {{ staff.company.name }} Company
-          </div>
-        </label>
-      </div>
+    <div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0" style="max-height: 280px;" (scroll)="onScroll($event)">
+    <div class="sticky top-0 w-full bg-white">
+        <label class="block text-lg font-semibold text-gray-800">Select Staffs</label>
+        <input type="text" class="border-2 rounded-lg p-2 w-full" placeholder="Enter Staff Name or (Position).." (input)="onInputChange($event)"/>
     </div>
 
-    <div *ngIf="isLoading" class="text-center mt-4">Loading...</div>
-  </div>
-</div>
+          <div class="mt-2 space-y-3 h-40">
+                <div class="overflow-auto">
+                  <div *ngFor="let staff of staffs" class="flex items-center p-2">
+                    <input
 
-  <!-- <div class="mt-4 bg-white h-auto shadow-lg p-2" *ngIf="selectedStaffs.length > 0">
-    <p *ngIf="selectedStaffs.length > 0" class="text-sm font-semibold text-gray-800">Selected Staff:</p>
-    <ul class="list-disc pl-5 mt-2">
-      <li *ngFor="let staff of selectedStaffs" class="text-gray-700">
-        <div>
-          {{ staff.name }} ({{ staff.position }})
-        </div>
-        <div *ngIf="staff.department?.name">
-          - {{ staff.department.name }} Department
-        </div>
-        <div *ngIf="staff.company?.name">
-          - {{ staff.company.name }} Company
-        </div>
-      </li>
-    </ul>
-  </div> -->
+                    type="checkbox"   
+                    [value]="staff.staffId"
+                    [checked]="staff.selected"  
+                    (change)="onStaffChange($event)"
+                    class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                  />
+                    <label class="ml-3 text-gray-700 flex-1">
+                      <div>
+                        {{ staff.name }} ({{ staff.position }})
+                      </div>
+                      <div *ngIf="staff.department?.name">
+                        - {{ staff.department.name }} Department
+                      </div>
+                      <div *ngIf="staff.company?.name">
+                        - {{ staff.company.name }} Company
+                      </div>
+                    </label>
+                  </div>
+                </div>
+            <div *ngIf="isLoading" class="text-center mt-4">Loading...</div>
+          </div>
+    </div>
 
-      <!-- Submit Button -->
-      <div class="mt-2 ">
-        <button
-          type="submit"
-          class="w-1/4 float-end py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Create
-        </button>
-      </div>
-      </div>
+    </div>
+    <div class=" flex justify-end col-span-12 items-center" style="margin-top: 0 !important;" >
+      
+      <!-- Create button -->
+      <button type="submit" class="py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        Create
+      </button>
+    </div>
     </form>
 </div>

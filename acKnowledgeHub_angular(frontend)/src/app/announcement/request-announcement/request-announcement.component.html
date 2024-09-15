@@ -1,15 +1,17 @@
-<div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full"  @cardAnimation>
-  <div class="card flex justify-between border-b border-gray-300 mb-2">
-    <h2 class="text-4xl font-bold mb-10 text-gray-900 roboto-bold  text-center" >Request Announcement</h2>
-    <div>
-      <!-- Schedule Date -->
-      <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
-      <input
-        id="scheduleDate"
-        [(ngModel)]="scheduleDate"
-        name="scheduleDate"
-        type="datetime-local"
-        class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
+<div class="p-3 pb-2  max-w-full mx-auto h-fit bg-gray-50 rounded-lg shadow-lg w-full">
+    <div class="flex justify-between border-b border-gray-300 mb-2">
+      <h2 class="text-4xl font-bold mb-10 text-gray-900 roboto-bold  text-center" >Request Announcement</h2>
+      <div>
+        <!-- Schedule Date -->
+        <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
+        <input
+          id="scheduleDate"
+          [(ngModel)]="scheduleDate"
+          name="scheduleDate"
+          type="datetime-local"
+          class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
+          <span *ngIf="dateError">{{dateError}}</span>
+      </div>
     </div>
   </div>
   <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">

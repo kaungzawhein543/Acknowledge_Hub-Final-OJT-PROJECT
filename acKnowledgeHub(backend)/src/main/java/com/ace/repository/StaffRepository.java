@@ -94,5 +94,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "SUM(CASE WHEN s.status = 'inactive' THEN 1 ELSE 0 END)) " +
             "FROM Staff s")
     StaffSummaryDTO getStaffSummary();
+    @Query("SELECT s FROM Staff s JOIN s.announcement a WHERE a.id = :announcementId")
+    List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
 
 }

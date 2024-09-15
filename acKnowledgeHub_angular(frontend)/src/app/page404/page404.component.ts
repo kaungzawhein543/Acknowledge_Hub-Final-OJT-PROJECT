@@ -7,11 +7,11 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './page404.component.css'
 })
 export class Page404Component implements OnInit{
-  buttonRoute!: string;
+  buttonRoute !: string;
+  
+  constructor(private authService:AuthService){}
 
-  constructor(private authService: AuthService) {}
-
-  ngOnInit(): void {
+   ngOnInit(): void {
     // First, check if the user is an admin
     this.authService.hasRole("ADMIN").subscribe(
       (isAdmin) => {

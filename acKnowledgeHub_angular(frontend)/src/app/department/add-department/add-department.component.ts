@@ -25,7 +25,7 @@ export class AddDepartmentComponent implements OnInit {
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
-
+        this.department.company = this.companies[0];
       }
     })
   }

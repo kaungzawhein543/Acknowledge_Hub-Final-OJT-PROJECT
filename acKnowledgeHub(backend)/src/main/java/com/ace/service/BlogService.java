@@ -54,14 +54,6 @@ public class BlogService {
         Announcement announcement = announcementService.getAnnouncementById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-//        List<Staff> staffForAnnounce = new ArrayList<>();
-//        List<Group> groupsForAnnounce = new ArrayList<>();
-//        if(announcement.getGroupStatus() == 1){
-//            groupsForAnnounce = groupService.findGroupByAnnouncementId(announcement.getId());
-//
-//        }else{
-//            staffForAnnounce = staffService.findStaffByAnnouncementId(announcement.getId());
-//        }
         Hibernate.initialize(announcement.getGroup());
 
         Hibernate.initialize(announcement.getStaff());

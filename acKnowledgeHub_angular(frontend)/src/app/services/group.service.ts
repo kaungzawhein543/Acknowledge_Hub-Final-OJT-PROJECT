@@ -19,6 +19,9 @@ export class GroupService {
   getAllGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.apiUrl}/group`, { withCredentials: true });
   }
+  deleteGroup(id: number):Observable<void>{
+     return this.http.get<void>(`${this.apiUrl}/softDelete/`+id,{withCredentials:true});
+  }
 
 
 

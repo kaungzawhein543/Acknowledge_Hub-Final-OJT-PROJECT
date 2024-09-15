@@ -62,6 +62,9 @@ import { ProfileComponent } from './user/profile/profile.component';
 import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
 
 
+import { LoaderComponent } from './loader/loader/loader.component';
+import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -104,6 +107,8 @@ import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
     UserChartComponent,
     ProfileComponent,
     StaffChartComponent
+    LoaderComponent,
+    DetailAnnouncementComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr
@@ -134,6 +139,7 @@ import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
     BrowserAnimationsModule,
     
 
+    CommonModule
   ],
   providers: [
     provideClientHydration(),

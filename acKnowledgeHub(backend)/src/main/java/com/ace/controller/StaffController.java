@@ -1,13 +1,9 @@
 package com.ace.controller;
 
 import com.ace.dto.*;
-import com.ace.entity.Company;
-import com.ace.entity.Department;
-import com.ace.entity.Position;
-import com.ace.entity.Staff;
+import com.ace.entity.*;
 import com.ace.service.*;
 
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,10 +51,12 @@ public class StaffController {
     private final PositionService positionService;
     private final TokenBlacklistService tokenBlacklistService;
     private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
+    private final UserNotedAnnouncementService userNotedAnnouncementService;
+    private final AnnouncementService announcementService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService,TokenBlacklistService tokenBlacklistService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler) {
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService,TokenBlacklistService tokenBlacklistService) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
@@ -64,6 +64,8 @@ public class StaffController {
         this.positionService = positionService;
         this.tokenBlacklistService = tokenBlacklistService;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.userNotedAnnouncementService = userNotedAnnouncementService;
+        this.announcementService = announcementService;
     }
 
     @GetMapping("/list")
@@ -110,7 +112,8 @@ public class StaffController {
         return staffList;
     }
 
-    @PostMapping("/not-noted-list/{id}")
+
+    @GetMapping("/not-noted-list/{id}")
     public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @RequestParam("groupStatus") byte groupStatus) {
         List<UnNotedResponseDTO> staffList = new ArrayList<UnNotedResponseDTO>();
         if (groupStatus == 1) {
@@ -351,6 +354,42 @@ public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletReque
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");
     }
 
+     @GetMapping("/noted")
+    public ResponseEntity<String> makeNotedAnnouncement(@RequestParam Integer userId ,@RequestParam Integer announcementId){
+        // Noted User
+        Staff notedUser = staffService.findById(userId);
+        Announcement announcement = announcementService.getAnnouncementById(announcementId)
+                .orElseThrow();
+        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService
+                .checkNotedOrNot(notedUser, announcement);
+        if (!notedConditionAnnouncement.isPresent()) {
+            StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+            staffNotedAnnouncement.setStaff(notedUser);
+            staffNotedAnnouncement.setAnnouncement(announcement);
+            staffNotedAnnouncement.setNotedAt(Timestamp.valueOf(LocalDateTime.now()));
+            // Save Noted User and Announcement
+            userNotedAnnouncementService.save(staffNotedAnnouncement);
+            return ResponseEntity.ok("Noted Successfully");
+        }else{
+            return ResponseEntity.ok("You are ALready Noted");
+        }
+    }
+
+    @GetMapping("/check-noted")
+    public ResponseEntity<Boolean> checkNotedOrNot(@RequestParam Integer userId,@RequestParam Integer announcementId){
+        Staff notedUser = staffService.findById(userId);
+        Announcement announcement = announcementService.getAnnouncementById(announcementId)
+                .orElseThrow();
+        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService
+                .checkNotedOrNot(notedUser, announcement);
+        if (notedConditionAnnouncement.isPresent()){
+            return ResponseEntity.ok(true);
+        }else{
+            return ResponseEntity.ok(false);
+        }
+    }
+
 
 
 }
+

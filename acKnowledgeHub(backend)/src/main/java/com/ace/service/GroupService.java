@@ -31,6 +31,10 @@ public class GroupService {
         return groupRepository.findGroupsByIds(ids);
     }
 
+    public List<Group> findGroupByAnnouncementId(Integer announcementId){
+        return groupRepository.findGroupByAnnouncementId(announcementId);
+    }
+
     public void createGroup(String name, List<Integer> userIds){
         Group group=new Group();
         group.setName(name);

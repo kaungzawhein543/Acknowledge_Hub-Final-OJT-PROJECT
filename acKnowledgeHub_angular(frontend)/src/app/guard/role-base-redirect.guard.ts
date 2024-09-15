@@ -1,7 +1,8 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { inject } from '@angular/core';
-import { catchError, of, switchMap } from 'rxjs';
+import { Observable,catchError, of, switchMap } from 'rxjs';
+import { switchMap, map, catchError } from 'rxjs/operators';
 
 export const roleBaseRedirectGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService); // Injecting the AuthService

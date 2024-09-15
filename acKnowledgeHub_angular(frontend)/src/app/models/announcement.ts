@@ -8,12 +8,12 @@ export interface announcement {
   category: Category;
   createStaff: Staff;
   status: string;
-  created_at: Date;
+  createdAt: string;
   scheduleAt: Date;
   forRequest :number;
   groupStatus: number;
   [key: string]: any;
-  oldVersionStaff : [];
+  oldVersionStaff :[];
   oldVersionGroup : [];
   file?: File;  // File is handled separately
 }

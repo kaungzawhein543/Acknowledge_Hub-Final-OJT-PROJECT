@@ -31,8 +31,8 @@ export class StaffService {
     return this.http.get<NotedUser[]>(`${this.baseURL}/noted-list/${id}`);
   }
 
-  getUnNotedStaffByAnnouncementList(id: number): Observable<UnNotedUser[]> {
-    return this.http.get<UnNotedUser[]>(`${this.baseURL}/not-noted-list/${id}`);
+  getUnNotedStaffByAnnouncementList(id: number,groupStatus: number): Observable<UnNotedUser[]> {
+    return this.http.get<UnNotedUser[]>(`${this.baseURL}/not-noted-list/${id}?groupStatus=${groupStatus}`);
   }
 
   getAllCompany(): Observable<Company[]> {
@@ -47,6 +47,14 @@ export class StaffService {
     return this.http.get<Department[]>(`http://localhost:8080/api/v1/department`);
   }
 
+
+  makeNotedAnnouncement(userId : number,announcementId : number):Observable<string>{
+    return this.http.get<string>(`${this.baseURL}/noted?userId=${userId}&announcementId=${announcementId}`,{withCredentials: true,responseType: 'text' as 'json'});
+  }
+
+  checkNotedAnnouncement(userId : number,announcementId : number): Observable<boolean>{
+    return this.http.get<boolean>(`${this.baseURL}/check-noted?userId=${userId}&announcementId=${announcementId}`,{withCredentials:true,responseType: 'text' as 'json'});
+  }
 
   getStaffs(page: number, size: number, searchTerm: string): Observable<any> {
     const apiUrl = `${this.baseURL}?page=${page}&size=${size}&searchTerm=${searchTerm}`;

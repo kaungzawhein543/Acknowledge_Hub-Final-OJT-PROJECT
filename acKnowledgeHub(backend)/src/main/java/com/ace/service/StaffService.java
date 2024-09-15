@@ -58,6 +58,7 @@ public class StaffService implements UserDetailsService {
     }
 
 
+
     public Page<StaffDTO> getStaffs(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Staff> outputStaff = staffRepository.findAll(pageRequest);
@@ -87,6 +88,8 @@ public class StaffService implements UserDetailsService {
     public Staff findByEmail(String email){
      return staffRepository.findByEmail(email);
     }
+
+
 
     public List<NotedResponseDTO> getNotedStaffList(Integer announcementId) {
         return staffRepository.getNotedStaffByAnnouncement(announcementId);
@@ -119,6 +122,10 @@ public class StaffService implements UserDetailsService {
             return staff;
         }
         return null;
+    }
+
+    public List<Staff> findStaffByAnnouncementId(Integer announcementId){
+        return staffRepository.findStaffByAnnouncementId(announcementId);
     }
 
 

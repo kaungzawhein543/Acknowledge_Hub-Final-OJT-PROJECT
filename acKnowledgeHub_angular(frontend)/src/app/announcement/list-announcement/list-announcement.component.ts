@@ -77,13 +77,14 @@ export class ListAnnouncementComponent {
   fetchAnnouncements() {
     this.announcementService.getPublishAnnouncements().subscribe(
       (data) => {
-        this.announcements = data.map((item, index) => ({
-          ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredAnnouncements = data;
-        this.dataSource.data = this.filteredAnnouncements;
-        this.dataSource.paginator = this.paginator;
-        this.filterAnnouncements();
+        // this.announcements = data.map((item, index) => ({
+        //   ...item,
+        //   autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
+        // })); this.filteredAnnouncements = data;
+        // this.dataSource.data = this.filteredAnnouncements;
+        // this.dataSource.paginator = this.paginator;
+        // this.filterAnnouncements();
+
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -106,7 +107,7 @@ export class ListAnnouncementComponent {
         a.description?.toLowerCase() || '',
         a.category?.name?.toLowerCase() || '',
         a.createStaff?.name?.toLowerCase() || '',
-        new Date(a.created_at).toLocaleString().toLowerCase(),
+        new Date(a.createdAt).toLocaleString().toLowerCase(),
         new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
       return fieldsToSearch.some(field => field.includes(query));

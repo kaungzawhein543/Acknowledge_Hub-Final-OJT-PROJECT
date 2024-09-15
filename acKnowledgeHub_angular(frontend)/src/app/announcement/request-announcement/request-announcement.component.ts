@@ -40,6 +40,8 @@ export class RequestAnnouncementComponent {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
+  minDateTime: string ='';
+  dateError : string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -53,6 +55,8 @@ export class RequestAnnouncementComponent {
   selectedFile: File | null = null;
   createStaffId !: number;
   currentHrCompany !: string;
+  updateInterval: any;
+  intervalId: any;
 
   private page = 0;
   private pageSize = 20;
@@ -79,6 +83,10 @@ export class RequestAnnouncementComponent {
         console.log(this.currentHrCompany)
       }
     )
+    this.setMinDateTime();
+    this.intervalId = setInterval(() => {
+        this.setMinDateTime();
+      }, 60000);
   }
 
   loadGroups() {
@@ -177,13 +185,19 @@ export class RequestAnnouncementComponent {
 
   onSubmit(): void {
     const formData = new FormData();
-
+  
+    if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
+      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      return;
+    }
     // Create the announcement object
     const announcement = {
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category : this.selectedCategory,
+      forRequest : 1
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -300,7 +314,7 @@ export class RequestAnnouncementComponent {
     this.loadStaffs(); // Reload staff with the search term
   }
 
-   resetStaffList(): void {
+  resetStaffList(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
     this.staffs = []; // Clear current staff list
@@ -314,5 +328,22 @@ export class RequestAnnouncementComponent {
     } else {
       this.selectedOptionsBox = false;
     }
+  }
+  
+  setMinDateTime(): void {
+    const now = new Date();
+  
+    // Adjust the time to 2 minutes before the current time
+    now.setMinutes(now.getMinutes() - 2);
+  
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+  
+    // Set the minimum datetime to 2 minutes before the current date and time
+    this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    console.log('MinDateTime set to:', this.minDateTime);
   }
 }
