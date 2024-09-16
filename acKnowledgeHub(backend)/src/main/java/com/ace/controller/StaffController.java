@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -56,7 +55,8 @@ public class StaffController {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService,TokenBlacklistService tokenBlacklistService) {
+
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService, TokenBlacklistService tokenBlacklistService) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
@@ -124,10 +124,7 @@ public class StaffController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedResponse<StaffDTO>> getStaffs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String searchTerm) {
+    public ResponseEntity<PaginatedResponse<StaffDTO>> getStaffs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, @RequestParam(required = false) String searchTerm) {
         Page<StaffDTO> staffPage;
         if (searchTerm != null && !searchTerm.isEmpty()) {
             staffPage = staffService.searchStaffs(searchTerm, page, size);
@@ -147,7 +144,7 @@ public class StaffController {
     @GetMapping("put-HR/{id}")
     public List<StaffResponseDTO> putStaffHRMain(@PathVariable("id") Integer staffId) {
         Staff staffMain = staffService.getHRMainStaff("Human Resource(Main)");
-        if(staffMain != null){
+        if (staffMain != null) {
             Position position1 = positionService.findByName("Human Resource");
             staffMain.setPosition(position1);
             staffService.save(staffMain);
@@ -160,110 +157,100 @@ public class StaffController {
 
     }
 
-}
-@GetMapping("/staff-count-by-announcement")
-public List<Map<String, Object>> getStaffCountByAnnouncement() {
-    return staffService.getStaffCountByAnnouncement();
-}
 
-//get announcements list by staff id
-@GetMapping("/announcements/count")
-public ResponseEntity<Map<String, Object>> getAnnouncements(HttpServletRequest request) {
-    Map<String, Object> response = new HashMap<>();
-    String token = null;
+    @GetMapping("/staff-count-by-announcement")
+    public List<Map<String, Object>> getStaffCountByAnnouncement() {
+        return staffService.getStaffCountByAnnouncement();
+    }
 
-    // Extract JWT from cookies
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-        for (Cookie cookie : cookies) {
-            if ("jwt".equals(cookie.getName())) {
-                token = cookie.getValue();
-                break;
+    //get announcements list by staff id
+    @GetMapping("/announcements/count")
+    public ResponseEntity<Map<String, Object>> getAnnouncements(HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        String token = null;
+
+        // Extract JWT from cookies
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
             }
         }
-    }
 
-    if (token != null) {
-        try {
-            // Parse and validate JWT
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+        if (token != null) {
+            try {
+                // Parse and validate JWT
+                Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
 
-            // Retrieve staff ID
-            String staffId = claims.getSubject();
-            Staff user = staffService.findByStaffId(staffId);
-            if (user != null) {
-                Map<String, Long> monthlyCount = staffService.getMonthlyAnnouncementCount(user.getId());
+                // Retrieve staff ID
+                String staffId = claims.getSubject();
+                Staff user = staffService.findByStaffId(staffId);
+                if (user != null) {
+                    Map<String, Long> monthlyCount = staffService.getMonthlyAnnouncementCount(user.getId());
 
-                response.put("monthlyCount", monthlyCount);
-                return ResponseEntity.ok(response);
-            }
-        } catch (JwtException e) {
-            // Token is invalid, expired, or tampered with
-            response.put("error", "Invalid or expired token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-    }
-
-    // No valid token found
-    response.put("error", "No valid token found");
-    return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(response);    }
-
-
-// method to get announcement noted by staff for chart
-@GetMapping("/notesCountByMonth")
-public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletRequest request) {
-    Map<String, Object> response = new HashMap<>();
-    String token = null;
-
-    // Extract JWT from cookies
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-        for (Cookie cookie : cookies) {
-            if ("jwt".equals(cookie.getName())) {
-                token = cookie.getValue();
-                break;
+                    response.put("monthlyCount", monthlyCount);
+                    return ResponseEntity.ok(response);
+                }
+            } catch (JwtException e) {
+                // Token is invalid, expired, or tampered with
+                response.put("error", "Invalid or expired token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
         }
+
+        // No valid token found
+        response.put("error", "No valid token found");
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response);
     }
 
-    if (token != null) {
-        try {
-            // Parse and validate JWT
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
 
-            // Retrieve user by staff ID
-            String staffId = claims.getSubject();
-            Map<String, Long> notesCountByMonth = staffService.getNotesCountByMonthForStaff(staffId);
+    // method to get announcement noted by staff for chart
+    @GetMapping("/notesCountByMonth")
+    public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        String token = null;
 
-            // Wrap the result
-            Map<String, Object> result = new HashMap<>();
-            result.put("monthlyCount", notesCountByMonth);
-            System.out.println("Notes Count by Month: " + notesCountByMonth);  // Debugging line
-
-            return ResponseEntity.ok(result);
-        } catch (JwtException e) {
-            response.put("error", "Invalid or expired token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        } catch (IllegalArgumentException e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        // Extract JWT from cookies
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
         }
-    }
 
-    response.put("error", "Unauthorized");
-    return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(response);     }
+        if (token != null) {
+            try {
+                // Parse and validate JWT
+                Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
+
+                // Retrieve user by staff ID
+                String staffId = claims.getSubject();
+                Map<String, Long> notesCountByMonth = staffService.getNotesCountByMonthForStaff(staffId);
+
+                // Wrap the result
+                Map<String, Object> result = new HashMap<>();
+                result.put("monthlyCount", notesCountByMonth);
+                System.out.println("Notes Count by Month: " + notesCountByMonth);  // Debugging line
+
+                return ResponseEntity.ok(result);
+            } catch (JwtException e) {
+                response.put("error", "Invalid or expired token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            } catch (IllegalArgumentException e) {
+                response.put("error", e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        }
+
+        response.put("error", "Unauthorized");
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response);
+    }
 
     //Mapping to get staff summary count
     @GetMapping("/summary")
@@ -287,11 +274,7 @@ public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletReque
 
         if (token != null) {
             try {
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(jwtSecret)
-                        .build()
-                        .parseClaimsJws(token)
-                        .getBody();
+                Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
 
                 String staffId = claims.getSubject(); // Extract staff ID from JWT
 
@@ -330,11 +313,7 @@ public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletReque
 
         if (token != null) {
             try {
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(jwtSecret)
-                        .build()
-                        .parseClaimsJws(token)
-                        .getBody();
+                Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
 
                 String staffId = claims.getSubject();
                 Staff staff = staffService.findByStaffId(staffId);
@@ -375,14 +354,12 @@ public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletReque
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");
     }
 
-     @GetMapping("/noted")
-    public ResponseEntity<String> makeNotedAnnouncement(@RequestParam Integer userId ,@RequestParam Integer announcementId){
+    @GetMapping("/noted")
+    public ResponseEntity<String> makeNotedAnnouncement(@RequestParam Integer userId, @RequestParam Integer announcementId) {
         // Noted User
         Staff notedUser = staffService.findById(userId);
-        Announcement announcement = announcementService.getAnnouncementById(announcementId)
-                .orElseThrow();
-        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService
-                .checkNotedOrNot(notedUser, announcement);
+        Announcement announcement = announcementService.getAnnouncementById(announcementId).orElseThrow();
+        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(notedUser, announcement);
         if (!notedConditionAnnouncement.isPresent()) {
             StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
             staffNotedAnnouncement.setStaff(notedUser);
@@ -391,26 +368,21 @@ public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletReque
             // Save Noted User and Announcement
             userNotedAnnouncementService.save(staffNotedAnnouncement);
             return ResponseEntity.ok("Noted Successfully");
-        }else{
+        } else {
             return ResponseEntity.ok("You are ALready Noted");
         }
     }
 
     @GetMapping("/check-noted")
-    public ResponseEntity<Boolean> checkNotedOrNot(@RequestParam Integer userId,@RequestParam Integer announcementId){
+    public ResponseEntity<Boolean> checkNotedOrNot(@RequestParam Integer userId, @RequestParam Integer announcementId) {
         Staff notedUser = staffService.findById(userId);
-        Announcement announcement = announcementService.getAnnouncementById(announcementId)
-                .orElseThrow();
-        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService
-                .checkNotedOrNot(notedUser, announcement);
-        if (notedConditionAnnouncement.isPresent()){
+        Announcement announcement = announcementService.getAnnouncementById(announcementId).orElseThrow();
+        Optional<StaffNotedAnnouncement> notedConditionAnnouncement = userNotedAnnouncementService.checkNotedOrNot(notedUser, announcement);
+        if (notedConditionAnnouncement.isPresent()) {
             return ResponseEntity.ok(true);
-        }else{
+        } else {
             return ResponseEntity.ok(false);
         }
     }
-
-
-
 }
 

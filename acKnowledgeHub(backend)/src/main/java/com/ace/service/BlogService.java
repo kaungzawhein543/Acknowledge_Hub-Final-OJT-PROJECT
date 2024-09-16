@@ -75,7 +75,7 @@ public class BlogService {
                     botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
                 }
                 if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                    emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename());
+                    emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);
                 }
             }
         } else {
@@ -93,7 +93,7 @@ public class BlogService {
                             }
                         }
                         if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                            emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename());
+                            emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);
                         }
                     }
                 }

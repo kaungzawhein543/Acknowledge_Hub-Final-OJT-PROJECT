@@ -53,12 +53,6 @@ public class GroupController {
     }
 
     @GetMapping("HR/{id}")
-    public ResponseEntity<List<GroupDTO>> getGroupsHR(@PathVariable("id") Integer id) {
-        List<GroupDTO> groups = groupService.getGroupsByHR(id);
-        return ResponseEntity.ok().body(groups);
-    }
-
-    @GetMapping("HR/{id}")
     public ResponseEntity<List<GroupResponseDTO>> getGroupsHR(@PathVariable("id") Integer id) {
         List<GroupResponseDTO> groups = groupService.getGroupsByHR(id);
         return ResponseEntity.ok().body(groups);

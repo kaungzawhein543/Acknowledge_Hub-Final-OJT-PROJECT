@@ -31,12 +31,6 @@ public class GroupService {
         return groupRepository.findAll();
     }
 
-    public List<GroupDTO> getGroupsByHR(Integer id) {
-        String companyName = staffRepository.getCompanyNameById(id);
-        return groupRepository.getGroupsByHR(companyName);
-    }
-
-
     public List<Group> findGroupsByIds(List<Integer> ids) {
         return groupRepository.findGroupsByIds(ids);
     }

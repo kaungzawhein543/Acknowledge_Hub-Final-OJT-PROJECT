@@ -91,10 +91,10 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "FROM Announcement a")
     AnnouncementStatsDTO getAnnouncementCounts();
 
-    //Query for announcement desc card
-    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus) " +
-            "from Announcement a where a.status = 'active' order by a.scheduleAt DESC")
-    List<AnnouncementListDTO> getAnnouncementList();
+//    //Query for announcement desc card
+//    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus) " +
+//            "from Announcement a where a.status = 'active' order by a.scheduleAt DESC")
+//    List<AnnouncementListDTO> getAnnouncementList();
 
     //Query for all announcement count by month
     @Query("select new com.ace.dto.MonthlyCountDTO(YEAR(a.scheduleAt), MONTH(a.scheduleAt), count(a)) " +
@@ -109,9 +109,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
             "FROM Announcement a WHERE a.file LIKE :baseFileName ")
     List<AnnouncementVersionDTO> getAllVersions(@Param("baseFileName") String baseFileName);
-
-    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
-    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+//
+//    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+//    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
     @Query("select new com.ace.dto.RequestAnnouncementResponseDTO" +
             "(a.id, a.title , a.description,a.created_at, a.scheduleAt,  a.category.name, a.createStaff.name,cs.company.name) " +

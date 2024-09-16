@@ -25,12 +25,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:///D:/OJT-14/Intellij/Acknowledge_Hub-Final-OJT-PROJECT/acKnowledgeHub(backend)/src/main/resources/images/")
+                .addResourceLocations("**/resources/images/")
                 .setCacheControl(CacheControl.maxAge(Duration.ofDays(3600)).cachePublic());
 
         //for default profile folder
         registry.addResourceHandler("/defaultProfile/**")
-                .addResourceLocations("file:///D:/OJT-14/Intellij/Acknowledge_Hub-Final-OJT-PROJECT/acKnowledgeHub(backend)/src/main/resources/defaultProfile/")
+                .addResourceLocations("**/resources/defaultProfile/")
                 .setCacheControl(CacheControl.maxAge(Duration.ofDays(3600)).cachePublic());
     }
 

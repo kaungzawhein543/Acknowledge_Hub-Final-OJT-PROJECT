@@ -5,6 +5,7 @@ import { StaffSummaryCount } from '../models/staff';
 import { StaffService } from '../services/staff.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { listAnnouncement } from '../models/announcement-list';
 
 @Component({
   selector: 'app-hrdashboard',
@@ -26,10 +27,10 @@ import { trigger, style, transition, animate, query, stagger } from '@angular/an
 export class HRdashboardComponent implements OnInit {
 
   stats: AnnouncementStatsDTO | null = null;
-  announcements: AnnouncementListDTO[] = [];
+  announcements: listAnnouncement[] = [];
   monthlyCounts: MonthlyCountDTO[] = [];
-  progressBarWidth: string = '0%'; 
-  staffSummaryCount : StaffSummaryCount | null = null;
+  progressBarWidth: string = '0%';
+  staffSummaryCount: StaffSummaryCount | null = null;
 
   animatedStats = {
     totalAnnouncements: 0,
@@ -44,7 +45,7 @@ export class HRdashboardComponent implements OnInit {
     private announcementService: AnnouncementService,
     private staffService: StaffService,
     private cdr: ChangeDetectorRef  // Inject ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadAnnouncementStats();
@@ -52,7 +53,7 @@ export class HRdashboardComponent implements OnInit {
     this.loadAnnouncementCountByMonth();
     this.loadStaffSummaryCount();
   }
-  
+
   loadAnnouncementStats(): void {
     this.announcementService.getAnnouncementStats().subscribe(
       (data: AnnouncementStatsDTO) => {
@@ -64,8 +65,8 @@ export class HRdashboardComponent implements OnInit {
 
         this.cdr.detectChanges();
         setTimeout(() => {
-          this.progressBarWidth = '100%'; 
-        }, 0); 
+          this.progressBarWidth = '100%';
+        }, 0);
       },
       (error) => {
         console.error('Error fetching announcement statistics', error);
@@ -74,8 +75,8 @@ export class HRdashboardComponent implements OnInit {
   }
 
   loadAnnouncementListDESC(): void {
-    this.announcementService.getPublishedAnnouncements().subscribe(
-      (data: AnnouncementListDTO[]) => {
+    this.announcementService.getPublishAnnouncements().subscribe(
+      (data: listAnnouncement[]) => {
         this.announcements = data.slice(0, 3);
       },
       error => {
@@ -95,10 +96,10 @@ export class HRdashboardComponent implements OnInit {
       'January', 'February', 'March', 'April', 'May', 'June', 'July',
       'August', 'September', 'October', 'November', 'December'
     ];
-    return monthNames[month - 1]; 
+    return monthNames[month - 1];
   }
 
-  loadStaffSummaryCount(): void{
+  loadStaffSummaryCount(): void {
     this.staffService.getStaffCount().subscribe(
       (data: StaffSummaryCount) => {
         this.staffSummaryCount = data;
@@ -113,14 +114,14 @@ export class HRdashboardComponent implements OnInit {
   }
 
   animateNumbers(field: keyof typeof this.animatedStats, targetValue: number, duration: number): void {
-    const increment = targetValue / (duration / 100); 
+    const increment = targetValue / (duration / 100);
     const interval = setInterval(() => {
       if (this.animatedStats[field] < targetValue) {
         this.animatedStats[field] += Math.ceil(increment);
-    
+
         this.cdr.detectChanges();
       } else {
-        this.animatedStats[field] = targetValue; 
+        this.animatedStats[field] = targetValue;
         clearInterval(interval);
       }
     }, 100); // Update every 100ms

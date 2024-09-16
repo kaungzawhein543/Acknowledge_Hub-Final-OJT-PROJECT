@@ -37,7 +37,7 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
-    public void sendFileEmail(String toEmail, String subject, MultipartFile file,String fileName) {
+    public void sendFileEmail(String toEmail, String subject, MultipartFile file,String fileName  ,Integer announcementId  ) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -45,7 +45,7 @@ public class EmailService {
             mimeMessageHelper.setSubject(subject);
 
             String downloadUrl = "http://localhost:8080/api/v1/announcement/download?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
-            String backendApiUrl = "http://localhost:8080/api/v1/announcement/note?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
+            String backendApiUrl = "http://localhost:8080/api/v1/announcement/note?announcementId=" + announcementId + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
             String htmlContent = "<html>"
                     + "<body style='font-family: Arial, sans-serif; color: #333; background-color: #ffffff; padding: 20px; margin: 0;'>"
                     + "<div style='text-align: center;'>"

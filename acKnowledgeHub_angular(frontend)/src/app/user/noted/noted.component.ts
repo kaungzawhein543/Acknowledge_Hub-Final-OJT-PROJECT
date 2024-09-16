@@ -12,6 +12,8 @@ export class NotedComponent {
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.publicId = this.route.snapshot.queryParamMap.get('publicId');
+
+    this.publicId = this.route.snapshot.queryParamMap.get('announcementId');
+    console.log("here is announcement id : " + this.publicId)
   }
 }

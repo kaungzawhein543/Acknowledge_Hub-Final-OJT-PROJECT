@@ -36,7 +36,7 @@ public class StaffService implements UserDetailsService {
     private final AnnouncementRepository announcement_repo;
     private final NotedRepository notedRepository;
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
-
+private final GroupRepository groupRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired

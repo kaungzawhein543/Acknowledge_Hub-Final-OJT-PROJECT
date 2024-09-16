@@ -102,6 +102,107 @@ public class AnnouncementController {
     }
 
 
+    //    Create and update method (because update is also insert the row in database)
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Announcement> createAnnouncement(
+            @RequestPart AnnouncementDTO request,
+            @RequestPart(name = "userIds", required = false) List<Integer> userIds,
+            @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
+            @RequestPart(name = "files", required = false) List<MultipartFile> files,
+            @RequestParam(name = "createUserId") Integer createUserId) {
+        try {
+            // Find Create Staff From Announcement DTO
+            Staff user = staffService.findById(createUserId);
+            Announcement announcement = mapper.map(request, Announcement.class);
+
+            List<Group> groupsForAnnounce = new ArrayList<>();
+            List<Staff> staffForAnnounce = new ArrayList<>();
+
+            //Announce People
+            if (request.getGroupStatus() == 1) {
+                groupsForAnnounce = groupService.findGroupsByIds(groupIds);
+                // Initialize staff list before async operation
+                for (Group group : groupsForAnnounce) {
+                    group.getStaff().size(); // Force initialization
+                }
+                announcement.setGroup(groupsForAnnounce);
+                staffForAnnounce = null;
+            } else {
+                staffForAnnounce = staffService.findStaffsByIds(userIds);
+                announcement.setStaff(staffForAnnounce);
+                groupsForAnnounce = null;
+            }
+
+            // Map DTO to Entity
+            announcement.setFile("N/A");
+            announcement.setCreateStaff(user);
+            announcement.setCategory(request.getCategory());
+
+
+            // If ScheduledAt is null assign default
+            if (announcement.getScheduleAt() == null) {
+                LocalDateTime publishDateTime = LocalDateTime.now();
+                announcement.setScheduleAt(publishDateTime);
+            }
+            if (request.getForRequest() == 1) {
+                announcement.setPermission("pending");
+            } else {
+                announcement.setPermission("approved");
+            }
+            //Set id to null because even that is update need to add new row
+            announcement.setId(null);
+            // Save the announcement
+            Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
+
+
+            // Send Announcement to Telegram & email
+            if (request.getScheduleAt() != null) {
+                if (request.getForRequest() != 1) {
+                    LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
+                    savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
+                    blogService.createPost(savedAnnouncement);
+                }
+            } else {
+                if (request.getForRequest() != 1) {
+                    blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus());
+                    savedAnnouncement.setPublished(true);
+                    announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
+                }
+            }
+
+            if (files != null && !files.isEmpty()) {
+                MultipartFile file = files.get(0);
+                CompletableFuture<Map<String, Object>> uploadFuture;
+                if (request.getId() != 0) {
+                    uploadFuture = cloudinaryService.uploadFile(file, "Announce" + request.getId());
+                } else {
+                    uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
+                }
+
+                uploadFuture.thenAccept(uploadResult -> {
+                    try {
+                        String fileName = uploadResult.get("public_id").toString();
+
+                        // Update announcement with the file name
+                        savedAnnouncement.setFile(fileName);
+                        Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).exceptionally(uploadEx -> {
+                    uploadEx.printStackTrace();
+                    return null;
+                });
+            }
+
+            return ResponseEntity.ok(savedAnnouncement);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AnnouncementDTO> getAnnouncementById(@PathVariable Integer id) {
 
@@ -153,17 +254,6 @@ public class AnnouncementController {
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
-    //    Create and update method (because update is also insert the row in database)
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Announcement> createAnnouncement(
-            @RequestPart AnnouncementDTO request,
-            @RequestPart(name = "userIds", required = false) List<Integer> userIds,
-            @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
-            @RequestPart(name = "files", required = false) List<MultipartFile> files,
-            @RequestParam(name = "createUserId") Integer createUserId) {
-        try {        // Find Create Staff From Announcement DTO
-            Staff user = staffService.findById(createUserId);
-
 
     @GetMapping("/announcement-versions/{baseFileName}")
     public List<String> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
@@ -178,111 +268,22 @@ public class AnnouncementController {
         return ResponseEntity.ok().body(Url);
     }
 
-    //    Create and update method (because update is also insert the row in database)
-@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<Announcement> createAnnouncement(
-        @RequestPart AnnouncementDTO request,
-        @RequestPart(name = "userIds", required = false) List<Integer> userIds,
-        @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
-        @RequestPart(name = "files", required = false) List<MultipartFile> files,
-        @RequestParam(name = "createUserId") Integer createUserId) {
-    try {
-        // Find Create Staff From Announcement DTO
-        Staff user = staffService.findById(createUserId);
-        Announcement announcement = mapper.map(request, Announcement.class);
-
-        List<Group> groupsForAnnounce = new ArrayList<>();
-        List<Staff> staffForAnnounce = new ArrayList<>();
-
-        //Announce People
-        if (request.getGroupStatus() == 1) {
-            groupsForAnnounce = groupService.findGroupsByIds(groupIds);
-            // Initialize staff list before async operation
-            for (Group group : groupsForAnnounce) {
-                group.getStaff().size(); // Force initialization
-            }
-            announcement.setGroup(groupsForAnnounce);
-            staffForAnnounce = null;
-        } else {
-            staffForAnnounce = staffService.findStaffsByIds(userIds);
-            announcement.setStaff(staffForAnnounce);
-            groupsForAnnounce = null;
-        }
-
-        // Map DTO to Entity
-        announcement.setFile("N/A");
-        announcement.setCreateStaff(user);
-        announcement.setCategory(request.getCategory());
-
-
-        // If ScheduledAt is null assign default
-        if (announcement.getScheduleAt() == null) {
-            LocalDateTime publishDateTime = LocalDateTime.now();
-            announcement.setScheduleAt(publishDateTime);
-        }
-        if (request.getForRequest() == 1) {
-            announcement.setPermission("pending");
-        } else {
-            announcement.setPermission("approved");
-        }
-        //Set id to null because even that is update need to add new row
-        announcement.setId(null);
-        // Save the announcement
-        Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
-
-
-        // Send Announcement to Telegram & email
-        if (request.getScheduleAt() != null) {
-            if (request.getForRequest() != 1) {
-                LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
-                savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
-                blogService.createPost(savedAnnouncement);
-            }
-        } else {
-            if (request.getForRequest() != 1) {
-                blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus());
-                savedAnnouncement.setPublished(true);
-                announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
-            }
-
-        if (files != null && !files.isEmpty()) {
-            MultipartFile file = files.get(0);
-            CompletableFuture<Map<String, Object>> uploadFuture;
-            if (request.getId() != 0) {
-                uploadFuture = cloudinaryService.uploadFile(file, "Announce" + request.getId());
-            } else {
-                uploadFuture = cloudinaryService.uploadFile(file, "Announce" + savedAnnouncement.getId());
-            }
-
-            uploadFuture.thenAccept(uploadResult -> {
-                try {
-                    String fileName = uploadResult.get("public_id").toString();
-
-                    // Update announcement with the file name
-                    savedAnnouncement.setFile(fileName);
-                    Announcement updateFileUrlAnnounce = announcement_service.updateFileUrl(savedAnnouncement);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).exceptionally(uploadEx -> {
-                uploadEx.printStackTrace();
-                return null;
-            });
-        }
-    }
-
     @GetMapping("/note")
-    public ResponseEntity<Void> noteAnnouncement(@RequestParam String publicId, @RequestParam String userEmail, HttpServletResponse response) {
-
-            String frontendUrl = "http://localhost:4200/noted?publicId=" + publicId;
+    public ResponseEntity<Void> noteAnnouncement(@RequestParam Integer announcementId, @RequestParam String userEmail, HttpServletResponse response) {
+        StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
+        Optional<Announcement> announcement = announcement_service.getAnnouncementById(announcementId);
+        staffNotedAnnouncement.setAnnouncement(announcement.get());
+        Staff staff = staffService.findByEmail(userEmail);
+        staffNotedAnnouncement.setStaff(staff);
+        Optional<StaffNotedAnnouncement> notedAnnouncement =  userNotedAnnouncementService.checkNotedOrNot(staff,announcement.get());
+        if(!notedAnnouncement.isPresent()){
+            userNotedAnnouncementService.save(staffNotedAnnouncement);
+        }
+            String frontendUrl = "http://localhost:4200/noted?announcementId=" + announcementId;
             response.setHeader("Location", frontendUrl);
             return new ResponseEntity<>(HttpStatus.FOUND);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateAnnouncement(@RequestBody Announcement announcement, @PathVariable int id) {
-    
     @GetMapping("/downloadfile")
     public ResponseEntity<byte[]> downloadFile(@RequestParam String file) {
         try {
@@ -317,9 +318,6 @@ public ResponseEntity<Announcement> createAnnouncement(
 
         return versionSuffix.isEmpty() ? baseName : versionSuffix + ".xlsx"; // Return the version as file name
     }
-
-
-
 
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadPdfFromEmail(@RequestParam("publicId") String publicId, @RequestParam("userEmail") String userEmail, HttpServletResponse response) {
@@ -417,39 +415,6 @@ public ResponseEntity<Announcement> createAnnouncement(
         log.info("here is versions" + list);
         return list;
     }
-
-//    @GetMapping("/announcement-versions/{baseFileName}")
-//    public List<Announcement> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
-//        for(Announcement announce : announcement_service.getAllVersionsByFilePattern(baseFileName)){
-//            System.out.println(announce.getFile());
-//        }
-//        return announcement_service.getAllVersionsByFilePattern(baseFileName);
-//    }
-//    @GetMapping("/announcement-get-url")
-//    public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
-//        // Step 1: Check if the fileName ends with '.pdf'
-//        if(fileName.endsWith(".pdf")) {
-//            // Step 2: Remove the '.pdf' extension from the fileName
-//            fileName = fileName.substring(0, fileName.length() - 4);
-//        }
-//
-//        // Step 3: Get the download URL by passing the modified file name to the Cloudinary service
-//        String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
-//
-//        // Step 4: Return the URL in the response
-//        return ResponseEntity.ok().body(Url);
-//    }
-
-
-//    @GetMapping("/announcement-latest-version/{fileName}")
-//    public ResponseEntity<String> getLatestVersion(@PathVariable("fileName") String baseFileName){
-//        Announcement resultAnnouncement = announcement_service.getLatestVersionByFilePattern(baseFileName);
-//        if(resultAnnouncement.getFile().contains("documents")) {
-//            resultAnnouncement.setFile(resultAnnouncement.getFile()+".pdf");
-//            System.out.println(resultAnnouncement.getFile());
-//        }
-//        return ResponseEntity.ok().body(resultAnnouncement.getFile());
-//    }
 
     @GetMapping("request-list")
     public List<RequestAnnouncementResponseDTO> getRequestAnnouncements() {
