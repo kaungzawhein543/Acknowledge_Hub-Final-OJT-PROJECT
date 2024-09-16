@@ -1,16 +1,25 @@
-<app-navbar *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page"></app-navbar>
+<div *ngIf="isLoading" class="flex h-screen justify-center items-center">
+  <app-loader></app-loader> <!-- Your loading spinner -->
+</div>
 
-<div class="flex h-screen overflow-hidden bg-gray-300 " [ngClass]="{ 'login-page': isLoginPage && !isChangePasswordPage && !is404Page, 'app-container': !isLoginPage && !isChangePasswordPage && !is404Page,'notLoginPage':!isLoginPage && !isChangePasswordPage && !is404Page }" >
-  <!-- Toast Container -->
-  <div id="toast-container" ></div>
 
-  <!-- Sidebar -->
-  <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black ">
-    <app-sidebar></app-sidebar>
-  </div>
+<div *ngIf="!isLoading" class="">        
+    <app-navbar *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page"></app-navbar>
 
-  <!-- Main Content -->
-  <div [ngClass]="{' bg-gray-300 p-4': !isLoginPage && !isChangePasswordPage && !is404Page}" class="w-full overflow-auto">
-      <router-outlet></router-outlet>
-  </div>
+    <div class="flex h-screen overflow-hidden bg-gray-300 " [ngClass]="{ 'login-page': isLoginPage && !isChangePasswordPage && !is404Page, 'app-container': !isLoginPage && !isChangePasswordPage && !is404Page,'notLoginPage':!isLoginPage && !isChangePasswordPage && !is404Page }" >
+      <!-- Toast Container -->
+      <div id="toast-container" ></div>
+      
+
+      <!-- Sidebar -->
+      <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black ">
+        <app-sidebar></app-sidebar>
+      </div>
+      
+      <!-- Main Content -->
+      <div [ngClass]="{' bg-gray-300 p-4': !isLoginPage && !isChangePasswordPage && !is404Page}" class="w-full overflow-auto">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
 </div>

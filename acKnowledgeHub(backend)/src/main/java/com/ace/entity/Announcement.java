@@ -44,20 +44,23 @@ public class Announcement {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     private Category category;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "group_has_announcement",
+            name = "group_has_ announcement",
             joinColumns = @JoinColumn(name = "announcement_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     private List<Group> group;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "staff_has_announcement",
             joinColumns = @JoinColumn(name = "announcement_id"),
             inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
     private List<Staff> staff;
+
 
     @PrePersist
     protected void onCreate() {

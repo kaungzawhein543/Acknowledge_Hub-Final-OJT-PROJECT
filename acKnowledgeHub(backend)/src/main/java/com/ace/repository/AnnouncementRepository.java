@@ -27,6 +27,16 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("update Announcement a set a.status = 'inactive' where a.id = ?1")
     void softDeleteAnnouncement(Integer id);
 
+    @Query(value = "SELECT * FROM Announcement a WHERE a.file LIKE %:fileName%", nativeQuery = true)
+    List<Announcement> findAllByFileName(@Param("fileName") String fileName);
+
+
+    @Query("SELECT a.file FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
+    List<String> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
 
     @Query("select NEW com.ace.dto.StaffNotedResponseDTO(a.id , a.title , a.description, a.scheduleAt, sn.notedAt, a.createStaff.name) from Announcement a " +
             "JOIN StaffNotedAnnouncement sn ON a.id = sn.announcement.id " +
@@ -66,6 +76,35 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "from Announcement a WHERE a.isPublished = true ")
     List<AnnouncementResponseListDTO> getPendingAnnouncement();
 
+    //Query for staffNotedAnnouncement
+    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
+            "FROM Announcement a " +
+            "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
+            "GROUP BY a.id, a.title, a.created_at")
+    List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
+
+    //Query for announcement stats card
+    @Query("SELECT new com.ace.dto.AnnouncementStatsDTO( " +
+            "COUNT(a), " +
+            "SUM(CASE WHEN a.isPublished = TRUE THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN a.isPublished = FALSE THEN 1 ELSE 0 END)) " +
+            "FROM Announcement a")
+    AnnouncementStatsDTO getAnnouncementCounts();
+
+    //Query for announcement desc card
+    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus) " +
+            "from Announcement a where a.status = 'active' order by a.scheduleAt DESC")
+    List<AnnouncementListDTO> getAnnouncementList();
+
+    //Query for all announcement count by month
+    @Query("select new com.ace.dto.MonthlyCountDTO(YEAR(a.scheduleAt), MONTH(a.scheduleAt), count(a)) " +
+            "from Announcement a where a.status = 'active' " +
+            "group by YEAR(a.scheduleAt), MONTH(a.scheduleAt)")
+    List<MonthlyCountDTO> countActiveAnnouncementsByMonth();
+
+
+    @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId ORDER BY a.created_at DESC")
+    List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
 
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
             "FROM Announcement a WHERE a.file LIKE :baseFileName ")

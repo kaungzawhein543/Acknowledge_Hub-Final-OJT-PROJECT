@@ -6,10 +6,15 @@ import com.ace.entity.StaffNotedAnnouncement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface NotedRepository extends JpaRepository<StaffNotedAnnouncement,Integer> {
 
     Optional<StaffNotedAnnouncement> findByStaffAndAnnouncement(Staff staff, Announcement announcement);
+
+    List<StaffNotedAnnouncement> findByStaff(Staff staff);
+
+
 }

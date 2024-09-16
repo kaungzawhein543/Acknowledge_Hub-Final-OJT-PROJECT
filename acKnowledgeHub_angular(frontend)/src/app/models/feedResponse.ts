@@ -6,4 +6,6 @@ export interface feedbackResponse {
     replyBy?: number;
     showInput?: boolean;
     replyText?: string;
+    createdAt :string;
+    replyAt : string;
 }

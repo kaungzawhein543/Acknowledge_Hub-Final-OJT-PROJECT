@@ -50,10 +50,8 @@ export class LoginComponent {
             console.log('User data:', user);
             if (user.user.role === "USER" && user.position !== "HR_MAIN") {
               this.router.navigate(['/staff-dashboard']);
-            } else if (user.user.role === "ADMIN") {
-              this.router.navigate(['/admindashboard']);
-            } else {
-              this.router.navigate(['/hr-dashboard']);
+            } else if (user.user.role === "ADMIN" || user.position === "HR_MAIN") {
+              this.router.navigate(['/dashboard']);
             }
           });
         }

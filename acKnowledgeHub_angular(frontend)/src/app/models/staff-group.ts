@@ -1,3 +1,4 @@
+import { Company } from "./Company";
 import { Department } from "./Department";
 
 export interface StaffGroup {
@@ -5,4 +6,6 @@ export interface StaffGroup {
     name: string;
     position: string;
     department: Department;
+    company : Company;
+    photoPath : string;
 }

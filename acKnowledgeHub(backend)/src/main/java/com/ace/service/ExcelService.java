@@ -7,6 +7,7 @@ import com.ace.entity.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,9 @@ public class ExcelService {
         this.departmentRepository = departmentRepository;
         this.groupRepository = groupRepository;
     }
+
+    @Value("${default.photo.path}")
+    private String DEFAULT_PHOTO_PATH;
 
     @Transactional
     public String processExcelFile(MultipartFile file) throws IOException {
@@ -96,6 +100,11 @@ public class ExcelService {
                 staff.setDepartment(department);
                 staff.setPosition(position);
                 staff.setEmail(staffEmail);
+
+                // Check if photoPath is null, if so set the default path
+                if (staff.getPhotoPath() == null || staff.getPhotoPath().isEmpty()) {
+                    staff.setPhotoPath(DEFAULT_PHOTO_PATH);
+                }
 
                 // Save or update the staff
                 staffRepository.save(staff);

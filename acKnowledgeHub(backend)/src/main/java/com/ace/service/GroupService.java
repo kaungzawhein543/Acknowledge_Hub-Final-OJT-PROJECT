@@ -1,6 +1,7 @@
 package com.ace.service;
 
 import com.ace.dto.GroupDTO;
+import com.ace.dto.GroupResponseDTO;
 import com.ace.entity.Staff;
 import com.ace.repository.GroupRepository;
 
@@ -40,8 +41,17 @@ public class GroupService {
         return groupRepository.findGroupsByIds(ids);
     }
 
-    public void createGroup(String name, List<Integer> userIds) {
-        Group group = new Group();
+    public List<GroupResponseDTO> getGroupsByHR(Integer id) {
+        String companyName = staffRepository.getCompanyNameById(id);
+        return groupRepository.getGroupsByHR(companyName);
+    }
+
+    public List<Group> findGroupByAnnouncementId(Integer announcementId){
+        return groupRepository.findGroupByAnnouncementId(announcementId);
+    }
+
+    public void createGroup(String name, List<Integer> userIds){
+        Group group=new Group();
         group.setName(name);
             for (Integer userId : userIds) {
                 Optional<Staff> selectedUser = staffRepository.findById(userId);

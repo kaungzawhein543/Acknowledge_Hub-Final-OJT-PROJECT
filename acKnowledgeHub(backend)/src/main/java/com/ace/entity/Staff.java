@@ -47,6 +47,8 @@ public class Staff implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role = Role.USER;
+    @Column(name = "photo_path")  // Field to store the file path
+    private String photoPath;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "position_id")
     private Position position;
@@ -59,7 +61,7 @@ public class Staff implements UserDetails {
     @ManyToMany(mappedBy = "staff")
     private List<Group> groups;
     @ManyToMany(mappedBy = "staff")
-    private List<Announcement> announcement = new ArrayList<>();
+    private List<Announcement> announcement;
 
 
     @PrePersist

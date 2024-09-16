@@ -1,0 +1,68 @@
+<div class="profile-container">
+  <!-- Profile Banner -->
+  <div class="profile-banner">
+  </div>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <img [src]="oldPhotoUrl" alt="User Profile" class="profile-image" />
+
+    <div class="card-info">
+      <h3>{{ profile?.name }}</h3>
+      <p class="position">{{ profile?.position }}</p>
+      <div class="profile-actions">
+        <button class="update-photo-button"  (click)="openModal()">Update Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Details Section with Side-by-Side Layout -->
+  <div class="profile-details">
+    <h4>Profile</h4>
+    <div class="details-row">
+      <div class="details-column">
+        <h5>Information Details</h5>
+        <p><strong>ID:</strong> {{ profile?.companyStaffId }}</p>
+        <p><strong>Name:</strong> {{ profile?.name }}</p>
+        <p><strong>Email:</strong> {{ profile?.email }}</p>
+      </div>
+      <div class="details-column">
+        <h5>Company Information</h5>
+        <p><strong>Company:</strong> {{ profile?.company }}</p>
+        <p><strong>Department:</strong> {{ profile?.department }}</p>
+      </div>
+    </div>
+    <br>
+    <!-- Monthly Announcement Count Section -->
+    <div *ngIf="profile?.monthlyCount && profile?.position !== 'HR_MAIN'">
+      <h5 class="announcement-count"> Announcement Count</h5>  
+      <ul class="monthly-count-list">
+        <li *ngFor="let month of getMonths(profile?.monthlyCount)">
+          <span class="month-name">{{ month }}:</span> 
+          <span class="month-name">{{ profile?.monthlyCount?.[month] ?? 0 }}</span>
+        </li>
+      </ul>
+    </div>
+    <br>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="preview-modal" *ngIf="showModal">
+    <div class="modal-content">
+      <span class="close-button" (click)="closeModal()">&times;</span>
+      <div *ngIf="newPhotoUrl">
+        <img [src]="newPhotoUrl" alt="New Photo Preview" class="preview-image" />
+      </div>
+      <div *ngIf="!newPhotoUrl">
+        <img [src]="oldPhotoUrl" alt="Old Photo" class="preview-image" />
+      </div>
+      <div class="file-input-wrapper">
+        <label class="custom-file-upload">
+          Choose File
+          <input type="file" (change)="onFileChange($event)" />
+        </label>
+      </div>
+      <button (click)="uploadPhoto()">Upload Photo</button>
+    </div>
+  </div>
+</div>

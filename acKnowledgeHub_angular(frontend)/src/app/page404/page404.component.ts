@@ -8,26 +8,37 @@ import { AuthService } from '../services/auth.service';
 })
 export class Page404Component implements OnInit{
   buttonRoute !: string;
-  constructor(private authService:AuthService){}
-  ngOnInit(): void {
-    this.authService.hasRole("ADMIN").subscribe(
-      (data)=> {
-        if(data){
-          this.buttonRoute = "/admindashboard";
-        }else{this.authService.hasPostion("HR_MAIN").subscribe(
-          (data)=>{
-            if(data){
-              this.buttonRoute ="/hr-dashboard";
-            }else{
-              this.buttonRoute = "/staff-dashboard"
-            }
-          }
-        )
-
-        }
-      }
-    )
-  }
-
   
+  constructor(private authService:AuthService){}
+
+   ngOnInit(): void {
+    // First, check if the user is an admin
+    this.authService.hasRole("ADMIN").subscribe(
+      (isAdmin) => {
+        if (isAdmin) {
+          // Admins can go to HR dashboard
+          this.buttonRoute = "/dashboard";
+        } else {
+          // If not an admin, check if the user has the 'HR_MAIN' position
+          this.authService.hasPostion("HR_MAIN").subscribe(
+            (hasHrMain) => {
+              if (hasHrMain) {
+                this.buttonRoute = "/dashboard";
+              } else {
+                this.buttonRoute = "/staff-dashboard";
+              }
+            },
+            (error) => {
+              console.error('Error checking position', error);
+              this.buttonRoute = "/staff-dashboard"; // Fallback in case of error
+            }
+          );
+        }
+      },
+      (error) => {
+        console.error('Error checking role', error);
+        this.buttonRoute = "/staff-dashboard"; // Fallback in case of error
+      }
+    );
+  }
 }

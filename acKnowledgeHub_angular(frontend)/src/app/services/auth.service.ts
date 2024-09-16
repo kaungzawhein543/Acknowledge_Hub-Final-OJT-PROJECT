@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { userInfo } from 'os';
 import { catchError, map, Observable, of } from 'rxjs';
 import { ResponseEmail } from '../models/response-email';
+import { StaffProfileDTO } from '../models/staff';
 
 @Injectable({
   providedIn: 'root'
@@ -85,6 +86,17 @@ export class AuthService {
       catchError(() => of(null))  // In case of error, return null
     );
   }
+
+  getProfile(): Observable<StaffProfileDTO> {
+    return this.http.get<StaffProfileDTO>(`${this.apiUrl}/profile`, { withCredentials: true }).pipe(
+      catchError(error => {
+        console.error('Error fetching profile:', error);
+        return of(null as unknown as StaffProfileDTO); // Handle the error and return null in case of failure
+      })
+    );
+  }
+
+  
 
   getOTP(staffId: string): Observable<ResponseEmail> {
     return this.http.post<ResponseEmail>(`http://localhost:8080/api/v1/email/send-otp?staffId=${staffId}`, {}, { withCredentials: true })

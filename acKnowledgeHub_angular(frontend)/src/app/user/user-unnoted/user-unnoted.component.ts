@@ -17,7 +17,7 @@ import saveAs from 'file-saver';
   templateUrl: './user-unnoted.component.html',
   styleUrl: './user-unnoted.component.css'
 })
-export class UserUnnotedComponent {
+export class UserUnnotedComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   announcements: announcementList[] = [];

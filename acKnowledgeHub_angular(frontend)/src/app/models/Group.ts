@@ -1,6 +1,10 @@
-export interface Group {
-    id?: number;
+import { Staff } from "./staff";
+
+export interface Group{
+    id : number;
     name: string;
     status?: string;
-    selected: boolean;
+    createdAt: Date;
+    staff : Staff[];
+    selected : boolean;
 }

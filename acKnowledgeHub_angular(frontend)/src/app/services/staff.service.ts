@@ -7,7 +7,10 @@ import { Department } from '../models/Department';
 import { StaffGroup } from '../models/staff-group';
 import { UnNotedUser } from '../models/un-noted-user';
 import { Staff, staffList } from '../models/staff';
+import { StaffSummaryCount } from '../models/staff';
 import { AddStaff } from '../models/addStaff';
+import { announcementList } from '../models/announcement-list';
+import { AnnouncementListDTO } from '../models/announcement';
 
 
 
@@ -46,6 +49,14 @@ export class StaffService {
   // }
 
 
+  makeNotedAnnouncement(userId: number, announcementId: number): Observable<string> {
+    return this.http.get<string>(`${this.baseURL}/noted?userId=${userId}&announcementId=${announcementId}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  checkNotedAnnouncement(userId: number, announcementId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseURL}/check-noted?userId=${userId}&announcementId=${announcementId}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
   getStaffs(page: number, size: number, searchTerm: string): Observable<any> {
     const apiUrl = `${this.baseURL}?page=${page}&size=${size}&searchTerm=${searchTerm}`;
     return this.http.get<any>(apiUrl);
@@ -65,5 +76,22 @@ export class StaffService {
 
   putHRMain(id: number): Observable<staffList[]> {
     return this.http.get<staffList[]>(`${this.baseURL}/put-HR/${id}`);
+  }
+
+  //method to get staff summary count
+  getStaffCount(): Observable<StaffSummaryCount> {
+    return this.http.get<StaffSummaryCount>(`${this.baseURL}/summary`, { withCredentials: true });
+  }
+
+  //method to get announcment by staff id card
+  getAnnouncementDESC(): Observable<AnnouncementListDTO[]> {
+    return this.http.get<AnnouncementListDTO[]>(`${this.baseURL}/staff-announcements`, { withCredentials: true });
+  }
+
+  uploadProfilePhoto(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(`${this.baseURL}/profile/upload-photo`, formData, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

@@ -40,18 +40,30 @@ export class AddUserComponent implements OnInit {
     this.departmentService.getAllDepartments().subscribe({
       next: (data) => {
         this.departments = data;
+        if(this.departments.length >0){
+          console.log("There is  dapartments")
+          this.staff.departmentId = this.departments[0].id;
+        }else{
+          console.log("There is no dapartments")
+        }
       },
       error: (e) => console.log(e)
     });
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
+        if(this.companies.length >0){
+          this.staff.companyId = this.companies[0].id;
+        }
       },
       error: (e) => console.log(e)
     });
     this.positionService.getAllPosition().subscribe({
       next: (data) => {
         this.positions = data;
+        if(this.positions.length >0){
+          this.staff.positionId = this.positions[0].id;
+        }
       },
       error: (e) => console.log(e)
     });

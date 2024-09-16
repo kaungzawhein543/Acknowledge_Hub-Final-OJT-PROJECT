@@ -19,15 +19,13 @@ export class GroupService {
   getAllGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.baseURL}`, { withCredentials: true });
   }
+  deleteGroup(id: number): Observable<void> {
+    return this.http.get<void>(`${this.baseURL}/softDelete/` + id, { withCredentials: true });
+  }
 
   getGroupsByHR(id: number): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.baseURL}/HR/${id}`, { withCredentials: true });
   }
-
-  // getGroups(page: number, size: number, searchTerm: string): Observable<any> {
-  //   const apiUrl = `${this.baseURL}?page=${page}&size=${size}&searchTerm=${searchTerm}`;
-  //   return this.http.get<any>(apiUrl);
-  // }
 
   createGroup(userIds: number[], groupName: string): Observable<string> {
     const encodedGroupName = encodeURIComponent(groupName);

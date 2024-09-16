@@ -13,7 +13,7 @@ import { AddCategoryComponent } from './category/add-category/add-category.compo
 import { SidebarComponent } from './sidebar/sidebar/sidebar.component';
 import { NavbarComponent } from './navbar/navbar/navbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { MychartComponent } from './mychart/mychart.component';
+import { MychartComponent } from './chart/mychart/mychart.component';
 import { ChangepasswordComponent } from './user/changepassword/changepassword.component';
 import { ExcelImportComponent } from './excel-import/excel-import.component';
 import { AuthGuard } from './guard/auth.guard';
@@ -63,6 +63,14 @@ import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
 import { RequestListComponent } from './announcement/request-list/request-list.component';
 import { NotedComponent } from './user/noted/noted.component';
 
+import { UserChartComponent } from './chart/user-chart/user-chart.component';
+import { ProfileComponent } from './user/profile/profile.component';
+import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
+
+
+import { LoaderComponent } from './loader/loader/loader.component';
+import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -108,6 +116,11 @@ import { NotedComponent } from './user/noted/noted.component';
     AddHRMainComponent,
     RequestListComponent,
     NotedComponent,
+    UserChartComponent,
+    ProfileComponent,
+    StaffChartComponent,
+    LoaderComponent,
+    DetailAnnouncementComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr
@@ -135,6 +148,10 @@ import { NotedComponent } from './user/noted/noted.component';
     ScrollingModule,
     MatTableModule,
     MatPaginatorModule,
+    BrowserAnimationsModule,
+
+
+    CommonModule
   ],
   providers: [
     provideClientHydration(),
