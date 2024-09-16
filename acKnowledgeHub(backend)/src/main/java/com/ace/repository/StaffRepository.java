@@ -71,7 +71,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     List<Staff> findByPositionId(Integer positionId);
 
-    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , p.name, s.department ) FROM Staff s JOIN Position p on p.id = s.position.id")
+    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , p.name, s.department,s.photoPath,s.company) FROM Staff s JOIN Position p on p.id = s.position.id")
     List<StaffGroupDTO> getStaffListForGroup();
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
@@ -97,4 +97,8 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("SELECT s FROM Staff s JOIN s.announcement a WHERE a.id = :announcementId")
     List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
 
+
+    @Query("select s.company.name from Staff s where s.id = ?1")
+    String getCompanyNameById(Integer id);
 }
+

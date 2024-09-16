@@ -1,58 +1,65 @@
 <!-- Grid Container -->
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6 bg-gray-100 p-4 rounded-2xl shadow-md" @cardAnimation>
-  <!-- Card 1 -->
-  <div class="card bg-blue-100 p-4 rounded-md shadow-lg" *ngIf="stats" style="color: rgb(0, 16, 16);">
-    <span class="text-base font-semibold text-gray-800 mb-3 block"> Announcements</span>
-    <div class="flex flex-col gap-4">
-  
-      <!-- Total Announcements -->
-      <div class="text-sm text-gray-700">
-        <div class="flex justify-between items-center mb-2">
-          <span>Total Announcements:</span>
-          <span class="font-medium text-gray-800">{{ stats.totalAnnouncements }}</span>
-        </div>
-        <div class="relative">
-          <div class="w-full bg-gray-300 h-1 rounded-full">
-            <div class="bg-blue-500 h-1 rounded-full text-xs font-medium text-blue-100 text-center"
-                 [ngStyle]="{ 'width': '100%' }">
-            </div>
-          </div>
-        </div>
+<!-- Card 1 -->
+<div class="card bg-blue-100 p-4 rounded-md shadow-lg" *ngIf="stats" style="color: rgb(0, 16, 16);">
+  <span class="text-base font-semibold text-gray-800 mb-3 block">Announcements</span>
+  <div class="flex flex-col gap-4">
+
+   <!-- Total Announcements -->
+<div class="text-sm text-gray-700">
+  <div class="flex justify-between items-center mb-2">
+    <span>Total Announcements:</span>
+    <span class="font-medium text-gray-800">{{ animatedStats.totalAnnouncements }}</span>
+  </div>
+  <div class="relative">
+    <div class="w-full bg-gray-300 h-1 rounded-full">
+      <div class="progress-bar bg-blue-500 h-1 rounded-full text-xs font-medium text-blue-100 text-center"
+           [ngStyle]="{ 'width': progressBarWidth, 'transition': 'width 1s ease' }">
       </div>
-  
-      <!-- Published Announcements -->
-      <div class="text-sm text-gray-700">
-        <div class="flex justify-between items-center mb-2">
-          <span>Published:</span>
-          <span class="font-medium text-gray-800">{{ stats.publishedAnnouncements }}</span>
-        </div>
-        <div class="relative">
-          <div class="w-full bg-gray-300 h-1 rounded-full">
-            <div class="bg-green-500 h-1 rounded-full text-xs font-medium text-green-100 text-center"
-                 [ngStyle]="{ 'width': (stats.totalAnnouncements ? (stats.publishedAnnouncements / stats.totalAnnouncements * 100) + '%' : '0%') }">
-            </div>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Drafts -->
-      <div class="text-sm text-gray-700">
-        <div class="flex justify-between items-center mb-2">
-          <span>Pending:</span>
-          <span class="font-medium text-gray-800">{{ stats.unpublishedAnnouncements }}</span>
-        </div>
-        <div class="relative">
-          <div class="w-full bg-gray-300 h-1 rounded-full">
-            <div class="bg-yellow-500 h-1 rounded-full text-xs font-medium text-yellow-100 text-center"
-                 [ngStyle]="{ 'width': (stats.totalAnnouncements ? (stats.unpublishedAnnouncements / stats.totalAnnouncements * 100) + '%' : '0%') }">
-            </div>
-          </div>
-        </div>
-      </div>
-      
     </div>
   </div>
-  
+</div>
+
+
+    <!-- Published Announcements -->
+    <div class="text-sm text-gray-700">
+      <div class="flex justify-between items-center mb-2">
+        <span>Published:</span>
+        <span class="font-medium text-gray-800">{{ animatedStats.publishedAnnouncements }}</span>
+      </div>
+      <div class="relative">
+        <div class="w-full bg-gray-300 h-1 rounded-full">
+          <div class="bg-green-500 h-1 rounded-full text-xs font-medium text-green-100 text-center"
+               [ngStyle]="{ 
+                 'width': (animatedStats.totalAnnouncements ? (animatedStats.publishedAnnouncements / animatedStats.totalAnnouncements * 100) + '%' : '0%'),
+                 'transition': 'width 1s ease'
+               }">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drafts -->
+    <div class="text-sm text-gray-700">
+      <div class="flex justify-between items-center mb-2">
+        <span>Pending:</span>
+        <span class="font-medium text-gray-800">{{ animatedStats.unpublishedAnnouncements }}</span>
+      </div>
+      <div class="relative">
+        <div class="w-full bg-gray-300 h-1 rounded-full">
+          <div class="bg-yellow-500 h-1 rounded-full text-xs font-medium text-yellow-100 text-center"
+               [ngStyle]="{ 
+                 'width': (animatedStats.totalAnnouncements ? (animatedStats.unpublishedAnnouncements / animatedStats.totalAnnouncements * 100) + '%' : '0%'),
+                 'transition': 'width 1s ease'
+               }">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 
   
 
@@ -74,12 +81,12 @@
   
 
 <!-- Card 3 - Compact and Enhanced with Inline Layout -->
-<div class="card bg-yellow-100 p-3 rounded-md shadow-lg" *ngFor="let count of monthlyCounts" >
+<div class="card bg-yellow-100 p-3 rounded-md shadow-lg" >
   <span class="text-base font-semibold text-gray-800 mb-3 block">Announcements by Month</span>
 
   <!-- Container with fixed height and overflow-y for scrollbar -->
   <div class="space-y-3 max-h-48 overflow-y-auto">
-    <div 
+    <div  *ngFor="let count of monthlyCounts" 
          class="flex justify-between items-center p-3 bg-white rounded-lg shadow hover:shadow-lg hover:bg-yellow-50 transition-all duration-300 ease-in-out">
 
       <!-- Left Section: Icon and Month -->
@@ -109,7 +116,7 @@
         <i class="fas fa-users text-gray-600"></i>
         <span class="text-sm text-gray-700">Total Staffs:</span>
       </div>
-      <span class="font-medium text-gray-800">{{ staffSummaryCount.totalStaff }}</span>
+      <span class="font-medium text-gray-800">{{ animatedStats.totalStaff }}</span>
     </div>
 
     <!-- Active Staffs -->
@@ -118,7 +125,7 @@
         <i class="fas fa-user-check text-green-600"></i>
         <span class="text-sm text-gray-700">Active Staffs:</span>
       </div>
-      <span class="font-medium text-gray-800">{{ staffSummaryCount.activeStaff }}</span>
+      <span class="font-medium text-gray-800">{{ animatedStats.activeStaff }}</span>
     </div>
 
     <!-- Inactive Staffs -->
@@ -127,7 +134,7 @@
         <i class="fas fa-user-slash text-red-600"></i>
         <span class="text-sm text-gray-700">Inactive Staffs:</span>
       </div>
-      <span class="font-medium text-gray-800">{{ staffSummaryCount.inactiveStaff }}</span>
+      <span class="font-medium text-gray-800">{{ animatedStats.inactiveStaff }}</span>
     </div>
   </div>
 </div>
@@ -135,7 +142,7 @@
 
 
   <!-- Detailed View Section -->
-  <div class="card bg-gray-200 p-4 rounded-md shadow-sm col-span-1 md:col-span-3 lg:col-span-4">
+  <div class="card bg-gray-200 p-4 rounded-md shadow-sm col-span-2 md:col-span-3 lg:col-span-4">
     <span class="text-lg font-semibold mb-4 block">Detailed View</span>
     <app-mychart></app-mychart>
   </div>

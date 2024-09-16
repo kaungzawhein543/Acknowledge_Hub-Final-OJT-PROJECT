@@ -1,6 +1,7 @@
 package com.ace.controller;
 
 import com.ace.dto.GroupDTO;
+import com.ace.dto.GroupResponseDTO;
 import com.ace.entity.Group;
 import com.ace.entity.Staff;
 import com.ace.service.GroupService;
@@ -19,6 +20,7 @@ public class GroupController {
     private GroupService groupService;
     @Autowired
     private ModelMapper mapper;
+
     @GetMapping
     public ResponseEntity<List<GroupDTO>> getAllGroups() {
         List<Group> groups = groupService.getAllGroups();
@@ -47,6 +49,11 @@ public class GroupController {
     }
 
 
+    @GetMapping("HR/{id}")
+    public ResponseEntity<List<GroupResponseDTO>> getGroupsHR(@PathVariable("id") Integer id) {
+        List<GroupResponseDTO> groups = groupService.getGroupsByHR(id);
+        return ResponseEntity.ok().body(groups);
+    }
 
     @PostMapping("/create")
     public String addGroup(

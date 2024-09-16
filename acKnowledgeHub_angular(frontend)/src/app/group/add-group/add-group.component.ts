@@ -9,6 +9,7 @@ import { DepartmentService } from '../../services/department.service';
 import { GroupService } from '../../services/group.service';
 import { error } from 'console';
 import { ToastService } from '../../services/toast.service';
+import { map } from 'rxjs';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class AddGroupComponent {
   groupName: string = '';
   validationError: string = '';
   selectAll: boolean = false;
-
+  
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
 
@@ -37,7 +38,7 @@ export class AddGroupComponent {
   companystatus: number | undefined;
   departmentstatus: number | undefined;
   status: boolean = false;
-
+  showConfirmBox : boolean = false;
   @ViewChild('staff') staff!: MatSelectionList;
 
   constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
@@ -64,13 +65,21 @@ export class AddGroupComponent {
         this.showErrorToast();
       }
     });
-    this.staffService.getStaffList().subscribe({
+    this.staffService.getStaffList().pipe(
+      map((data: any[]) => 
+        data.map(staff => ({
+          ...staff,
+          photoPath: staff.photoPath ? `http://localhost:8080${staff.photoPath}?${Date.now()}` : ''
+        }))
+      )
+    ).subscribe({
       next: (data) => {
         this.staffList = data;
+        console.log(this.staffList); // Debugging line to check the transformed data
         this.showStaff(1);
       },
       error: (e) => {
-        console.log(e)
+        console.log(e);
       }
     });
   }
@@ -80,6 +89,14 @@ export class AddGroupComponent {
     this.filteredCompanies = this.companies.filter(company =>
       company.name.toLowerCase().includes(term)
     );
+  }
+  showSelectedStaff(): void{
+    if(this.showConfirmBox === false){
+      this.showConfirmBox = true;
+    }else{
+      this.showConfirmBox = false;
+    }
+    console.log(this.selectedStaff)
   }
 
   filterDepartment(): void {

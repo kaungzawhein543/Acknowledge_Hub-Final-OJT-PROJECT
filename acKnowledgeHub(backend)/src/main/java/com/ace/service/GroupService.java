@@ -1,5 +1,7 @@
 package com.ace.service;
 
+import com.ace.dto.GroupDTO;
+import com.ace.dto.GroupResponseDTO;
 import com.ace.entity.Staff;
 import com.ace.repository.GroupRepository;
 
@@ -29,6 +31,11 @@ public class GroupService {
 
     public List<Group> findGroupsByIds(List<Integer> ids){
         return groupRepository.findGroupsByIds(ids);
+    }
+
+    public List<GroupResponseDTO> getGroupsByHR(Integer id) {
+        String companyName = staffRepository.getCompanyNameById(id);
+        return groupRepository.getGroupsByHR(companyName);
     }
 
     public List<Group> findGroupByAnnouncementId(Integer announcementId){

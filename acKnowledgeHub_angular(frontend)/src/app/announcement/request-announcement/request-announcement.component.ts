@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 
 import { AddAnnouncementComponent } from '../add-announcement/add-announcement.component';
@@ -57,30 +57,32 @@ export class RequestAnnouncementComponent {
   currentHrCompany !: string;
   updateInterval: any;
   intervalId: any;
+  filteredGroups : Group[] = [];
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  selectAllStaffs : boolean = false;
 
   constructor(
     private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr : ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
-        this.createStaffId = data.user.id;
         this.currentHrCompany = data.company;
-        console.log(this.currentHrCompany)
+        this.createStaffId = data.user.id;
+        this.loadGroups(this.createStaffId);
       }
     )
     this.setMinDateTime();
@@ -89,10 +91,12 @@ export class RequestAnnouncementComponent {
       }, 60000);
   }
 
-  loadGroups() {
-    this.groupService.getAllGroups().subscribe(
+  loadGroups(HrId: number) {
+    this.groupService.getGroupsByHR(HrId).subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
+        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -114,24 +118,17 @@ export class RequestAnnouncementComponent {
 
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) {
-      console.log('Skipping loadStaffs: isLoading=', this.isLoading, ', hasMore=', this.hasMore);
       return;
     }
-
     this.isLoading = true;
-
     const query = this.searchTerm.trim();
-    console.log('Searching for term:', query);
-
     this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
         this.isLoading = false;
-        console.log('Received response:', response);
-
+        console.log(response)
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content
             .filter((staff: { company?: { name?: string }; }) => {
-              // Null check for company and company name
               const companyName = staff.company?.name;
               const matchesCompany = companyName === this.currentHrCompany;
               return matchesCompany;
@@ -144,11 +141,13 @@ export class RequestAnnouncementComponent {
               };
             });
 
-          console.log('Processed staffs:', processedStaffs);
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
-          console.log('Updated page:', this.page, 'Has more:', this.hasMore);
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
+          console.log(this.staffs)
         } else {
           console.log('No valid content found.');
           this.hasMore = false;
@@ -161,8 +160,24 @@ export class RequestAnnouncementComponent {
     );
   }
 
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
+  }
 
-
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
 
   extractPositionName(position: string | null): string {
     if (!position) {
@@ -251,16 +266,21 @@ export class RequestAnnouncementComponent {
   }
 
   onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
     }
   }
-
 
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -271,7 +291,7 @@ export class RequestAnnouncementComponent {
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -346,4 +366,24 @@ export class RequestAnnouncementComponent {
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
     console.log('MinDateTime set to:', this.minDateTime);
   }
+
+  onSelectAllStaffs(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectAllStaffs = target.checked;
+
+    this.staffs.forEach(staff => {
+      staff.selected = this.selectAllStaffs;
+
+      const mockEvent = {
+        target: {
+          value: staff.staffId,
+          checked: this.selectAllStaffs
+        }
+      };
+
+      this.onStaffChange(mockEvent as any); // Casting to 'any' to bypass TypeScript checks
+    });
+    this.cdr.detectChanges();
+  }
+  
 }

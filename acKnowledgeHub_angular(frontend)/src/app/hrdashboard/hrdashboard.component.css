@@ -21,4 +21,8 @@
   .overflow-y-auto::-webkit-scrollbar-track {
     background-color: rgba(0, 0, 0, 0.1);
   }
+  .progress-bar {
+    width: 0%; /* Start with 0% width */
+    transition: width 1s ease;
+  }
   

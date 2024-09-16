@@ -53,6 +53,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
+  filteredGroups: Group[] = [];
   fileErrorMessage !: boolean;
   updateInterval: any;
   intervalId: any;
@@ -62,6 +63,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  searchGroup: string = '';
 
   constructor(
     private groupService: GroupService,
@@ -83,7 +85,6 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
         this.createStaffId = data.user.id;
       }
     )
-
     
     this.setMinDateTime();
     this.intervalId = setInterval(() => {
@@ -100,6 +101,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -140,6 +142,9 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
           this.hasMore = false;
         }
@@ -178,8 +183,6 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
       this.dateError = 'The schedule date cannot be earlier than the current date & time.';
       return;
     }
-    
-    
     
     // Create the announcement object
     const announcement = {
@@ -232,6 +235,8 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
+      this.searchTerm = '';
+      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -243,27 +248,31 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   }
 
   onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
     }
   }
 
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
-    console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
-
     const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -292,12 +301,16 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-
-    if (this.searchTerm) {
-      this.filterStaffs();
-    }else{
-      this.resetStaffList();
+    if (!this.searchTerm) {
+      this.searchTerm = '';
     }
+    this.filterStaffs();
+  }
+
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
   }
 
   filterStaffs(): void {
@@ -321,6 +334,19 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     } else {
       this.selectedOptionsBox = false;
     }
+  }
+
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
   }
 
   setMinDateTime(): void {

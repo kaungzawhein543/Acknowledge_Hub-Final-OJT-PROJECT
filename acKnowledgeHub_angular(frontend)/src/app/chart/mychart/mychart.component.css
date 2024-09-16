@@ -1,7 +1,5 @@
 /* Container for the entire chart and date pickers */
 .chart-container {
-  max-width: 1000px;
-  margin: 40px auto;
   padding: 20px;
   background-color: #f0f4f8;
   border-radius: 12px;

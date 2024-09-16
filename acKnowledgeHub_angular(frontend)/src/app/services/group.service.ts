@@ -23,7 +23,9 @@ export class GroupService {
      return this.http.get<void>(`${this.apiUrl}/softDelete/`+id,{withCredentials:true});
   }
 
-
+  getGroupsByHR(id: number): Observable<Group[]> {
+    return this.http.get<Group[]>(`${this.apiUrl}/group/HR/${id}`, { withCredentials: true });
+  }
 
   createGroup(userIds: number[], groupName: string): Observable<string> {
     const encodedGroupName = encodeURIComponent(groupName);

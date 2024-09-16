@@ -41,6 +41,7 @@ export class UpdateAnnouncementComponent implements OnInit{
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
+  filteredGroups: Group[] = [];
   showPreviousVersion : boolean = false;
   announcementVersions : string[] = [];
   public downloadUrl : string = 'https://res.cloudinary.com/djqxznfjm/raw/upload/v1725614114/';
@@ -78,7 +79,6 @@ export class UpdateAnnouncementComponent implements OnInit{
           data =>{
             this.announcementService.getAnnouncementVersion("Announce"+this.announcementId).subscribe(
               versions =>{
-                console.log("versions are " +versions)
                 this.announcementVersions = versions;
               }
             )
@@ -90,9 +90,22 @@ export class UpdateAnnouncementComponent implements OnInit{
             } else {
               console.log('Category not found');
             }
-
+            
             if(data['group'].length &&  data['group'].length > 0 ){
-              this.selectedGroups = data['staff'];
+              data['group'].forEach((groupId: number) => {
+                // Find the matching group in filterGroups
+                const matchedGroup = this.filteredGroups.find((group: Group) => group.id === groupId);
+              
+                if (matchedGroup) {
+                  // Add to selectedGroups if not already added
+                  this.selectedGroups.push(matchedGroup);
+              
+                  // Set the 'selected' field to true
+                  matchedGroup.selected = true;
+                }
+              });
+              
+              
               this.onOptionChange('group')
             }else{
               this.optionStaffOfGroup = "Staffs";
@@ -118,11 +131,11 @@ export class UpdateAnnouncementComponent implements OnInit{
   }
   
   
-
   loadGroups() {
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -266,13 +279,19 @@ export class UpdateAnnouncementComponent implements OnInit{
   }
 
   onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
     }
   }
 
@@ -324,6 +343,12 @@ onFileChange(event: Event): void {
     }
   }
   
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
+  }
+
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
@@ -355,6 +380,18 @@ onFileChange(event: Event): void {
     this.announcementService.downloadFile(version);
   }
 
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
 
   setMinDateTime(): void {
     const now = new Date();

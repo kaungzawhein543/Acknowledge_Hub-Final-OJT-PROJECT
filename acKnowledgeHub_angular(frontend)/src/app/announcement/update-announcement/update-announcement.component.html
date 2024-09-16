@@ -176,11 +176,32 @@
       </div>
   
       <!-- Group Selection -->
-      <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md mt-3 flex-1" style="min-height: 280px;">
-        <label class="block text-lg font-semibold text-gray-800">Select Groups</label>
-        <select multiple (change)="onGroupChange($event)" class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
-          <option class="p-2" *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
-        </select>
+      <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0"
+        style="max-height: 280px;" (scroll)="onScroll($event)">
+        <div class="sticky top-0 w-full bg-white">
+          <label class="block text-lg font-semibold text-gray-800">Select groups</label>
+          <input type="text" (input)="groupInputChange($event)" class="border-2 rounded-lg p-2 w-full"
+            placeholder="Search with group name" />
+        </div>
+        <div class="mt-2 space-y-3 h-40">
+          <div class="overflow-auto">
+            <div *ngFor="let group of filteredGroups" class="flex items-center p-2">
+              <label class="flex items-center cursor-pointer w-full">
+                <input type="checkbox" [value]="group.id" [checked]="group.selected" (change)="onGroupChange($event)"
+                  class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                <span class="ml-3 text-gray-700 flex-1">
+                  {{ group.name }}
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="mt-4">
+          <p *ngIf="selectedGroups.length > 0" class="text-sm font-semibold text-gray-800">Selected Groups:</p>
+          <ul class="list-disc pl-5 mt-2">
+            <li *ngFor="let group of selectedGroups" class="text-gray-700">{{ group.name }}</li>
+          </ul>
+        </div> -->
 
       </div>
   

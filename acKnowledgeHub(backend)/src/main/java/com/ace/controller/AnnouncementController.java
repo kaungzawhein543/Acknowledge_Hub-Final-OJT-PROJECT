@@ -58,13 +58,13 @@ public class AnnouncementController {
     }
 
     @GetMapping("/latest-version-by-id/{id}")
-    public ResponseEntity<AnnouncementDTO> getLatestAnnouncementById(@PathVariable int id) {
+    public ResponseEntity<AnnouncementUpdateDTO> getLatestAnnouncementById(@PathVariable int id) {
         Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
         String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
         return announcement_service.findLastByFileName(pathParts[2])
                 .map(announcement -> {
                     // Create DTO manually
-                    AnnouncementDTO dto = new AnnouncementDTO();
+                    AnnouncementUpdateDTO dto = new AnnouncementUpdateDTO();
                     dto.setId(announcement.getId());
                     dto.setTitle(announcement.getTitle());
                     dto.setDescription(announcement.getDescription());
@@ -88,12 +88,8 @@ public class AnnouncementController {
                         }
                     }
                     dto.setStaffInGroups(allStaff);
-                    System.out.println(allStaff);
 
-                    List<Integer> staffIds = announcement.getStaff().stream()
-                            .map(Staff::getId)
-                            .collect(Collectors.toList());
-                    dto.setStaff(staffIds);
+                    dto.setStaff(announcement.getStaff());
 
                     return ResponseEntity.ok(dto);
                 })

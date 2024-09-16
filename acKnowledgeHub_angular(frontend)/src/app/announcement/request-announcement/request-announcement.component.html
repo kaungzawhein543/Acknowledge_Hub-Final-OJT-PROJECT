@@ -133,23 +133,28 @@
       </fieldset>
     </div>
 
-    <!-- Group Selection -->
-    <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md mt-3 flex-1 flex flex-col" style="min-height: 280px;">
-      <label class="block text-lg font-semibold text-gray-800 mb-2">Select Groups</label>
-      
-      <select multiple 
-              (change)="onGroupChange($event)" 
-              class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 flex-grow">
-        <option class="p-2" *ngFor="let group of groups" [value]="group.id">
-          {{ group.name }}
-        </option>
-        
-        <option *ngIf="groups.length === 0" class="p-2 text-gray-500 text-center border-0 outline-none" disabled>
-          There are no groups available
-        </option>
-      </select>
-    </div>
-    
+   <!-- Group Selection -->
+   <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0"
+   style="max-height: 280px;" (scroll)="onScroll($event)">
+   <div class="sticky top-0 w-full bg-white">
+     <label class="block text-lg font-semibold text-gray-800">Select groups</label>
+     <input type="text" (input)="groupInputChange($event)" class="border-2 rounded-lg p-2 w-full"
+       placeholder="Search with group name" />
+   </div>
+   <div class="mt-2 space-y-3 h-40">
+     <div class="overflow-auto">
+       <div *ngFor="let group of filteredGroups" class="flex items-center p-2">
+         <label class="flex items-center cursor-pointer w-full">
+           <input type="checkbox" [value]="group.id" [checked]="group.selected" (change)="onGroupChange($event)"
+             class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+           <span class="ml-3 text-gray-700 flex-1">
+             {{ group.name }}
+           </span>
+         </label>
+       </div>
+     </div>
+   </div>
+ </div>
    
 
 <!-- Staff Selection -->
@@ -168,22 +173,21 @@
 <div class="mt-2 space-y-3 h-40">
   <div class="overflow-auto">
     <div *ngFor="let staff of staffs" class="flex items-center p-2">
-      <input
-        type="checkbox" 
-        [value]="staff.staffId"
-        (change)="onStaffChange($event)"
-        class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-      />
-      <label class="ml-3 text-gray-700 flex-1">
-        <div>
-          {{ staff.name }} ({{ staff.position }})
-        </div>
-        <div *ngIf="staff.department?.name">
-          - {{ staff.department.name }} Department
-        </div>
-        <div *ngIf="staff.company?.name">
-          - {{ staff.company.name }} Company
-        </div>
+      <label class="flex items-center cursor-pointer w-full">
+        <input type="checkbox" [value]="staff.staffId" [checked]="staff.selected"
+          (change)="onStaffChange($event)"
+          class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+        <span class="ml-3 text-gray-700 flex-1">
+          <div>
+            {{ staff.name }} ({{ staff.position }})
+          </div>
+          <div *ngIf="staff.department?.name">
+            - {{ staff.department.name }} Department
+          </div>
+          <div *ngIf="staff.company?.name">
+            - {{ staff.company.name }} Company
+          </div>
+        </span>
       </label>
     </div>
   </div>
