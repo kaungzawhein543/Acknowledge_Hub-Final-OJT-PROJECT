@@ -7,6 +7,7 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { Category } from '../../models/category';
 
 @Component({
   selector: 'app-add-announcement',
@@ -144,6 +145,7 @@ export class AddAnnouncementComponent implements OnInit {
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category : this.selectedCategory
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
