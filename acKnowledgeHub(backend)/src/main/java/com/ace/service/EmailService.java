@@ -45,6 +45,7 @@ public class EmailService {
             mimeMessageHelper.setSubject(subject);
 
             String downloadUrl = "http://localhost:8080/api/v1/announcement/download?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
+            String backendApiUrl = "http://localhost:8080/api/v1/announcement/note?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
             String htmlContent = "<html>"
                     + "<body style='font-family: Arial, sans-serif; color: #333; background-color: #ffffff; padding: 20px; margin: 0;'>"
                     + "<div style='text-align: center;'>"
@@ -56,6 +57,7 @@ public class EmailService {
                     + "</p>"
                     + "</div>"
                     + "<p style='font-size: 16px; margin: 20px 0;'>Click on the attachment to view or download the document.</p>"
+                    + "<a href='" + backendApiUrl + "' style='display:inline-block;background-color:#28a745;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;'>Noted</a>"
                     + "<p style='font-size: 14px; color: #888;'>If you have any questions, feel free to reach out to us.</p>"
                     + "</div>"
                     + "</body>"
@@ -69,7 +71,7 @@ public class EmailService {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static class OTPDetails {
         String otp;
         LocalDateTime expiryTime;

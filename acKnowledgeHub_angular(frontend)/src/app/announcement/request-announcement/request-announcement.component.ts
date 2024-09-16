@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { AddAnnouncementComponent } from '../add-announcement/add-announcement.component';
 import { AnnouncementService } from '../../services/announcement.service';
 import { GroupService } from '../../services/group.service';
@@ -39,6 +39,8 @@ export class RequestAnnouncementComponent {
   selectedFile: File | null = null;
   createStaffId !: number;
   currentHrCompany !: string;
+  filteredGroups: Group[] = [];
+  selectAllStaffs: boolean = false;
 
   private page = 0;
   private pageSize = 20;
@@ -51,32 +53,36 @@ export class RequestAnnouncementComponent {
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadGroups();
+
     this.loadCategories();
     this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
-        this.currentHrCompany = data.company;
-        console.log(this.currentHrCompany)
+        this.loadGroups(this.createStaffId);
       }
     )
+
   }
 
-  loadGroups() {
-    this.groupService.getAllGroups().subscribe(
+  loadGroups(HrId: number) {
+    this.groupService.getGroupsByHR(HrId).subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
+        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
       },
       error => {
         console.error('Error fetching groups:', error);
       }
     );
   }
+
 
   loadCategories() {
     this.categoryService.getAll().subscribe(
@@ -90,45 +96,47 @@ export class RequestAnnouncementComponent {
     );
   }
 
+  onSelectAllStaffs(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectAllStaffs = target.checked;
+
+    this.staffs.forEach(staff => {
+      staff.selected = this.selectAllStaffs;
+
+      const mockEvent = {
+        target: {
+          value: staff.staffId,
+          checked: this.selectAllStaffs
+        }
+      };
+
+      this.onStaffChange(mockEvent as any); // Casting to 'any' to bypass TypeScript checks
+    });
+    this.cdr.detectChanges();
+  }
+
   loadStaffs(): void {
-    if (this.isLoading || !this.hasMore) {
-      console.log('Skipping loadStaffs: isLoading=', this.isLoading, ', hasMore=', this.hasMore);
-      return;
-    }
+    if (this.isLoading || !this.hasMore) return;
 
     this.isLoading = true;
 
-    const query = this.searchTerm.trim();
-    console.log('Searching for term:', query);
-
-    this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
+    this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
-        console.log('Received response:', response);
 
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content
-            .filter((staff: { company?: { name?: string }; }) => {
-              // Null check for company and company name
-              const companyName = staff.company?.name;
-              const matchesCompany = companyName === this.currentHrCompany;
-              return matchesCompany;
-            })
-            .map((staff: { position: string; }) => {
-              const positionName = this.extractPositionName(staff.position);
-              return {
-                ...staff,
-                position: positionName
-              };
-            });
+          const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
+            ...staff,
+            position: this.extractPositionName(staff.position) // Extract only the name
+          }));
 
-          console.log('Processed staffs:', processedStaffs);
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
-          console.log('Updated page:', this.page, 'Has more:', this.hasMore);
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
-          console.log('No valid content found.');
           this.hasMore = false;
         }
       },
@@ -139,9 +147,6 @@ export class RequestAnnouncementComponent {
     );
   }
 
-
-
-
   extractPositionName(position: string | null): string {
     if (!position) {
       return ''; // or handle null/empty string appropriately
@@ -150,6 +155,7 @@ export class RequestAnnouncementComponent {
     const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
     return match ? match[1] : position;
   }
+
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
@@ -195,7 +201,7 @@ export class RequestAnnouncementComponent {
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-
+        console.log(response);
       },
       error => {
         console.error(error);
@@ -212,6 +218,8 @@ export class RequestAnnouncementComponent {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
+      this.searchTerm = '';
+      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -222,37 +230,24 @@ export class RequestAnnouncementComponent {
     }
   }
 
-  onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
-    }
-  }
-
-
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
-
     const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
       }
+      console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
     } else {
       console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
   }
-
 
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -271,16 +266,22 @@ export class RequestAnnouncementComponent {
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-
-    if (this.searchTerm) {
-      this.filterStaffs();
+    if (!this.searchTerm) {
+      this.searchTerm = '';
     }
+    this.filterStaffs();
+  }
+
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
   }
 
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
-    this.staffs = [];
+    this.staffs = []; // Clear current staff list
     this.loadStaffs(); // Reload staff with the search term
   }
 
@@ -291,4 +292,35 @@ export class RequestAnnouncementComponent {
       this.selectedOptionsBox = false;
     }
   }
+
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
+
+  onGroupChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
+    }
+  }
+
 }

@@ -9,10 +9,12 @@ import com.ace.service.StaffService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
+
 @Slf4j
 @RestController
 @RequestMapping("api/v1/email")
@@ -49,8 +51,8 @@ public class EmailController {
 
     @PostMapping(value = "/verify-otp")
     public int verifyOtp(@RequestBody OTPEmailDTO dto) {
-        System.out.println("email "+ dto.getEmail());
-        System.out.println("otp : " +dto.getOtp());
+        System.out.println("email " + dto.getEmail());
+        System.out.println("otp : " + dto.getOtp());
         int isValid = EmailService.verifyOTP(dto.getEmail(), dto.getOtp());
         if (isValid == 1) {
             return 1;
@@ -77,5 +79,18 @@ public class EmailController {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send email");
 //        }
 //    }
+
+//
+//    @PostMapping("/send")
+//    public ResponseEntity<String> sendToEmail(@RequestParam("email") String toEmail, @RequestParam("subject") String subject, @RequestParam("file") MultipartFile file, @RequestParam("fileName") String fileName) {
+//        try {
+//            emailService.sendFileEmail(toEmail, subject, file, fileName);
+//            return ResponseEntity.ok("successful");
+//        } catch (Exception e) {
+//            return ResponseEntity.internalServerError().body("fail");
+//        }
+//
+//    }
+//
 
 }

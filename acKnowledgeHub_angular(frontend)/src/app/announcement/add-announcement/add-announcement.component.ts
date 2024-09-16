@@ -7,6 +7,7 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { group } from 'node:console';
 
 @Component({
   selector: 'app-add-announcement',
@@ -36,13 +37,14 @@ export class AddAnnouncementComponent implements OnInit {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-
+  filteredGroups: Group[] = [];
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  searchGroup: string = '';
 
   constructor(
     private groupService: GroupService,
@@ -63,17 +65,6 @@ export class AddAnnouncementComponent implements OnInit {
     )
   }
 
-  loadGroups() {
-    this.groupService.getAllGroups().subscribe(
-      (groups: Group[]) => {
-        this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
-      },
-      error => {
-        console.error('Error fetching groups:', error);
-      }
-    );
-  }
-
   loadCategories() {
     this.categoryService.getAll().subscribe(
       (categories: { id: number, name: string, description: string }[]) => {
@@ -86,6 +77,19 @@ export class AddAnnouncementComponent implements OnInit {
     );
   }
 
+  loadGroups() {
+    this.groupService.getAllGroups().subscribe(
+      (groups: Group[]) => {
+        this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
+        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
+      },
+      error => {
+        console.error('Error fetching groups:', error);
+      }
+    );
+  }
+
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) return;
 
@@ -94,17 +98,19 @@ export class AddAnnouncementComponent implements OnInit {
     this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
-        console.log("HERE ")
-        console.log(response);
+
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
             ...staff,
             position: this.extractPositionName(staff.position) // Extract only the name
           }));
-          console.log(this.staffs)
+
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
           this.hasMore = false;
         }
@@ -115,7 +121,6 @@ export class AddAnnouncementComponent implements OnInit {
       }
     );
   }
-
 
   extractPositionName(position: string | null): string {
     if (!position) {
@@ -188,6 +193,8 @@ export class AddAnnouncementComponent implements OnInit {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
+      this.searchTerm = '';
+      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -198,29 +205,15 @@ export class AddAnnouncementComponent implements OnInit {
     }
   }
 
-  onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
-    }
-  }
-
-
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
-    console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
-
     const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -230,6 +223,7 @@ export class AddAnnouncementComponent implements OnInit {
       console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
   }
+
 
 
   onFileChange(event: Event): void {
@@ -249,10 +243,16 @@ export class AddAnnouncementComponent implements OnInit {
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-
-    if (this.searchTerm) {
-      this.filterStaffs();
+    if (!this.searchTerm) {
+      this.searchTerm = '';
     }
+    this.filterStaffs();
+  }
+
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
   }
 
   filterStaffs(): void {
@@ -270,6 +270,34 @@ export class AddAnnouncementComponent implements OnInit {
     }
   }
 
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
 
+  onGroupChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
+    }
+  }
 
 }

@@ -22,7 +22,11 @@
             <div class="relative inline-block text-left">
                 <select [(ngModel)]="selectedVersionId" (ngModelChange)="onVersionChange($event)"
                     class="text-dark py-2 px-2 rounded-md" style="border: 1px solid rgb(174, 174, 174);">
-                    <option *ngFor="let v of versions" [value]="v.id">{{ v.title | slice:-12 }}</option>
+                    <option *ngFor="let v of versions" [value]="v.id">
+                        <span *ngIf="getVersionNumber(v.title)">
+                            Version {{ getVersionNumber(v.title) }}
+                        </span>
+                    </option>
                 </select>
 
             </div>

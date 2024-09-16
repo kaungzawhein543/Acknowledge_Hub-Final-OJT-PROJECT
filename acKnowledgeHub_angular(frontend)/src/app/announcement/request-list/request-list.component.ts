@@ -1,132 +1,98 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { StaffService } from '../../services/staff.service';
+import { AnnouncementService } from '../../services/announcement.service';
+import { requestAnnouncement } from '../../models/announcement-list';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { UnNotedUser } from '../../models/un-noted-user';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
-import { AnnouncementService } from '../../services/announcement.service';
-import { announcementVersion } from '../../models/announcement-version';
-
 @Component({
-  selector: 'app-not-noted-announcement',
-  templateUrl: './not-noted-announcement.component.html',
-  styleUrl: './not-noted-announcement.component.css'
+  selector: 'app-request-list',
+  templateUrl: './request-list.component.html',
+  styleUrl: './request-list.component.css'
 })
-export class NotNotedAnnouncementComponent {
-
+export class RequestListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  staffs: UnNotedUser[] = [];
-  filteredStaffs: UnNotedUser[] = [];
-  dataSource = new MatTableDataSource<UnNotedUser>([]);
+  requestAnnouncements: requestAnnouncement[] = [];
+  filteredAnnouncements: requestAnnouncement[] = [];
+  dataSource = new MatTableDataSource<requestAnnouncement>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
   todayDate: string | undefined;
   activeChecked = false;
   inactiveChecked = false;
-  announcementId !: number;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
-  groupStatus !: number;
-  versions: announcementVersion[] = [];
-  selectedVersionId!: number;
-  announcementName !: string;
-  announcementFile !: string;
-  originId !: number;
+
   columns = [
     { field: 'autoNumber', header: 'No.' },
-    { field: 'staffId', header: 'Staff Id' },
-    { field: 'name', header: 'Name' },
-    { field: 'email', header: 'Email' },
-    { field: 'positionName', header: 'Position' },
-    { field: 'departmentName', header: 'Department' },
-    { field: 'companyName', header: 'Company' },
+    { field: 'title', header: 'Title' },
+    { field: 'description', header: 'Description' },
+    { field: 'createdAt', header: 'Created At' },
+    { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'createStaff', header: 'Request Staff' },
+    { field: 'action', header: 'Action' },
+    { field: 'detail', header: 'Detail' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
   selectedColumns = this.columns.map(col => col.field);
-
-  constructor(
-    private staffService: StaffService,
+  constructor(private announcementService: AnnouncementService,
     private router: Router,
-    private route: ActivatedRoute,
-    private announcementService: AnnouncementService
+    private route: ActivatedRoute
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.todayDate = new Date().toISOString().split('T')[0];
-    this.route.params.subscribe((params: Params) => {
-      const decodedStringId = atob(params['id']);
-      const decodedStringStatus = atob(params['status']);
-      const decodedStringName = atob(params['name']);
-      const decodedStringFile = atob(params['file']);
-      this.announcementId = parseInt(decodedStringId, 10);
-      this.groupStatus = parseInt(decodedStringStatus, 10);
-      this.announcementName = decodedStringName;
-      this.announcementFile = decodedStringFile;
+    this.fetchAnnouncements();
+    this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+  }
+
+  fetchAnnouncements() {
+    this.announcementService.getRequestAnnouncementList().subscribe({
+      next: (data) => {
+        this.requestAnnouncements = data.map((item, index) => ({
+          ...item,
+          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
+        }));
+        this.filteredAnnouncements = this.requestAnnouncements;
+        this.dataSource.data = this.filteredAnnouncements;
+        this.dataSource.paginator = this.paginator;
+        this.filterAnnouncements();
+      },
+      error: (e) => console.log(e)
     });
-    this.getUnNotedStaffList(this.announcementId, this.groupStatus);
-    this.getVersions();
-    //  this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+  }
+
+  onApprovedButtonClick(id: number) {
+    this.announcementService.approvedRequestAnnouncement(id).subscribe({
+      next: (data: boolean) => {
+        this.fetchAnnouncements();
+      },
+      error: (e) => console.log(e)
+    });
+  }
+
+  onRejectButtonClick(id: number) {
+    this.announcementService.rejectRequestAnnouncement(id).subscribe({
+      next: (data: boolean) => {
+        this.fetchAnnouncements();
+      },
+      error: (e) => console.log(e)
+    });
+  }
+
+  getRequestStaff(announcement: any): string {
+    const staffName = announcement.createStaff || 'N/A';
+    const companyName = announcement.staffCompany || 'N/A';
+    return `${staffName} (${companyName})`;
   }
 
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
-  }
-
-  getVersions() {
-    let match = this.announcementFile.match(/\/Announce(\d+)\//);
-    if (match) {
-      this.originId = parseInt(match[1]);
-    }
-    this.announcementService.getAnnouncementVersions(this.originId).subscribe({
-      next: (data) => {
-        this.versions = data;
-        if (this.versions.length > 0) {
-          this.selectedVersionId = this.versions[this.versions.length - 1].id;
-        }
-
-      },
-      error: (e) => console.log(e)
-    });
-    this.columns.forEach(col => (this.columnVisibility[col.field] = true));
-  }
-
-  onVersionChange(newVersionId: number) {
-    this.selectedVersionId = newVersionId;
-    if (this.selectedVersionId !== null) {
-      this.getUnNotedStaffList(this.selectedVersionId, this.groupStatus);
-    }
-  }
-
-  getVersionNumber(title: string): string | null {
-    const match = title.match(/V(\d+)/);
-    return match ? match[1] : null;
-  }
-
-  getUnNotedStaffList(id: number, groupStatus: number) {
-    this.staffService.getUnNotedStaffByAnnouncementList(id, groupStatus).subscribe(
-      (data) => {
-        this.staffs = data.map((item, index) => ({
-          ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredStaffs = data;
-        this.dataSource.data = this.filteredStaffs;
-        this.dataSource.paginator = this.paginator;
-        //  this.filterAnnouncements();
-      },
-      (error) => console.error('Error fetching announcements:', error)
-    );
-  }
-
-  toggleFilterDropdown() {
-    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
-    if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
   }
 
   toggleReportDropdown() {
@@ -135,32 +101,25 @@ export class NotNotedAnnouncementComponent {
   }
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
-    this.filteredStaffs = this.staffs.filter(a => {
+    this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
       const fieldsToSearch = [
-        a.staffId?.toLowerCase() || '',
-        a.name?.toLowerCase() || '',
-        a.email?.toLowerCase() || '',
-        a.positionName?.toLowerCase() || '',
-        a.departmentName?.toLowerCase() || '',
-        a.companyName?.toLowerCase() || '',
+        a.title?.toLowerCase() || '',
+        a.description?.toLowerCase() || '',
+        a.category?.toLowerCase() || '',
+        a.createStaff?.toLowerCase() || '',
+        new Date(a.createdAt).toLocaleString().toLowerCase(),
+        new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
-    this.dataSource.data = this.filteredStaffs;
-  }
-
-
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-    //  this.filterAnnouncements();
+    this.dataSource.data = this.filteredAnnouncements;
   }
 
   onStartDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     this.startDateTime = input.value || null;
     this.validateDateRange();
-    //  this.filterAnnouncements();
+    this.filterAnnouncements();
   }
 
   onEndDateChange(event: Event) {
@@ -168,7 +127,7 @@ export class NotNotedAnnouncementComponent {
     const today = new Date().toISOString().split('T')[0];
     this.endDateTime = input.value <= today ? input.value : today;
     this.validateDateRange();
-    //  this.filterAnnouncements();
+    this.filterAnnouncements();
   }
 
   validateDateRange() {
@@ -179,9 +138,9 @@ export class NotNotedAnnouncementComponent {
 
   generateReport(format: 'pdf' | 'excel') {
     if (format === 'pdf') {
-      this.generatePDF(this.filteredStaffs, 'report.pdf');
+      this.generatePDF(this.filteredAnnouncements, 'report.pdf');
     } else if (format === 'excel') {
-      this.generateExcel(this.filteredStaffs, 'report.xlsx');
+      this.generateExcel(this.filteredAnnouncements, 'report.xlsx');
     }
   }
 
@@ -221,7 +180,7 @@ export class NotNotedAnnouncementComponent {
   }
 
 
-  generateExcel(announcements: UnNotedUser[], fileName: string) {
+  generateExcel(announcements: requestAnnouncement[], fileName: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const headers = visibleColumns.map(col => col.header);
     const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
@@ -236,7 +195,16 @@ export class NotNotedAnnouncementComponent {
     saveAs(data, fileName);
   }
 
-
+  filterAnnouncements() {
+    this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
+      if (this.startDateTime && this.endDateTime) {
+        const createdAt = new Date(a.createdAt);
+        return createdAt >= new Date(this.startDateTime) && createdAt <= new Date(this.endDateTime);
+      }
+      return true;
+    });
+    this.dataSource.data = this.filteredAnnouncements;
+  }
 
   getNestedProperty(obj: any, path: string): any {
     if (!obj || !path) return null;
@@ -246,7 +214,7 @@ export class NotNotedAnnouncementComponent {
   onColumnVisibilityChange() {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     this.selectedColumns = visibleColumns.map(col => col.field);
-    //  this.dataSource.data = [...this.filteredAnnouncements];
+    this.dataSource.data = [...this.filteredAnnouncements];
   }
 
   formatDateTime(datetime: string): string {
@@ -256,4 +224,9 @@ export class NotNotedAnnouncementComponent {
     const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
   }
+
+  onDetailButtonClick(id: number) {
+    this.router.navigate(['announcement/detail/' + id]);
+  }
 }
+

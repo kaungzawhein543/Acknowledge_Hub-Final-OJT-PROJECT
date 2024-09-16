@@ -1,5 +1,6 @@
 package com.ace.service;
 
+import com.ace.dto.GroupDTO;
 import com.ace.entity.Staff;
 import com.ace.repository.GroupRepository;
 
@@ -29,56 +30,65 @@ public class GroupService {
         return groupRepository.findAll();
     }
 
-    public List<Group> findGroupsByIds(List<Integer> ids){
+    public List<GroupDTO> getGroupsByHR(Integer id) {
+        String companyName = staffRepository.getCompanyNameById(id);
+        return groupRepository.getGroupsByHR(companyName);
+    }
+
+
+    public List<Group> findGroupsByIds(List<Integer> ids) {
         return groupRepository.findGroupsByIds(ids);
     }
 
-    public void createGroup(String name, List<Integer> userIds){
-        Group group=new Group();
+    public void createGroup(String name, List<Integer> userIds) {
+        Group group = new Group();
         group.setName(name);
-        for (Integer userId:userIds){
-            Optional<Staff> selectedUser=staffRepository.findById(userId);
-            if (selectedUser.isPresent()){
-                Staff user= selectedUser.get();
-                group.getStaff().add(user);
-            }else {
-                throw new IllegalArgumentException("User ID not found : " + userId);
+            for (Integer userId : userIds) {
+                Optional<Staff> selectedUser = staffRepository.findById(userId);
+                if (selectedUser.isPresent()) {
+                    Staff user = selectedUser.get();
+                    group.getStaff().add(user);
+                } else {
+                    throw new IllegalArgumentException("User ID not found : " + userId);
+                }
             }
-        }
-        groupRepository.save(group);
+            groupRepository.save(group);
     }
-    public void updateGroup(int groupId,String name,List<Integer> userIds){
-        Optional<Group> selectedGroup= groupRepository.findById(groupId);
-        if (selectedGroup.isPresent()){
-            Group group=selectedGroup.get();
+
+    public void updateGroup(int groupId, String name, List<Integer> userIds) {
+        Optional<Group> selectedGroup = groupRepository.findById(groupId);
+        if (selectedGroup.isPresent()) {
+            Group group = selectedGroup.get();
             group.setName(name);
 
-            Set<Staff> newUsers= new HashSet<>();
-            if (userIds !=null){
-                for (Integer userId:userIds){
-                    Optional<Staff> selectedUsers=staffRepository.findById(userId);
+            Set<Staff> newUsers = new HashSet<>();
+            if (userIds != null) {
+                for (Integer userId : userIds) {
+                    Optional<Staff> selectedUsers = staffRepository.findById(userId);
                     selectedUsers.ifPresent(newUsers::add);
                 }
             }
-            Set<Staff> currentUser=new HashSet<>(group.getStaff());
+            Set<Staff> currentUser = new HashSet<>(group.getStaff());
 
-            Set<Staff> usersToAdd=new HashSet<>(newUsers);
+            Set<Staff> usersToAdd = new HashSet<>(newUsers);
             usersToAdd.removeAll(currentUser);
 
-            Set<Staff> usersToRemove= new HashSet<>(currentUser);
+            Set<Staff> usersToRemove = new HashSet<>(currentUser);
             usersToRemove.removeAll(newUsers);
 
             group.getStaff().addAll(usersToAdd);
             group.getStaff().removeAll(usersToRemove);
 
             groupRepository.save(group);
-        }else {
+        } else {
             throw new RuntimeException("Group not found with ID: " + groupId);
         }
     }
+
     public Optional<Group> getGroupById(int groupId) {
         return groupRepository.findById(groupId);
     }
+
     public void deactivateGroup(int groupId) {
         Optional<Group> selectedGroup = groupRepository.findById(groupId);
         if (selectedGroup.isPresent()) {
@@ -89,6 +99,7 @@ public class GroupService {
             throw new RuntimeException("Group not found with ID: " + groupId);
         }
     }
+
     public void reactivateGroup(int groupId) {
         Optional<Group> selectedGroup = groupRepository.findById(groupId);
         if (selectedGroup.isPresent()) {
@@ -98,6 +109,10 @@ public class GroupService {
         } else {
             throw new RuntimeException("Group not found with ID: " + groupId);
         }
+    }
+
+    public Group findByName(String name){
+        return groupRepository.findByName(name);
     }
 
     @Transactional

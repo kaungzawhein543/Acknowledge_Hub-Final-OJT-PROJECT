@@ -2,7 +2,7 @@
     <div class="flex justify-center">
         <div class="w-full lg:w-4/4">
             <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
-                <h3 class="text-lg font-semibold">Category List</h3>
+                <h3 class="text-lg font-semibold">Staff(Human Resource) List</h3>
 
             </div>
             <div class="bg-white p-6 rounded-b shadow-md">
@@ -31,12 +31,25 @@
                             <td class="px-4 py-2">{{ staff.company }}</td>
                             <td class="px-4 py-2 flex space-x-2">
 
-                                <button class="text-white py-1 px-2 rounded" (click)="openDeleteModal(staff.id)"
-                                    [disabled]="staff.position === 'Human Resource(Main)'" [ngClass]="{
-                                    'bg-gray-400': staff.position === 'Human Resource(Main)',
-                                    'bg-blue-500 hover:bg-blue-600': staff.position !== 'Human Resource(Main)'
-                                }">
+                                <button *ngIf="staff.position === 'Human Resource(Main)'"
+                                    class="text-white py-1 px-2 rounded  bg-gray-500 hover:bg-gray-600 hr-main-button"
+                                    (click)="openAddHRModal(staff.id)" style="min-width: 110px;"
+                                    [disabled]="staff.position === 'Human Resource(Main)'">
+                                    HR main
+                                </button>
+
+                                <button *ngIf="staff.position != 'Human Resource(Main)'"
+                                    class="text-white py-1 px-2 rounded  bg-blue-500 hover:bg-blue-600"
+                                    (click)="openAddHRModal(staff.id)">
                                     Set HR main
+                                </button>
+
+                                <button *ngIf="staff.position != 'Human Resource(Main)'"
+                                    class="text-white py-1 px-2 rounded"
+                                    [disabled]="staff.position === 'Human Resource(Main)'" [ngClass]="{
+                                    'bg-gray-400': staff.position === 'Human Resource(Main)'
+                                }">
+                                    HR main
                                 </button>
                             </td>
                         </tr>

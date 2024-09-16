@@ -60,6 +60,8 @@ import { OtpInputComponent } from './user/otp-input/otp-input.component';
 import { OtpRequestComponent } from './user/otp-request/otp-request.component';
 import { LoginComponent } from './user/login/login.component';
 import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
+import { RequestListComponent } from './announcement/request-list/request-list.component';
+import { NotedComponent } from './user/noted/noted.component';
 
 
 @NgModule({
@@ -103,7 +105,9 @@ import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
     ListDepartmentsComponent,
     OtpInputComponent,
     OtpRequestComponent,
-    AddHRMainComponent
+    AddHRMainComponent,
+    RequestListComponent,
+    NotedComponent,
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

@@ -38,6 +38,8 @@ export class UpdateAnnouncementComponent implements OnInit {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
+  filteredGroups: Group[] = [];
+
   public downloadUrl: string = 'https://res.cloudinary.com/djqxznfjm/raw/upload/v1725614114/';
 
   private page = 0;
@@ -116,6 +118,8 @@ export class UpdateAnnouncementComponent implements OnInit {
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
+        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -226,13 +230,14 @@ export class UpdateAnnouncementComponent implements OnInit {
       }
     );
   }
-  resetStaffList(): void {
-    this.page = 0; // Reset pagination
-    this.hasMore = true;
-    this.staffs = []; // Clear current staff list
-    this.searchTerm = ''; // Clear search term
-    this.loadStaffs(); // Load all staff without any filtering
-  }
+
+  // resetStaffList(): void {
+  //   this.page = 0; // Reset pagination
+  //   this.hasMore = true;
+  //   this.staffs = []; // Clear current staff list
+  //   this.searchTerm = ''; // Clear search term
+  //   this.loadStaffs(); // Load all staff without any filtering
+  // }
 
 
 
@@ -243,6 +248,8 @@ export class UpdateAnnouncementComponent implements OnInit {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
+      this.searchTerm = '';
+      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -253,16 +260,16 @@ export class UpdateAnnouncementComponent implements OnInit {
     }
   }
 
-  onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
-    }
-  }
+  // onGroupChange(event: Event): void {
+  //   const target = event.target as HTMLSelectElement;
+  //   if (target) {
+  //     const selectedOptions = Array.from(target.selectedOptions);
+  //     this.selectedGroups = selectedOptions.map(option => {
+  //       const id = +option.value;
+  //       return this.groups.find(group => group.id === id)!;
+  //     });
+  //   }
+  // }
 
 
   onStaffChange(event: Event): void {
@@ -275,7 +282,7 @@ export class UpdateAnnouncementComponent implements OnInit {
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -304,19 +311,16 @@ export class UpdateAnnouncementComponent implements OnInit {
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-
-    if (this.searchTerm) {
-      this.filterStaffs();
-    } else {
-      this.resetStaffList();
+    if (!this.searchTerm) {
+      this.searchTerm = '';
     }
+    this.filterStaffs();
   }
 
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
     this.staffs = []; // Clear current staff list
-    console.log("This is A")
     this.loadStaffs(); // Reload staff with the search term
   }
 
@@ -328,6 +332,42 @@ export class UpdateAnnouncementComponent implements OnInit {
     }
   }
 
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
+  }
+
+
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
+
+  onGroupChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
+    }
+  }
 
 
 }

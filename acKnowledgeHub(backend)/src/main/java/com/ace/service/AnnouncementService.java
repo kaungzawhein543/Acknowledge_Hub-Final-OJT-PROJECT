@@ -1,17 +1,16 @@
 package com.ace.service;
 
-import com.ace.dto.AnnouncementListDTO;
-import com.ace.dto.AnnouncementResponseListDTO;
-import com.ace.dto.AnnouncementVersionDTO;
-import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.*;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AnnouncementService {
 
@@ -104,16 +103,28 @@ public class AnnouncementService {
     }
 
     public List<AnnouncementVersionDTO> getAnnouncementVersion(Integer id){
-        String baseFileName = "Announce".concat(Integer.toString(id));
+        String baseFileName = "%" + "Announce" + id + "/%";
         return announcement_repo.getAllVersions(baseFileName);
     }
 
-    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
-        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
+//        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//    }
+
+//    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+//        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+//    }
+
+    public List<RequestAnnouncementResponseDTO> getRequestAnnouncements(){
+        return announcement_repo.getRequestAnnouncement();
     }
 
-    public Announcement getLatestVersionByFilePattern(String baseFileName) {
-        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
-        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+    public void approvedRequestAnnouncement(Integer id){
+         announcement_repo.approvedRequestAnnouncement(id);
+    }
+
+    public void rejectRequestAnnouncement(Integer id){
+        announcement_repo.rejectRequestAnnouncement(id);
     }
 }

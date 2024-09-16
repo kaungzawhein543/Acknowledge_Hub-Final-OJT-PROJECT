@@ -28,9 +28,9 @@ public class FeedbackReplyController {
 
     @PostMapping
     public ResponseEntity<FeedbackReply> saveFeedbackReply(@RequestBody FeedbackReplyRequestDTO feedbackReplyRequestDTO){
-        System.out.println("reply text"+feedbackReplyRequestDTO.getReplyText());
-        System.out.println("reply by "+ feedbackReplyRequestDTO.getReplyBy());
-        System.out.println("feedback id "+ feedbackReplyRequestDTO.getFeedbackId());
+//        System.out.println("reply text"+feedbackReplyRequestDTO.getReplyText());
+//        System.out.println("reply by "+ feedbackReplyRequestDTO.getReplyBy());
+//        System.out.println("feedback id "+ feedbackReplyRequestDTO.getFeedbackId());
         FeedbackReply feedbackReply = new FeedbackReply();
         feedbackReply.setContent(feedbackReplyRequestDTO.getReplyText());
         feedbackReply.setFeedback(feedbackService.findById(feedbackReplyRequestDTO.getFeedbackId()).get());

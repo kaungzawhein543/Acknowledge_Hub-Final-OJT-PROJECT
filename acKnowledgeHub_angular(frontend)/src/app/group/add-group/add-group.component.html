@@ -9,6 +9,9 @@
       <div *ngIf="validationError">
         <small class="text-red-500">{{ validationError }}</small>
       </div>
+      <div *ngIf="duplicateTitle">
+        <small class="text-red-500">Group name is already exist</small>
+      </div>
     </div>
     <div class="my-3">
       <span class=" text-gray-700 font-medium">

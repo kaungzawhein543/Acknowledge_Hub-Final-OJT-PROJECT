@@ -39,7 +39,7 @@ export class AddGroupComponent {
   status: boolean = false;
 
   selectedOptionsBox = false;
-
+  duplicateTitle = false;
 
   @ViewChild('staff') staff!: MatSelectionList;
 
@@ -107,7 +107,7 @@ export class AddGroupComponent {
       if (index > -1) {
         this.selectedStaff.splice(index, 1);
       } else {
-        this.selectedStaff.push(staff);
+        this.selectedStaff.unshift(staff);
       }
       this.status = this.selectedStaff.length > 0;
     });
@@ -189,8 +189,13 @@ export class AddGroupComponent {
     } else {
       this.groupService.createGroup(selectedStaffIds, this.groupName).subscribe(
         data => {
-          console.log(data);
-          this.showSuccessToast();
+          if (data == "Create Successfully") {
+            this.showSuccessToast();
+          } else {
+            this.duplicateTitle = true;
+            this.showErrorToast();
+          }
+
         },
         (error: Error) => {
           console.log(error);
@@ -210,6 +215,7 @@ export class AddGroupComponent {
   }
 
   onGroupNameChange(): void {
+    this.duplicateTitle = false;
     this.validationError = this.validateGroupName(); // Update validationError on input change
   }
 

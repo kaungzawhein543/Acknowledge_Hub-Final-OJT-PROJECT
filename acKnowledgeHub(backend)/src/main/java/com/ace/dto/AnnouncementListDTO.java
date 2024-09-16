@@ -17,8 +17,9 @@ public class AnnouncementListDTO {
     private Date created_at;
     private LocalDateTime scheduleAt;
     private byte groupStatus;
+    private String file;
 
-    public AnnouncementListDTO(Integer id, String title, String description, String createStaff, String category, String status, Date created_at, LocalDateTime scheduleAt, byte groupStatus) {
+    public AnnouncementListDTO(Integer id, String title, String description, String createStaff, String category, String status, Date created_at, LocalDateTime scheduleAt, byte groupStatus, String file) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -28,5 +29,6 @@ public class AnnouncementListDTO {
         this.created_at = created_at;
         this.scheduleAt = scheduleAt;
         this.groupStatus = groupStatus;
+        this.file = file;
     }
 }

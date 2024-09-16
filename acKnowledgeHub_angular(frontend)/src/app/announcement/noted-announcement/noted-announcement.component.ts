@@ -38,6 +38,8 @@ export class NotedAnnouncementComponent {
   versions: announcementVersion[] = [];
   selectedVersionId!: number;
   announcementTitle !: string;
+  announcementFile !: string;
+  originId !: number;
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'staffId', header: 'Staff Id' },
@@ -64,7 +66,9 @@ export class NotedAnnouncementComponent {
       const decodedStringId = atob(params['id']);
       this.announcementId = parseInt(decodedStringId, 10);
       const decodedStringName = atob(params['name']);
+      const decodedStringFile = atob(params['file']);
       this.announcementTitle = decodedStringName;
+      this.announcementFile = decodedStringFile;
     })
     this.getNotedStaffList(this.announcementId);
     this.getVersions();
@@ -77,7 +81,11 @@ export class NotedAnnouncementComponent {
   }
 
   getVersions() {
-    this.announcementService.getAnnouncementVersions(this.announcementId).subscribe({
+    let match = this.announcementFile.match(/\/Announce(\d+)\//);
+    if (match) {
+      this.originId = parseInt(match[1]);
+    }
+    this.announcementService.getAnnouncementVersions(this.originId).subscribe({
       next: (data) => {
         this.versions = data;
         if (this.versions.length > 0) {
@@ -89,6 +97,11 @@ export class NotedAnnouncementComponent {
       error: (e) => console.log(e)
     });
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+  }
+
+  getVersionNumber(title: string): string | null {
+    const match = title.match(/V(\d+)/);
+    return match ? match[1] : null;
   }
 
   getNotedStaffList(id: number) {

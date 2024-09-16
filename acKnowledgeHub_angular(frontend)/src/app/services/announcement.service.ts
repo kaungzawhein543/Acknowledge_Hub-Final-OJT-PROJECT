@@ -4,7 +4,7 @@ import { map, Observable } from 'rxjs';
 import { announcement } from '../models/announcement';
 import saveAs from 'file-saver';
 import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
-import { announcementList, listAnnouncement } from '../models/announcement-list';
+import { announcementList, listAnnouncement, requestAnnouncement } from '../models/announcement-list';
 import { announcementVersion } from '../models/announcement-version';
 
 @Injectable({
@@ -90,4 +90,15 @@ export class AnnouncementService {
     return this.http.get(`${this.BaseUrl} /announcement-get-url?fileName=${fileName}`, { responseType: "text" as "json", withCredentials: true });
   }
 
+  getRequestAnnouncementList(): Observable<requestAnnouncement[]> {
+    return this.http.get<requestAnnouncement[]>(`${this.BaseUrl}/request-list`);
+  }
+
+  approvedRequestAnnouncement(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.BaseUrl}/approved/${id}`);
+  }
+
+  rejectRequestAnnouncement(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.BaseUrl}/reject/${id}`);
+  }
 }

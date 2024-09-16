@@ -11,6 +11,7 @@ export class LoginComponent {
   staffId: string = '';
   password: string = '';
   errorMessage: string = '';
+  emptyFieldError: string = '';
   logoutMessage: string = '';
   showPassword: boolean = false;
   isLocked: boolean = false;
@@ -22,6 +23,13 @@ export class LoginComponent {
   onLogin() {
     if (this.isLocked) {
       return; // Prevent login if locked
+    }
+
+    this.emptyFieldError = '';  // Reset empty field error message
+
+    if (!this.staffId.trim() || !this.password.trim()) {
+      this.emptyFieldError = 'Please enter both Staff ID and Password.';
+      return;  // Stop further processing
     }
 
     this.authService.login(this.staffId, this.password).subscribe(

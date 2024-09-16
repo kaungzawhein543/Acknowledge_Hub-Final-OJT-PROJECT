@@ -40,10 +40,6 @@ public class CategoryService {
         return repository.findById(id);
     }
 
-    public void delete(int id){
-        repository.deleteById(id);
-    }
-
     //Delete Category
     public void deleteCategory(Integer id){
         repository.deleteById(id);

@@ -36,17 +36,27 @@ public class GroupController {
         return ResponseEntity.ok().body(groupDTOs);
     }
 
+    @GetMapping("HR/{id}")
+    public ResponseEntity<List<GroupDTO>> getGroupsHR(@PathVariable("id") Integer id) {
+        List<GroupDTO> groups = groupService.getGroupsByHR(id);
+        return ResponseEntity.ok().body(groups);
+    }
 
     @PostMapping("/create")
-    public String addGroup(
+    public ResponseEntity<String> addGroup(
             @RequestParam String name,
             @RequestBody List<Integer> userIds
             ){
-        if (name.isEmpty()){
-            return "Group name is Empty";
-        }
+//        if (name.isEmpty()){
+//            return "Group name is Empty";
+//        }
+        Group existGroup = groupService.findByName(name);
+        if(existGroup == null){
         groupService.createGroup(name,userIds);
-        return "Create Successfully";
+            return  ResponseEntity.ok("Create Successfully");
+        }else {
+            return ResponseEntity.ok("Group name is already exist.");
+        }
     }
 
     @PutMapping("/update/{groupId}")

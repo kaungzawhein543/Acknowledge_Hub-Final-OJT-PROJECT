@@ -41,8 +41,8 @@
         [disabled]="isLocked">
         Login
       </button>
-      <div *ngIf="isLocked">
-        Too many failed attempts. Please wait for {{ formattedCountdown }}.
+      <div *ngIf="isLocked" style="justify-content: center; font-size: 14px;">
+        Too many failed attempts.Please wait for {{ formattedCountdown }}.
       </div>
 
       <div class="flex items-center justify-center hover:underline">

@@ -36,6 +36,8 @@ public class Announcement {
     private String status="active";
     @Column(name ="group_status")
     private byte groupStatus;
+    @Column(name ="permission")
+    private String permission;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "create_staff_id")
     private Staff createStaff;
@@ -56,8 +58,6 @@ public class Announcement {
             inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
     private List<Staff> staff;
-
-
 
     @PrePersist
     protected void onCreate() {

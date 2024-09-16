@@ -208,5 +208,4 @@ public class StaffService implements UserDetailsService {
     public Staff getHRMainStaff(String position){
         return staffRepository.findByPosition(position);
     }
-
 }

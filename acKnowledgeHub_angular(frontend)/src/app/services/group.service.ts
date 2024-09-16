@@ -11,21 +11,28 @@ import { Group } from '../models/Group';
   providedIn: 'root'
 })
 export class GroupService {
-  private apiUrl = 'http://localhost:8080/api/v1';
+  private baseURL = 'http://localhost:8080/api/v1/group';
 
   constructor(private http: HttpClient) { }
 
 
   getAllGroups(): Observable<Group[]> {
-    return this.http.get<Group[]>(`${this.apiUrl}/group`, { withCredentials: true });
+    return this.http.get<Group[]>(`${this.baseURL}`, { withCredentials: true });
   }
 
+  getGroupsByHR(id: number): Observable<Group[]> {
+    return this.http.get<Group[]>(`${this.baseURL}/HR/${id}`, { withCredentials: true });
+  }
 
+  // getGroups(page: number, size: number, searchTerm: string): Observable<any> {
+  //   const apiUrl = `${this.baseURL}?page=${page}&size=${size}&searchTerm=${searchTerm}`;
+  //   return this.http.get<any>(apiUrl);
+  // }
 
   createGroup(userIds: number[], groupName: string): Observable<string> {
     const encodedGroupName = encodeURIComponent(groupName);
 
-    const url = `${this.apiUrl}/group/create?name=${encodedGroupName}`;
+    const url = `${this.baseURL}/create?name=${encodedGroupName}`;
 
     return this.http.post(url, userIds, {
       responseType: 'text', // Expect plain text response
@@ -40,8 +47,8 @@ export class GroupService {
   }
 
 
-  getDepartmentsByCompany(companyId: number): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.apiUrl}/departments/${companyId}`);
-  }
+  // getDepartmentsByCompany(companyId: number): Observable<Department[]> {
+  //   return this.http.get<Department[]>(`${this.apiUrl}/departments/${companyId}`);
+  // }
 
 }

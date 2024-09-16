@@ -28,7 +28,7 @@ export class AddHRMainComponent {
     });
   }
 
-  openDeleteModal(itemId: number) {
+  openAddHRModal(itemId: number) {
     this.staffToBeMainHR = itemId;
     this.modal.open();
   }

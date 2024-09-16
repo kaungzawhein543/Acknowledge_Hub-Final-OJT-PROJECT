@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
@@ -36,9 +36,8 @@ export class ListAnnouncementComponent {
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
     { field: 'createStaff', header: 'Create/Request Staff' },
-    //  { field: 'category', header: 'Category' },
-    { field: 'created_at', header: 'Created At' },
-    { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'file', header: 'Versions' },
+    { field: 'scheduleAt', header: 'Created At' },
     { field: 'note', header: 'Noted/UnNoted' },
     { field: 'detail', header: 'Details' },
   ];
@@ -60,6 +59,11 @@ export class ListAnnouncementComponent {
 
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
+  }
+
+  getVersionNumber(title: string): string | null {
+    const match = title.match(/V(\d+)/);
+    return match ? match[1] : null;
   }
 
   fetchAnnouncements() {
@@ -133,6 +137,14 @@ export class ListAnnouncementComponent {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
+
   generateReport(format: 'pdf' | 'excel') {
     if (format === 'pdf') {
       this.generatePDF(this.filteredAnnouncements, 'report.pdf');
@@ -142,7 +154,10 @@ export class ListAnnouncementComponent {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
+
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -167,7 +182,6 @@ export class ListAnnouncementComponent {
       columnStyles: {
         0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
         1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
-        // Add more column styles as needed
       },
       tableWidth: 'auto', // Auto width adjustment for table
     });
@@ -178,15 +192,20 @@ export class ListAnnouncementComponent {
 
 
   generateExcel(announcements: listAnnouncement[], fileName: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
+
     const headers = visibleColumns.map(col => col.header);
-    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
+    const data = [headers, ...announcements.map(a =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
+    )];
+
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, fileName);
   }
-
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(data, fileName);
@@ -226,17 +245,19 @@ export class ListAnnouncementComponent {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onNotedButtonClick(id: number, name: string) {
+  onNotedButtonClick(id: number, name: string, file: string) {
     const encodedId = btoa(id.toString());
-    const encoded = btoa(name);
-    this.router.navigate(['announcement/noted-announcement/' + encodedId + '/' + encoded]);
+    const encodedName = btoa(name);
+    const encodedFile = btoa(file);
+    this.router.navigate(['announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
   }
 
-  onUnNotedButtonClick(id: number, groupStatus: number, name: string) {
+  onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
     const encodedId = btoa(id.toString());
     const encodedName = btoa(name);
     const encodedStatus = btoa(groupStatus.toString());
-    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName])
+    const encodedFile = btoa(file);
+    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
   }
 
   onDetailButtonClick(id: number) {

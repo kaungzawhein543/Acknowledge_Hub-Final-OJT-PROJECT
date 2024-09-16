@@ -87,4 +87,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "from Staff s where s.status = 'active' ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
 
+    @Query("select s.company.name from Staff s where s.id = ?1")
+    String getCompanyNameById(Integer id);
 }

@@ -1,9 +1,6 @@
 package com.ace.repository;
 
-import com.ace.dto.AnnouncementListDTO;
-import com.ace.dto.AnnouncementResponseListDTO;
-import com.ace.dto.AnnouncementVersionDTO;
-import com.ace.dto.StaffNotedResponseDTO;
+import com.ace.dto.*;
 import com.ace.entity.Announcement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,15 +10,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
     //List<Announcement> findByStatus(String status);
 
-    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus) " +
-            "from Announcement a where a.status = 'active' order by a.scheduleAt DESC")
+    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
+            "from Announcement a where a.isPublished = true order by a.scheduleAt DESC")
     List<AnnouncementListDTO> getAnnouncementList();
 
 
@@ -70,12 +67,25 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     List<AnnouncementResponseListDTO> getPendingAnnouncement();
 
 
-    @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file)  FROM Announcement a WHERE a.file like %?1%")
-    List<AnnouncementVersionDTO> getAllVersions(String baseFileName);
-
-    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
-    List<Announcement> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+    @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
+            "FROM Announcement a WHERE a.file LIKE :baseFileName ")
+    List<AnnouncementVersionDTO> getAllVersions(@Param("baseFileName") String baseFileName);
 
     @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
     List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
+
+    @Query("select new com.ace.dto.RequestAnnouncementResponseDTO" +
+            "(a.id, a.title , a.description,a.created_at, a.scheduleAt,  a.category.name, a.createStaff.name,cs.company.name) " +
+            "from Announcement a join a.createStaff cs where a.permission = 'pending'")
+    List<RequestAnnouncementResponseDTO> getRequestAnnouncement();
+
+    @Modifying
+    @Transactional
+    @Query("update Announcement a set a.permission = 'approved' where a.id = ?1")
+    void approvedRequestAnnouncement(Integer id);
+
+    @Modifying
+    @Transactional
+    @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
+    void rejectRequestAnnouncement(Integer id);
 }

@@ -41,12 +41,22 @@
 
 
         <div>
-
+            <!-- Report Button -->
             <div class="relative">
-                <!-- <button class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700"
+                <button class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700"
                     (click)="toggleReportDropdown()">
-                    Generate Report
-                </button> -->
+                    Generate Report <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <!-- Dropdown for Report Types -->
+                <ul class="absolute left-2 w-41 bg-gray-100 text-black top-10 shadow-md rounded z-10"
+                    *ngIf="isReportDropdownOpen">
+                    <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('pdf')">
+                        <i class="fa-regular fa-file-pdf"></i> Generate PDF
+                    </li>
+                    <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('excel')">
+                        <i class="fa-regular fa-file-excel"></i> Generate Excel
+                    </li>
+                </ul>
                 <button mat-button [matMenuTriggerFor]="menu">Columns</button>
             </div>
 
@@ -75,7 +85,7 @@
                         </th>
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
-                                <ng-container *ngSwitchCase="'file'">
+                                <ng-container *ngSwitchCase="'detail'">
                                     <button mat-button (click)="onFileButtonClick(announcement.file)">
                                         View File
                                     </button>

@@ -67,10 +67,10 @@ public class StaffController {
 
         try {
             Staff staff = new Staff();
-            Optional<Company> company = companyService.findById(staffRequestDTO.getCompanyId());
-            staff.setCompany(company.get());
-            Optional<Department> department = departmentService.findById(staffRequestDTO.getDepartmentId());
-            staff.setDepartment(department.get());
+            Company company = companyService.getCompanyById(staffRequestDTO.getCompanyId());
+            staff.setCompany(company);
+            Department department = departmentService.getDepartmentById(staffRequestDTO.getDepartmentId());
+            staff.setDepartment(department);
             Optional<Position> position = positionService.findById(staffRequestDTO.getPositionId());
             staff.setPosition(position.get());
             staff.setRole(staffRequestDTO.getRole());
