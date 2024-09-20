@@ -67,7 +67,7 @@ export class ToastService {
         return 'bg-gradient-to-r from-white to-gray-100';
     }
   }
-
+  // bg-gradient-to-r from-white to-gray-100
   private getIconClass(type: 'success' | 'error' | 'info') {
     switch (type) {
       case 'success':

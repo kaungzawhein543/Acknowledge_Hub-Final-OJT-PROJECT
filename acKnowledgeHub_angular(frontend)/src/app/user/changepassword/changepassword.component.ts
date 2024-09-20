@@ -41,9 +41,9 @@ export class ChangepasswordComponent implements OnInit {
         this.errorMessage = '';
         const cardElement = document.querySelector('.ChangePw-card')!;
         cardElement.classList.add('back-clicked');
-        this.showError = false;  
+        this.showError = false; 
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/acknowledgeHub/login']);
         }, 1000); // Wait for 2 seconds before redirecting
       },
       error => {
@@ -56,7 +56,7 @@ export class ChangepasswordComponent implements OnInit {
     const cardElement = document.querySelector('.ChangePw-card')!;
     cardElement.classList.add('back-clicked'); // Trigger animations
     setTimeout(() => {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/acknowledgeHub/login']);
     }, 1000); 
   }
   

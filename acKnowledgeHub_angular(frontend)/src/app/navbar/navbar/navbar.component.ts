@@ -178,7 +178,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         console.error('Error loading profile:', error);
       }
     );
-
+  }
   getNotificationIcon(notification: Notification): string {
     const title = notification.title?.toLowerCase();
     const description = notification.description?.toLowerCase();
