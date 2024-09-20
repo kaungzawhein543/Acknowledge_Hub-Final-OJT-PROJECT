@@ -74,10 +74,10 @@
           [type]="showPassword ? 'text' : 'password'"
           id="password"
           name="password"
-          [(ngModel)]="password"
-          #passwordInput="ngModel"
           required
           placeholder="Password"
+          [(ngModel)]="password"
+          #passwordInput="ngModel"
         />
         <!-- <button type="button" (click)="togglePasswordVisibility()" class="toggle-password">
           <i [class]="showPassword ? 'fa fa-eye' : 'fa fa-eye-slash'"></i>

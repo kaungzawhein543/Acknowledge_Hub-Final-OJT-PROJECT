@@ -1,16 +1,22 @@
 <!-- Grid Container -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6 bg-gray-100 p-4 rounded-2xl shadow-md"  @cardAnimation>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6 bg-gray-100 p-4 rounded-2xl shadow-md justify-center mx-auto max-w-screen-lg" @cardAnimation>
 
   <!-- Card 1 -->
   <div class=" card bg-green-100 p-3 rounded-md shadow-lg">
     <span class="text-base font-semibold text-gray-800 mb-4 block">Recent Announcements</span>
     <ul class="space-y-2">
+      <ng-container *ngIf="announcements.length > 0; else noDataAnnouncements">
+
       <li *ngFor="let announcement of announcements"  class="bg-white p-2 rounded-sm shadow-sm hover:shadow-md transition-shadow duration-300 text-sm">
         <div class="flex justify-between items-center">
           <p class="font-medium text-gray-800 truncate">{{ announcement.title }}</p>
           <span class="text-sm">{{ announcement.created_at | date:'shortDate' }}</span>
         </div>
       </li>
+      </ng-container>
+      <ng-template #noDataAnnouncements>
+        <li class="bg-white p-2 rounded-sm shadow-sm text-sm text-gray-500">No announcements available.</li>
+      </ng-template>
     </ul>
   </div>
   
@@ -20,17 +26,14 @@
 <div class="card bg-yellow-100 p-3 rounded-md shadow-lg">
   <span class="text-base font-semibold text-gray-800 mb-3 block">Announcements by Month</span>
 
-  <!-- Container with fixed height and overflow-y for scrollbar -->
   <div class="space-y-3 max-h-48 overflow-y-auto">
+    <ng-container *ngIf="getMonths(staff?.monthlyCount)?.length; else noDataMonthlyCount">
     <ng-container *ngFor="let month of getMonths(staff?.monthlyCount)">
       <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow hover:shadow-lg hover:bg-yellow-50 transition-all duration-300 ease-in-out">
 
-        <!-- Left Section: Icon and Month -->
         <div class="flex items-center gap-3">
-          <!-- Calendar Icon -->
           <i class="fa-sharp-duotone fa-solid fa-bullhorn"></i>
 
-          <!-- Month and Year -->
           <div class="text-sm font-medium text-gray-800">
             {{ getMonthNameWithYear(month) }}: {{ staff?.monthlyCount?.[month] ?? 0 }}
 
@@ -40,6 +43,11 @@
        
       </div>
     </ng-container>
+    </ng-container>
+    <ng-template #noDataMonthlyCount>
+      <div class="flex justify-center items-center" style="height: 130px !important;">
+        <div class="text-gray-500">No monthly counts available.</div>
+      </div>    </ng-template>
   </div>
 </div>
 
@@ -50,23 +58,23 @@
  <!-- Card 3 -->
  <div class="card bg-purple-100 p-3 rounded-md shadow-lg">
   <span class="text-base font-semibold text-gray-800 mb-3 block">Notes Count by Month</span>
-
-  <!-- Container with fixed height and overflow-y for scrollbar -->
   <div class="space-y-3 max-h-48 overflow-y-auto">
-    <ng-container *ngIf="monthlyNotesCount">
+    <ng-container *ngIf="hasMonthlyNotesCount(); else noDataNotesCount">
       <div *ngFor="let month of objectKeys(monthlyNotesCount)" 
            class="flex justify-between items-center p-3 bg-white rounded-lg shadow hover:shadow-lg hover:bg-purple-50 transition-all duration-300 ease-in-out">
-        <!-- Left Section: Icon and Month -->
         <div class="flex items-center gap-3">
-          <!-- Calendar Icon -->
           <i class="fa-solid fa-file-circle-check"></i>
-          <!-- Month and Year -->
           <div class="text-sm font-medium text-gray-800">
             {{ getMonthNameWithYear(month) }} : {{ monthlyNotesCount[month] }}
           </div>
         </div>
       </div>
     </ng-container>
+    <ng-template #noDataNotesCount>
+      <div class="flex justify-center items-center" style="height: 130px !important;">
+        <div class="text-gray-500">No notes counts available.</div>
+      </div>
+        </ng-template>
   </div>
 </div>
 

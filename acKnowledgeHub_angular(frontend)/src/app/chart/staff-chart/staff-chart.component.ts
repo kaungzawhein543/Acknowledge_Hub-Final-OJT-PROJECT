@@ -6,7 +6,7 @@ import { Chart, registerables } from 'chart.js';
 @Component({
   selector: 'app-staff-chart',
   templateUrl: './staff-chart.component.html',
-  styleUrl: './staff-chart.component.css'
+  styleUrl: './staff-chart.component.css',
 })
 export class StaffChartComponent implements AfterViewInit{
 
@@ -46,14 +46,16 @@ export class StaffChartComponent implements AfterViewInit{
             this.staffSummaryCount?.inactiveStaff ?? 0
           ],
           backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
             'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)'
+            'rgba(255, 99, 132, 0.2)'
+            
           ],
           borderColor: [
-            'rgba(255, 99, 132, 1)',
+            'rgba(255, 206, 86, 1)',
             'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)'
+            'rgba(255, 99, 132, 1)'
+
           ],
           borderWidth: 1
         }]

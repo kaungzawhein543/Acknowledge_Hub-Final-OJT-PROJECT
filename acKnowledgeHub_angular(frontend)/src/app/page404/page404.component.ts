@@ -17,27 +17,27 @@ export class Page404Component implements OnInit{
       (isAdmin) => {
         if (isAdmin) {
           // Admins can go to HR dashboard
-          this.buttonRoute = "/dashboard";
+          this.buttonRoute = "/acknowledgeHub/system-dashboard";
         } else {
           // If not an admin, check if the user has the 'HR_MAIN' position
           this.authService.hasPostion("HR_MAIN").subscribe(
             (hasHrMain) => {
               if (hasHrMain) {
-                this.buttonRoute = "/dashboard";
+                this.buttonRoute = "/acknowledgeHub/system-dashboard";
               } else {
-                this.buttonRoute = "/staff-dashboard";
+                this.buttonRoute = "/acknowledgeHub/staff-dashboard";
               }
             },
             (error) => {
               console.error('Error checking position', error);
-              this.buttonRoute = "/staff-dashboard"; // Fallback in case of error
+              this.buttonRoute = "/acknowledgeHub/staff-dashboard"; // Fallback in case of error
             }
           );
         }
       },
       (error) => {
         console.error('Error checking role', error);
-        this.buttonRoute = "/staff-dashboard"; // Fallback in case of error
+        this.buttonRoute = "/acknowledgeHub/staff-dashboard"; // Fallback in case of error
       }
     );
   }

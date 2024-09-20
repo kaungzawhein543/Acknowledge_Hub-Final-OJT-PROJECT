@@ -34,23 +34,24 @@ export class LoginComponent {
       return;
     }
 
+    const trimmedPassword = this.password.trim();
+
     
-    
-    this.authService.login(this.staffId, this.password,this.rememberMe).subscribe(
+    this.authService.login(this.staffId, trimmedPassword).subscribe(
       response => {
         const body = response.body;
         if (body?.includes(':')) {
           const [staffId, message] = body.split(':');
           if (message.toString() === 'Please change your password') {
             console.log("hi")
-            this.router.navigate(['change-password/', staffId]);
+            this.router.navigate(['acknowledgeHub/change-password/', staffId]);
           }
         } else {
           this.authService.getUser().subscribe(user => {
             if (user.user.role === "USER" && user.position !== "HR_MAIN") {
-                this.router.navigate(['staff-dashboard']);
+                this.router.navigate(['/acknowledgeHub/staff-dashboard']);
             } else if (user.user.role === "ADMIN" || user.position === "HR_MAIN") {
-                this.router.navigate(['system-dashboard']);
+                this.router.navigate(['/acknowledgeHub/system-dashboard']);
             }
         });
         }

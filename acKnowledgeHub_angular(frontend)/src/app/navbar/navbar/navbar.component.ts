@@ -6,6 +6,8 @@ import { WebSocketService } from '../../services/web-socket.service';
 import { Notification } from '../../models/Notification';
 import { NotificationService } from '../../services/notification.service';
 import { Subject, takeUntil } from 'rxjs';
+import { StaffProfileDTO } from '../../models/staff';
+import { ProfileService } from '../../services/profile.service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,6 +26,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   staff_id : number = 0;
   name: string = '';
   private audio: HTMLAudioElement;
+  profile: StaffProfileDTO | null = null;
+  baseUrl = 'http://localhost:8080';
+  oldPhotoUrl: string | null = null;
 
   constructor(
     private sidebarService: SidebarService, 
@@ -31,17 +36,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private router: Router,
     private webSocketService: WebSocketService,
     private cdr: ChangeDetectorRef,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private profileService : ProfileService
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
     this.audio.load();
   }
 
   ngOnInit(): void {
+    this.loadProfile();
+
     this.authService.getUserInfo().subscribe(data => {
       this.staff_id = data.user.id;
       this.position = data.position;
       this.name = data.user.name;
+    });
+
+    this.profileService.profile$.subscribe((profile) => {
+      this.profile = profile;
+      if (this.profile) {
+        this.oldPhotoUrl = this.baseUrl + this.profile.photoPath;
+      }
     });
   
     this.webSocketService.getNotifications().pipe(takeUntil(this.destroy$)).subscribe({
@@ -149,6 +164,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   //   this.startUpdateInterval();
   // }
 
+  loadProfile(): void {
+    this.authService.getProfile().subscribe(
+      (data) => {
+        this.profile = data;
+        this.oldPhotoUrl = this.baseUrl + this.profile?.photoPath;
+        this.profileService.updateProfile(this.profile);
+
+        console.log('Resolved photoPath:', this.profile?.photoPath);
+        console.log('Profile data:', this.profile);
+      },
+      (error) => {
+        console.error('Error loading profile:', error);
+      }
+    );
 
   getNotificationIcon(notification: Notification): string {
     const title = notification.title?.toLowerCase();
@@ -193,7 +222,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout().subscribe(
       () => {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/acknowledgeHub/login']);
       },
       (error) => {
         console.error('Logout failed', error);

@@ -49,6 +49,8 @@ public class LoginController {
         Staff user = staffService.findByStaffId(loginRequest.getStaffId());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid staff ID");
+        } else if (!user.getStatus().equals("active")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your account is inactive. Please contact the administrator.");
         } else {
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
@@ -217,6 +219,7 @@ public class LoginController {
                             staff.getName(),
                             staff.getCompanyStaffId(),
                             staff.getEmail(),
+                            staff.getPassword(),
                             staff.getStatus(),
                             staff.getRole(),
                             staff.getPhotoPath(),

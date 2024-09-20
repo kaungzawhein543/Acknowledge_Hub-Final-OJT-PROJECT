@@ -21,6 +21,7 @@ public class ProfileDTO {
     private String name;
     private String companyStaffId;
     private String email;
+    private String password;
     private String status;
     private Role role;
     private String photoPath;

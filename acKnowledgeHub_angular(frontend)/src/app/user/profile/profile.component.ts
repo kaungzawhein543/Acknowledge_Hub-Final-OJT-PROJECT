@@ -2,11 +2,28 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { StaffProfileDTO } from '../../models/staff';
 import { StaffService } from '../../services/staff.service';
+import { ProfileService } from '../../services/profile.service';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { ChangePasswordRequest } from '../../models/change-password-request.model';
+import { ToastService } from '../../services/toast.service';
+
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrl: './profile.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ProfileComponent implements OnInit {
   profile: StaffProfileDTO | null = null;
@@ -16,11 +33,26 @@ export class ProfileComponent implements OnInit {
   showModal: boolean = false; // To control the visibility of the modal
   timestamp: number = Date.now();
   baseUrl = 'http://localhost:8080';
+  selectedMonthCount: number | null = null; // To store the count for the selected month
+  selectedMonth: string | null = null; // Property to store selected month
+  monthlyCount: number = 0; // Property to store the count for the selected month
+
+  // Properties for password change
+  showChangePasswordModal: boolean = false;
+  oldPassword: string = '';
+  newPassword: string = '';
+  changePasswordMessage: string | null = null;
+  successMessage:string | null = null;
+
 
   constructor(
     private authService: AuthService,
     private staffService: StaffService,
-    private cdr: ChangeDetectorRef
+    private toastService: ToastService,
+    private cdr: ChangeDetectorRef,
+    private profileService: ProfileService // Inject the service
+
+
   ) {}
 
   ngOnInit(): void {
@@ -35,6 +67,14 @@ export class ProfileComponent implements OnInit {
         this.oldPhotoUrl = this.baseUrl + this.profile?.photoPath + '?' + this.timestamp;
         console.log('Resolved photoPath:', this.profile?.photoPath);
         console.log('Profile data:', this.profile);
+        console.log(this.oldPhotoUrl)
+        this.profileService.updateProfile(this.profile);
+        // Initialize the selected month count
+        if (this.profile?.monthlyCount) {
+          const firstMonth = Object.keys(this.profile.monthlyCount)[0];
+          this.selectedMonth = firstMonth; // Set default selected month
+          this.selectedMonthCount = this.profile.monthlyCount[firstMonth] ?? 0;
+        }
       },
       (error) => {
         console.error('Error loading profile:', error);
@@ -55,6 +95,17 @@ export class ProfileComponent implements OnInit {
     this.showModal = false;
     this.newPhotoUrl = null; // Clear new photo preview
     this.selectedFile = null; // Clear selected file
+  }
+
+  openChangePasswordModal(): void {
+    this.showChangePasswordModal = true;
+  }
+
+  closeChangePasswordModal(): void {
+    this.showChangePasswordModal = false;
+    this.oldPassword = '';
+    this.newPassword = '';
+    this.changePasswordMessage = null;
   }
 
   onFileChange(event: Event): void {
@@ -85,5 +136,46 @@ export class ProfileComponent implements OnInit {
         }
       );
     }
+  }
+
+  onMonthChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedMonth = selectElement.value;
+    if (this.profile?.monthlyCount) {
+      this.selectedMonth = selectedMonth;
+      this.selectedMonthCount = this.profile.monthlyCount[selectedMonth] ?? 0;
+    }
+  }
+
+  // Method to handle password change
+  changePassword(): void {
+    const request: ChangePasswordRequest = {
+      staffId: this.profile?.companyStaffId ?? '',
+      oldPassword: this.oldPassword,
+      newPassword: this.newPassword
+    };
+
+    this.staffService.changeOldPassword(request).subscribe(
+      response => {
+        this.changePasswordMessage = null;
+        this.successMessage = response;
+        this.oldPassword = '';
+        this.newPassword = '';
+         setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+        this.closeChangePasswordModal();
+        this.showSuccessToast();
+
+      },
+      error => {
+        console.error('Error changing password', error);
+        this.changePasswordMessage = 'Failed to change password. Please try again.';
+      }
+    );
+  }
+
+  showSuccessToast() {
+    this.toastService.showToast('Change Password successful!', 'success');
   }
 }

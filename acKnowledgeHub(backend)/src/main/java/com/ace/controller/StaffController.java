@@ -56,7 +56,10 @@ public class StaffController {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService, TokenBlacklistService tokenBlacklistService) {
+    @Value("${default.photo.path}")
+    private String DEFAULT_PHOTO_PATH;
+
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService,TokenBlacklistService tokenBlacklistService) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
@@ -93,6 +96,7 @@ public class StaffController {
             staff.setCompanyStaffId(staffRequestDTO.getCompanyStaffId());
             staff.setName(staffRequestDTO.getName());
             staff.setEmail(staffRequestDTO.getEmail());
+            staff.setPhotoPath(DEFAULT_PHOTO_PATH);
             staffService.addStaff(staff);
             return ResponseEntity.ok("Adding is successful.");
         } catch (Exception e) {
@@ -384,5 +388,20 @@ public class StaffController {
             return ResponseEntity.ok(false);
         }
     }
+
+    //Change Password from profile(changeOldPassword)
+    @PostMapping("/change_Old_Password")
+    public ResponseEntity<String> changeOldPassword(@RequestBody ChangePasswordRequest request) {
+        String result = staffService.changeOldPassword(request);
+
+        if (result.equals("Password changed successfully")) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(401).body(result); // 401 Unauthorized for incorrect password
+        }
+    }
+
+
+
 }
 

@@ -42,7 +42,7 @@ export class UpdateCategoryComponent implements OnInit {
       next: (updatedCategory) => {
         console.log('Category updated successfully:', updatedCategory);
         alert('Category updated successfully!');
-        this.router.navigate(['/list-category']); // Redirect to the category list after update
+        this.router.navigate(['/acknowledgeHub/list-category']); // Redirect to the category list after update
       },
       error: (err) => {
         console.error('Error updating category:', err);

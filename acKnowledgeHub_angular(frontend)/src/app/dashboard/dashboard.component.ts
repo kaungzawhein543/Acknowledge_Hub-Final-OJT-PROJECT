@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit{
   announcements: AnnouncementListDTO[] = [];
   staff: StaffProfileDTO | null = null;
   monthlyNotesCount: { [key: string]: number } = {};  // Object to store the notes count by month
-
+  
   
 
   monthNames: string[] = [
@@ -108,6 +108,13 @@ export class DashboardComponent implements OnInit{
     return Object.keys(obj);
   }
   
+  hasAnnouncements(): boolean {
+    return this.announcements.length > 0;
+  }
+
+  hasMonthlyNotesCount(): boolean {
+    return this.objectKeys(this.monthlyNotesCount).length > 0;
+  }
 
   
 }
