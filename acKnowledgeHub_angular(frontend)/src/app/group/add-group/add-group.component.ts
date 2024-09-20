@@ -21,6 +21,7 @@ export class AddGroupComponent {
   companySearchTerm: string = '';
   departmentSearchTerm: string = '';
   staffSearchTerm: string = '';
+  staffSearchTermConfirm : string = '';
   groupName: string = '';
   validationError: string = '';
   selectAll: boolean = false;
@@ -34,6 +35,7 @@ export class AddGroupComponent {
   staffList: StaffGroup[] = [];
   filteredStaffList: StaffGroup[] = [];
   selectedStaff: StaffGroup[] = [];
+  filterStaffListAfterSelect : StaffGroup[] = [];
 
   companystatus: number | undefined;
   departmentstatus: number | undefined;
@@ -44,6 +46,7 @@ export class AddGroupComponent {
   constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.filterStaffListAfterSelect = [...this.selectedStaff];
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
@@ -90,13 +93,15 @@ export class AddGroupComponent {
       company.name.toLowerCase().includes(term)
     );
   }
-  showSelectedStaff(): void{
-    if(this.showConfirmBox === false){
-      this.showConfirmBox = true;
-    }else{
-      this.showConfirmBox = false;
+  showSelectedStaff(): void {
+    if(this.groupName.length === 0 || this.groupName.length <= 3 ){
+      this.validationError = this.validateGroupName();
+      console.log("Error")
+      return;
     }
-    console.log(this.selectedStaff)
+    this.showConfirmBox = !this.showConfirmBox;
+    this.filterStaffListAfterSelect = [...this.selectedStaff]; // Initialize filtered list
+    console.log(this.selectedStaff);
   }
 
   filterDepartment(): void {
@@ -110,10 +115,28 @@ export class AddGroupComponent {
     const term = this.staffSearchTerm.toLowerCase();
     this.filteredStaffList = this.staffList.filter(staff =>
       staff.department.id === this.departmentstatus &&
-      (staff.name.toLowerCase().includes(term) || staff.position.toLowerCase().includes(term))
+      (staff.name.toLowerCase().includes(term) || staff.position.name.toLowerCase().includes(term))
     );
     this.updateSelectAllState();
   }
+
+  filterStaffAfterSelect(): void {
+    const term = this.staffSearchTermConfirm.toLowerCase();
+
+    // Filter the selected staff based on search term
+    this.filterStaffListAfterSelect = this.selectedStaff.filter(staff =>
+      staff.name.toLowerCase().includes(term) ||
+      staff.position.name.toLowerCase().includes(term) ||
+      staff.staffId.toString().includes(term) ||
+      staff.department.name.toLowerCase().includes(term) ||
+      staff.company.name.toLowerCase().includes(term)
+    );
+
+    // Log for debugging
+    console.log('Filtered staff:', this.filterStaffListAfterSelect);
+  }
+
+  
   toggleSelection(event: MatSelectionListChange): void {
     event.options.forEach(option => {
       const staff = option.value;
@@ -195,9 +218,8 @@ export class AddGroupComponent {
 
   getSelectedGroup(): number[] {
     const selectedStaffIds = this.selectedStaff.map(staff => staff.staffId);
-    console.log(selectedStaffIds);
     this.validationError = this.validateGroupName(); // Update validationError property
-
+    this.showConfirmBox = false;
     if (this.validationError) {
       console.error(this.validationError);
     } else {
@@ -238,4 +260,11 @@ export class AddGroupComponent {
   showInfoToast() {
     this.toastService.showToast('Here is some information.', 'info');
   }
+
+  removeStaff(staff: StaffGroup): void {
+    // Find and remove the staff from the selectedStaff array
+    this.selectedStaff = this.selectedStaff.filter(s => s.staffId !== staff.staffId);
+    this.filterStaffAfterSelect(); // Reapply filter to update the displayed staff list
+  }
+  
 }

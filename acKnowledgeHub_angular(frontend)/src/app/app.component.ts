@@ -46,8 +46,11 @@ export class AppComponent implements OnInit {
         this.updateSidebarState();
       });
       this.authService.isLoggedIn().subscribe(isAuthenticated => {
-        this.isLoading = false;
-        this.loadingService.hide();
+        setTimeout(() => {
+          this.isLoading = false;
+          this.loadingService.hide()
+        },500);
+        
         if (!isAuthenticated) {
           this.router.navigate(['/login']);
         }

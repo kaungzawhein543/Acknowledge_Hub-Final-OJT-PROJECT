@@ -25,12 +25,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("**/resources/images/")
+                .addResourceLocations("file:src/main/resources/images/")
                 .setCacheControl(CacheControl.maxAge(Duration.ofDays(3600)).cachePublic());
 
         //for default profile folder
         registry.addResourceHandler("/defaultProfile/**")
-                .addResourceLocations("**/resources/defaultProfile/")
+                .addResourceLocations("classpath:/defaultProfile/")
                 .setCacheControl(CacheControl.maxAge(Duration.ofDays(3600)).cachePublic());
     }
 

@@ -151,8 +151,8 @@ export class AnnouncementService {
     // Extract file name from filePath if needed
     return filePath.split('/').pop() || 'downloaded-file';
   }
-  getAnnouncementVersion(file: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.BaseUrl}/announcement-versions/${file}`);
+  getAnnouncementVersion(announcementId: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.BaseUrl}/announcement-versions/${announcementId}`);
   }
 
   getRequestAnnouncementList(): Observable<requestAnnouncement[]> {

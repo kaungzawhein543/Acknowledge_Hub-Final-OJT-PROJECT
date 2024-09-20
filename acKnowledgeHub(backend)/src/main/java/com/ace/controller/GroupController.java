@@ -2,6 +2,7 @@ package com.ace.controller;
 
 import com.ace.dto.GroupDTO;
 import com.ace.dto.GroupResponseDTO;
+import com.ace.dto.StaffDTO;
 import com.ace.entity.Group;
 import com.ace.entity.Staff;
 import com.ace.service.GroupService;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,17 +36,18 @@ public class GroupController {
         List<GroupDTO> groupDTOs = groups.stream()
                 .map(group -> {
                     // Extract staff names from Group entity
-                    List<String> staffNames = group.getStaff().stream()
-                            .map(Staff::getName)
-                            .collect(Collectors.toList());
+                    List<StaffDTO> staffs = new ArrayList<>();
+                    for (Staff staff : group.getStaff()) {
+                        staffs.add(mapper.map(staff, StaffDTO.class)); // Corrected here
+                    }
 
                     // Create a GroupDTO with the extracted staff names
                     return new GroupDTO(
                             group.getId(),
                             group.getName(),
-                            group.getStatus (),
+                            group.getStatus(),
                             group.getCreatedAt(),
-                            staffNames
+                            staffs
                     );
                 })
                 .collect(Collectors.toList());
@@ -51,6 +55,7 @@ public class GroupController {
         // Return the list of GroupDTOs in the response
         return ResponseEntity.ok().body(groupDTOs);
     }
+
 
     @GetMapping("HR/{id}")
     public ResponseEntity<List<GroupResponseDTO>> getGroupsHR(@PathVariable("id") Integer id) {

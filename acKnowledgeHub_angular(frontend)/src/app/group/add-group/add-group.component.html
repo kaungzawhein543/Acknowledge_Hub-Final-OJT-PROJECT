@@ -79,10 +79,7 @@
       <span class=" text-gray-700 font-medium">
         Staff selected: {{ selectedStaffCount }}
       </span>
-      <button
-        class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition ease-in-out duration-200  sm:mt-0 max-h-12"
-        (click)="showSelectedStaff()"
-        [disabled]="!status">
+      <button class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition ease-in-out duration-200  sm:mt-0 max-h-12" (click)="showSelectedStaff()" [disabled]="!status">
         Finish
       </button>
     </div>
@@ -95,49 +92,47 @@
       </div>
       <div class="flex items-center m-2">
         <span class="font-semibold">Group Name:</span>
-        <input type="text" value="Frize Trizer" class="p-2 border border-gray-500 rounded-md ms-2">
+        <input type="text"  [(ngModel)]="groupName"  class="p-2 border border-gray-500 rounded-md ms-2">
       </div>
   
       <!-- Search Bar -->
       <div class="mb-3">
-        <input type="text" id="search-bar" placeholder="Search Staff" class="p-2 border border-gray-500 rounded-md w-full">
+        <input type="text" id="search-bar" placeholder="Search Staff" class="p-2 border border-gray-500 rounded-md w-full" [(ngModel)]="staffSearchTermConfirm" (input)="filterStaffAfterSelect()">
       </div>
   
       <!-- Table for Staff Data -->
-      <div class=" h-3/5 bg-gray-100 rounded-md overflow-y-auto   absolute inset-x-3 p-3">
-        <table class="w-full text-left table-auto border-collapse">
-          <thead>
-            <tr class="border-b border-gray-300 bg-gray-200">
-              <th class="p-3">No.</th>
-              <th class="p-3">Profile</th>
-              <th class="p-3">Name</th>
-              <th class="p-3">Position</th>
-              <th class="p-3">Company</th>
-              <th class="p-3">Department</th>
-              <th class="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="staff-table-body">
-            <!-- Example Staff Member 1 -->
-            <tr class="border-b border-gray-200" *ngFor="let staff of selectedStaff;let i  =index">
-              <td class="p-3">{{ i + 1}}</td>
-              <td class="p-3">
-                <img [src]="staff.photoPath" alt="Profile Picture" class="w-12 h-12 rounded-full">
-              </td>
-              <td class="p-3">{{staff.name}}</td>
-              <td class="p-3">{{staff.position}}</td>
-              <td class="p-3">{{staff.company.name}}</td>
-              <td class="p-3">{{staff.department.name}}</td>
-              <td class="p-3">
-                <span class="p-1 bg-red-500 hover:bg-red-600 cursor-pointer text-md text-white rounded-md" onclick="removeStaff(this)">Remove</span>
-              </td>
-            </tr>
-  
-            <!-- Add more staff rows here -->
-            
-          </tbody>
-        </table>
-      </div>
+      <!-- Filtered Staff Table -->
+<div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+  <table class="w-full text-left table-auto border-collapse">
+    <thead>
+      <tr class="border-b border-gray-300 bg-gray-200">
+        <th class="p-3">No.</th>
+        <th class="p-3">Profile</th>
+        <th class="p-3">Name</th>
+        <th class="p-3">Position</th>
+        <th class="p-3">Company</th>
+        <th class="p-3">Department</th>
+        <th class="p-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="staff-table-body">
+      <tr class="border-b border-gray-200" *ngFor="let staff of filterStaffListAfterSelect; let i = index">
+        <td class="p-3">{{ i + 1 }}</td>
+        <td class="p-3">
+          <img [src]="staff.photoPath" alt="Profile Picture" class="w-12 h-12 rounded-full">
+        </td>
+        <td class="p-3">{{ staff.name }}</td>
+        <td class="p-3">{{ staff.position }}</td>
+        <td class="p-3">{{ staff.company.name }}</td>
+        <td class="p-3">{{ staff.department.name }}</td>
+        <td class="p-3">
+          <span class="p-1 bg-red-500 hover:bg-red-600 cursor-pointer text-md text-white rounded-md" (click)="removeStaff(staff)">Remove</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
   
       <button class="p-2 bg-blue-500 rounded-md px-4 absolute bottom-2 right-5 text-white float-end mt-5 z-50" (click)="getSelectedGroup()">Create Group</button>
     </div>

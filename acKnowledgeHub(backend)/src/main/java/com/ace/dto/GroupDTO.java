@@ -16,5 +16,5 @@ public class GroupDTO {
     private String name;
     private String status;
     private Date createdAt;
-    private List<String> staff;
+    private List<StaffDTO> staff;
 }

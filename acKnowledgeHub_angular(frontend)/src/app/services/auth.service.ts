@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { userInfo } from 'os';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, Subject, tap } from 'rxjs';
 import { ResponseEmail } from '../models/response-email';
 import { StaffProfileDTO } from '../models/staff';
 
@@ -11,11 +11,26 @@ import { StaffProfileDTO } from '../models/staff';
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8080/auth'; // Your backend URL
-
+  private loginSubject = new Subject<void>();
+  private logoutSubject = new Subject<void>();
   constructor(private http: HttpClient, private router: Router) { }
 
-  login(staffId: string, password: string): Observable<HttpResponse<string>> {
-    return this.http.post(`${this.apiUrl}/login`, { staffId, password }, { observe: 'response', responseType: 'text', withCredentials: true });
+  login(staffId: string, password: string,rememberMe : boolean): Observable<HttpResponse<string>> {
+    return this.http.post(`${this.apiUrl}/login`, { staffId, password,rememberMe }, { observe: 'response', responseType: 'text', withCredentials: true }).pipe(
+      tap(() =>{
+        this.loginSubject.next();
+      })
+    );
+  }
+
+  // Emits when the user logs in successfully 
+  onLogin(): Observable<void> { 
+    return this.loginSubject.asObservable(); 
+  } 
+ 
+  // Emits when the user logs out 
+  onLogout(): Observable<void> { 
+    return this.logoutSubject.asObservable(); 
   }
 
 
@@ -33,7 +48,14 @@ export class AuthService {
   }
 
   logout(): Observable<string> {
-    return this.http.post(`${this.apiUrl}/logout`, {}, { responseType: 'text', withCredentials: true });
+    return this.http.post(`${this.apiUrl}/logout`, {}, { responseType: 'text', withCredentials: true }).pipe(
+      tap(()=>{
+        if (typeof window !== 'undefined') { // Check if window is defined
+          localStorage.clear();
+        }
+        this.loginSubject.next();
+      })
+    );
   }
 
   getUserStatus(): Observable<{ isLoggedIn: boolean, userInfo?: any }> {
@@ -51,9 +73,15 @@ export class AuthService {
   }
 
   isLoggedIn(): Observable<boolean> {
-    return this.http.get<{ isLoggedIn: boolean }>(`${this.apiUrl}/me`, { withCredentials: true })
+    return this.http.get<any>(`${this.apiUrl}/me`, { withCredentials: true })
       .pipe(
         map(response => {
+          console.log(response);
+          if (response.isLoggedIn && response.user.id) { 
+            if (typeof window !== 'undefined') { 
+              localStorage.setItem('id', response.user.id.toString()); 
+            }
+          }
           return response.isLoggedIn;
         }),
         catchError(error => {

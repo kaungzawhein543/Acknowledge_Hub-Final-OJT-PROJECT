@@ -14,6 +14,9 @@ import java.util.List;
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Integer> {
 
+    @Query("SELECT g FROM Group g JOIN g.announcement a WHERE a.id IN :announcementIds")
+    List<Group> findGroupsByAnnouncementIds(@Param("announcementIds") List<Integer> announcementIds);
+
     @Query("SELECT g FROM Group g")
     List<Group> findAllGroups();
 

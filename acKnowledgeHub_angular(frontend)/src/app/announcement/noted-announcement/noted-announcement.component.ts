@@ -90,7 +90,6 @@ export class NotedAnnouncementComponent {
         this.versions = data;
         if (this.versions.length > 0) {
           this.selectedVersionId = this.versions[this.versions.length - 1].id;
-          console.log(this.selectedVersionId)
         }
 
       },

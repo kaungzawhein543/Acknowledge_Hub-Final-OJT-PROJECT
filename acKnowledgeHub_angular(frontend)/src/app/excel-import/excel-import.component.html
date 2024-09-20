@@ -65,12 +65,12 @@
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
       <tr *ngFor="let staff of currentPageStaffs">
-        <td class="px-4 py-2 text-sm text-gray-900">{{ staff.id }}</td>
-        <td class="px-4 py-6 text-sm text-gray-900">{{ staff.name }}</td>
-        <td class="px-4 py-6 text-sm text-gray-500">{{ staff.email }}</td>
-        <td class="px-4 py-6 text-sm text-gray-500">{{ staff.position }}</td>
-        <td class="px-4 py-6 text-sm text-gray-500">{{ staff.company }}</td>
-        <td class="px-4 py-6 text-sm text-gray-500">{{ staff.department }}</td>
+        <td class="px-4 py-2 text-sm text-gray-900">{{ staff?.id }}</td>
+        <td class="px-4 py-6 text-sm text-gray-900">{{ staff?.name }}</td>
+        <td class="px-4 py-6 text-sm text-gray-500">{{ staff?.email }}</td>
+        <td class="px-4 py-6 text-sm text-gray-500">{{ staff?.position }}</td>
+        <td class="px-4 py-6 text-sm text-gray-500">{{ staff?.company }}</td>
+        <td class="px-4 py-6 text-sm text-gray-500">{{ staff?.department }}</td>
       </tr>
     </tbody>
   </table>

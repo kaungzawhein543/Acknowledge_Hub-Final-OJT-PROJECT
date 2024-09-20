@@ -8,6 +8,8 @@ import { FeedbackReply } from '../../models/feedbackReply';
 import { NgForm } from '@angular/forms';
 import { Feedback } from '../../models/feedback';
 import { StaffService } from '../../services/staff.service';
+import { forkJoin, switchMap, tap } from 'rxjs';
+import { Category } from '../../models/category';
 
 @Component({
   selector: 'app-detail-announcement',
@@ -15,6 +17,8 @@ import { StaffService } from '../../services/staff.service';
   styleUrl: './detail-announcement.component.css'
 })
 export class DetailAnnouncementComponent {
+  isloading : boolean = true;
+  isQuestionLoading : boolean = true;
   isReportDropdownOpen = false;
   isFilterDropdownOpen = false;
   isQAModalOpen = false;
@@ -28,13 +32,16 @@ export class DetailAnnouncementComponent {
   createdStaff : number = 1;
   accessStaffs : number[] = [];
   noted : boolean = false;
+  notNoted : boolean = false;
   notedCount : number = 0;
   unNotedCount : number = 0;
   announcement: any = {
     id: 1,
-    title: 'Sample Announcement',
-    description: 'This is a detailed description of the announcement.',
-    createdAt: ''
+    title: '',
+    description: '',
+    createdAt: '',
+    category : Category,
+    createStaff : ''
   };
  feedback: Feedback = {
    staffId: 0,
@@ -52,72 +59,69 @@ export class DetailAnnouncementComponent {
  ) {}
 
  ngOnInit(): void {
-   this.authService.getUserInfo().subscribe({
-     next: (data) => {
-        this.currentUserId = data.user.id;
-       if(data.user.role === 'ADMIN'){
-         this.isAdmin = true;
-       }else{
-         this.isAdmin = false;
-       }
-       const id = this.route.snapshot.paramMap.get('id');
-   if (id) {
-    this.announcementService.getAnnouncementById(Number(id)).subscribe(detailAnnouncement => {
-      this.announcement = detailAnnouncement;
-      if (!this.isAdmin ) {
-        if (this.currentUserId === this.announcement.createdStaffId) {
-          return; 
-        } else if (!this.accessStaffs.some(staff => staff === this.currentUserId)) {
-          this.router.navigate(['/404']); // Redirect if not in access list
-        }
-      }
-      this.staffService.checkNotedAnnouncement(this.currentUserId,this.announcement.id).subscribe(
-        data => {
-          this.noted = data;
-          this.staffService.getNotedUserByAnnouncementList(this.announcement.id).subscribe(
-            notedStaff =>{
-              this.notedCount = notedStaff.length;
-            }
-          )
-          this.staffService.getUnNotedStaffByAnnouncementList(this.announcement.id,this.announcement.groupStatus).subscribe(
-            unNotedStaff => {
-              this.unNotedCount = unNotedStaff.length;
-            }
-          )
-        }
-      )
-      this.createdStaff  = detailAnnouncement.createdStaffId;
-      if(detailAnnouncement.groupStatus == 1){
-        this.accessStaffs = detailAnnouncement.staffInGroups;
-      }else{
-        this.accessStaffs = detailAnnouncement.staff;
-      }
-      if(this.currentUserId === detailAnnouncement.createdStaffId){
-        this.replyPermission = true;
-      }else{
-        this.replyPermission = false;
-      }
-      
-      this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id).subscribe({
-        next: (data) => {
-          this.questionList = data.map(feedback => ({
+  this.route.paramMap.subscribe(paramMap => {
+    const id = paramMap.get('id');
+    if (id) {
+      const decodedId = atob(id);
+      this.loadAnnouncementData(decodedId);
+    }
+  });
+}
+
+private loadAnnouncementData(decodedId: string): void {
+  this.authService.getUserInfo().pipe(
+    switchMap((userData: { user: { id: number; role: string; }; }) => {
+      this.currentUserId = userData.user.id;
+      this.isAdmin = userData.user.role === 'ADMIN';
+
+      return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
+        tap(announcement => {
+          this.announcement = announcement;
+          this.createdStaff = announcement.createdStaffId;
+          this.accessStaffs = announcement.groupStatus === 1 ? announcement.staffInGroups : announcement.staff;
+          this.replyPermission = this.currentUserId === announcement.createdStaffId;
+        }),
+        switchMap((announcement: any) => {
+          if (!this.isAdmin && this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {
+            this.router.navigate(['/404']);
+            return [];
+          }
+          return forkJoin([
+            this.staffService.checkNotedAnnouncement(this.currentUserId, this.announcement.id),
+            this.staffService.getNotedUserByAnnouncementList(this.announcement.id),
+            this.staffService.getUnNotedStaffByAnnouncementList(this.announcement.id, this.announcement.groupStatus),
+            this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id)
+          ]);
+        }),
+        tap(([noted, notedStaff, unNotedStaff, feedbackData]) => {
+          if(noted){ 
+            this.noted = true
+          }else{
+            this.notNoted = true;
+          }
+          this.notedCount = notedStaff.length;
+          this.unNotedCount = unNotedStaff.length;
+          this.questionList = feedbackData.map((feedback: any) => ({
             ...feedback,
             showInput: false,
             replyText: ''
           }));
-        }
-      });
-    });
-   }
+          setTimeout(() => {
+            this.isloading = false;
+          }, 300);
+        })
+      );
+    })
+  ).subscribe({
+    error: (e) => console.log(e)
+  });
+}
 
-     },
-     error: (e) => console.log(e)
-   });
-   
-   
- }
  openQAModal() {
    this.isQAModalOpen = true;
+   setTimeout(() => {
+    this.isQuestionLoading = false;
+  }, 1500);
  }
 
  closeQAModal() {
@@ -172,7 +176,10 @@ export class DetailAnnouncementComponent {
    }
  }
  private fetchAnnouncementData(): void {
-  const id = this.route.snapshot.paramMap.get('id');
+  let id = this.route.snapshot.paramMap.get('id');
+  if(id){
+    id = atob(id);  
+  }
   if (id) {
     this.announcementService.getAnnouncementById(Number(id)).subscribe(data => {
       this.announcement = data;
@@ -194,7 +201,8 @@ export class DetailAnnouncementComponent {
 notedAnnouncement(userId: number,announcementId : number){
   this.staffService.makeNotedAnnouncement(userId,announcementId).subscribe(
     (data) =>{
-      console.log(data);
+      this.noted = true;
+      this.notNoted = false;
       this.fetchAnnouncementData();
     }
   )

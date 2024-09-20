@@ -1,62 +1,106 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100 relative">
-  <!-- Login Form -->
-  <div class="w-full max-w-sm bg-white rounded-lg shadow-lg p-8 relative z-10">
-    <p class="text-4xl font-semibold medium text-gray-800 text-center mb-6" style="color:  #1b4980;">
-      Login
-    </p>
-
-    <div *ngIf="errorMessage" class="bg-red-100 text-red-700 p-4 rounded mt-4">
-      {{ errorMessage }}
-    </div>
-
-    <form (ngSubmit)="onLogin()" class="space-y-6">
-      <div>
-        <label for="staffId" class="block text-gray-700 font-medium mb-2">
-          Staff ID
-        </label>
-        <input type="text" id="staffId" name="staffId" [(ngModel)]="staffId" required [disabled]="isLocked"
-          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
-          style="background-color: #f3f4f6;" />
-      </div>
-
-      <div>
-        <label for="password" class="block text-gray-700 font-medium mb-2">
-          Password
-        </label>
-        <div class="relative">
-          <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
-            required [disabled]="isLocked"
-            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
-            style="background-color: #f3f4f6;" />
-          <button type="button" (click)="togglePasswordVisibility()"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <i *ngIf="showPassword" class="fa-regular fa-eye"></i>
-            <i *ngIf="!showPassword" class="fa-regular fa-eye-slash"></i>
-          </button>
+<div class="login-card">
+  <!-- Left Side (Logo and Information) -->
+   
+  <div class="login-card-left">
+    <div style="display: flex; flex-direction: column; position: relative; justify-content: center; align-items: center; gap: 0;">
+      <div class="typing-container">
+        <div class="typing-text">
+          <span class="letter">A</span>
+          <span class="letter">C</span>
+          <span class="letter">E</span>
+        </div>
+        <br style="user-select: none;">
+        <div class="typing-text">
+          <span class="letter">A</span>
+          <span class="letter">c</span>
+          <span class="letter">k</span>
+          <span class="letter">n</span>
+          <span class="letter">o</span>
+          <span class="letter">w</span>
+          <span class="letter">l</span>
+          <span class="letter">e</span>
+          <span class="letter">d</span>
+          <span class="letter">g</span>
+          <span class="letter">e</span>
+          <span class="letter"> </span>
+          <span class="letter">H</span>
+          <span class="letter">u</span>
+          <span class="letter">b</span>
+          <span class="letter">.</span>
         </div>
       </div>
-
-      <button type="submit"
-        class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center"
-        [disabled]="isLocked">
-        Login
-      </button>
-      <div *ngIf="isLocked" style="justify-content: center; font-size: 14px;">
-        Too many failed attempts.Please wait for {{ formattedCountdown }}.
-      </div>
-
-      <div class="flex items-center justify-center hover:underline">
-        <a routerLink="/otp-request">Forgot Password?</a>
-      </div>
-
-    </form>
-  </div>
-
-  <!-- Logo Background -->
-  <div class="absolute inset-0 flex items-center justify-center logo-container">
-    <div class="text-center">
-      <span class="logo">ACE</span><br /><br><br><br>
-      <span class="logo-sub">Acknowledge Hub.</span>
+      
     </div>
+    </div>
+
+  <!-- Right Side (Login Form) -->
+  <div class="login-card-right">
+    <p class="text-4xl font-semibold medium text-gray-800 text-center mb-6" style="color: #1b4980;" >
+      Login
+    </p>
+    <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
+      <!-- Error message if form is invalid -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+     
+
+      <!-- Staff ID Input -->
+      <div class="input-group">
+        <label for="staffId">
+          <i class="fa fa-user"></i>
+        </label>
+        <input
+          type="text"
+          id="staffId"
+          name="staffId"
+          [(ngModel)]="staffId"
+          #staffIdInput="ngModel"
+          required
+          placeholder="Staff Id"
+        />
+       
+      </div>
+      <div *ngIf="showError && !errorMessage && staffIdInput.invalid" class="input-error">
+        Staff ID is required.
+      </div>
+
+      <!-- Password Input -->
+      <div class="input-group">
+        <label for="password">
+          <i class="fa fa-lock"></i>
+        </label>
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          #passwordInput="ngModel"
+          required
+          placeholder="Password"
+        />
+        <!-- <button type="button" (click)="togglePasswordVisibility()" class="toggle-password">
+          <i [class]="showPassword ? 'fa fa-eye' : 'fa fa-eye-slash'"></i>
+        </button> -->
+        
+      </div>
+      <div *ngIf="showError && !errorMessage && passwordInput.invalid" class="input-error">
+        Password is required.
+      </div>
+
+      <!-- Remember Me and Log In Button -->
+      <div class="form-actions">
+        <label class="remember-me relative" >
+          <input type="checkbox"  (change)="showToolTip($event)"/> Remember Me
+          <div class="w-52 p-3 shadow-2xl rounded-md left-0 absolute top-5" *ngIf="alermTooktip">This feature only works after changing the default password.</div>
+        </label>
+        <button type="submit" class="login-button">Log In</button>
+      </div>
+
+      <!-- Register Link -->
+      <!-- <p class="register-link">
+        Don't have an account? <a href="#">REGISTER HERE</a>
+      </p> -->
+    </form>
   </div>
 </div>

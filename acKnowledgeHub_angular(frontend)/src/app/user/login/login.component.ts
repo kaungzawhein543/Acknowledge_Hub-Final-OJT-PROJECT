@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -9,88 +10,69 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginComponent {
   staffId: string = '';
+  alermTooktip : boolean = false;
+  rememberMe : boolean = false;
   password: string = '';
   errorMessage: string = '';
-  emptyFieldError: string = '';
   logoutMessage: string = '';
   showPassword: boolean = false;
-  isLocked: boolean = false;
-  countdown: number = 0;
-  failedAttempts: number = 0;
-  formattedCountdown: string = '';
+  showError: boolean = false;
   constructor(private authService: AuthService, private router: Router) { }
 
-  onLogin() {
-    if (this.isLocked) {
-      return; // Prevent login if locked
+  onLogin(form: NgForm) {
+    this.showError = true; // Show validation errors on submit
+
+    if (!this.staffId && !this.password) {
+      this.errorMessage = 'Please fill in all required fields.';
+      
+      return;
+    }
+    this.errorMessage = '';
+    
+    if (form.invalid) {
+      
+      return;
     }
 
-    this.emptyFieldError = '';  // Reset empty field error message
-
-    if (!this.staffId.trim() || !this.password.trim()) {
-      this.emptyFieldError = 'Please enter both Staff ID and Password.';
-      return;  // Stop further processing
-    }
-
-    this.authService.login(this.staffId, this.password).subscribe(
+    
+    
+    this.authService.login(this.staffId, this.password,this.rememberMe).subscribe(
       response => {
         const body = response.body;
-        console.log(response);
         if (body?.includes(':')) {
           const [staffId, message] = body.split(':');
-          console.log(message.toString());
-          console.log(message.toString() === 'Please change your password');
-          console.log(typeof message);
           if (message.toString() === 'Please change your password') {
             console.log("hi")
-            this.router.navigate(['/change-password/', staffId]);
+            this.router.navigate(['change-password/', staffId]);
           }
         } else {
           this.authService.getUser().subscribe(user => {
-            console.log('User data:', user);
             if (user.user.role === "USER" && user.position !== "HR_MAIN") {
-              this.router.navigate(['/staff-dashboard']);
+                this.router.navigate(['staff-dashboard']);
             } else if (user.user.role === "ADMIN" || user.position === "HR_MAIN") {
-              this.router.navigate(['/dashboard']);
+                this.router.navigate(['system-dashboard']);
             }
-          });
+        });
         }
-        this.failedAttempts = 0;
       },
       error => {
         this.errorMessage = error.error;
-        this.failedAttempts++;
-
-        if (this.failedAttempts >= 5) {
-          this.isLocked = true;
-          this.countdown = 120;  // Set countdown to 120 seconds (2 minutes)
-          this.updateFormattedCountdown();  // Initialize formatted countdown
-
-          const intervalId = setInterval(() => {
-            this.countdown--;
-            this.updateFormattedCountdown();  // Update formatted countdown every second
-
-            if (this.countdown <= 0) {
-              clearInterval(intervalId);
-              this.isLocked = false;
-              this.failedAttempts = 0; // Reset failed attempts
-            }
-          }, 1000);  // Decrease countdown every second
-        }
+        // setTimeout(() => {
+        //   this.errorMessage = '';
+        // }, 5000);
       }
     );
   }
 
-  private updateFormattedCountdown() {
-    const minutes: number = Math.floor(this.countdown / 60);
-    const seconds: number = this.countdown % 60;
-    this.formattedCountdown =
-      `${this.padZero(minutes)}:${this.padZero(seconds)}`;
-  }
-
-  // Helper method to pad single digits with a leading zero
-  private padZero(value: number): string {
-    return value < 10 ? '0' + value : value.toString();
+  showToolTip(event :Event):void{
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.alermTooktip = true;
+      this.rememberMe = true;
+    }else{
+      this.alermTooktip = false;
+      this.rememberMe = false;
+    }
   }
 
   onLogout() {
@@ -104,10 +86,4 @@ export class LoginComponent {
       }
     );
   }
-
-
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
-
 }

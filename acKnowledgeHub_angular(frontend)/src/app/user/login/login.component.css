@@ -1,38 +1,244 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-
-/* Logo Background */
-.logo-container {
-  z-index: 0; /* Keep the logo behind the form */
-  opacity: 0.7; /* Increased opacity for a brighter background */
-}
-
-.logo {
+div >  .logo{
   font-family: "Lora", serif;
   font-weight: 700;
-  font-size: 320px; /* Large size for prominent background */
-  color: #1b4980; /* Bright color */
+  font-size:40px;
+  color:#efefef;
+  height: 20px;
+  user-select: none;
+  
 }
 
-.logo-sub {
+/* Keyframes for typing effect */
+@keyframes typing {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Container for typing effect */
+.typing-container {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Text container for individual letters */
+.typing-text {
+  display: flex;
   font-family: "Lora", serif;
+  font-weight: 700;
+  font-size: 70px; /* Adjust as needed */
+  white-space: nowrap;
+  user-select: none;
+  
 
-  font-size: 100px; /* Large size for the subtext */
-  color: #1b4980;
 }
 
-/* Ensure form is on top */
-.w-full {
+/* Individual letters */
+.letter {
+  display: inline-block;
+  opacity: 0; /* Start hidden */
+  animation: typing 0.5s forwards; /* Apply typing animation */
+  
+}
+
+/* Use nth-child to stagger the animation of each letter */
+/* .typing-text:nth-of-type(1) .letter:nth-child(1) { animation-delay: 0s; }
+.typing-text:nth-of-type(1) .letter:nth-child(2) { animation-delay: 0.1s; }
+.typing-text:nth-of-type(1) .letter:nth-child(3) { animation-delay: 0.2s; }
+.typing-text:nth-of-type(1) .letter:nth-child(4) { animation-delay: 0.3s; }
+.typing-text:nth-of-type(1) .letter:nth-child(5) { animation-delay: 0.4s; }
+.typing-text:nth-of-type(1) .letter:nth-child(6) { animation-delay: 0.5s; }
+.typing-text:nth-of-type(1) .letter:nth-child(7) { animation-delay: 0.6s; }
+.typing-text:nth-of-type(1) .letter:nth-child(8) { animation-delay: 0.7s; }
+.typing-text:nth-of-type(1) .letter:nth-child(9) { animation-delay: 0.8s; }
+.typing-text:nth-of-type(1) .letter:nth-child(10) { animation-delay: 0.9s; }
+.typing-text:nth-of-type(1) .letter:nth-child(11) { animation-delay: 1s; }
+.typing-text:nth-of-type(1) .letter:nth-child(12) { animation-delay: 1.1s; }
+.typing-text:nth-of-type(1) .letter:nth-child(13) { animation-delay: 1.2s; }
+
+.typing-text:nth-of-type(2) .letter:nth-child(1) { animation-delay: 0.1s; }
+.typing-text:nth-of-type(2) .letter:nth-child(2) { animation-delay: 0.2s; }
+.typing-text:nth-of-type(2) .letter:nth-child(3) { animation-delay: 0.3s; }
+.typing-text:nth-of-type(2) .letter:nth-child(4) { animation-delay: 0.4s; }
+.typing-text:nth-of-type(2) .letter:nth-child(5) { animation-delay: 0.5s; }
+.typing-text:nth-of-type(2) .letter:nth-child(6) { animation-delay: 0.6s; }
+.typing-text:nth-of-type(2) .letter:nth-child(7) { animation-delay: 0.7s; }
+.typing-text:nth-of-type(2) .letter:nth-child(8) { animation-delay: 0.8s; }
+.typing-text:nth-of-type(2) .letter:nth-child(9) { animation-delay: 0.9s; }
+.typing-text:nth-of-type(2) .letter:nth-child(10) { animation-delay: 1s; }
+.typing-text:nth-of-type(2) .letter:nth-child(11) { animation-delay: 1.2s; }
+.typing-text:nth-of-type(2) .letter:nth-child(12) { animation-delay: 1.2s; }
+.typing-text:nth-of-type(2) .letter:nth-child(13) { animation-delay: 1.3s; }
+.typing-text:nth-of-type(2) .letter:nth-child(14) { animation-delay: 1.4s; }
+.typing-text:nth-of-type(2) .letter:nth-child(15) { animation-delay: 1.5s; }
+.typing-text:nth-of-type(2) .letter:nth-child(16) { animation-delay: 1.6s; } */
+
+/* Adjust font size for smaller text */
+.typing-text:nth-of-type(2) .letter {
+  font-size: 20px; /* Adjust as needed */
+}
+
+
+/* Main Card Container */
+.login-card {
+  display: flex;
+  width: 60%;
+  max-width: 750px;
+  margin: 120px auto;
+  background-color: white;
+  border-radius: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.521);
+  overflow: hidden;
+  height: 60%;
   position: relative;
-  z-index: 10;
-  backdrop-filter: blur(20px);
-  
 }
-.bg-white {
-    background-color: transparent; /* Transparent to let the blur show */
-    position: relative;
-    z-index: 10;
-    padding: 20px; /* Optional: add padding for better appearance */
-    border-radius: 12px; /* Optional: rounded corners for a sleek look */
-  }
 
-  
+/* Left Side of Card */
+.login-card-left {
+  position: absolute; /* Positioned relative to .login-card */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1b4980;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: rgb(255, 255, 255);
+  overflow: hidden; /* Hide overflow to maintain layout */
+  animation: slideLeft 1s forwards; /* Slide left animation */
+  box-sizing: border-box; /* Include padding in width and height */
+}
+
+/* Wrapper for text */
+.text-wrapper {
+  width: 100%; /* Full width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Text Styles */
+.login-card-left h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.login-card-left p {
+  font-size: 16px;
+}
+
+/* Right Side of Card */
+.login-card-right {
+  position: absolute; /* Positioned relative to .login-card */
+  right: 0;
+  top: 0;
+  width: 50%; /* Adjust based on the desired width */
+  height: 100%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0; /* Initially hidden */
+  background-color: #f4f4f4; /* Background color for the right side */
+  animation: fadeIn 1s 1s forwards; /* Fade in after the left side slides */
+}
+
+/* Slide left animation */
+@keyframes slideLeft {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 50%;;
+  }
+}
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Input Group */
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.input-group label {
+  padding: 10px;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.input-group .toggle-password {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.input-error {
+  color: #e3342f;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.remember-me {
+  font-size: 14px;
+}
+
+.login-button {
+  padding: 10px 20px;
+  background-color: #1b4980;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+
+
+
+/* Error Message */
+.error-message {
+  color: #e3342f;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}

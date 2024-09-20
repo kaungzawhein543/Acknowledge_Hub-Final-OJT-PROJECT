@@ -24,23 +24,57 @@
           <td class="px-4 py-2 text-sm text-gray-500">{{ group.staff.length }} Members</td>
           <td class="px-4 py-2 text-sm w-full text-gray-500 flex" style="gap: 20px;">
             <button (click)="showStaffs(group)" class="px-2 py-1 bg-green-500 text-white rounded">Show Staffs</button>
-            <button (click)="editGroup(group)" class="px-2 py-1 bg-blue-500 text-white rounded">Edit</button>
             <button (click)="deleteGroup(group.id)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
     </div>
-  
-    <!-- Modal for Showing Staffs -->
-    <div *ngIf="selectedGroup" class="fixed inset-0 bg-gray-800 bg-opacity-50  flex items-center justify-center" style="z-index: 9999;">
-      <div class="bg-white rounded-lg shadow-lg w-1/2 p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Staff Members</h3>
-        <ol class="list-decimal pl-5">
-          <li *ngFor="let staff of selectedGroup.staff" class="p-2  hover:bg-gray-200">{{ staff }} {{staff.position}}</li>
-        </ol>
-        <button (click)="closeModal()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+
+    <div *ngIf="showConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
+      <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
+      <div class="border-b border-gray-400 text-center p-3 ">
+       Group Members & Info
+        <i class="fas fa-x float-end cursor-pointer  rounded-full p-1" (click)="showSelectedStaff()"></i>
       </div>
+      <div class="flex items-center m-2">
+        <span class="font-semibold">Group Name:</span>
+        <input type="text" disabled=""  [(ngModel)]="selectedGroup.name"  class="disabled p-2 border border-gray-500 rounded-md ms-2">
+      </div>
+  
+      <!-- Search Bar -->
+      <div class="mb-3">
+        <input type="text" id="search-bar" placeholder="Search Staff" class="p-2 border border-gray-500 rounded-md w-full" [(ngModel)]="staffSearchTermConfirm" (input)="filterStaffAfterSelect()">
+      </div>
+  
+      <!-- Table for Staff Data -->
+<div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+  <table class="w-full text-left table-auto border-collapse">
+    <thead>
+      <tr class="border-b border-gray-300 bg-gray-200">
+        <th class="p-3">No.</th>
+        <th class="p-3">Profile</th>
+        <th class="p-3">Name</th>
+        <th class="p-3">Position</th>
+        <th class="p-3">Company</th>
+        <th class="p-3">Department</th>
+      </tr>
+    </thead>
+    <tbody id="staff-table-body">
+      <tr class="border-b border-gray-200" *ngFor="let staff of filterStaffListAfterSelect; let i = index">
+        <td class="p-3">{{ i + 1 }}</td>
+        <td class="p-3">
+          <img [src]="staff.photoPath" alt="Profile Picture" class="w-12 h-12 rounded-full">
+        </td>
+        <td class="p-3">{{ staff.name }}</td>
+        <td class="p-3">{{ staff.position.name }}</td>
+        <td class="p-3">{{ staff.company.name }}</td>
+        <td class="p-3">{{ staff.department.name }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
     </div>
   </div>
   

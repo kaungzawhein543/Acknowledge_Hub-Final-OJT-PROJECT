@@ -2,6 +2,7 @@ package com.ace.entity;
 
 import com.ace.enums.DefaultPassword;
 import com.ace.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -58,9 +59,11 @@ public class Staff implements UserDetails {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "department_id")
     private Department department;
-    @ManyToMany(mappedBy = "staff")
+    @ManyToMany(mappedBy = "staff",fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Group> groups;
-    @ManyToMany(mappedBy = "staff")
+    @ManyToMany(mappedBy = "staff",fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Announcement> announcement;
 
 
@@ -111,4 +114,8 @@ public class Staff implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Staff{id=" + id + ", name='" + name + "', companyStaffId='" + companyStaffId + "', email='" + email + "', createdAt=" + createdAt + "}";}
 }

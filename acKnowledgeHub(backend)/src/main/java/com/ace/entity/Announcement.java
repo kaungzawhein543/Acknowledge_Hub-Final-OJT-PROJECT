@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -47,10 +49,11 @@ public class Announcement {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "group_has_ announcement",
+            name = "group_has_announcement",
             joinColumns = @JoinColumn(name = "announcement_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
+    @BatchSize(size = 10)
     private List<Group> group;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -59,6 +62,7 @@ public class Announcement {
             joinColumns = @JoinColumn(name = "announcement_id"),
             inverseJoinColumns = @JoinColumn(name = "staff_id")
     )
+    @BatchSize(size = 10)
     private List<Staff> staff;
 
 

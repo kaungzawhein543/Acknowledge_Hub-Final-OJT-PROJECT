@@ -320,7 +320,7 @@ public class StaffController {
                 if (staff != null) {
                     // Save the file to a folder
                     String fileName = file.getOriginalFilename();
-                    String uploadDir = "D:/OJT-14/Intellij/Acknowledge_Hub-Final-OJT-PROJECT/acKnowledgeHub(backend)/src/main/resources/images/";
+                    String uploadDir = "src/main/resources/images/";
                     String filePath = uploadDir + staffId + "_" + fileName;
                     String DatabasePath = "/images/" + staffId + "_" + fileName;
 

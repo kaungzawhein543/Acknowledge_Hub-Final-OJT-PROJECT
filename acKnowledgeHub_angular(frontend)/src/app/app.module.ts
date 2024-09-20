@@ -71,6 +71,8 @@ import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
 import { LoaderComponent } from './loader/loader/loader.component';
 import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
 import { CommonModule } from '@angular/common';
+import { LoadingService } from './services/loading.service';
+import { TimeAgoPipe } from './time-ago.pipe';
 
 @NgModule({
   declarations: [
@@ -120,7 +122,8 @@ import { CommonModule } from '@angular/common';
     ProfileComponent,
     StaffChartComponent,
     LoaderComponent,
-    DetailAnnouncementComponent
+    DetailAnnouncementComponent,
+    TimeAgoPipe
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr
@@ -149,8 +152,7 @@ import { CommonModule } from '@angular/common';
     MatTableModule,
     MatPaginatorModule,
     BrowserAnimationsModule,
-
-
+    BrowserModule,
     CommonModule
   ],
   providers: [
@@ -159,6 +161,7 @@ import { CommonModule } from '@angular/common';
     AuthGuard,
     RoleGuard,
     provideAnimationsAsync(),
+    LoadingService
   ],
   bootstrap: [AppComponent]
 })

@@ -9,6 +9,7 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { Position } from '../../models/Position';
 
 
 @Component({
@@ -135,9 +136,9 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
       response => {
         this.isLoading = false;
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
+          const processedStaffs = response.data.content.map((staff: { position: Position; }) => ({
             ...staff,
-            position: this.extractPositionName(staff.position) // Extract only the name
+            position: staff.position.name // Extract only the name
           }));
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
@@ -156,14 +157,6 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     );
   }
 
-  extractPositionName(position: string | null): string {
-    if (!position) {
-      return ''; // Handle null/empty string appropriately
-    }
-
-    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
-    return match ? match[1] : position;
-  }
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;

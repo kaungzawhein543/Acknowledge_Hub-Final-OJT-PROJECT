@@ -261,6 +261,8 @@ export class ListAnnouncementComponent {
   }
 
   onDetailButtonClick(id: number) {
-    this.router.navigate(['announcement/noted-announcement/' + id]);
+    if(id){
+      this.router.navigate(['announcement/detail/' + btoa(id.toString())]);
+    }
   }
 }

@@ -68,7 +68,9 @@ public class LoginController {
                     Cookie cookie = new Cookie("jwt", token);
                     cookie.setHttpOnly(true);
                     cookie.setPath("/");
-                    cookie.setMaxAge(86400);
+                    if(loginRequest.isRememberMe()){
+                        cookie.setMaxAge(86400);
+                    }
                     cookie.setSecure(true);
                     response.addCookie(cookie);
                     return ResponseEntity.ok("Login successful\n" + token);

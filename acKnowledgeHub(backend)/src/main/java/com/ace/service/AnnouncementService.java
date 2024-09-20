@@ -27,8 +27,10 @@ public class AnnouncementService {
         return announcement_repo.save(announcement);
     }
 
-    public List<String> getAllVersionsByFilePattern(String baseFileName) {
-        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+    public List<String> getAllVersionsByFilePattern(Integer announcementId) {
+        Optional<Announcement> announcement =  getAnnouncementById(announcementId);
+        String[] pathParts =  announcement.get().getFile().split("/");
+        return announcement_repo.getAllVersionsOfAnnouncement(pathParts[2]);
     }
 
 //    public Announcement getLatestVersionByFilePattern(String baseFileName) {

@@ -22,7 +22,6 @@ export class AddUserComponent implements OnInit {
   positions: Position[] = [];
   departments: Department[] = [];
   companies: Company[] = [];
-  filteredDepartments: Department[] = [];
   staff: AddStaff = {
     companyStaffId: '',
     email: '',
@@ -36,57 +35,58 @@ export class AddUserComponent implements OnInit {
   constructor(private staffService: StaffService, private positionService: PositionService,
     private departmentService: DepartmentService, private companyService: CompanyService) { }
 
-  ngOnInit(): void {
-    this.departmentService.getAllDepartments().subscribe({
-      next: (data) => {
-        this.departments = data;
-        if(this.departments.length >0){
-          console.log("There is  dapartments")
-          this.staff.departmentId = this.departments[0].id;
-        }else{
-          console.log("There is no dapartments")
-        }
-      },
-      error: (e) => console.log(e)
-    });
-    this.companyService.getAllCompany().subscribe({
-      next: (data) => {
-        this.companies = data;
-        if(this.companies.length >0){
-          this.staff.companyId = this.companies[0].id;
-        }
-      },
-      error: (e) => console.log(e)
-    });
-    this.positionService.getAllPosition().subscribe({
-      next: (data) => {
-        this.positions = data;
-        if(this.positions.length >0){
-          this.staff.positionId = this.positions[0].id;
-        }
-      },
-      error: (e) => console.log(e)
-    });
-  }
-  onCompanyChange(): void {
-    if (this.staff.companyId) {
-      this.filteredDepartments = this.departments.filter(department => department.company.id === this.staff.companyId);
-    } else {
-      this.filteredDepartments = [];
-    }
-    this.staff.departmentId = 0; // Reset the department selection
-  }
-
-  onSubmit(form: NgForm): void {
-    console.log(form)
-    if (form.valid) {
-      this.staffService.addStaff(this.staff).subscribe({
+    ngOnInit(): void {
+      this.companyService.getAllCompany().subscribe({
         next: (data) => {
-          console.log("add staff is successful");
+          this.companies = data;
+          if (this.companies.length > 0) {
+            this.staff.companyId = this.companies[0].id;
+            this.getDepartmentsByCompanyId(this.staff.companyId);
+          }
+        },
+        error: (e) => console.log(e)
+      });
+      this.positionService.getAllPosition().subscribe({
+        next: (data) => {
+          this.positions = data;
+          if (this.positions.length > 0) {
+            this.staff.positionId = this.positions[0].id;
+          }
         },
         error: (e) => console.log(e)
       });
     }
-
-  }
+    onCompanyChange(): void {
+      if (this.staff.companyId) {
+        this.getDepartmentsByCompanyId(this.staff.companyId);
+      }
+      this.staff.departmentId = 0; // Reset the department selection
+    }
+  
+    getDepartmentsByCompanyId(companyId: number) {
+      this.departmentService.getDepartmentListByCompanyId(companyId).subscribe({
+        next: (data) => {
+          this.departments = data;
+          if (this.departments.length > 0) {
+            this.staff.departmentId = this.departments[0].id;
+          } else {
+            console.log("There is no dapartments")
+          }
+        },
+        error: (e) => console.log(e)
+      });
+    }
+  
+    onSubmit(form: NgForm): void {
+      console.log(form)
+      if (form.valid) {
+        this.staffService.addStaff(this.staff).subscribe({
+          next: (data) => {
+            console.log("add staff is successful");
+          },
+          error: (e) => console.log(e)
+        });
+      }
+  
+    }
 }

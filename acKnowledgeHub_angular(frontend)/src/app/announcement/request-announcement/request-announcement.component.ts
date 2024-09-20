@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { Group } from '../../models/Group';
 import { Staff } from '../../models/staff';
 import { announcement } from '../../models/announcement';
+import { Position } from '../../models/Position';
 
 @Component({
   selector: 'app-request-announcement',
@@ -133,11 +134,10 @@ export class RequestAnnouncementComponent {
               const matchesCompany = companyName === this.currentHrCompany;
               return matchesCompany;
             })
-            .map((staff: { position: string; }) => {
-              const positionName = this.extractPositionName(staff.position);
+            .map((staff: { position: Position; }) => {
               return {
                 ...staff,
-                position: positionName
+                position:  staff.position.name
               };
             });
 
@@ -177,15 +177,6 @@ export class RequestAnnouncementComponent {
     this.filteredGroups.forEach(group => {
       group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
     });
-  }
-
-  extractPositionName(position: string | null): string {
-    if (!position) {
-      return ''; // or handle null/empty string appropriately
-    }
-
-    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
-    return match ? match[1] : position;
   }
 
   onScroll(event: Event): void {

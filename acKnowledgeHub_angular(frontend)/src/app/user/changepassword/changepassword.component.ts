@@ -8,15 +8,15 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './changepassword.component.html',
   styleUrl: './changepassword.component.css'
 })
-export class ChangepasswordComponent implements OnInit {
+export class ChangepasswordComponent implements OnInit  {
   staffId: string = '';
   oldPassword: string = '';
   newPassword: string = '';
+  showPassword:string = '';
   errorMessage: string = '';
   successMessage: string = '';
-  showPassword: boolean = false;
-  showOldPassword: boolean = false;
-  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
+  showError: boolean = false;
+  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -29,9 +29,11 @@ export class ChangepasswordComponent implements OnInit {
       response => {
         this.successMessage = response;
         this.errorMessage = '';
+        const cardElement = document.querySelector('.ChangePw-card')!;
+        cardElement.classList.add('back-clicked');
         setTimeout(() => {
           this.router.navigate(['/login']);
-        }, 2000); // Wait for 2 seconds before redirecting
+        }, 1000); // Wait for 2 seconds before redirecting
       },
       error => {
         this.errorMessage = error.error;
@@ -39,12 +41,13 @@ export class ChangepasswordComponent implements OnInit {
       }
     );
   }
-
-  toggleOldPasswordVisibility(): void {
-    this.showOldPassword = !this.showOldPassword;
+  backLogin() {
+    const cardElement = document.querySelector('.ChangePw-card')!;
+    cardElement.classList.add('back-clicked'); // Trigger animations
+    setTimeout(() => {
+      this.router.navigate(['/login']);
+    }, 1000); 
   }
-
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
+  
+  
 }

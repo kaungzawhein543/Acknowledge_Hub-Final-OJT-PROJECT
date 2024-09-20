@@ -6,6 +6,7 @@ import { StaffService } from '../services/staff.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 import { listAnnouncement } from '../models/announcement-list';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-hrdashboard',
@@ -44,7 +45,8 @@ export class HRdashboardComponent implements OnInit {
   constructor(
     private announcementService: AnnouncementService,
     private staffService: StaffService,
-    private cdr: ChangeDetectorRef  // Inject ChangeDetectorRef
+    private cdr: ChangeDetectorRef,  // Inject ChangeDetectorRef
+    private toastService : ToastService
   ) { }
 
   ngOnInit(): void {
@@ -98,6 +100,10 @@ export class HRdashboardComponent implements OnInit {
     ];
     return monthNames[month - 1];
   }
+  showSuccessToast() {
+    this.toastService.showToast('Update Announcement successful!', 'success');
+  }
+
 
   loadStaffSummaryCount(): void {
     this.staffService.getStaffCount().subscribe(

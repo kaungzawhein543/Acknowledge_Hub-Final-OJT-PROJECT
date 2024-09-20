@@ -149,8 +149,14 @@ public class AnnouncementController {
             } else {
                 announcement.setPermission("approved");
             }
-            //Set id to null because even that is update need to add new row
-            announcement.setId(null);
+            Integer lastAnnouncementId = 0;
+            byte updateStatus = 0;
+            if(announcement.getId() > 0){
+                lastAnnouncementId = announcement.getId();
+                //Set id to null because even that is update need to add new row
+                updateStatus = 1;
+                announcement.setId(null);
+            }
             // Save the announcement
             Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
 
@@ -164,7 +170,7 @@ public class AnnouncementController {
                 }
             } else {
                 if (request.getForRequest() != 1) {
-                    blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus());
+                    blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus(),updateStatus);
                     savedAnnouncement.setPublished(true);
                     announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
                 }
@@ -215,6 +221,7 @@ public class AnnouncementController {
                     dto.setDescription(announcement.getDescription());
                     dto.setCategory(announcement.getCategory());
                     dto.setCreatedStaffId(announcement.getCreateStaff().getId());
+                    dto.setCreateStaff(announcement.getCreateStaff().getName());
                     dto.setGroupStatus(announcement.getGroupStatus());
                     dto.setFile(announcement.getFile());
                     // Manually map groups and staff to prevent recursion
@@ -255,9 +262,10 @@ public class AnnouncementController {
     }
 
 
-    @GetMapping("/announcement-versions/{baseFileName}")
-    public List<String> getAnnouncementVersions(@PathVariable("baseFileName") String baseFileName) {
-        return announcement_service.getAllVersionsByFilePattern(baseFileName);
+    @GetMapping("/announcement-versions/{announcementId}")
+    public List<String> getAnnouncementVersions(@PathVariable("announcementId") Integer announcementId) {
+        System.out.println("They are"+announcement_service.getAllVersionsByFilePattern(announcementId));
+        return announcement_service.getAllVersionsByFilePattern(announcementId);
     }
 
     @GetMapping("/announcement-get-url")

@@ -37,21 +37,21 @@ export class ExcelImportComponent {
         reader.onload = (e: ProgressEvent<FileReader>) => {
           const binaryData = e.target?.result as string;
           const workbook = XLSX.read(binaryData, { type: 'binary' });
-
+        
           // Assuming the staff data is in the first sheet
           const sheetName = workbook.SheetNames[0];
           const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-          // Include staff_id in the mapping
+        
+          // Update the mapping to use the correct column headers
           this.staffs = sheetData.map((row: any) => ({
-            id: row['staff_id'],  // Mapping the id from Excel
-            name: row['name'],
-            email: row['email'],
-            position: row['position'],
-            department: row['department'],
-            company: row['company']
+            id: row['ID'],  // Assuming the ID column is present in the Excel file
+            name: row['Name'],
+            email: row['Email'],
+            position: row['Position'],
+            department: row['Department'],
+            company: row['Company']
           }));
-
+        
           this.filteredStaffs = [...this.staffs];  // Initialize filtered staff
           this.fileUploaded = true;
           this.updateCurrentPageStaffs();
@@ -81,21 +81,21 @@ export class ExcelImportComponent {
         reader.onload = (e: ProgressEvent<FileReader>) => {
           const binaryData = e.target?.result as string;
           const workbook = XLSX.read(binaryData, { type: 'binary' });
-
+        
           // Assuming the staff data is in the first sheet
           const sheetName = workbook.SheetNames[0];
           const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-          // Include staff_id in the mapping
+        
+          // Update the mapping to use the correct column headers
           this.staffs = sheetData.map((row: any) => ({
-            id: row['staff_id'],  // Mapping the id from Excel
-            name: row['name'],
-            email: row['email'],
-            position: row['position'],
-            department: row['department'],
-            company: row['company']
+            id: row['ID'],  // Assuming the ID column is present in the Excel file
+            name: row['Name'],
+            email: row['Email'],
+            position: row['Position'],
+            department: row['Department'],
+            company: row['Company']
           }));
-
+        
           this.filteredStaffs = [...this.staffs];  // Initialize filtered staff
           this.fileUploaded = true;
           this.updateCurrentPageStaffs();
@@ -116,11 +116,11 @@ export class ExcelImportComponent {
     ];
     return allowedTypes.includes(file.type);
   }
-
   updateCurrentPageStaffs(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     this.currentPageStaffs = this.filteredStaffs.slice(startIndex, endIndex);
+    console.log('currentPageStaffs:', this.currentPageStaffs);
   }
 
   changePage(page: number): void {
