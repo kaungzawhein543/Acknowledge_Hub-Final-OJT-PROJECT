@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
       ).subscribe(() => {
-        this.isLoginPage = this.router.url === '/login';
+        this.isLoginPage = this.router.url === '/acknowledgeHub/login';
         this.isChangePasswordPage = this.router.url.includes('change-password');
         this.is404Page = this.router.url.includes('404');
       });
@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
         this.isLoading = false;
         this.loadingService.hide();
         if (!isAuthenticated) {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/acknowledgeHub/login']);
         }
       });
     }

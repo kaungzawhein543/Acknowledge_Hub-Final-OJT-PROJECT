@@ -10,6 +10,7 @@ import { Staff, StaffSummaryCount } from '../models/staff';
 import { AddStaff } from '../models/addStaff';
 import { announcementList } from '../models/announcement-list';
 import { AnnouncementListDTO } from '../models/announcement';
+import { ChangePasswordRequest } from '../models/change-password-request.model';
 
 
 
@@ -76,10 +77,16 @@ export class StaffService {
     return this.http.get<AnnouncementListDTO[]>(`${this.baseURL}/staff-announcements`,{withCredentials :true});
   }
 
+  //method to change profile photo
   uploadProfilePhoto(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
 
     return this.http.post(`${this.baseURL}/profile/upload-photo`, formData, { withCredentials :true,responseType: 'text' as 'json' });
+  }
+
+  // Method to change old password
+  changeOldPassword(request: ChangePasswordRequest): Observable<string> {
+    return this.http.post<string>(`${this.baseURL}/change_Old_Password`, request, { withCredentials :true , responseType: 'text' as 'json'});
   }
 }

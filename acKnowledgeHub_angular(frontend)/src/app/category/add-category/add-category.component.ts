@@ -27,7 +27,7 @@ export class AddCategoryComponent implements OnInit {
       this.categoryService.add(this.category).subscribe(
         data => {
           console.log('Category saved successfully!', data);
-          this.router.navigate(['/list-category']); // Adjust the route as needed
+          this.router.navigate(['/acknowledgeHub/list-category']); // Adjust the route as needed
         },
         error => {
           console.error('There was an error saving the category!', error);

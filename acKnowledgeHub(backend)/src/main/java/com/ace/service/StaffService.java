@@ -276,6 +276,24 @@ public class StaffService implements UserDetailsService {
         return staffRepository.save(staff);
     }
 
+    //Method to change Pw in profile
+    public String changeOldPassword(ChangePasswordRequest request) {
+        System.out.println("Searching for staff with ID: " + request.getStaffId());
+        Staff staff = staffRepository.findByCompanyStaffId(request.getStaffId());
+
+        if (staff != null) {
+            System.out.println("Staff found: " + staff.getName());
+            if (!passwordEncoder.matches(request.getOldPassword(), staff.getPassword())) {
+                return "Old password is incorrect";
+            }
+            staff.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            staffRepository.save(staff);
+            return "Password changed successfully";
+        } else {
+            return "Staff not found";
+        }
+    }
+
 
 
 

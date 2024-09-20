@@ -22,6 +22,7 @@ export interface StaffProfileDTO {
   name: string;
   companyStaffId: string;
   email: string;
+  password:string;
   status: string;
   role: string; // or Role if you have an enum for Role
   photoPath: string;

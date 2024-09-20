@@ -68,7 +68,7 @@ export class DetailAnnouncementComponent {
         if (this.currentUserId === this.announcement.createdStaffId) {
           return; 
         } else if (!this.accessStaffs.some(staff => staff === this.currentUserId)) {
-          this.router.navigate(['/404']); // Redirect if not in access list
+          this.router.navigate(['/acknowledgHube/404']); // Redirect if not in access list
         }
       }
       this.staffService.checkNotedAnnouncement(this.currentUserId,this.announcement.id).subscribe(

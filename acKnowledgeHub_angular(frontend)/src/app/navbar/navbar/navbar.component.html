@@ -34,12 +34,12 @@
               <strong>{{name}}</strong>
               <span class="text-sm">{{position}}</span>
             </div>
-            <img class="w-10 h-10 rounded-full" src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg" alt="Profile">
+            <img class="w-10 h-10 rounded-full" [src]="oldPhotoUrl" alt="Profile">
           </div>
         </button>
         <!-- Dropdown menu -->
         <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-          <a routerLink="profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+          <a routerLink="acknowledgeHub/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
           <a (click)="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
         </div>
       </div>

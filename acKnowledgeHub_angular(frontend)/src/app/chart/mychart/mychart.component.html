@@ -1,4 +1,4 @@
-<div class="chart-container">
+<div class="chart-container" @cardAnimation>
   <!-- Date pickers and chart are together -->
   <div class="chart-and-date-container">
     <div class="date-picker-container">
@@ -13,11 +13,11 @@
     </div>
 
     <!-- Chart only section -->
-    <div *ngIf="!noData" class="myChart">
+    <div *ngIf="!noData" class="card myChart">
       <canvas id="chart"></canvas>
     </div>
 
-    <div *ngIf="noData" class="no-data-message">
+    <div *ngIf="noData" class="card no-data-message">
       No announcements found for the selected dates.
     </div>
   </div>
