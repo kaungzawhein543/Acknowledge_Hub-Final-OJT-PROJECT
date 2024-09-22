@@ -54,10 +54,10 @@
         <button mat-button [matMenuTriggerFor]="menu">Columns</button>
       </div>
 
-      <mat-menu #menu="matMenu">
+      <mat-menu #menu="matMenu" [overlapTrigger]="false">
         <div class="checkbox-container">
           <mat-checkbox *ngFor="let col of columns" [(ngModel)]="columnVisibility[col.field]"
-            (change)="onColumnVisibilityChange()" class="checkbox-item">
+            (click)="$event.stopPropagation()" (change)="onColumnVisibilityChange()" class="checkbox-item">
             {{ col.header }}
           </mat-checkbox>
         </div>
@@ -88,16 +88,24 @@
                     UnNoted
                   </button>
                 </ng-container>
+
+                <ng-container *ngSwitchCase="'scheduleAt'">
+                  <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+                </ng-container>
                 <ng-container *ngSwitchCase="'detail'">
                   <button mat-button (click)="onDetailButtonClick(announcement.id)">
                     View
                   </button>
                 </ng-container>
-                <ng-container *ngSwitchCase="'file'">
-                  <span *ngIf="getVersionNumber(announcement.file)">
-                    Version {{ getVersionNumber(announcement.file) }}
+                <ng-container *ngSwitchCase="'title'">
+                  <span *ngIf="getVersionNumber(announcement.file) && getVersionNumber(announcement.file)! > 1">
+                    {{announcement.title}} <span>-V{{ getVersionNumber(announcement.file) }}</span>
+                  </span>
+                  <span *ngIf="getVersionNumber(announcement.file) && getVersionNumber(announcement.file)! == 1">
+                    {{announcement.title}}
                   </span>
                 </ng-container>
+
                 <!-- Truncate Description -->
                 <ng-container *ngSwitchCase="'description'">
                   {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}

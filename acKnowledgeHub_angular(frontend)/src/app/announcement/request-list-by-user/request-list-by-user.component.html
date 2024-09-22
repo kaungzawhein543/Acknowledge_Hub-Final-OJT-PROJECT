@@ -1,7 +1,7 @@
 <div class="container bg-white mx-auto p-4">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-8">
-        <span class="text-5xl font-semibold" style="font-size: 30px;">Un-Noted Announcements List</span>
+        <span class="text-5xl font-semibold" style="font-size: 30px;">My Requested Announcement List</span>
         <!-- Search Input on the Right Side -->
         <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
             (input)="onSearchChange()" />
@@ -17,26 +17,6 @@
                 (change)="onStartDateChange($event)" />
             <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
                 [value]="endDateTime" (change)="onEndDateChange($event)" />
-
-            <!-- Checkbox Filters -->
-            <div class="relative inline-block text-left">
-                <button (click)="toggleFilterDropdown()" class="text-dark py-2 px-2 rounded-md"
-                    style="border: 1px solid rgb(174, 174, 174);">
-                    <i class="fas fa-filter"></i> Filter <i class="ps-1 fa-solid fa-caret-down"></i>
-                </button>
-                <div *ngIf="isFilterDropdownOpen"
-                    class="absolute  w-40 bg-gray-100 border border-gray-300 rounded-md shadow-lg z-60">
-                    <label class="block px-3 py-2">
-                        <input type="checkbox" [(ngModel)]="activeChecked" (change)="onActiveCheckboxChange($event)" />
-                        Active
-                    </label>
-                    <label class="block px-3 py-2">
-                        <input type="checkbox" [(ngModel)]="inactiveChecked"
-                            (change)="onInactiveCheckboxChange($event)" />
-                        Inactive
-                    </label>
-                </div>
-            </div>
         </div>
 
 
@@ -90,9 +70,14 @@
                                         View
                                     </button>
                                 </ng-container>
+                                <!-- For Request Staff Column -->
+                                <ng-container *ngSwitchCase="'createStaff'">
+                                    {{ getRequestStaff(announcement) }}
+                                </ng-container>
+
                                 <!-- Truncate Description -->
                                 <ng-container *ngSwitchCase="'description'">
-                                    {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}
+                                    {{ (getNestedProperty(announcement, col.field) | slice:0:30) + '...' }}
                                 </ng-container>
                                 <!-- Format Schedule -->
                                 <ng-container *ngSwitchCase="'schedule'">

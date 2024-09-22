@@ -40,10 +40,10 @@
                 <button mat-button [matMenuTriggerFor]="menu">Columns</button>
             </div>
 
-            <mat-menu #menu="matMenu">
+            <mat-menu #menu="matMenu" [overlapTrigger]="false">
                 <div class="checkbox-container">
                     <mat-checkbox *ngFor="let col of columns" [(ngModel)]="columnVisibility[col.field]"
-                        (change)="onColumnVisibilityChange()" class="checkbox-item">
+                        (click)="$event.stopPropagation()" (change)="onColumnVisibilityChange()" class="checkbox-item">
                         {{ col.header }}
                     </mat-checkbox>
                 </div>

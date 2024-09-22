@@ -25,7 +25,6 @@ export class OtpInputComponent implements OnInit {
   ngOnInit(): void {
     const sessionEmail = sessionStorage.getItem('email');
     const otpExpiry = sessionStorage.getItem('otpExpiry');
-
     if (sessionEmail != null) {
       this.email = sessionEmail;
     }
@@ -80,13 +79,20 @@ export class OtpInputComponent implements OnInit {
           console.log("Successful");
           this.router.navigate(['/add-password']);
         } else {
-          console.log("Fail");
+          this.resetOtp();
         }
       },
       error: (e) => console.log(e)
     });
   }
 
+  resetOtp(): void {
+    this.otp = ['', '', '', '', '', ''];
+    const firstInput = document.querySelector<HTMLInputElement>('#otp input');
+    if (firstInput) {
+      firstInput.focus();
+    }
+  }
 
   checkValidation(): void {
     this.validationError = this.otp.some(o => o.trim() === '');
@@ -101,6 +107,7 @@ export class OtpInputComponent implements OnInit {
     }
     this.service.getOTP(this.staffId).subscribe({
       next: (data) => {
+        console.log("here is in  otp " + data.email)
         this.responseEmail = data;
         if (this.responseEmail && this.responseEmail.email && this.responseEmail.expiryTime) {
           const expiryTime = this.responseEmail.expiryTime;

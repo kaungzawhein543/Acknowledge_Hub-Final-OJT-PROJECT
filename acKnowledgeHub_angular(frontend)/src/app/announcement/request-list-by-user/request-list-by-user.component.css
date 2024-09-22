@@ -63,6 +63,7 @@ p.data-grid-options {
     padding: 8px;
 }
 
+
 .header-center {
     text-align: center;
 }
@@ -89,11 +90,4 @@ p.data-grid-options {
 .mat-elevation-z8 td {
     text-align: left;
     /* Adjust alignment if needed */
-}
-
-
-td.center-button {
-    text-align: center;
-    vertical-align: middle;
-    /* Ensure vertical centering */
 }

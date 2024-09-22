@@ -289,15 +289,27 @@ private final GroupRepository groupRepository;
     }
 
     // Method to get announcement by staff id desc
-    public List<AnnouncementListbyStaff> getAnnouncementsForStaff(int staffId) {
+    public List<AnnouncementListDTO> getAnnouncementsForStaff(int staffId) {
         List<Announcement> announcements = announcement_repo.findAnnouncementsByStaffId(staffId);
         return announcements.stream()
-                .map(a -> new AnnouncementListbyStaff(a.getId(), a.getTitle(), a.getCreated_at()))
+                .map(a -> new AnnouncementListDTO(a.getId(), a.getTitle(),a.getDescription(), a.getCreateStaff().getName(), a.getCategory().getName(), a.getStatus(),  a.getCreated_at(), a.getScheduleAt(), a.getGroupStatus(), a.getFile()))
                 .collect(Collectors.toList());
     }
 
     //Method to update profile photo
     public Staff updateStaff(Staff staff) {
         return staffRepository.save(staff);
+    }
+
+    public void activateStaff(Integer id){
+        Optional<Staff> staff =staffRepository.findById(id);
+        staff.get().setStatus("active");
+        staffRepository.save(staff.get());
+    }
+
+    public void inActivateStaff(Integer id){
+        Optional<Staff> staff =staffRepository.findById(id);
+        staff.get().setStatus("inactive");
+        staffRepository.save(staff.get());
     }
 }

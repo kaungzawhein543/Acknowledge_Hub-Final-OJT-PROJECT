@@ -18,7 +18,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     //List<Announcement> findByStatus(String status);
 
     @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
-            "from Announcement a where a.isPublished = true order by a.scheduleAt DESC")
+            "from Announcement a where a.permission = 'approved' order by a.scheduleAt DESC")
     List<AnnouncementListDTO> getAnnouncementList();
 
 
@@ -73,7 +73,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     List<AnnouncementResponseListDTO> getStaffAnnouncementGroup(@Param("staffId") Integer staffId);
 
     @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name,  a.category.name) " +
-            "from Announcement a WHERE a.isPublished = true ")
+            "from Announcement a WHERE a.isPublished = false and a.permission = 'approved'")
     List<AnnouncementResponseListDTO> getPendingAnnouncement();
 
     //Query for staffNotedAnnouncement
@@ -127,4 +127,13 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Transactional
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
     void rejectRequestAnnouncement(Integer id);
+
+    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.permission, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
+            "from Announcement a where a.isPublished = false and a.createStaff.id = ?1 order by a.scheduleAt DESC")
+    List<AnnouncementListDTO> getAnnouncementListByStaffRequest(Integer staffId);
+
+    @Modifying
+    @Transactional
+    @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
+    void cancelPendingAnnouncement(Integer id);
 }

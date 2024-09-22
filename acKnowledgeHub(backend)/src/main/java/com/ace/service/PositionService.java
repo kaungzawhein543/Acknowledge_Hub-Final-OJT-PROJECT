@@ -21,9 +21,9 @@ public class PositionService {
         return positionRepository.findById(id);
     }
 
-    public List<Position> getPositionsByDepartmentId(Integer departmentId) {
-        return positionRepository.findByDepartmentId(departmentId);
-    }
+//    public List<Position> getPositionsByDepartmentId(Integer departmentId) {
+//        return positionRepository.findByDepartmentId(departmentId);
+//    }
 
     public List<Position> getPositionList(){
         return positionRepository.findAll();

@@ -11,6 +11,7 @@ import { StaffSummaryCount } from '../models/staff';
 import { AddStaff } from '../models/addStaff';
 import { announcementList } from '../models/announcement-list';
 import { AnnouncementListDTO } from '../models/announcement';
+import { text } from 'stream/consumers';
 
 
 
@@ -93,5 +94,13 @@ export class StaffService {
     formData.append('file', file);
 
     return this.http.post(`${this.baseURL}/profile/upload-photo`, formData, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  activateStaff(id: number): Observable<any> {
+    return this.http.get(`${this.baseURL}/activate/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  InactivateStaff(id: number): Observable<any> {
+    return this.http.get(`${this.baseURL}/inactivate/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

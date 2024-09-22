@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, inject } from '@angular/core';
 
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MtxGridColumn } from '@ng-matero/extensions/grid';
@@ -252,5 +252,11 @@ export class NotedAnnouncementComponent {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
 }

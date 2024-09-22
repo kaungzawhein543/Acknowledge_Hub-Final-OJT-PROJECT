@@ -1,59 +1,78 @@
-import { Component, HostListener, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { announcement } from '../../models/announcement';
+import { Component, ViewChild } from '@angular/core';
+import { announcementList } from '../../models/announcement-list';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { AnnouncementService } from '../../services/announcement.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
-import autoTable from 'jspdf-autotable';
-import { AnnouncementService } from '../../services/announcement.service';
-import { listAnnouncement } from '../../models/announcement-list';
+import { StaffService } from '../../services/staff.service';
+import { AnnouncementListDTO } from '../../models/announcement';
 
 @Component({
-  selector: 'app-list-announcement',
-  templateUrl: './list-announcement.component.html',
-  styleUrl: './list-announcement.component.css'
+  selector: 'app-user-announcement-list',
+  templateUrl: './user-announcement-list.component.html',
+  styleUrl: './user-announcement-list.component.css'
 })
-export class ListAnnouncementComponent {
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+export class UserAnnouncementListComponent {
 
-  announcements: listAnnouncement[] = [];
-  filteredAnnouncements: listAnnouncement[] = [];
-  dataSource = new MatTableDataSource<listAnnouncement>([]);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  announcements: AnnouncementListDTO[] = [];
+  filteredAnnouncements: AnnouncementListDTO[] = [];
+  dataSource = new MatTableDataSource<AnnouncementListDTO>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
   todayDate: string | undefined;
   activeChecked = false;
   inactiveChecked = false;
-
+  staffId !: number;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
+
+
+  // id: number;
+  // title: string;
+  // description: string;
+  // createStaff: string; // Assuming `createStaff.name` is a string. Adjust if it's an object.
+  // category: string; // Assuming `category.name` is a string. Adjust if it's an object.
+  // status: string;
+  // created_at: Date; // Ensure this matches the date format from your backend
+  // scheduleAt: Date; // Ensure this matches the date format from your backend
+  // groupStatus: string; 
 
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
+    { field: 'category', header: 'Category' },
     { field: 'createStaff', header: 'Create/Request Staff' },
-    //{ field: 'file', header: 'Versions' },
     { field: 'scheduleAt', header: 'Created At' },
-    { field: 'note', header: 'Noted/UnNoted' },
-    { field: 'detail', header: 'Details' },
+    { field: 'detail', header: 'View' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
   selectedColumns = this.columns.map(col => col.field);
 
   constructor(
-    private announcementService: AnnouncementService,
+    private staffSesrvice: StaffService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService,
   ) { }
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
-    this.fetchAnnouncements();
+    this.authService.getUserInfo().subscribe({
+      next: (data) => {
+        this.staffId = data.user.id;
+        this.getStaffAnnouncementList();
+      },
+      error: (e) => console.log(e)
+    });
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
 
@@ -61,13 +80,8 @@ export class ListAnnouncementComponent {
     return index.toString(); // Adjust 6 to the desired length
   }
 
-  getVersionNumber(title: string): number | null {
-    const match = title.match(/V(\d+)/);
-    return match ? parseInt(match[1], 10) : null;
-  }
-
-  fetchAnnouncements() {
-    this.announcementService.getPublishAnnouncements().subscribe(
+  getStaffAnnouncementList() {
+    this.staffSesrvice.getAnnouncementDESC().subscribe(
       (data) => {
         this.announcements = data.map((item, index) => ({
           ...item,
@@ -90,7 +104,6 @@ export class ListAnnouncementComponent {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
   }
-
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
     this.filteredAnnouncements = this.announcements.filter(a => {
@@ -100,7 +113,6 @@ export class ListAnnouncementComponent {
         a.category?.toLowerCase() || '',
         a.createStaff?.toLowerCase() || '',
         new Date(a.created_at).toLocaleString().toLowerCase(),
-        new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
@@ -138,14 +150,6 @@ export class ListAnnouncementComponent {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  closeDropdownOnClickOutside(event: Event) {
-    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
-    if (!clickedInsideDropdown) {
-      this.isReportDropdownOpen = false;
-    }
-  }
-
   generateReport(format: 'pdf' | 'excel') {
     if (format === 'pdf') {
       this.generatePDF(this.filteredAnnouncements, 'report.pdf');
@@ -155,10 +159,7 @@ export class ListAnnouncementComponent {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
-
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -183,6 +184,7 @@ export class ListAnnouncementComponent {
       columnStyles: {
         0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
         1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+        // Add more column styles as needed
       },
       tableWidth: 'auto', // Auto width adjustment for table
     });
@@ -192,21 +194,16 @@ export class ListAnnouncementComponent {
   }
 
 
-  generateExcel(announcements: listAnnouncement[], fileName: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
-
+  generateExcel(announcements: AnnouncementListDTO[], fileName: string) {
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const headers = visibleColumns.map(col => col.header);
-    const data = [headers, ...announcements.map(a =>
-      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
-    )];
-
+    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, fileName);
   }
+
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(data, fileName);
@@ -214,12 +211,12 @@ export class ListAnnouncementComponent {
 
   filterAnnouncements() {
     this.filteredAnnouncements = this.announcements.filter(a => {
-      const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
-      const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
+      const isActive = this.activeChecked;
+      const isInactive = this.inactiveChecked;
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
     }).filter(a => {
       if (this.startDateTime && this.endDateTime) {
-        const scheduleAt = new Date(a.scheduleAt);
+        const scheduleAt = new Date(a.created_at);
         return scheduleAt >= new Date(this.startDateTime) && scheduleAt <= new Date(this.endDateTime);
       }
       return true;
@@ -246,23 +243,8 @@ export class ListAnnouncementComponent {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onNotedButtonClick(id: number, name: string, file: string) {
-    const encodedId = btoa(id.toString());
-    const encodedName = btoa(name);
-    const encodedFile = btoa(file);
-    this.router.navigate(['announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
-  }
-
-  onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
-    const encodedId = btoa(id.toString());
-    const encodedName = btoa(name);
-    const encodedStatus = btoa(groupStatus.toString());
-    const encodedFile = btoa(file);
-    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
-  }
-
   onDetailButtonClick(id: number) {
     const encodedId = btoa(id.toString());
-    this.router.navigate(['announcement/detail/' + encodedId]);
+    this.router.navigate(['/announcement/detail/' + encodedId]);
   }
 }

@@ -20,6 +20,34 @@ export class LoginComponent {
   formattedCountdown: string = '';
   constructor(private authService: AuthService, private router: Router) { }
 
+  ngOnInit() {
+    const lockedData = localStorage.getItem('lockedData');
+
+    if (lockedData) {
+      const parsedData = JSON.parse(lockedData);
+      const currentTime = new Date().getTime();
+      const remainingTime = parsedData.lockEndTime - currentTime;
+
+      if (remainingTime > 0) {
+        this.isLocked = true;
+        this.countdown = Math.floor(remainingTime / 1000);  // Calculate remaining seconds
+        this.updateFormattedCountdown();
+
+        const intervalId = setInterval(() => {
+          this.countdown--;
+          this.updateFormattedCountdown();
+
+          if (this.countdown <= 0) {
+            clearInterval(intervalId);
+            this.isLocked = false;
+            this.failedAttempts = 0;
+            localStorage.removeItem('lockedData');  // Clear lock data when countdown finishes
+          }
+        }, 1000);
+      }
+    }
+  }
+
   onLogin() {
     if (this.isLocked) {
       return; // Prevent login if locked
@@ -35,19 +63,13 @@ export class LoginComponent {
     this.authService.login(this.staffId, this.password).subscribe(
       response => {
         const body = response.body;
-        console.log(response);
         if (body?.includes(':')) {
           const [staffId, message] = body.split(':');
-          console.log(message.toString());
-          console.log(message.toString() === 'Please change your password');
-          console.log(typeof message);
           if (message.toString() === 'Please change your password') {
-            console.log("hi")
             this.router.navigate(['/change-password/', staffId]);
           }
         } else {
           this.authService.getUser().subscribe(user => {
-            console.log('User data:', user);
             if (user.user.role === "USER" && user.position !== "HR_MAIN") {
               this.router.navigate(['/staff-dashboard']);
             } else if (user.user.role === "ADMIN" || user.position === "HR_MAIN") {
@@ -64,18 +86,23 @@ export class LoginComponent {
         if (this.failedAttempts >= 5) {
           this.isLocked = true;
           this.countdown = 120;  // Set countdown to 120 seconds (2 minutes)
-          this.updateFormattedCountdown();  // Initialize formatted countdown
+          const lockEndTime = new Date().getTime() + this.countdown * 1000;  // Store lock end time
+
+          localStorage.setItem('lockedData', JSON.stringify({ lockEndTime }));
+
+          this.updateFormattedCountdown();
 
           const intervalId = setInterval(() => {
             this.countdown--;
-            this.updateFormattedCountdown();  // Update formatted countdown every second
+            this.updateFormattedCountdown();
 
             if (this.countdown <= 0) {
               clearInterval(intervalId);
               this.isLocked = false;
-              this.failedAttempts = 0; // Reset failed attempts
+              this.failedAttempts = 0;
+              localStorage.removeItem('lockedData');
             }
-          }, 1000);  // Decrease countdown every second
+          }, 1000);
         }
       }
     );

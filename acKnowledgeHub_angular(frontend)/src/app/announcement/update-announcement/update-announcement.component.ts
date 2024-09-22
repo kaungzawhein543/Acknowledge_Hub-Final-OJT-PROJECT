@@ -8,7 +8,8 @@ import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute } from '@angular/router';
-
+import { Category } from '../../models/category';
+import { toArray } from 'rxjs';
 
 @Component({
   selector: 'app-update-announcement',
@@ -26,6 +27,8 @@ export class UpdateAnnouncementComponent implements OnInit {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
+  minDateTime: string = '';
+  dateError: string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -39,7 +42,8 @@ export class UpdateAnnouncementComponent implements OnInit {
   selectedFile: File | null = null;
   createStaffId !: number;
   filteredGroups: Group[] = [];
-
+  showPreviousVersion: boolean = false;
+  announcementVersions: string[] = [];
   public downloadUrl: string = 'https://res.cloudinary.com/djqxznfjm/raw/upload/v1725614114/';
 
   private page = 0;
@@ -48,7 +52,7 @@ export class UpdateAnnouncementComponent implements OnInit {
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
   announcementId: string | null = '';
-
+  intervalId: any;
 
   constructor(
     private groupService: GroupService,
@@ -64,18 +68,19 @@ export class UpdateAnnouncementComponent implements OnInit {
     this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
+    this.setMinDateTime();
+    this.intervalId = setInterval(() => {
+      this.setMinDateTime();
+    }, 60000);
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
-        this.announcementService.getAnnouncementById(Number(this.announcementId)).subscribe(
+        this.announcementService.getLatestAnnouncementById(Number(this.announcementId)).subscribe(
           data => {
-            this.announcementService.getLatestVersionAnnouncement("Announce" + this.announcementId).subscribe(
-              latestVersionUrl => {
-                this.announcementService.getUrlOfAnnouncement(latestVersionUrl).subscribe(
-                  url => {
-                    this.downloadUrl = url;
-                  }
-                )
+            this.announcementService.getAnnouncementVersion("Announce" + this.announcementId).subscribe(
+              versions => {
+                console.log(versions)
+                this.announcementVersions = versions;
               }
             )
             this.announcementTitle = data.title;
@@ -86,12 +91,26 @@ export class UpdateAnnouncementComponent implements OnInit {
             } else {
               console.log('Category not found');
             }
-            if (data['group'].length > 0) {
+
+            if (data['group'].length && data['group'].length > 0) {
+              data['group'].forEach((groupId: number) => {
+                // Find the matching group in filterGroups
+                const matchedGroup = this.filteredGroups.find((group: Group) => group.id === groupId);
+
+                if (matchedGroup) {
+                  // Add to selectedGroups if not already added
+                  this.selectedGroups.push(matchedGroup);
+
+                  // Set the 'selected' field to true
+                  matchedGroup.selected = true;
+                }
+              });
+
+
               this.onOptionChange('group')
             } else {
               this.optionStaffOfGroup = "Staffs";
               this.selectedStaffs = data['staff'];
-
               this.onOptionChange('staff');
             }
           }
@@ -113,13 +132,11 @@ export class UpdateAnnouncementComponent implements OnInit {
   }
 
 
-
   loadGroups() {
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
         this.filteredGroups = [...this.groups];
-        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -191,6 +208,10 @@ export class UpdateAnnouncementComponent implements OnInit {
   onSubmit(): void {
     const formData = new FormData();
 
+    if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
+      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      return;
+    }
     // Create the announcement object
     const announcement = {
       id: this.announcementId,
@@ -198,6 +219,7 @@ export class UpdateAnnouncementComponent implements OnInit {
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category: this.selectedCategory
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -230,14 +252,13 @@ export class UpdateAnnouncementComponent implements OnInit {
       }
     );
   }
-
-  // resetStaffList(): void {
-  //   this.page = 0; // Reset pagination
-  //   this.hasMore = true;
-  //   this.staffs = []; // Clear current staff list
-  //   this.searchTerm = ''; // Clear search term
-  //   this.loadStaffs(); // Load all staff without any filtering
-  // }
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
+  }
 
 
 
@@ -248,8 +269,6 @@ export class UpdateAnnouncementComponent implements OnInit {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
-      this.searchTerm = '';
-      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -260,16 +279,22 @@ export class UpdateAnnouncementComponent implements OnInit {
     }
   }
 
-  // onGroupChange(event: Event): void {
-  //   const target = event.target as HTMLSelectElement;
-  //   if (target) {
-  //     const selectedOptions = Array.from(target.selectedOptions);
-  //     this.selectedGroups = selectedOptions.map(option => {
-  //       const id = +option.value;
-  //       return this.groups.find(group => group.id === id)!;
-  //     });
-  //   }
-  // }
+  onGroupChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
+    }
+  }
 
 
   onStaffChange(event: Event): void {
@@ -282,7 +307,7 @@ export class UpdateAnnouncementComponent implements OnInit {
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.unshift(selectedStaff);
+          this.selectedStaffs.push(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -311,16 +336,25 @@ export class UpdateAnnouncementComponent implements OnInit {
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-    if (!this.searchTerm) {
-      this.searchTerm = '';
+
+    if (this.searchTerm) {
+      this.filterStaffs();
+    } else {
+      this.resetStaffList();
     }
-    this.filterStaffs();
+  }
+
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
   }
 
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
     this.staffs = []; // Clear current staff list
+    console.log("This is A")
     this.loadStaffs(); // Reload staff with the search term
   }
 
@@ -331,13 +365,21 @@ export class UpdateAnnouncementComponent implements OnInit {
       this.selectedOptionsBox = false;
     }
   }
-
-  groupInputChange(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    this.searchTerm = inputElement.value.trim();
-    this.filterGroups();
+  showPreviousVersionBox(): void {
+    if (this.showPreviousVersion === false) {
+      this.showPreviousVersion = true;
+    } else {
+      this.showPreviousVersion = false;
+    }
   }
 
+  closeModal(): void {
+    this.showPreviousVersion = false;
+  }
+
+  downloadFile(version: string): void {
+    this.announcementService.downloadFile(version);
+  }
 
   filterGroups(): void {
     if (this.searchTerm) {
@@ -352,22 +394,20 @@ export class UpdateAnnouncementComponent implements OnInit {
     });
   }
 
-  onGroupChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const selectedGroupId = Number(target.value);
-    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
-    if (selectedGroup) {
-      if (target.checked) {
-        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
-          this.selectedGroups.unshift(selectedGroup);
-        }
-      } else {
-        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
-      }
-    } else {
-      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
-    }
-  }
+  setMinDateTime(): void {
+    const now = new Date();
 
+    // Adjust the time to 2 minutes before the current time
+    now.setMinutes(now.getMinutes() - 2);
+
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+
+    // Set the minimum datetime to 2 minutes before the current date and time
+    this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
 
 }

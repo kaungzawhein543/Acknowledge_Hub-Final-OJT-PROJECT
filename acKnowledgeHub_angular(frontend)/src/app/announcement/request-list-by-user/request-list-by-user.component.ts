@@ -1,24 +1,22 @@
 import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { announcement } from '../../models/announcement';
+import { listAnnouncement } from '../../models/announcement-list';
 import { MatTableDataSource } from '@angular/material/table';
+import { AnnouncementService } from '../../services/announcement.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
-import autoTable from 'jspdf-autotable';
-import { AnnouncementService } from '../../services/announcement.service';
-import { listAnnouncement } from '../../models/announcement-list';
-
 @Component({
-  selector: 'app-list-announcement',
-  templateUrl: './list-announcement.component.html',
-  styleUrl: './list-announcement.component.css'
+  selector: 'app-request-list-by-user',
+  templateUrl: './request-list-by-user.component.html',
+  styleUrl: './request-list-by-user.component.css'
 })
-export class ListAnnouncementComponent {
+export class RequestListByUserComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  announcements: listAnnouncement[] = [];
+  requestAnnouncements: listAnnouncement[] = [];
   filteredAnnouncements: listAnnouncement[] = [];
   dataSource = new MatTableDataSource<listAnnouncement>([]);
   searchQuery: string = '';
@@ -27,73 +25,83 @@ export class ListAnnouncementComponent {
   todayDate: string | undefined;
   activeChecked = false;
   inactiveChecked = false;
-
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
-
+  loginStaffId !: number;
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createStaff', header: 'Create/Request Staff' },
-    //{ field: 'file', header: 'Versions' },
-    { field: 'scheduleAt', header: 'Created At' },
-    { field: 'note', header: 'Noted/UnNoted' },
-    { field: 'detail', header: 'Details' },
+    { field: 'category', header: 'Category' },
+    { field: 'created_at', header: 'Created At' },
+    { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'status', header: 'Status' },
+    { field: 'detail', header: 'Detail' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
   selectedColumns = this.columns.map(col => col.field);
-
-  constructor(
-    private announcementService: AnnouncementService,
+  constructor(private announcementService: AnnouncementService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
+
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.todayDate = new Date().toISOString().split('T')[0];
-    this.fetchAnnouncements();
+    this.authService.getUserInfo().subscribe({
+      next: (data) => {
+        this.loginStaffId = data.user.id;
+        this.fetchAnnouncements(this.loginStaffId);
+      }
+    })
+
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+  }
+
+  fetchAnnouncements(id: number) {
+    this.announcementService.getAnnouncementListByStaffRequest(id).subscribe({
+      next: (data) => {
+        console.log("here is user request by " + data)
+        this.requestAnnouncements = data.map((item, index) => ({
+          ...item,
+          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
+        }));
+        this.filteredAnnouncements = this.requestAnnouncements;
+        this.dataSource.data = this.filteredAnnouncements;
+        this.dataSource.paginator = this.paginator;
+        this.filterAnnouncements();
+      },
+      error: (e) => console.log(e)
+    });
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
+
+  getRequestStaff(announcement: any): string {
+    const staffName = announcement.createStaff || 'N/A';
+    const companyName = announcement.staffCompany || 'N/A';
+    return `${staffName} (${companyName})`;
   }
 
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
   }
 
-  getVersionNumber(title: string): number | null {
-    const match = title.match(/V(\d+)/);
-    return match ? parseInt(match[1], 10) : null;
-  }
-
-  fetchAnnouncements() {
-    this.announcementService.getPublishAnnouncements().subscribe(
-      (data) => {
-        this.announcements = data.map((item, index) => ({
-          ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredAnnouncements = data;
-        this.dataSource.data = this.filteredAnnouncements;
-        this.dataSource.paginator = this.paginator;
-        this.filterAnnouncements();
-      },
-      (error) => console.error('Error fetching announcements:', error)
-    );
-  }
-
-  toggleFilterDropdown() {
-    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
-    if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
-  }
-
   toggleReportDropdown() {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
   }
-
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
-    this.filteredAnnouncements = this.announcements.filter(a => {
+    this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
@@ -105,16 +113,6 @@ export class ListAnnouncementComponent {
       return fieldsToSearch.some(field => field.includes(query));
     });
     this.dataSource.data = this.filteredAnnouncements;
-  }
-
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-    this.filterAnnouncements();
-  }
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-    this.filterAnnouncements();
   }
 
   onStartDateChange(event: Event) {
@@ -138,14 +136,6 @@ export class ListAnnouncementComponent {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  closeDropdownOnClickOutside(event: Event) {
-    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
-    if (!clickedInsideDropdown) {
-      this.isReportDropdownOpen = false;
-    }
-  }
-
   generateReport(format: 'pdf' | 'excel') {
     if (format === 'pdf') {
       this.generatePDF(this.filteredAnnouncements, 'report.pdf');
@@ -155,10 +145,7 @@ export class ListAnnouncementComponent {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
-
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -183,6 +170,7 @@ export class ListAnnouncementComponent {
       columnStyles: {
         0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
         1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+        // Add more column styles as needed
       },
       tableWidth: 'auto', // Auto width adjustment for table
     });
@@ -193,34 +181,25 @@ export class ListAnnouncementComponent {
 
 
   generateExcel(announcements: listAnnouncement[], fileName: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
-
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const headers = visibleColumns.map(col => col.header);
-    const data = [headers, ...announcements.map(a =>
-      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
-    )];
-
+    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, fileName);
   }
+
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(data, fileName);
   }
 
   filterAnnouncements() {
-    this.filteredAnnouncements = this.announcements.filter(a => {
-      const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
-      const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
-      return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
-    }).filter(a => {
+    this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
       if (this.startDateTime && this.endDateTime) {
-        const scheduleAt = new Date(a.scheduleAt);
-        return scheduleAt >= new Date(this.startDateTime) && scheduleAt <= new Date(this.endDateTime);
+        const createdAt = new Date(a.created_at);
+        return createdAt >= new Date(this.startDateTime) && createdAt <= new Date(this.endDateTime);
       }
       return true;
     });
@@ -246,23 +225,7 @@ export class ListAnnouncementComponent {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onNotedButtonClick(id: number, name: string, file: string) {
-    const encodedId = btoa(id.toString());
-    const encodedName = btoa(name);
-    const encodedFile = btoa(file);
-    this.router.navigate(['announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
-  }
-
-  onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
-    const encodedId = btoa(id.toString());
-    const encodedName = btoa(name);
-    const encodedStatus = btoa(groupStatus.toString());
-    const encodedFile = btoa(file);
-    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
-  }
-
   onDetailButtonClick(id: number) {
-    const encodedId = btoa(id.toString());
-    this.router.navigate(['announcement/detail/' + encodedId]);
+    this.router.navigate(['announcement/detail/' + id]);
   }
 }

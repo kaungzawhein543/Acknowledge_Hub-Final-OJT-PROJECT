@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AnnouncementService } from '../../services/announcement.service';
 import { requestAnnouncement } from '../../models/announcement-list';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -65,6 +65,14 @@ export class RequestListComponent implements OnInit {
       },
       error: (e) => console.log(e)
     });
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
   }
 
   onApprovedButtonClick(id: number) {

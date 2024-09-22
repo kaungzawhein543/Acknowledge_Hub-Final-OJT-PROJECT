@@ -14,6 +14,7 @@ import java.util.Map;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,7 @@ public class EmailService {
         this.javaMailSender = javaMailSender;
     }
 
+    @Async
     public void sendOTPEmail(String toEmail, String subject, String messageBody) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -37,7 +39,8 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
-    public void sendFileEmail(String toEmail, String subject, MultipartFile file,String fileName  ,Integer announcementId  ) {
+    @Async
+    public void sendFileEmail(String toEmail, String subject, MultipartFile file,String fileName  ,Integer announcementId ) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -82,9 +85,7 @@ public class EmailService {
         }
     }
 
-
-
-
+    @Async
     public static void storeOTP(String email, String otp, LocalDateTime expiryTime) {
         otpStore.put(email, new OTPDetails(otp, expiryTime));
     }

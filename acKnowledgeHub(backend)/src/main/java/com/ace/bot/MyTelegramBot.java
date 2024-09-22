@@ -111,7 +111,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendPdf(String chatId, MultipartFile multipartFile,Integer announcementId) {
+    public void sendPdf(String chatId, MultipartFile multipartFile,Integer announcementId, byte updateStatus) {
         try {
             // Send the PDF document
             InputFile inputFile = new InputFile(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
@@ -125,7 +125,11 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             }
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
-            message.setText("If you receive message , you can do noted");
+            if(updateStatus > 0){
+                message.setText("Here is a updated version for you.\nIf you receive message , you can do noted");
+            }else{
+                message.setText("If you receive message , you can do noted");
+            }
             InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
             // Create button with callback data indicating true

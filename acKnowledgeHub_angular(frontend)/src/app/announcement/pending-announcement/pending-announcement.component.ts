@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
@@ -33,10 +33,11 @@ export class PendingAnnouncementComponent implements OnInit {
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
+    { field: 'category', header: 'Category' },
     { field: 'createStaff', header: 'Create/Request Staff' },
     { field: 'createdAt', header: 'Create At' },
-    { field: 'category', header: 'Category' },
     { field: 'detail', header: 'View' },
+    { field: 'cancel', header: 'Action' }
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -221,5 +222,20 @@ export class PendingAnnouncementComponent implements OnInit {
     }
   }
 
+  onCancelButtonClick(id: number) {
+    this.announcementService.cancelPendingAnnouncement(id).subscribe({
+      next: (data: string) => {
+        this.ngOnInit();
+      },
+      error: (e) => console.log(e)
+    })
+  }
 
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
 }

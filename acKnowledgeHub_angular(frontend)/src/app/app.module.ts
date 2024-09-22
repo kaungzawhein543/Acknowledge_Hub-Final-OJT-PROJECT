@@ -71,6 +71,8 @@ import { StaffChartComponent } from './chart/staff-chart/staff-chart.component';
 import { LoaderComponent } from './loader/loader/loader.component';
 import { DetailAnnouncementComponent } from './announcement/detail-announcement/detail-announcement.component';
 import { CommonModule } from '@angular/common';
+import { UserAnnouncementListComponent } from './user/user-announcement-list/user-announcement-list.component';
+import { RequestListByUserComponent } from './announcement/request-list-by-user/request-list-by-user.component';
 
 @NgModule({
   declarations: [
@@ -120,7 +122,9 @@ import { CommonModule } from '@angular/common';
     ProfileComponent,
     StaffChartComponent,
     LoaderComponent,
-    DetailAnnouncementComponent
+    DetailAnnouncementComponent,
+    UserAnnouncementListComponent,
+    RequestListByUserComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,21 +64,36 @@ public class BlogService {
         announcementService.createAnnouncement(announcement);
 
         try {
+            byte updateStatus = 0;
             MultipartFile file = cloudinaryService.getFileAsMultipart(announcement.getFile());
-            sendTelegramAndEmail(announcement.getStaff(), announcement.getGroup(), file, announcement.getId(), announcement.getGroupStatus());
+            Optional<Announcement> announcementForFileNameCheck = announcementService.getAnnouncementById(announcement.getId());
+            Pattern pattern = Pattern.compile("_V(\\d+)");
+            Matcher matcher = pattern.matcher(announcementForFileNameCheck.get().getFile());
+            if (matcher.find()) {
+                Integer versionNumber = Integer.valueOf(matcher.group(1));
+                if (versionNumber > 1) {
+                    updateStatus = 1;
+                    System.out.println("it come here");
+                }
+            }
+            sendTelegramAndEmail(announcement.getStaff(), announcement.getGroup(), file, announcement.getId(), announcement.getGroupStatus(), updateStatus);
         } catch (IOException e) {
             System.out.println(e);
         }
     }
 
-    public void sendTelegramAndEmail(List<Staff> staffForAnnounce, List<Group> groupsForAnnounce, MultipartFile file, Integer announcementId, byte groupStatus){
+    public void sendTelegramAndEmail(List<Staff> staffForAnnounce, List<Group> groupsForAnnounce, MultipartFile file, Integer announcementId, byte groupStatus, byte updateStatus) {
         if (groupStatus != 1) {
             for (Staff AnnounceStaff : staffForAnnounce) {
                 if (AnnounceStaff != null) {
-                    botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
+                    botService.sendFile(AnnounceStaff.getChatId(), file, announcementId, updateStatus);
                 }
                 if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                    emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);
+                    if (updateStatus > 0) {
+                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We have a updated version announcement for you", file, file.getOriginalFilename(), announcementId);
+                    } else {
+                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We have a new Announcement", file, file.getOriginalFilename(), announcementId);
+                    }
                 }
             }
         } else {
@@ -84,21 +102,20 @@ public class BlogService {
                     List<Staff> staffFromGroup = group.getStaff(); // Accessing initialized collection
                     for (Staff AnnounceStaff : staffFromGroup) {
                         if (AnnounceStaff.getChatId() != null) {
-                            if(!file.isEmpty() && file != null){
-                                if(AnnounceStaff.getChatId() != null){
-                                    botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
+                            if (!file.isEmpty() && file != null) {
+                                if (AnnounceStaff.getChatId() != null) {
+                                    botService.sendFile(AnnounceStaff.getChatId(), file, announcementId, updateStatus);
                                 }
-                            }else{
+                            } else {
                                 System.out.println("File is null or empty");
                             }
                         }
                         if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                            emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);
+                            emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(), announcementId);
                         }
                     }
                 }
             }
         }
     }
-
 }
