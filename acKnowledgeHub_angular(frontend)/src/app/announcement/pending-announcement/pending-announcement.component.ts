@@ -5,7 +5,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { AnnouncementService } from '../../services/announcement.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { announcementList } from '../../models/announcement-list';
-
+import autoTable from 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+import saveAs from 'file-saver';
 @Component({
   selector: 'app-pending-announcement',
   templateUrl: './pending-announcement.component.html',
@@ -33,7 +36,7 @@ export class PendingAnnouncementComponent implements OnInit {
     { field: 'createStaff', header: 'Create/Request Staff' },
     { field: 'createdAt', header: 'Create At' },
     { field: 'category', header: 'Category' },
-    { field: 'file', header: 'View' },
+    { field: 'detail', header: 'View' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -95,6 +98,72 @@ export class PendingAnnouncementComponent implements OnInit {
     this.dataSource.data = this.filteredAnnouncements;
   }
 
+  generateReport(format: 'pdf' | 'excel') {
+    if (format === 'pdf') {
+      this.generatePDF(this.filteredAnnouncements, 'report.pdf');
+    } else if (format === 'excel') {
+      this.generateExcel(this.filteredAnnouncements, 'report.xlsx');
+    }
+  }
+
+  generatePDF(announcements: any[], filename: string) {
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    // Define column headers and data rows
+    const headers = visibleColumns.map(col => col.header);
+    const rows = announcements.map(announcement =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], announcement) || '')
+    );
+
+    // Calculate column widths based on content length or set manually
+    const columnWidths = visibleColumns.map(col => {
+      return col.field === 'description' ? 60 : 30; // Adjust widths as needed
+    });
+
+    // Use autoTable to generate the table in PDF
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 20,
+      margin: { top: 20 },
+      styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
+      headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
+      columnStyles: {
+        0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
+        1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+      },
+      tableWidth: 'auto', // Auto width adjustment for table
+    });
+
+    // Save the PDF file
+    doc.save(filename);
+  }
+
+
+  generateExcel(announcements: announcementList[], fileName: string) {
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
+
+    const headers = visibleColumns.map(col => col.header);
+    const data = [headers, ...announcements.map(a =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
+    )];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, fileName);
+  }
+  private saveAsExcelFile(buffer: any, fileName: string) {
+    const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+    saveAs(data, fileName);
+  }
+
   onActiveCheckboxChange(event: any) {
     this.activeChecked = event.target.checked;
 
@@ -144,12 +213,8 @@ export class PendingAnnouncementComponent implements OnInit {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onFileButtonClick(file: string) {
-    if (file) {
-      window.open(file, '_blank'); // Open the file in a new tab
-    } else {
-      console.log('No file available for this announcement');
-    }
+  onFileButtonClick(id: number) {
+    this.router.navigate(['/acknowledgeHub/announcement/detail/'+btoa(id.toString())]);
   }
 
 

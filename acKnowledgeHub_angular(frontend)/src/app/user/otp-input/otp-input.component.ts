@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { ResponseEmail } from '../../models/response-email';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-otp-input',
+  selector: 'app-otp',
   templateUrl: './otp-input.component.html',
-  styleUrl: './otp-input.component.css'
+  styleUrls: ['./otp-input.component.css']
 })
-export class OtpInputComponent implements OnInit{
+export class OtpInputComponent implements OnInit {
   otp: string[] = Array(6).fill('');
   email!: string;
   OTP!: string;
@@ -19,7 +20,7 @@ export class OtpInputComponent implements OnInit{
   loading: boolean = false;
   private countdownSubscription!: Subscription;
 
-  constructor(private service: AuthService) { }
+  constructor(private service: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     const sessionEmail = sessionStorage.getItem('email');
@@ -77,6 +78,7 @@ export class OtpInputComponent implements OnInit{
       next: (data) => {
         if (data === 1) {
           console.log("Successful");
+          this.router.navigate(['/add-password']);
         } else {
           console.log("Fail");
         }
@@ -84,6 +86,7 @@ export class OtpInputComponent implements OnInit{
       error: (e) => console.log(e)
     });
   }
+
 
   checkValidation(): void {
     this.validationError = this.otp.some(o => o.trim() === '');

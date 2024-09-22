@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +26,6 @@ public class Announcement {
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")
     private Date created_at;
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "schedule_at")
     private LocalDateTime scheduleAt;
     @Column(name = "file")
@@ -37,17 +38,32 @@ public class Announcement {
     private String status="active";
     @Column(name ="group_status")
     private byte groupStatus;
+    @Column(name ="permission")
+    private String permission;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "create_staff_id")
     private Staff createStaff;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     private Category category;
-    @ManyToMany(mappedBy = "announcement")
-    private List<Group> group;
-    @ManyToMany(mappedBy = "announcement")
-    private List<Staff> staff;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "group_has_announcement",
+            joinColumns = @JoinColumn(name = "announcement_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    @BatchSize(size = 10)
+    private List<Group> group;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "staff_has_announcement",
+            joinColumns = @JoinColumn(name = "announcement_id"),
+            inverseJoinColumns = @JoinColumn(name = "staff_id")
+    )
+    @BatchSize(size = 10)
+    private List<Staff> staff;
 
 
     @PrePersist

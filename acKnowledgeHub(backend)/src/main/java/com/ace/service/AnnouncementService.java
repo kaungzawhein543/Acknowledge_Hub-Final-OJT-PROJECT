@@ -1,16 +1,17 @@
 package com.ace.service;
 
-import com.ace.dto.AnnouncementResponseDTO;
-import com.ace.dto.StaffNotedResponseDTO;
-import com.ace.dto.AnnouncementStaffCountDTO;
+import com.ace.dto.*;
 import com.ace.entity.Announcement;
 import com.ace.repository.AnnouncementRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AnnouncementService {
 
@@ -21,9 +22,28 @@ public class AnnouncementService {
     }
 
     // Create a new announcement
+    @Transactional
     public Announcement createAnnouncement(Announcement announcement) {
         return announcement_repo.save(announcement);
     }
+
+    public List<String> getAllVersionsByFilePattern(Integer announcementId) {
+        Optional<Announcement> announcement =  getAnnouncementById(announcementId);
+        String[] pathParts =  announcement.get().getFile().split("/");
+        return announcement_repo.getAllVersionsOfAnnouncement(pathParts[2]);
+    }
+
+//    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+//        List<String> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+//    }
+
+    //Find Lastest Version By File
+    public Optional<Announcement> findLastByFileName(String file) {
+        List<Announcement> announcements = announcement_repo.findAllByFileName(file);
+        return Optional.of(announcements.get(announcements.size() - 1));  // Return the last element
+    }
+
 
     // Read an announcement by ID
     public Optional<Announcement> getAnnouncementById(Integer id) {
@@ -74,36 +94,76 @@ public class AnnouncementService {
     }
 
     // Method to get published announcements
-    public List<Announcement> getPublishedAnnouncements() {
-        return announcement_repo.findByStatus("active"); // Adjust method name based on your repository
+    public List<AnnouncementListDTO> getPublishedAnnouncements() {
+        return announcement_repo.getAnnouncementList(); // Adjust method name based on your repository
     }
 
     public List<StaffNotedResponseDTO> getStaffNoted(Integer staffId) {
         return announcement_repo.getStaffNoted(staffId);
     }
 
-    public List<AnnouncementResponseDTO> getStaffUnNoted(Integer staffId) {
-        List<AnnouncementResponseDTO> staffAnnouncements = announcement_repo.getNotStaffNoted(staffId);
-        List<AnnouncementResponseDTO> groupAnnouncements = announcement_repo.getNotStaffNotedGroup(staffId);
-        List<AnnouncementResponseDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
+    public List<AnnouncementResponseListDTO> getStaffUnNoted(Integer staffId) {
+        List<AnnouncementResponseListDTO> staffAnnouncements = announcement_repo.getNotStaffNoted(staffId);
+        List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getNotStaffNotedGroup(staffId);
+        List<AnnouncementResponseListDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
         combinedAnnouncements.addAll(groupAnnouncements);
         return combinedAnnouncements;
     }
 
-    public List<AnnouncementResponseDTO> getStaffAnnouncement(Integer staffId) {
-        List<AnnouncementResponseDTO> staffAnnouncements = announcement_repo.getStaffAnnouncement(staffId);
-        List<AnnouncementResponseDTO> groupAnnouncements = announcement_repo.getStaffAnnouncementGroup(staffId);
-        List<AnnouncementResponseDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
+    public List<AnnouncementResponseListDTO> getStaffAnnouncement(Integer staffId) {
+        List<AnnouncementResponseListDTO> staffAnnouncements = announcement_repo.getStaffAnnouncement(staffId);
+        List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getStaffAnnouncementGroup(staffId);
+        List<AnnouncementResponseListDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
         combinedAnnouncements.addAll(groupAnnouncements);
         return combinedAnnouncements;
     }
 
-    public List<AnnouncementResponseDTO> getPendingAnnouncement(){
+    public List<AnnouncementResponseListDTO> getPendingAnnouncement(){
         return announcement_repo.getPendingAnnouncement();
+    }
+
+    public List<AnnouncementVersionDTO> getAnnouncementVersion(Integer id){
+        String baseFileName = "%" + "Announce" + id + "/%";
+        return announcement_repo.getAllVersions(baseFileName);
+    }
+
+//    public List<Announcement> getAllVersionsByFilePattern(String baseFileName) {
+//        return announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//    }
+
+//    public Announcement getLatestVersionByFilePattern(String baseFileName) {
+//        List<Announcement> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
+//        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
+//    }
+
+    public List<RequestAnnouncementResponseDTO> getRequestAnnouncements(){
+        return announcement_repo.getRequestAnnouncement();
+    }
+
+    public void approvedRequestAnnouncement(Integer id){
+         announcement_repo.approvedRequestAnnouncement(id);
+    }
+
+    public void rejectRequestAnnouncement(Integer id){
+        announcement_repo.rejectRequestAnnouncement(id);
     }
     //Method to get the staffnotedAnnoucement
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_repo.findAnnouncementStaffCounts();
     }
+
+    //Method to get announcement stats card
+    public AnnouncementStatsDTO getAnnouncementStats() {
+        // Fetch the announcement statistics from the repository
+        return announcement_repo.getAnnouncementCounts();
+    }
+
+    //Method to get all announcement monthly count
+    public List<MonthlyCountDTO> getMonthlyAnnouncementCounts() {
+        return announcement_repo.countActiveAnnouncementsByMonth();
+    }
+
+
+
 
 }

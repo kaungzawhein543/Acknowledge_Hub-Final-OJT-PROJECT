@@ -1,0 +1,104 @@
+/* Link styles */
+#link {
+  color: #E45635;
+  display: block;
+  font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align: center;
+  text-decoration: none;
+}
+
+#link:hover {
+  color: #666666; /* Darker gray on hover */
+}
+
+#link,
+#link:hover {
+  -webkit-transition: color 0.5s ease-out;
+  -moz-transition: color 0.5s ease-out;
+  -ms-transition: color 0.5s ease-out;
+  -o-transition: color 0.5s ease-out;
+  transition: color 0.5s ease-out;
+}
+
+/* BEGIN CSS */
+body {
+  background: #ffffff; /* White background */
+}
+
+@keyframes rotate-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-text-opacity {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loading-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 40px auto;
+}
+
+.loading {
+  border: 2px solid transparent;
+  border-color: transparent #333 transparent #333; /* Dark color for better contrast */
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  animation: rotate-loading 1.5s linear infinite;
+  transform-origin: center center;
+}
+
+.loading-container:hover .loading {
+  border-color: transparent #E45635 transparent #E45635; /* Red on hover */
+}
+
+.loading-container:hover .loading,
+.loading-container .loading {
+  transition: all 0.5s ease-in-out;
+}
+
+#loading-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: loading-text-opacity 2s linear infinite;
+  color: #333333; /* Dark color for contrast */
+  font-family: "Helvetica Neue", Helvetica, Arial;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  width: 100px; /* Ensure text is centered */
+}
+
+.loading-spinner {
+  position: fixed; /* Ensure it stays in place and covers the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8); /* White background with slight transparency */
+  display: flex;
+  justify-content: center; /* Center the spinner horizontally */
+  align-items: center; /* Center the spinner vertically */
+  z-index: 9999; /* Ensure it's on top of other content */
+}

@@ -24,7 +24,7 @@ export class FeedbackService {
   }
 
   sendFeedback(feedback: Feedback): Observable<any> {
-    return this.http.post(`${this.baseURL}`, feedback);
+    return this.http.post(`${this.baseURL}`, feedback,{ withCredentials : true, responseType : 'text' as 'json'});
   }
 
   deleteFeedback(id: number): Observable<any> {

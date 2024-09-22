@@ -41,7 +41,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     private final UserNotedAnnouncementService userNotedAnnouncementService;
     private final AnnouncementService announcementService;
 
-    @Autowired
     public MyTelegramBot(DefaultBotOptions options, @Value("${bot.token}") String botToken, @Value("${bot.name}")  String botUsername,
                          StaffService staffService, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService) {
         super(options);
@@ -150,6 +149,8 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         }
 
     }
+
+
 
 
     public void sendMessage(String chatId, String text) {

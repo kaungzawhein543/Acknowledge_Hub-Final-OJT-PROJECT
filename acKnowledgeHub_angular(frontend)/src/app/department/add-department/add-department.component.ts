@@ -25,16 +25,20 @@ export class AddDepartmentComponent implements OnInit {
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
+      },
+      error: (e) => console.log(e)
+    });
+  }
 
-      }
-    })
+  onCompanyChange() {
+    if (this.department.company && this.department.company.id) {
+      this.companyError = false;
+    }
   }
 
   onSubmit(form: NgForm) {
-    console.log("company" + this.department.company.id)
-    if (!this.department.company) {
+    if (this.department.company.id == undefined) {
       this.companyError = true;
-      console.log('Company is required');
     } else {
       this.companyError = false;
       if (form.valid) {

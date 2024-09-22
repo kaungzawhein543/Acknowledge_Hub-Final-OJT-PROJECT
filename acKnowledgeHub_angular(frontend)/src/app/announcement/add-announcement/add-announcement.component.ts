@@ -1,4 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef,OnDestroy } from '@angular/core';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 import { Group } from '../../models/Group';
 import { Staff } from '../../models/staff';
 import { GroupService } from '../../services/group.service';
@@ -7,15 +9,29 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { Position } from '../../models/Position';
+
 
 @Component({
   selector: 'app-add-announcement',
   templateUrl: './add-announcement.component.html',
-  styleUrls: ['./add-announcement.component.css']
+  styleUrls: ['./add-announcement.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
-export class AddAnnouncementComponent implements OnInit {
+export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
-
+  private audio: HTMLAudioElement;
   groups: Group[] = [];
   staffs: Staff[] = [];
   selectedOption: string = 'group'; // Default to group
@@ -24,6 +40,8 @@ export class AddAnnouncementComponent implements OnInit {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
+  minDateTime: string ='';
+  dateError : string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -36,13 +54,17 @@ export class AddAnnouncementComponent implements OnInit {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-
+  filteredGroups: Group[] = [];
+  fileErrorMessage !: boolean;
+  updateInterval: any;
+  intervalId: any;
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  searchGroup: string = '';
 
   constructor(
     private groupService: GroupService,
@@ -50,7 +72,10 @@ export class AddAnnouncementComponent implements OnInit {
     private staffService: StaffService,
     public announcementService: AnnouncementService,
     private authService: AuthService
-  ) { }
+  ) {
+    this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
+    this.audio.load();
+   }
 
   ngOnInit(): void {
     this.loadGroups();
@@ -61,17 +86,33 @@ export class AddAnnouncementComponent implements OnInit {
         this.createStaffId = data.user.id;
       }
     )
+    
+    this.setMinDateTime();
+    this.intervalId = setInterval(() => {
+        this.setMinDateTime();
+      }, 60000);
+  }
+  playNotificationSound() {
+    this.audio.play().catch(error => {
+      console.error('Error playing sound:', error);
+    });
   }
 
   loadGroups() {
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
       },
       error => {
         console.error('Error fetching groups:', error);
       }
     );
+  }
+  ngOnDestroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 
   loadCategories() {
@@ -95,14 +136,16 @@ export class AddAnnouncementComponent implements OnInit {
       response => {
         this.isLoading = false;
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
+          const processedStaffs = response.data.content.map((staff: { position: Position; }) => ({
             ...staff,
-            position: this.extractPositionName(staff.position) // Extract only the name
+            position: staff.position.name // Extract only the name
           }));
-          console.log(this.staffs)
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
           this.hasMore = false;
         }
@@ -112,16 +155,6 @@ export class AddAnnouncementComponent implements OnInit {
         console.error('Error fetching staff:', error);
       }
     );
-  }
-
-
-  extractPositionName(position: string | null): string {
-    if (!position) {
-      return ''; // or handle null/empty string appropriately
-    }
-
-    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
-    return match ? match[1] : position;
   }
 
 
@@ -137,13 +170,21 @@ export class AddAnnouncementComponent implements OnInit {
 
   onSubmit(): void {
     const formData = new FormData();
-
+    console.log(this.minDateTime)
+    console.log(this.scheduleDate);
+    if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
+      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      return;
+    }
+    
     // Create the announcement object
     const announcement = {
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category: this.selectedCategory,
+      forRequest: 0
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -164,6 +205,9 @@ export class AddAnnouncementComponent implements OnInit {
     // Append the selected file if any
     if (this.selectedFile) {
       formData.append('files', this.selectedFile);
+    }else{
+      this.fileErrorMessage = true;
+      return;
     }
 
     // Call the service to create the announcement
@@ -177,8 +221,6 @@ export class AddAnnouncementComponent implements OnInit {
     );
   }
 
-
-
   onOptionChange(option: string): void {
     this.selectedOption = option;
     if (option === 'group') {
@@ -186,6 +228,8 @@ export class AddAnnouncementComponent implements OnInit {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
+      this.searchTerm = '';
+      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -197,28 +241,31 @@ export class AddAnnouncementComponent implements OnInit {
   }
 
   onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
     }
   }
-
 
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
-    console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
-
     const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -229,7 +276,6 @@ export class AddAnnouncementComponent implements OnInit {
     }
   }
 
-
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -237,6 +283,7 @@ export class AddAnnouncementComponent implements OnInit {
       this.selectedFile = input.files[0];
       this.fileName = this.selectedFile.name;
       this.fileSelected = true;
+      this.fileErrorMessage = false;
     } else {
       this.selectedFile = null;
       this.fileName = '';
@@ -247,10 +294,16 @@ export class AddAnnouncementComponent implements OnInit {
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-
-    if (this.searchTerm) {
-      this.filterStaffs();
+    if (!this.searchTerm) {
+      this.searchTerm = '';
     }
+    this.filterStaffs();
+  }
+
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
   }
 
   filterStaffs(): void {
@@ -260,6 +313,14 @@ export class AddAnnouncementComponent implements OnInit {
     this.loadStaffs(); // Reload staff with the search term
   }
 
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
+  }
+
   showSelectedOptionBox(): void {
     if (this.selectedOptionsBox === false) {
       this.selectedOptionsBox = true;
@@ -267,6 +328,39 @@ export class AddAnnouncementComponent implements OnInit {
       this.selectedOptionsBox = false;
     }
   }
+
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
+
+  setMinDateTime(): void {
+    const now = new Date();
+  
+    // Adjust the time to 2 minutes before the current time
+    now.setMinutes(now.getMinutes() - 2);
+  
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+  
+    // Set the minimum datetime to 2 minutes before the current date and time
+    this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    console.log('MinDateTime set to:', this.minDateTime);
+  }
+  
+
+  
 
 
 

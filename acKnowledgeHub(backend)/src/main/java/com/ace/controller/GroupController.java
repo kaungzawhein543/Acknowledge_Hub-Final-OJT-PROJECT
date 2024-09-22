@@ -1,23 +1,32 @@
 package com.ace.controller;
 
 import com.ace.dto.GroupDTO;
+import com.ace.dto.GroupResponseDTO;
+import com.ace.dto.StaffDTO;
 import com.ace.entity.Group;
+import com.ace.entity.Staff;
 import com.ace.service.GroupService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/group")
 public class GroupController {
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private ModelMapper mapper;
+
+    private final GroupService groupService;
+    private final ModelMapper mapper;
+
+    public GroupController(GroupService groupService, ModelMapper mapper) {
+        this.groupService = groupService;
+        this.mapper = mapper;
+    }
 
     @GetMapping
     public ResponseEntity<List<GroupDTO>> getAllGroups() {
@@ -25,7 +34,22 @@ public class GroupController {
 
         // Map each Group entity to a GroupDTO
         List<GroupDTO> groupDTOs = groups.stream()
-                .map(group -> mapper.map(group, GroupDTO.class))
+                .map(group -> {
+                    // Extract staff names from Group entity
+                    List<StaffDTO> staffs = new ArrayList<>();
+                    for (Staff staff : group.getStaff()) {
+                        staffs.add(mapper.map(staff, StaffDTO.class)); // Corrected here
+                    }
+
+                    // Create a GroupDTO with the extracted staff names
+                    return new GroupDTO(
+                            group.getId(),
+                            group.getName(),
+                            group.getStatus(),
+                            group.getCreatedAt(),
+                            staffs
+                    );
+                })
                 .collect(Collectors.toList());
 
         // Return the list of GroupDTOs in the response
@@ -33,16 +57,27 @@ public class GroupController {
     }
 
 
+    @GetMapping("HR/{id}")
+    public ResponseEntity<List<GroupResponseDTO>> getGroupsHR(@PathVariable("id") Integer id) {
+        List<GroupResponseDTO> groups = groupService.getGroupsByHR(id);
+        return ResponseEntity.ok().body(groups);
+    }
+
     @PostMapping("/create")
-    public String addGroup(
+    public ResponseEntity<String> addGroup(
             @RequestParam String name,
             @RequestBody List<Integer> userIds
             ){
-        if (name.isEmpty()){
-            return "Group name is Empty";
-        }
+//        if (name.isEmpty()){
+//            return "Group name is Empty";
+//        }
+        Group existGroup = groupService.findByName(name);
+        if(existGroup == null){
         groupService.createGroup(name,userIds);
-        return "Create Successfully";
+            return  ResponseEntity.ok("Create Successfully");
+        }else {
+            return ResponseEntity.ok("Group name is already exist.");
+        }
     }
 
     @PutMapping("/update/{groupId}")

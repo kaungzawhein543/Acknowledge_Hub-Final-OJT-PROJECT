@@ -1,0 +1,63 @@
+<div class="container">
+    <div class="flex justify-center">
+        <div class="w-full lg:w-4/4">
+            <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
+                <h3 class="text-lg font-semibold">Staff(Human Resource) List</h3>
+
+            </div>
+            <div class="bg-white p-6 rounded-b shadow-md">
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="px-4 py-2 text-left">#</th>
+                            <th class="px-4 py-2 text-left">Staff-ID</th>
+                            <th class="px-4 py-2 text-left">Name</th>
+                            <th class="px-4 py-2 text-left">Position</th>
+                            <th class="px-4 py-2 text-left">Department</th>
+                            <th class="px-4 py-2 text-left">Company</th>
+                            <th class="px-4 py-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="!staffHRList || staffHRList.length === 0">
+                            <td colspan="5" class="text-center text-gray-500 py-4">There is no data available.</td>
+                        </tr>
+                        <tr *ngFor="let staff of staffHRList; let i = index" class="border-b">
+                            <td class="px-4 py-2">{{ i + 1 }}</td>
+                            <td class="px-4 py-2">{{ staff.companyStaffId }}</td>
+                            <td class="px-4 py-2">{{ staff.name }}</td>
+                            <td class="px-4 py-2">{{ staff.position }}</td>
+                            <td class="px-4 py-2">{{ staff.department }}</td>
+                            <td class="px-4 py-2">{{ staff.company }}</td>
+                            <td class="px-4 py-2 flex space-x-2">
+
+                                <button *ngIf="staff.position === 'Human Resource(Main)'"
+                                    class="text-white py-1 px-2 rounded  bg-gray-500 hover:bg-gray-600 hr-main-button"
+                                    (click)="openAddHRModal(staff.id)" style="min-width: 110px;"
+                                    [disabled]="staff.position === 'Human Resource(Main)'">
+                                    HR main
+                                </button>
+
+                                <button *ngIf="staff.position != 'Human Resource(Main)'"
+                                    class="text-white py-1 px-2 rounded  bg-blue-500 hover:bg-blue-600"
+                                    (click)="openAddHRModal(staff.id)">
+                                    Set HR main
+                                </button>
+
+                                <button *ngIf="staff.position != 'Human Resource(Main)'"
+                                    class="text-white py-1 px-2 rounded"
+                                    [disabled]="staff.position === 'Human Resource(Main)'" [ngClass]="{
+                                    'bg-gray-400': staff.position === 'Human Resource(Main)'
+                                }">
+                                    HR main
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<app-confirmation-modal #confirmationModal [message]="'Are you sure you want to set this staff member as Main-HR?'"
+    (confirmed)="onDeleteConfirmed()"></app-confirmation-modal>

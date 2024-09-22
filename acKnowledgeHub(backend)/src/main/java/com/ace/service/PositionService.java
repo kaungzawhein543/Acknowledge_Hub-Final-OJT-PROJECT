@@ -11,8 +11,11 @@ import java.util.Optional;
 
 @Service
 public class PositionService {
-    @Autowired
-    private PositionRepository positionRepository;
+    private final PositionRepository positionRepository;
+
+    public PositionService(PositionRepository positionRepository) {
+        this.positionRepository = positionRepository;
+    }
 
     public Optional<Position> findById(int id ){
         return positionRepository.findById(id);
@@ -29,4 +32,9 @@ public class PositionService {
     public Position addPosition(Position position){
         return positionRepository.save(position);
     }
+
+    public Position findByName(String name){
+        return positionRepository.findByHRName(name);
+    }
+
 }

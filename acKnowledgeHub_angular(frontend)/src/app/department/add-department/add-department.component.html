@@ -1,4 +1,4 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
+<div class="h-full flex items-center justify-center bg-gray-100">
     <div class="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
         <p class="text-3xl font-bold text-gray-800 text-center mb-6">
             Add Department
@@ -9,14 +9,15 @@
                     Company
                 </label>
                 <select id="company" name="company" [(ngModel)]="department.company"
-                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
+                    (change)="onCompanyChange()">
                     <option [ngValue]="null" disabled>Select Company</option>
                     <option *ngFor="let company of companies" [ngValue]="company">
                         {{ company.name }}
                     </option>
                 </select>
                 <div *ngIf="companyError">
-                    <small style="color: rgb(33, 6, 6); font-size: 20px;">
+                    <small style="color: red;">
                         <i class="fa-solid fa-circle-exclamation"></i> Company is required
                     </small>
                 </div>
@@ -38,7 +39,7 @@
                 class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
                 ADD
             </button>
-
         </form>
+
     </div>
 </div>

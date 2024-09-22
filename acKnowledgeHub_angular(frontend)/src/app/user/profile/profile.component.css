@@ -1,75 +1,395 @@
+/* Profile Container */
 .profile-container {
   display: flex;
-  justify-content: space-between;
-  padding: 30px;
+  flex-direction: column;
+  align-items: center;
   background-color: #f0f2f5;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  max-width: 1000px;
+  margin: 20px auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  padding-bottom: 30px;
+  overflow: hidden;
 }
 
+/* Profile Banner */
+.profile-banner {
+  position: relative;
+  width: 100%;
+  height: 200px; /* Adjust height as needed */
+  background: #1b4980; /* Gradient background */
+  overflow: hidden;
+}
+
+/* Profile Card */
 .profile-card {
-  flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center; /* Center horizontally */
-  justify-content: center; /* Center vertically */
-  text-align: center;
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  margin-right: 20px; /* Add space between profile card and profile details */
+  align-items: center;
+  background-color: white;
+  z-index: 10; /* Ensure it is above the banner */
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-top: -90px;
+  width: 90%;
+  max-width: 850px;
 }
 
 .profile-image {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  margin-bottom: 15px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  margin-right: 25px;
+  object-fit: cover;
 }
 
+.card-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 h3 {
-  margin: 15px 0;
-  font-size: 1.8rem;
-  font-weight: 600;
+  font-size: 2rem;
   color: #333;
+  margin: 0;
 }
 
 .position {
   font-size: 1.2rem;
-  font-weight: 500;
-  color: #777;
+  color: #888;
+  margin: 8px 0 20px 0;
 }
 
+/* Profile Actions Button */
+.profile-actions button {
+  background-color: #1b4980; /* Primary blue color */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  padding: 8px 12px; /* Smaller padding for a compact button */
+  border-radius: 6px; /* Slightly rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 0.9rem; /* Smaller font size for compact look */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+  margin: 5px; /* Space between buttons */
+}
+
+.profile-actions button:hover {
+  background-color: #007bff; /* Darker blue for hover effect */
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+.profile-actions button:active {
+  transform: translateY(1px); /* Pressed effect */
+}
+
+
+
+/* Profile Details */
 .profile-details {
-  flex: 2;
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 30px;
+  width: 90%;
+  max-width: 850px;
+  text-align: left;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 30px;
+}
+
+.profile-details h4 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
 }
 
 .details-row {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 40px;
+  flex-wrap: wrap;
 }
 
 .details-column {
   flex: 1;
+  min-width: 320px;
 }
 
-.profile-details h4 {
-  margin-top: 20px;
-  font-size: 1.2rem;
+.details-column h5 {
+  font-size: 1.5rem;
   color: #555;
-  font-weight: 600;
+  margin-bottom: 15px;
 }
 
-.profile-details p {
-  margin: 5px 0;
+.details-column p {
   font-size: 1rem;
   color: #666;
+  margin: 10px 0;
+}
+
+.details-column p strong {
+  color: #333;
+}
+
+/* Monthly Announcement Count Section */
+.announcement-card {
+
+}
+
+.announcement-card-header {
+  font-size: 1.4rem; /* Adjusted font size */
+  color: #555;
+  margin-bottom: 10px; /* Reduced margin */
+  border-bottom: 2px solid white;
+  padding-bottom: 8px; /* Adjusted padding */
+}
+
+/* Table Styles */
+.announcement-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.announcement-table thead th {
+  background-color: #f0f2f5;
+  font-size: 1rem; /* Adjusted font size */
+  color: white;
+  padding: 8px; /* Reduced padding */
+  text-align: left;
+  border-bottom: 2px solid #007bff;
+}
+
+.announcement-table tbody td {
+  font-size: 0.9rem; /* Smaller font size */
+  color: #666;
+  padding: 8px; /* Reduced padding */
+  border-bottom: 1px solid #eee;
+}
+
+.announcement-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.month-dropdown {
+  margin-bottom: 15px;
+}
+
+.month-dropdown label {
+  font-size: 1rem;
+  color: #333;
+}
+
+.month-dropdown select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.month-count p {
+  font-size: 1rem;
+  color: #333;
+  margin: 10px 0;
+}
+/* Preview Modal */
+.preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Darker background for better contrast */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.modal-content {
+  background: white;
+  border-radius: 12px; /* Rounded corners */
+  padding: 20px; /* Increased padding for better spacing */
+  width: 90%;
+  max-width: 400px; /* Adjusted width for better fit */
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Close Button */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 30px;
+  cursor: pointer;
+  color: #333; /* Matching theme color */
+}
+
+/* Preview Image */
+.preview-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 15px; /* Space below image */
+  border-radius: 8px; /* Rounded corners for images */
+}
+
+/* File Input Wrapper */
+.file-input-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Hidden File Input */
+input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0; /* Hide the actual input */
+  cursor: pointer;
+}
+
+/* Custom File Upload Button */
+.custom-file-upload {
+  display: inline-block;
+  background-color: #004494; /* Primary blue color */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  padding: 12px 20px; /* Padding for better size */
+  border-radius: 8px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 1rem; /* Font size */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+  text-align: center;
+  width: 100%; /* Full width for consistency */
+}
+
+.custom-file-upload:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.custom-file-upload:active {
+  transform: translateY(1px); /* Pressed effect */
+}
+
+/* Upload Button */
+.modal-content button {
+  background-color:  #004494; /* Primary blue color */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  padding: 12px 20px; /* Consistent padding */
+  border-radius: 8px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 1rem; /* Font size */
+  margin: 10px 5px; /* Space between buttons */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+}
+
+.modal-content button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.modal-content button:active {
+  transform: translateY(1px); /* Pressed effect */
+}
+
+/* Change Password Modal */
+.change-password-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Slightly lighter background for a cooler look */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.change-password-modal .modal-content {
+  background: #fefefe; /* Lighter background for a cleaner look */
+  border-radius: 10px; /* More rounded corners */
+  padding: 15px; /* Reduced padding for a more compact look */
+  width: 90%; /* Adjusted width to fit better */
+  max-width: 380px; /* Wider width */
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly less pronounced shadow */
+  overflow: hidden; /* Hide any overflow content */
+}
+
+/* Close Button */
+.change-password-modal .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* Adjusted for a more compact look */
+  font-size: 24px; /* Slightly smaller font size */
+  cursor: pointer;
+  color: #555; /* Subtle color for the close button */
+}
+
+/* Change Password Form */
+.change-password-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Reduced space between form elements */
+}
+
+.change-password-modal label {
+  font-size: 1rem; /* Slightly smaller font size */
+  color: #444; /* Darker color for better contrast */
+  margin-bottom: 4px; /* Reduced space below label */
+}
+
+.change-password-modal input[type="password"] {
+  padding: 8px;
+  border-radius: 10px; /* Slightly more rounded corners */
+  border: 1px solid #ccc; /* Lighter border color */
+  font-size: 0.9rem; /* Slightly smaller font size */
+  background-color: #fafafa; /* Very light background for inputs */
+}
+
+.change-password-modal button {
+  background-color: #0056b3; /* Darker blue for a cooler look */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  padding: 8px 14px; /* Reduced padding for a more compact button */
+  border-radius: 6px; /* Slightly more rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 1rem; /* Slightly smaller font size */
+  margin: 10px 0; /* Space above and below button */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+}
+
+.change-password-modal button:hover {
+  background-color: #004494; /* Even darker blue on hover */
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+.change-password-modal button:active {
+  transform: translateY(1px); /* Pressed effect */
+}
+
+/* Change Password Message */
+.change-password-modal .error-message {
+  font-size: 0.9rem; /* Slightly smaller font size */
+  color: #d9534f; /* Error color */
+  margin-top: 8px; /* Reduced space above the message */
+}
+
+.change-password-modal .success-message {
+  font-size: 0.9rem; /* Slightly smaller font size */
+  color: #32ff81; /* Error color */
+  margin-top: 8px; /* Reduced space above the message */
 }

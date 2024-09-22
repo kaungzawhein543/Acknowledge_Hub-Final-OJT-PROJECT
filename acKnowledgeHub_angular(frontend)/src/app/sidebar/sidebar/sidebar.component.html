@@ -1,24 +1,15 @@
 <ul class="space-y-2 w-60" *ngIf="isSidebarOpen" [@sidebarAnimation]>
   <li style="margin: 16px; padding: 3px;">
-    <span class="text-gray-600 font-semibold">Main Links</span>
+    <span class="text-gray-600 font-extrabold"></span>
   </li>
 
-  <div *ngIf="isAdmin">
+  
+  <div *ngIf="isMainHr || isAdmin">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        routerLink="admindashboard" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/system-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-chart-line"></i>
-        <span>Admin Dashboard</span>
-      </a>
-    </li>
-  </div>
-
-  <div *ngIf="isMainHr">
-    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        routerLink="hr-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>HR Dashboard</span>
+        <span>Dashboard</span>
       </a>
     </li>
   </div>
@@ -28,7 +19,7 @@
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        routerLink="staff-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/staff-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-chart-line"></i>
         <span>Staff Dashboard</span>
       </a>
@@ -38,7 +29,7 @@
   <div *ngIf="!isAdmin && !isMainHr && isHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        routerLink="announcement/request" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/announcement/request" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-plus"></i>
         <span> Request Announcement</span>
       </a>
@@ -48,7 +39,7 @@
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        [routerLink]="'announcement/list-by-staff/' + staffId"
+        [routerLink]="'acknowledgeHub/announcement/list-by-staff/' + staffId"
         routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-list"></i>
         <span>Announcement List</span>
@@ -59,7 +50,7 @@
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        [routerLink]="'announcement/staff-noted/' + staffId"
+        [routerLink]="'acknowledgeHub/announcement/staff-noted/' + staffId"
         routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-regular fa-check-circle"></i>
         <span>Noted Announcement</span>
@@ -70,7 +61,7 @@
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        [routerLink]="'announcement/staff-unnoted/' + staffId"
+        [routerLink]="'acknowledgeHub/announcement/staff-unnoted'"
         routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-regular fa-circle-xmark"></i>
         <span>Not Noted Announcement</span>
@@ -91,21 +82,21 @@
     </a>
     <ul id="announcementMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="announcement/add" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/announcement/add" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Create Announcement</span>
         </span>
       </li>
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="announcement/list" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/announcement/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
           <span> Announcement List</span>
         </span>
       </li>
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="announcement/pending-announcement"
+        routerLink="acknowledgeHub/announcement/pending-announcement"
         routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-spinner"></i>
@@ -127,8 +118,8 @@
     </a>
     <ul id="categoryMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="list-category" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-layer-group"></i> Sub Category
+        routerLink="acknowledgeHub/list-category" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fa-solid fa-layer-group"></i>  Category
       </li>
     </ul>
   </li>
@@ -149,14 +140,14 @@
     </a>
     <ul id="companyMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="company/add" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/company/add" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Add Company</span>
         </span>
       </li>
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="company/list" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/company/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
           <span> Company List</span>
@@ -170,21 +161,21 @@
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('departmentMenu')">
       <span class="flex items-center space-x-3">
-        <i class="fa-solid fa-building"></i>
+        <i class="fa-solid fa-sitemap"></i>
         <span>Department</span>
       </span>
       <i class="fa-solid fa-chevron-down"></i>
     </a>
     <ul id="departmentMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="department/add" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/department/add" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Add Department</span>
         </span>
       </li>
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="department/list" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/department/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
           <span> Department List</span>
@@ -194,15 +185,60 @@
 
   </li>
   <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
-    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md"
-      routerLink="users/list">
-      <i class="fa-solid fa-users"></i>
-      <span>Users</span>
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('userMenu')">
+      <span class="flex items-center space-x-3">
+        <i class="fa-solid fa-users"></i>
+        <span>Users</span>
+      </span>
+      <i class="fa-solid fa-chevron-down"></i>
     </a>
+    <ul id="userMenu" class="space-y-2 pl-8 mt-2 hidden">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/users/add" routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-user-plus"></i>
+          <span> Add Users</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/users/list" routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-users-line"></i>
+          <span> Users List</span>
+        </span>
+      </li>
+    </ul>
+  </li>
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isMainHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('groupMenu')">
+      <span class="flex items-center space-x-3">
+        <i class="fa-solid fa-user-group"></i>
+        <span>Groups</span>
+      </span>
+      <i class="fa-solid fa-chevron-down"></i>
+    </a>
+    <ul id="groupMenu" class="space-y-2 pl-8 mt-2 hidden">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/group/add" routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fas fa-plus ms-0 ps-0"></i>
+          <span> Add Group</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/group/list" routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-people-group"></i>
+          <span> Groups List</span>
+        </span>
+      </li>
+    </ul>
   </li>
 
 
-  <li class="absolute bottom-0 left-0 w-full p-3">
+  <li class="absolute bottom-0 left-0  p-3">
     <span class="text-gray-400 font-semibold copyrightext">
       &copy; 2024 ACE Inspiration
     </span>

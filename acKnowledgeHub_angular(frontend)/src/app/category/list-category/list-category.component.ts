@@ -30,7 +30,7 @@ export class ListCategoryComponent implements OnInit {
   }
 
   updateCategory(id: number): void {
-    this.router.navigate(['update-category', id]);
+    this.router.navigate(['acknowledgeHub/update-category', id]);
   }
 
   openDeleteModal(itemId: number) {

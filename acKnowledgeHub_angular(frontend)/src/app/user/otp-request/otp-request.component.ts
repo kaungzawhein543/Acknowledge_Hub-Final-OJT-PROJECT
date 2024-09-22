@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ResponseEmail } from '../../models/response-email';
+import { NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { NgForm } from '@angular/forms';
+import { ResponseEmail } from '../../models/response-email';
 
 @Component({
   selector: 'app-otp-request',
@@ -10,6 +10,7 @@ import { NgForm } from '@angular/forms';
   styleUrl: './otp-request.component.css'
 })
 export class OtpRequestComponent {
+
   staffId!: string;
   responseEmail!: ResponseEmail;
   loading: boolean = false;
@@ -52,9 +53,9 @@ export class OtpRequestComponent {
   }
 
   gotoOTPInput() {
-    this.router.navigate(['/otp-input']);
+    this.router.navigate(['/acknowledgeHub/otp-input']);
   }
-
-
-  gotoback() { }
+  gotoback() {
+    this.router.navigate(['/login']);
+  }
 }

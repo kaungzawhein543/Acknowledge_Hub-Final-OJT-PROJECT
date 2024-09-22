@@ -12,11 +12,11 @@ public class BotService {
 
 
     private final MyTelegramBot myTelegramBot;
-    @Autowired
     public BotService(MyTelegramBot myTelegramBot) {
         this.myTelegramBot = myTelegramBot;
     }
 
+    @Async("taskExecutor")
     public void sendFile(String chatId,MultipartFile file,Integer announcementId) {
         myTelegramBot.sendPdf(chatId, file,announcementId);
     }

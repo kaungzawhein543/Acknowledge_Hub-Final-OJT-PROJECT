@@ -1,4 +1,4 @@
-.data-grid-options {
+p.data-grid-options {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
@@ -34,21 +34,59 @@
 
 }
 
-.mtx-grid {
+.checkbox-container {
+    display: flex;
+    flex-direction: column;
+    /* Keeps checkboxes stacked vertically */
+    padding: 10px;
+    /* Optional padding for aesthetics */
+}
+
+.checkbox-item {
+    margin-bottom: 5px;
+    /* Spacing between checkboxes */
+}
+
+/* Center headers */
+.header-center {
+    text-align: left;
+}
+
+/* Right-align cell data */
+.data-right {
+    text-align: left;
+}
+
+/* Optional: Adjust padding and spacing if needed */
+.mat-header-cell,
+.mat-cell {
+    padding: 8px;
+}
+
+.header-center {
+    text-align: center;
+}
+
+.mat-elevation-z8 table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.mat-elevation-z8 th,
+.mat-elevation-z8 td {
     border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
+    padding: 8px;
+    text-align: left;
 }
 
-.mtx-grid-header {
+.mat-elevation-z8 th {
     background-color: #f5f5f5;
-    font-weight: bold;
+    /* You can adjust this color */
+    text-align: center;
+    /* Center align the headers */
 }
 
-.mtx-grid-row:hover {
-    background-color: #1d1dc1;
-}
-
-.mtx-grid-row.striped:nth-child(odd) {
-    background-color: #fafafa;
+.mat-elevation-z8 td {
+    text-align: left;
+    /* Adjust alignment if needed */
 }

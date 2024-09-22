@@ -1,6 +1,7 @@
 package com.ace.dto;
 
 import com.ace.entity.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AnnouncementDTO {
     private int id;
     private String title;
@@ -20,12 +23,16 @@ public class AnnouncementDTO {
     private LocalDateTime scheduleAt;
     private String file;
     private String description;
+    private boolean isPublished;
     private String status = "active";
-    private Staff createStaff;
+    private String createStaff;
     private Category category;
-    private List<Group> group;
-    private List<Department> department;
-    private List<Company> company;
+    private List<Integer> group;
+    //    private List<String> department;
+//    private List<String> company;
+    private List<Integer> staff;
     private byte groupStatus;
     private int forRequest;
+    private Integer createdStaffId;
+    private Set<Integer> staffInGroups;
 }

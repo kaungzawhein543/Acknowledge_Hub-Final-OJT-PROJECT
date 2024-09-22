@@ -2,7 +2,9 @@ package com.ace.service;
 
 import com.ace.dto.FeedbackListResponseDTO;
 import com.ace.dto.FeedbackResponseListDTO;
+import com.ace.entity.Announcement;
 import com.ace.entity.Feedback;
+import com.ace.entity.Notification;
 import com.ace.repository.FeedbackRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,13 @@ import java.util.stream.Collectors;
 @Service
 public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
+    private final BlogService blogService;
+    private final NotificationService notificationService;
 
-    public FeedbackService(FeedbackRepository feedbackRepository) {
+    public FeedbackService(FeedbackRepository feedbackRepository, BlogService blogService, NotificationService notificationService) {
         this.feedbackRepository = feedbackRepository;
+        this.blogService = blogService;
+        this.notificationService = notificationService;
     }
 
     public Feedback addFeedback(Feedback feedback){
@@ -34,6 +40,7 @@ public class FeedbackService {
 
     public List<FeedbackListResponseDTO> getFeedbackByAnnouncement(Integer id){
         List<Object[]> results = feedbackRepository.getFeedbackAndReplyByAnnouncement(id);
+
         return results.stream()
                 .map(result -> new FeedbackListResponseDTO(
                         (Integer) result[0],       // feedbackId

@@ -3,6 +3,7 @@ package com.ace.configuration;
 import com.ace.entity.*;
 import com.ace.enums.Role;
 import com.ace.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,9 @@ public class DataLoader {
     private final CompanyRepository companyRepository;
     private final PositionRepository positionRepository;
     private final DepartmentRepository departmentRepository;
+
+    @Value("${default.photo.path}")
+    private String DEFAULT_PHOTO_PATH;
 
     public DataLoader( StaffRepository staffRepository,
                       CompanyRepository companyRepository, PositionRepository positionRepository,
@@ -63,7 +67,12 @@ public class DataLoader {
                 adminStaff.setDepartment(department);
                 adminStaff.setPosition(position);
                 adminStaff.setRole(Role.ADMIN);
+                adminStaff.setPhotoPath(DEFAULT_PHOTO_PATH);
                 staffRepository.save(adminStaff);
+
+                Position position1 = new Position();
+                position1.setName("Human Resource(Main)");
+                positionRepository.save(position1);
             }
         };
     }

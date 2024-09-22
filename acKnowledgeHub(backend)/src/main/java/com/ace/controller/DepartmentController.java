@@ -10,8 +10,12 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/department")
 public class DepartmentController {
-    @Autowired
-    private DepartmentService departmentService;
+
+    private final DepartmentService departmentService;
+
+    public DepartmentController(DepartmentService departmentService) {
+        this.departmentService = departmentService;
+    }
 
     @GetMapping
     public List<Department> getAllDepartments() {

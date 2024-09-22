@@ -1,4 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 import { AddAnnouncementComponent } from '../add-announcement/add-announcement.component';
 import { AnnouncementService } from '../../services/announcement.service';
 import { GroupService } from '../../services/group.service';
@@ -8,11 +10,24 @@ import { AuthService } from '../../services/auth.service';
 import { Group } from '../../models/Group';
 import { Staff } from '../../models/staff';
 import { announcement } from '../../models/announcement';
+import { Position } from '../../models/Position';
 
 @Component({
   selector: 'app-request-announcement',
   templateUrl: './request-announcement.component.html',
-  styleUrls: ['./request-announcement.component.css']
+  styleUrls: ['./request-announcement.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class RequestAnnouncementComponent {
 
@@ -26,6 +41,8 @@ export class RequestAnnouncementComponent {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
+  minDateTime: string ='';
+  dateError : string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -39,38 +56,48 @@ export class RequestAnnouncementComponent {
   selectedFile: File | null = null;
   createStaffId !: number;
   currentHrCompany !: string;
+  updateInterval: any;
+  intervalId: any;
+  filteredGroups : Group[] = [];
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
+  selectAllStaffs : boolean = false;
 
   constructor(
     private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr : ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
-        this.createStaffId = data.user.id;
         this.currentHrCompany = data.company;
-        console.log(this.currentHrCompany)
+        this.createStaffId = data.user.id;
+        this.loadGroups(this.createStaffId);
       }
     )
+    this.setMinDateTime();
+    this.intervalId = setInterval(() => {
+        this.setMinDateTime();
+      }, 60000);
   }
 
-  loadGroups() {
-    this.groupService.getAllGroups().subscribe(
+  loadGroups(HrId: number) {
+    this.groupService.getGroupsByHR(HrId).subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.filteredGroups = [...this.groups];
+        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -92,41 +119,35 @@ export class RequestAnnouncementComponent {
 
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) {
-      console.log('Skipping loadStaffs: isLoading=', this.isLoading, ', hasMore=', this.hasMore);
       return;
     }
-
     this.isLoading = true;
-
     const query = this.searchTerm.trim();
-    console.log('Searching for term:', query);
-
     this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
         this.isLoading = false;
-        console.log('Received response:', response);
-
+        console.log(response)
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content
             .filter((staff: { company?: { name?: string }; }) => {
-              // Null check for company and company name
               const companyName = staff.company?.name;
               const matchesCompany = companyName === this.currentHrCompany;
               return matchesCompany;
             })
-            .map((staff: { position: string; }) => {
-              const positionName = this.extractPositionName(staff.position);
+            .map((staff: { position: Position; }) => {
               return {
                 ...staff,
-                position: positionName
+                position:  staff.position.name
               };
             });
 
-          console.log('Processed staffs:', processedStaffs);
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
           this.hasMore = this.page < response.data.page.totalPages;
-          console.log('Updated page:', this.page, 'Has more:', this.hasMore);
+          this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
+          console.log(this.staffs)
         } else {
           console.log('No valid content found.');
           this.hasMore = false;
@@ -139,16 +160,23 @@ export class RequestAnnouncementComponent {
     );
   }
 
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
+  }
 
-
-
-  extractPositionName(position: string | null): string {
-    if (!position) {
-      return ''; // or handle null/empty string appropriately
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
     }
-
-    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
-    return match ? match[1] : position;
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
   }
 
   onScroll(event: Event): void {
@@ -163,13 +191,19 @@ export class RequestAnnouncementComponent {
 
   onSubmit(): void {
     const formData = new FormData();
-
+  
+    if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
+      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      return;
+    }
     // Create the announcement object
     const announcement = {
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category : this.selectedCategory,
+      forRequest : 1
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -223,16 +257,21 @@ export class RequestAnnouncementComponent {
   }
 
   onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
     }
   }
-
 
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -243,7 +282,7 @@ export class RequestAnnouncementComponent {
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
@@ -274,6 +313,8 @@ export class RequestAnnouncementComponent {
 
     if (this.searchTerm) {
       this.filterStaffs();
+    }else{
+      this.resetStaffList();
     }
   }
 
@@ -284,6 +325,14 @@ export class RequestAnnouncementComponent {
     this.loadStaffs(); // Reload staff with the search term
   }
 
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
+  }
+
   showSelectedOptionBox(): void {
     if (this.selectedOptionsBox === false) {
       this.selectedOptionsBox = true;
@@ -291,4 +340,41 @@ export class RequestAnnouncementComponent {
       this.selectedOptionsBox = false;
     }
   }
+  
+  setMinDateTime(): void {
+    const now = new Date();
+  
+    // Adjust the time to 2 minutes before the current time
+    now.setMinutes(now.getMinutes() - 2);
+  
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+  
+    // Set the minimum datetime to 2 minutes before the current date and time
+    this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    console.log('MinDateTime set to:', this.minDateTime);
+  }
+
+  onSelectAllStaffs(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectAllStaffs = target.checked;
+
+    this.staffs.forEach(staff => {
+      staff.selected = this.selectAllStaffs;
+
+      const mockEvent = {
+        target: {
+          value: staff.staffId,
+          checked: this.selectAllStaffs
+        }
+      };
+
+      this.onStaffChange(mockEvent as any); // Casting to 'any' to bypass TypeScript checks
+    });
+    this.cdr.detectChanges();
+  }
+  
 }

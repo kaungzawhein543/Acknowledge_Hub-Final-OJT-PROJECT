@@ -9,6 +9,7 @@ import { DepartmentService } from '../../services/department.service';
 import { GroupService } from '../../services/group.service';
 import { error } from 'console';
 import { ToastService } from '../../services/toast.service';
+import { map } from 'rxjs';
 
 
 @Component({
@@ -20,10 +21,11 @@ export class AddGroupComponent {
   companySearchTerm: string = '';
   departmentSearchTerm: string = '';
   staffSearchTerm: string = '';
+  staffSearchTermConfirm : string = '';
   groupName: string = '';
   validationError: string = '';
   selectAll: boolean = false;
-
+  
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
 
@@ -33,16 +35,18 @@ export class AddGroupComponent {
   staffList: StaffGroup[] = [];
   filteredStaffList: StaffGroup[] = [];
   selectedStaff: StaffGroup[] = [];
+  filterStaffListAfterSelect : StaffGroup[] = [];
 
   companystatus: number | undefined;
   departmentstatus: number | undefined;
   status: boolean = false;
-
+  showConfirmBox : boolean = false;
   @ViewChild('staff') staff!: MatSelectionList;
 
   constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.filterStaffListAfterSelect = [...this.selectedStaff];
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
@@ -64,13 +68,21 @@ export class AddGroupComponent {
         this.showErrorToast();
       }
     });
-    this.staffService.getStaffList().subscribe({
+    this.staffService.getStaffList().pipe(
+      map((data: any[]) => 
+        data.map(staff => ({
+          ...staff,
+          photoPath: staff.photoPath ? `http://localhost:8080${staff.photoPath}?${Date.now()}` : ''
+        }))
+      )
+    ).subscribe({
       next: (data) => {
         this.staffList = data;
+        console.log(this.staffList); // Debugging line to check the transformed data
         this.showStaff(1);
       },
       error: (e) => {
-        console.log(e)
+        console.log(e);
       }
     });
   }
@@ -80,6 +92,16 @@ export class AddGroupComponent {
     this.filteredCompanies = this.companies.filter(company =>
       company.name.toLowerCase().includes(term)
     );
+  }
+  showSelectedStaff(): void {
+    if(this.groupName.length === 0 || this.groupName.length <= 3 ){
+      this.validationError = this.validateGroupName();
+      console.log("Error")
+      return;
+    }
+    this.showConfirmBox = !this.showConfirmBox;
+    this.filterStaffListAfterSelect = [...this.selectedStaff]; // Initialize filtered list
+    console.log(this.selectedStaff);
   }
 
   filterDepartment(): void {
@@ -93,10 +115,28 @@ export class AddGroupComponent {
     const term = this.staffSearchTerm.toLowerCase();
     this.filteredStaffList = this.staffList.filter(staff =>
       staff.department.id === this.departmentstatus &&
-      (staff.name.toLowerCase().includes(term) || staff.position.toLowerCase().includes(term))
+      (staff.name.toLowerCase().includes(term) || staff.position.name.toLowerCase().includes(term))
     );
     this.updateSelectAllState();
   }
+
+  filterStaffAfterSelect(): void {
+    const term = this.staffSearchTermConfirm.toLowerCase();
+
+    // Filter the selected staff based on search term
+    this.filterStaffListAfterSelect = this.selectedStaff.filter(staff =>
+      staff.name.toLowerCase().includes(term) ||
+      staff.position.name.toLowerCase().includes(term) ||
+      staff.staffId.toString().includes(term) ||
+      staff.department.name.toLowerCase().includes(term) ||
+      staff.company.name.toLowerCase().includes(term)
+    );
+
+    // Log for debugging
+    console.log('Filtered staff:', this.filterStaffListAfterSelect);
+  }
+
+  
   toggleSelection(event: MatSelectionListChange): void {
     event.options.forEach(option => {
       const staff = option.value;
@@ -178,9 +218,8 @@ export class AddGroupComponent {
 
   getSelectedGroup(): number[] {
     const selectedStaffIds = this.selectedStaff.map(staff => staff.staffId);
-    console.log(selectedStaffIds);
     this.validationError = this.validateGroupName(); // Update validationError property
-
+    this.showConfirmBox = false;
     if (this.validationError) {
       console.error(this.validationError);
     } else {
@@ -221,4 +260,11 @@ export class AddGroupComponent {
   showInfoToast() {
     this.toastService.showToast('Here is some information.', 'info');
   }
+
+  removeStaff(staff: StaffGroup): void {
+    // Find and remove the staff from the selectedStaff array
+    this.selectedStaff = this.selectedStaff.filter(s => s.staffId !== staff.staffId);
+    this.filterStaffAfterSelect(); // Reapply filter to update the displayed staff list
+  }
+  
 }

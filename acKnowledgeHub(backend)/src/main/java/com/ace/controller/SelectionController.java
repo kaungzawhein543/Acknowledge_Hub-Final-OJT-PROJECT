@@ -10,8 +10,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/selection")
 public class SelectionController {
-    @Autowired
-    private StaffService staffService;
+    private final StaffService staffService;
+
+    public SelectionController(StaffService staffService) {
+        this.staffService = staffService;
+    }
 
     @GetMapping("/users/{staffId}")
     public Staff getUserByStaffId(@PathVariable String staffId) {

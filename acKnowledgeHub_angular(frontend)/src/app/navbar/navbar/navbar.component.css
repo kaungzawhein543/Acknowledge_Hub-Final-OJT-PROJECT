@@ -5,4 +5,5 @@ div >  .logo{
   font-size:40px;
   color:#1b4980;
   height: 20px;
+  user-select: none;
 }

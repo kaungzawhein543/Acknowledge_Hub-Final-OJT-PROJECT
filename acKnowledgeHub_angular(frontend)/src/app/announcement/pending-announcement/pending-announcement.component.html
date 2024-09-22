@@ -1,7 +1,7 @@
-<div class="container mx-auto p-4">
+<div class="container bg-white mx-auto p-4">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-8">
-        <span class="text-5xl font-semibold">Announcements List</span>
+        <span class="text-5xl font-semibold" style="font-size: 30px;">Pending Announcements List</span>
         <!-- Search Input on the Right Side -->
         <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
             (input)="onSearchChange()" />
@@ -12,7 +12,7 @@
     <div class="flex justify-between mb-4">
 
         <div class="flex gap-4">
-            <!-- 
+
             <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate" [value]="startDateTime"
                 (change)="onStartDateChange($event)" />
             <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
@@ -36,17 +36,27 @@
                         Inactive
                     </label>
                 </div>
-            </div> -->
+            </div>
         </div>
 
 
         <div>
-
+            <!-- Report Button -->
             <div class="relative">
-                <!-- <button class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700"
+                <button class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700"
                     (click)="toggleReportDropdown()">
-                    Generate Report
-                </button> -->
+                    Generate Report <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <!-- Dropdown for Report Types -->
+                <ul class="absolute left-2 w-41 bg-gray-100 text-black top-10 shadow-md rounded z-10"
+                    *ngIf="isReportDropdownOpen">
+                    <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('pdf')">
+                        <i class="fa-regular fa-file-pdf"></i> Generate PDF
+                    </li>
+                    <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('excel')">
+                        <i class="fa-regular fa-file-excel"></i> Generate Excel
+                    </li>
+                </ul>
                 <button mat-button [matMenuTriggerFor]="menu">Columns</button>
             </div>
 
@@ -75,8 +85,8 @@
                         </th>
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
-                                <ng-container *ngSwitchCase="'file'">
-                                    <button mat-button (click)="onFileButtonClick(announcement.file)">
+                                <ng-container *ngSwitchCase="'detail'">
+                                    <button mat-button (click)="onFileButtonClick(announcement.id)">
                                         View File
                                     </button>
                                 </ng-container>

@@ -7,31 +7,36 @@ import com.ace.entity.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ExcelService {
 
-    @Autowired
-    private StaffRepository staffRepository;
+    private final StaffRepository staffRepository;
+    private final PositionRepository positionRepository;
+    private final CompanyRepository companyRepository;
+    private final DepartmentRepository departmentRepository;
+    private final GroupRepository groupRepository;
 
-    @Autowired
-    private PositionRepository positionRepository;
+    public ExcelService(StaffRepository staffRepository, PositionRepository positionRepository, CompanyRepository companyRepository, DepartmentRepository departmentRepository, GroupRepository groupRepository) {
+        this.staffRepository = staffRepository;
+        this.positionRepository = positionRepository;
+        this.companyRepository = companyRepository;
+        this.departmentRepository = departmentRepository;
+        this.groupRepository = groupRepository;
+    }
 
-    @Autowired
-    private CompanyRepository companyRepository;
+    @Value("${default.photo.path}")
+    private String DEFAULT_PHOTO_PATH;
 
-    @Autowired
-    private DepartmentRepository departmentRepository;
-
+    @Transactional
     public String processExcelFile(MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook = new XSSFWorkbook(inputStream);
@@ -41,13 +46,12 @@ public class ExcelService {
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip the header row
-
                 String staffId = dataFormatter.formatCellValue(row.getCell(0));
                 String staffName = dataFormatter.formatCellValue(row.getCell(1));
                 String staffEmail = dataFormatter.formatCellValue(row.getCell(2));
                 String positionName = dataFormatter.formatCellValue(row.getCell(3));
-                String companyName = dataFormatter.formatCellValue(row.getCell(4));
-                String departmentName = dataFormatter.formatCellValue(row.getCell(5));
+                String departmentName = dataFormatter.formatCellValue(row.getCell(4));
+                String companyName = dataFormatter.formatCellValue(row.getCell(5));
 
                 if (staffId == null || staffId.isEmpty()) {
                     continue; // Skip rows without a staff ID
@@ -97,8 +101,49 @@ public class ExcelService {
                 staff.setPosition(position);
                 staff.setEmail(staffEmail);
 
+                // Check if photoPath is null, if so set the default path
+                if (staff.getPhotoPath() == null || staff.getPhotoPath().isEmpty()) {
+                    staff.setPhotoPath(DEFAULT_PHOTO_PATH);
+                }
+
                 // Save or update the staff
                 staffRepository.save(staff);
+
+                Group companyGroup = groupRepository.findByName(companyName);
+                if(companyGroup == null){
+                    Group group1 = new Group();
+                    group1.setName(companyName);
+                    List<Staff> staffList = new ArrayList<>();
+                    staffList.add(staff);
+                    group1.setStaff(staffList);
+                    groupRepository.save(group1);
+                }else{
+                    Integer result = groupRepository.hasStaffInGroup(staff,companyGroup);
+                    if(result  == 0){
+                        List<Staff> staffList=companyGroup.getStaff();
+                        staffList.add(staff);
+                        companyGroup.setStaff(staffList);
+                        groupRepository.save(companyGroup);
+                    }
+                }
+
+                Group departmentGroup = groupRepository.findByName(departmentName +" ("+ companyName + ")" );
+                if(departmentGroup == null){
+                    Group group2 = new Group();
+                    group2.setName(departmentName +" ("+ companyName + ")" );
+                    List<Staff> staffList = new ArrayList<>();
+                    staffList.add(staff);
+                    group2.setStaff(staffList);
+                    groupRepository.save(group2);
+                }else{
+                    Integer result = groupRepository.hasStaffInGroup(staff,departmentGroup);
+                    if(result  == 0){
+                        List<Staff> staffList=departmentGroup.getStaff();
+                        staffList.add(staff);
+                        departmentGroup.setStaff(staffList);
+                        groupRepository.save(departmentGroup);
+                    }
+                }
             }
 
             // Update status of existing staff
@@ -121,6 +166,9 @@ public class ExcelService {
         } catch (IOException e) {
             e.printStackTrace();
             return "Error processing file.";
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error processing file", e);
         }
     }
 }

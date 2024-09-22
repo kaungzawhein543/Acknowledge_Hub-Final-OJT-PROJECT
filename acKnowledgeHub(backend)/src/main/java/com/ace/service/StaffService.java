@@ -4,12 +4,14 @@ import com.ace.dto.*;
 import com.ace.entity.Group;
 import com.ace.entity.Announcement;
 import com.ace.entity.Staff;
+import com.ace.repository.GroupRepository;
 import com.ace.entity.StaffNotedAnnouncement;
 import com.ace.repository.AnnouncementRepository;
 import com.ace.repository.NotedRepository;
 import com.ace.repository.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,27 +36,30 @@ public class StaffService implements UserDetailsService {
     private final AnnouncementRepository announcement_repo;
     private final NotedRepository notedRepository;
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
-
+private final GroupRepository groupRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
 
 
-    public StaffService(StaffRepository staffRepository,AnnouncementRepository announcement_repo,NotedRepository notedRepository) {
+
+    public StaffService(StaffRepository staffRepository,AnnouncementRepository announcement_repo,NotedRepository notedRepository, GroupRepository groupRepository) {
         this.staffRepository = staffRepository;
         this.announcement_repo = announcement_repo;
         this.notedRepository = notedRepository;
+        this.groupRepository = groupRepository;
     }
 
 
-    public List<Staff> findStaffsByIds(List<Integer> ids){
+    public List<Staff> findStaffsByIds(List<Integer> ids) {
         return staffRepository.findStaffsByIds(ids);
     }
 
-    public List<String> findStaffsChatIdByIds(List<Integer> ids){
+    public List<String> findStaffsChatIdByIds(List<Integer> ids) {
         return staffRepository.findStaffsChatIdByIds(ids);
     }
+
 
 
     public Page<StaffDTO> getStaffs(int page, int size) {
@@ -72,19 +78,21 @@ public class StaffService implements UserDetailsService {
 
     public Page<StaffDTO> searchStaffs(String searchTerm, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Staff> outputStaff = staffRepository.searchByTerm(searchTerm,pageRequest);
+        Page<Staff> outputStaff = staffRepository.searchByTerm(searchTerm, pageRequest);
 
         // Map each Staff entity to StaffGroupDTO
         List<StaffDTO> staffDtos = outputStaff.getContent().stream()
                 .map(staff -> modelMapper.map(staff, StaffDTO.class))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(staffDtos,pageRequest,outputStaff.getTotalElements());
+        return new PageImpl<>(staffDtos, pageRequest, outputStaff.getTotalElements());
     }
 
-    public Staff findByEmail(String email){
-     return staffRepository.findByEmail(email);
+    public Staff findByEmail(String email) {
+        return staffRepository.findByEmail(email);
     }
+
+
 
     public List<NotedResponseDTO> getNotedStaffList(Integer announcementId) {
         return staffRepository.getNotedStaffByAnnouncement(announcementId);
@@ -117,6 +125,10 @@ public class StaffService implements UserDetailsService {
             return staff;
         }
         return null;
+    }
+
+    public List<Staff> findStaffByAnnouncementId(Integer announcementId){
+        return staffRepository.findStaffByAnnouncementId(announcementId);
     }
 
 
@@ -158,7 +170,7 @@ public class StaffService implements UserDetailsService {
 
     public void updatePassword(PasswordResponseDTO dto) {
         Staff user = staffRepository.findByEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         staffRepository.save(user);
     }
 
@@ -182,16 +194,38 @@ public class StaffService implements UserDetailsService {
 
     public void addStaff(Staff staff) {
         staffRepository.save(staff);
+        Group companyGroup = groupRepository.findByName(staff.getCompany().getName());
+        if (companyGroup != null) {
+            companyGroup.getStaff().add(staff);
+            groupRepository.save(companyGroup);
+        }
+
+        Group departmentGroup = groupRepository.findByName(staff.getDepartment().getName() + " (" + staff.getCompany().getName() + ")");
+        if (departmentGroup != null) {
+            departmentGroup.getStaff().add(staff);
+            groupRepository.save(departmentGroup);
+        }
     }
 
-    public List<StaffResponseDTO> getStaffList(){
+    public List<StaffResponseDTO> getStaffList() {
         return staffRepository.getStaffList();
     }
 
-    public List<ActiveStaffResponseDTO> getActiveStaffList(){
+    public List<ActiveStaffResponseDTO> getActiveStaffList() {
         return staffRepository.getActiveStaffList();
     }
 
+    public List<StaffResponseDTO> getHRStaffList(){
+        return staffRepository.getHRStaffList();
+    }
+
+    public void save(Staff  staff){
+         staffRepository.save(staff);
+    }
+
+    public Staff getHRMainStaff(String position){
+        return staffRepository.findByPosition(position);
+    }
     public List<Map<String, Object>> getStaffCountByAnnouncement() {
         return staffRepository.countStaffByAnnouncement();
     }
@@ -248,6 +282,44 @@ public class StaffService implements UserDetailsService {
                         Collectors.counting()
                 ));
     }
+
+    //Method to get staff summary count
+    public StaffSummaryDTO getStaffSummary() {
+        return staffRepository.getStaffSummary();
+    }
+
+    // Method to get announcement by staff id desc
+    public List<AnnouncementListbyStaff> getAnnouncementsForStaff(int staffId) {
+        List<Announcement> announcements = announcement_repo.findAnnouncementsByStaffId(staffId);
+        return announcements.stream()
+                .map(a -> new AnnouncementListbyStaff(a.getId(), a.getTitle(), a.getCreated_at()))
+                .collect(Collectors.toList());
+    }
+
+    //Method to update profile photo
+    public Staff updateStaff(Staff staff) {
+        return staffRepository.save(staff);
+    }
+
+    //Method to change Pw in profile
+    public String changeOldPassword(ChangePasswordRequest request) {
+        System.out.println("Searching for staff with ID: " + request.getStaffId());
+        Staff staff = staffRepository.findByCompanyStaffId(request.getStaffId());
+
+        if (staff != null) {
+            System.out.println("Staff found: " + staff.getName());
+            if (!passwordEncoder.matches(request.getOldPassword(), staff.getPassword())) {
+                return "Old password is incorrect";
+            }
+            staff.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            staffRepository.save(staff);
+            return "Password changed successfully";
+        } else {
+            return "Staff not found";
+        }
+    }
+
+
 
 
 

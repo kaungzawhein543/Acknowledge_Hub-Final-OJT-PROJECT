@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import autoTable from 'jspdf-autotable';
 import { AnnouncementService } from '../../services/announcement.service';
-import { FormsModule } from '@angular/forms';
+import { listAnnouncement } from '../../models/announcement-list';
 
 @Component({
   selector: 'app-list-announcement',
@@ -18,9 +18,9 @@ import { FormsModule } from '@angular/forms';
 export class ListAnnouncementComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  announcements: announcement[] = [];
-  filteredAnnouncements: announcement[] = [];
-  dataSource = new MatTableDataSource<announcement>([]);
+  announcements: listAnnouncement[] = [];
+  filteredAnnouncements: listAnnouncement[] = [];
+  dataSource = new MatTableDataSource<listAnnouncement>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
@@ -35,10 +35,11 @@ export class ListAnnouncementComponent {
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createStaff.name', header: 'Create/Request Staff' },
-    { field: 'category.name', header: 'Category' },
-    { field: 'created_at', header: 'Created At' },
-    { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'createStaff', header: 'Create/Request Staff' },
+    { field: 'file', header: 'Versions' },
+    { field: 'scheduleAt', header: 'Created At' },
+    { field: 'note', header: 'Noted/UnNoted' },
+    { field: 'detail', header: 'Details' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -58,6 +59,11 @@ export class ListAnnouncementComponent {
 
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
+  }
+
+  getVersionNumber(title: string): string | null {
+    const match = title.match(/V(\d+)/);
+    return match ? match[1] : null;
   }
 
   fetchAnnouncements() {
@@ -90,8 +96,8 @@ export class ListAnnouncementComponent {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.category?.name?.toLowerCase() || '',
-        a.createStaff?.name?.toLowerCase() || '',
+        a.category?.toLowerCase() || '',
+        a.createStaff?.toLowerCase() || '',
         new Date(a.created_at).toLocaleString().toLowerCase(),
         new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
@@ -131,6 +137,14 @@ export class ListAnnouncementComponent {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
+
   generateReport(format: 'pdf' | 'excel') {
     if (format === 'pdf') {
       this.generatePDF(this.filteredAnnouncements, 'report.pdf');
@@ -140,7 +154,10 @@ export class ListAnnouncementComponent {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
+
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -165,7 +182,6 @@ export class ListAnnouncementComponent {
       columnStyles: {
         0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
         1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
-        // Add more column styles as needed
       },
       tableWidth: 'auto', // Auto width adjustment for table
     });
@@ -175,16 +191,21 @@ export class ListAnnouncementComponent {
   }
 
 
-  generateExcel(announcements: announcement[], fileName: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+  generateExcel(announcements: listAnnouncement[], fileName: string) {
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
+
     const headers = visibleColumns.map(col => col.header);
-    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
+    const data = [headers, ...announcements.map(a =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
+    )];
+
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, fileName);
   }
-
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(data, fileName);
@@ -222,5 +243,26 @@ export class ListAnnouncementComponent {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
+  }
+
+  onNotedButtonClick(id: number, name: string, file: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedFile = btoa(file);
+    this.router.navigate(['/acknowledgeHub/announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
+  }
+
+  onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedStatus = btoa(groupStatus.toString());
+    const encodedFile = btoa(file);
+    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
+  }
+
+  onDetailButtonClick(id: number) {
+    if(id){
+      this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
+    }
   }
 }

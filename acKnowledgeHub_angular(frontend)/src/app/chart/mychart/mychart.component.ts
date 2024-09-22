@@ -5,11 +5,25 @@ import { Platform } from '@angular/cdk/platform';
 import { ChartService } from '../../services/chart.service';
 import { Chart, registerables } from 'chart.js';
 import { AnnouncementStaffCountDTO } from '../../models/announcement';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-mychart',
   templateUrl: './mychart.component.html',
-  styleUrls: ['./mychart.component.css']
+  styleUrls: ['./mychart.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class MychartComponent implements AfterViewInit {
   announcementData: AnnouncementStaffCountDTO[] = [];
@@ -80,7 +94,7 @@ export class MychartComponent implements AfterViewInit {
         return itemDate >= start && itemDate <= end;
       });
     } else {
-      this.filteredData = this.announcementData;
+      this.filteredData = this.announcementData.slice(0,5);
     }
   
     this.noData = !(this.filteredData.length > 0 && this.announcementByIdData.length > 0);

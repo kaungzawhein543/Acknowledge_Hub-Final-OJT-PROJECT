@@ -31,50 +31,57 @@ import java.util.Map;
 @Slf4j
 public class LoginController {
 
-    @Autowired
-    private StaffService staffService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private TokenBlacklistService tokenBlacklistService;
-
+    private final StaffService staffService;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Staff user = staffService.authenticate(loginRequest.getStaffId(), loginRequest.getPassword());
-        if (user != null) {
-            if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
-                return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
-            } else {
-                String token = Jwts.builder()
-                        .setSubject(user.getCompanyStaffId())
-                        .claim("name", user.getName())
-                        .claim("role", user.getRole())
-                        .claim("position",user.getPosition().getName())
-                        .claim("company",user.getCompany().getName())
-                        .setIssuedAt(new Date())
-                        .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                        .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                        .compact();
-
-                Cookie cookie = new Cookie("jwt", token);
-                cookie.setHttpOnly(true);
-                cookie.setPath("/");
-                cookie.setMaxAge(86400);
-                cookie.setSecure(true);
-                response.addCookie(cookie);
-                return ResponseEntity.ok("Login successful\n" + token);
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid staff ID or password");
-        }
+    public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService) {
+        this.staffService = staffService;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        Staff user = staffService.findByStaffId(loginRequest.getStaffId());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid staff ID");
+        } else if (!user.getStatus().equals("active")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your account is inactive. Please contact the administrator.");
+        } else {
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
+                    return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
+                } else {
+                    String token = Jwts.builder()
+                            .setSubject(user.getCompanyStaffId())
+                            .claim("name", user.getName())
+                            .claim("role", user.getRole())
+                            .claim("position",user.getPosition().getName())
+                            .claim("company",user.getCompany().getName())
+                            .setIssuedAt(new Date())
+                            .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                            .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                            .compact();
+
+                    Cookie cookie = new Cookie("jwt", token);
+                    cookie.setHttpOnly(true);
+                    cookie.setPath("/");
+                    if(loginRequest.isRememberMe()){
+                        cookie.setMaxAge(86400);
+                    }
+                    cookie.setSecure(true);
+                    response.addCookie(cookie);
+                    return ResponseEntity.ok("Login successful\n" + token);
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+            }
+        }
+    }
 
     @PostMapping("/changePassword")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, HttpServletResponse response) {
@@ -151,7 +158,6 @@ public class LoginController {
         response.put("isLoggedIn", false);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
@@ -205,19 +211,23 @@ public class LoginController {
                 // Retrieve the staff member by their ID
                 Staff staff = staffService.findByStaffId(staffId);
                 if (staff != null) {
+                    Map<String, Long> monthlyCount = staffService.getMonthlyAnnouncementCount(staff.getId());
                     // Map Staff entity to StaffProfileDTO
                     ProfileDTO profileDTO = new ProfileDTO(
                             staff.getId(),
                             staff.getName(),
                             staff.getCompanyStaffId(),
                             staff.getEmail(),
+                            staff.getPassword(),
                             staff.getStatus(),
                             staff.getRole(),
+                            staff.getPhotoPath(),
                             staff.getPosition().getName(),
                             staff.getDepartment().getName(),
                             staff.getCompany().getName(),
                             staff.getCreatedAt(),
-                            staff.getChatId()
+                            staff.getChatId(),
+                            monthlyCount
                     );
 
                     return ResponseEntity.ok(profileDTO);

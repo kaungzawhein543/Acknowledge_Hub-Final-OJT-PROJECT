@@ -215,6 +215,7 @@ export class UserChartComponent implements AfterViewInit {
   destroyChart(): void {
     if (this.chartInstance) {
       this.chartInstance.destroy();
+      this.chartInstance = null;
     }
   }
 }
