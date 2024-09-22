@@ -235,6 +235,6 @@ export class UserUnnotedComponent implements OnInit {
   }
 
   onDetailButtonClick(announceemntId: number) {
-    this.router.navigate(['']);
+    this.router.navigate(['/acknowledgeHub/announcement/detail/'+btoa(announceemntId.toString())]);
   }
 }

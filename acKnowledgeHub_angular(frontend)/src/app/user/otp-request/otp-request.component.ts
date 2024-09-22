@@ -53,7 +53,7 @@ export class OtpRequestComponent {
   }
 
   gotoOTPInput() {
-    this.router.navigate(['/otp-input']);
+    this.router.navigate(['/acknowledgeHub/otp-input']);
   }
   gotoback() {
     this.router.navigate(['/login']);

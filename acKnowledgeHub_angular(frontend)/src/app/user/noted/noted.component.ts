@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { switchMap, of, catchError } from 'rxjs';
+import { userInfo } from 'os';
 
 @Component({
   selector: 'app-noted',
@@ -8,12 +11,24 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class NotedComponent {
   publicId: string | null = '';
-
-  constructor(private route: ActivatedRoute) { }
+  dashboardUrl : string='';
+  constructor(private router: Router,private authService : AuthService) { }
 
   ngOnInit(): void {
-
-    this.publicId = this.route.snapshot.queryParamMap.get('announcementId');
-    console.log("here is announcement id : " + this.publicId)
+    this.authService.getUserInfo().subscribe(
+            userInfo => {
+              if(userInfo.isLoggedIn === false){
+                this.dashboardUrl  ='/acknowledgeHub/login';
+              }
+              if(userInfo.user.role === 'ADMIN' || userInfo.position === 'HR_MAIN') {
+                this.dashboardUrl = '/acknowledgeHub/system-dashboard';
+              } else if (userInfo.user.role === 'USER') {
+                this.dashboardUrl = '/acknowledgeHub/staff-dashboard';
+              }
+            }
+          
+        );
   }
+
+
 }

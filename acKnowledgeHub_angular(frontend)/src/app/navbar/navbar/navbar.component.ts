@@ -8,6 +8,7 @@ import { NotificationService } from '../../services/notification.service';
 import { Subject, takeUntil } from 'rxjs';
 import { StaffProfileDTO } from '../../models/staff';
 import { ProfileService } from '../../services/profile.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-navbar',
@@ -29,6 +30,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   profile: StaffProfileDTO | null = null;
   baseUrl = 'http://localhost:8080';
   oldPhotoUrl: string | null = null;
+  originalTitle: string = 'AcknowledgeHub';
+  notificationTitle: string = '(1) New Notification!';
+  titleInterval: any; 
 
   constructor(
     private sidebarService: SidebarService, 
@@ -37,7 +41,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private webSocketService: WebSocketService,
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
-    private profileService : ProfileService
+    private profileService : ProfileService,
+    private titleService: Title
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
     this.audio.load();
@@ -45,7 +50,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProfile();
-
+    document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
     this.authService.getUserInfo().subscribe(data => {
       this.staff_id = data.user.id;
       this.position = data.position;
@@ -64,6 +69,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.notifications = this.filterLatestNotifications(notifications.reverse());
         this.updateUnreadNotificationCount();
         this.cdr.detectChanges();
+        if(this.unreadNotificationCount > 0){
+          this.handleVisibilityChange();
+        }else{
+          this.titleService.setTitle('AcknowledgeHub')
+        }
       },
       error: (error) => {
         console.error('Error receiving notifications:', error);
@@ -78,6 +88,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
         });
         this.incrementUnreadNotificationCount(notification);
         this.cdr.detectChanges();
+        if(this.unreadNotificationCount > 0){
+          this.handleVisibilityChange();
+        }else{
+          this.titleService.setTitle('AcknowledgeHub')
+        }
       },
       error: (error) => {
         console.error('Error receiving new notifications:', error);
@@ -121,49 +136,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
       filteredNotifications.unshift(latestAskQuestionNotification);
     }
   
-    console.log('Filtered Notifications:', filteredNotifications); // Debugging log
     return filteredNotifications;
   }
+  setTitle(newTitle: string) {
+    this.titleService.setTitle(newTitle);
+  }
   
-  // ngOnInit(): void {
-  //   this.authService.getUserInfo().subscribe(data => {
-  //     this.staff_id = data.user.id;
-  //     this.position = data.position;
-  //     this.name = data.user.name;
-  //   });
-
-  //   this.webSocketService.getNotifications().pipe(takeUntil(this.destroy$)).subscribe({
-  //     next: (notifications) => {
-  //       this.notifications = notifications.reverse();
-  //       this.updateUnreadNotificationCount();
-  //       this.cdr.detectChanges();
-  //     },
-  //     error: (error) => {
-  //       console.error('Error receiving notifications:', error);
-  //     }
-  //   });
-
-  //   this.webSocketService.getNewNotifications().pipe(takeUntil(this.destroy$)).subscribe({
-  //     next: (notification: Notification) => {
-  //       this.notifications = [notification, ...this.notifications];
-  //       this.audio.play().catch(error => {
-  //         console.error('Error playing sound:', error);
-  //       });
-  //       this.incrementUnreadNotificationCount(notification);
-  //       this.cdr.detectChanges();
-  //     },
-  //     error: (error) => {
-  //       console.error('Error receiving new notifications:', error);
-  //     }
-  //   });
-
-  //   // Subscribe to status updates
-  //   this.subscribeToStatusUpdates();
-
-  //   // Start interval to update "time ago" display
-  //   this.startUpdateInterval();
-  // }
-
   loadProfile(): void {
     this.authService.getProfile().subscribe(
       (data) => {
@@ -275,6 +253,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             if (notificationIds.includes(notification.id)) {
               notification.status = 'inactive';
             }
+            this.setTitle("AcknowledgeHub");
           });
           this.updateUnreadNotificationCount();
         },
@@ -307,79 +286,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
   trackNotificationById(index: number, notification: Notification): number {
     return notification.id;
   }
+
+
+  handleVisibilityChange(): void {
+    if (document.hidden && this.unreadNotificationCount > 0) {
+      // Start alternating the title every 1 second
+      this.startTitleToggle();
+    } else {
+      // Restore the original title when tab is active
+      if (this.titleInterval) {
+        clearInterval(this.titleInterval);  // Stop the title toggling
+      }
+      if(this.unreadNotificationCount >0){
+        this.titleService.setTitle(`(${this.unreadNotificationCount}) AcknowledgeHub`);  // Restore the original title
+      }
+    }
+  }
+
+  // Function to start toggling the title between the notification and the original
+  startTitleToggle(): void {
+    if (!this.titleInterval) {
+      let showNotification = true;
+      this.titleInterval = setInterval(() => {
+        if (showNotification) {
+          this.titleService.setTitle(`(${this.unreadNotificationCount}) New Notification!`);
+        } else {
+          this.titleService.setTitle(this.originalTitle); 
+        }
+        showNotification = !showNotification; // Toggle between titles
+      }, 1000);  // Every 1 second
+    }
+  }
 }
-
-// ngOnInit(): void {
-//   this.authService.getUserInfo().subscribe(data => {
-//     this.staff_id = data.user.id;
-//     this.position = data.position;
-//     this.name = data.user.name;
-//   });
-
-//   this.webSocketService.getNotifications().pipe(takeUntil(this.destroy$)).subscribe({
-//     next: (notifications) => {
-//       this.notifications = this.filterLatestNotifications(notifications.reverse());
-//       console.log(this.notifications)
-//       this.updateUnreadNotificationCount();
-//       this.cdr.detectChanges();
-//     },
-//     error: (error) => {
-//       console.error('Error receiving notifications:', error);
-//     }
-//   });
-
-//   this.webSocketService.getNewNotifications().pipe(takeUntil(this.destroy$)).subscribe({
-//     next: (notification: Notification) => {
-//       // Insert the new notification and filter the list
-//       this.notifications = this.filterLatestNotifications([notification, ...this.notifications]);
-//       console.log(`Notifications are ${this.notifications}`)
-//       this.audio.play().catch(error => {
-//         console.error('Error playing sound:', error);
-//       });
-//       this.incrementUnreadNotificationCount(notification);
-//       this.cdr.detectChanges();
-//     },
-//     error: (error) => {
-//       console.error('Error receiving new notifications:', error);
-//     }
-//   });
-
-//   this.subscribeToStatusUpdates();
-//   this.startUpdateInterval();
-// }
-
-// // Utility function to filter notifications and keep the latest "ask a question" notification
-// filterLatestNotifications(notifications: Notification[]): Notification[] {
-// const announcementMap = new Map<number, Notification>();
-// let latestAskQuestionNotification: Notification | null = null;
-
-// notifications.forEach(notification => {
-//   const announcementId = notification.announcementDetails.id;
-//   const containsAskQuestion = notification.title?.includes("ask a question") || notification.description?.includes("ask a question");
-
-//   // Check if the notification contains "ask a question"
-//   if (containsAskQuestion) {
-//     // If it's the first one or it's newer than the current latest, replace it
-//     if (!latestAskQuestionNotification || new Date(notification.created_at) > new Date(latestAskQuestionNotification.created_at)) {
-//       latestAskQuestionNotification = notification;
-//     }
-//   } else if (announcementId) {
-//     // For other notifications, check if they belong to the same announcement and keep the latest
-//     const existingNotification = announcementMap.get(announcementId);
-//     if (!existingNotification || new Date(notification.created_at) > new Date(existingNotification.created_at)) {
-//       announcementMap.set(announcementId, notification);
-//     }
-//   } else {
-//     // If no announcement id, just push the notification (generic case)
-//     announcementMap.set(notification.id, notification);
-//   }
-// });
-
-// // Convert the map back to an array and add the latest "ask a question" notification
-// const filteredNotifications = Array.from(announcementMap.values());
-// if (latestAskQuestionNotification) {
-//   filteredNotifications.unshift(latestAskQuestionNotification);
-// }
-
-// return filteredNotifications;
-// }

@@ -96,7 +96,9 @@ public class BlogService {
            if (groupStatus != 1) {
                for (Staff AnnounceStaff : staffForAnnounce) {
                    if (AnnounceStaff != null) {
-                       botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
+                       if(AnnounceStaff.getChatId() != null){
+                           botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
+                       }
                    }
                    if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);

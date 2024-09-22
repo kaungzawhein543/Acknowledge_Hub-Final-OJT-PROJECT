@@ -16,12 +16,15 @@ export class AppComponent implements OnInit {
   title = 'acKnowledgeHub_angular';
   isSidebarOpen = true;
   isLoginPage = false;
+  isNotedSuccessfullPage = false;
   isChangePasswordPage = false;
   is404Page = false;
   screenWidth: number = 0;
   resizeSubject = new Subject<void>();
   isLoading = true;
-  
+  isOtpRequest : boolean = false;
+  isOtpInput : boolean = false;
+  isAddPassword : boolean = false;
   constructor(    private authService: AuthService,private sidebarService: SidebarService, private router: Router,@Inject(PLATFORM_ID) private platformId: Object,private loadingService:LoadingService) { }
 
   ngOnInit(): void {
@@ -31,7 +34,11 @@ export class AppComponent implements OnInit {
         filter(event => event instanceof NavigationEnd)
       ).subscribe(() => {
         this.isLoginPage = this.router.url === '/acknowledgeHub/login';
+        this.isOtpRequest = this.router.url === '/acknowledgeHub/otp-request';
+        this.isOtpInput = this.router.url === '/acknowledgeHub/otp-input';
         this.isChangePasswordPage = this.router.url.includes('change-password');
+        this.isAddPassword = this.router.url.includes('add-password');
+        this.isNotedSuccessfullPage = /^\/noted\?announcementId=\d+$/.test(this.router.url);
         this.is404Page = this.router.url.includes('404');
       });
       this.screenWidth = window.innerWidth ?? 0;
@@ -51,9 +58,6 @@ export class AppComponent implements OnInit {
           this.loadingService.hide()
         },500);
         
-        if (!isAuthenticated) {
-          this.router.navigate(['/acknowledgeHub/login']);
-        }
       });
     }
     

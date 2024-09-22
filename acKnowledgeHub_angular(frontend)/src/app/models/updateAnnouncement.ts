@@ -10,6 +10,7 @@ export interface updateAnnouncement {
     staffInGroups : [];
     created_at: Date;
     file: string;
+    published : boolean;
     scheduleAt: Date;
     groupStatus: number;
     staff :[];

@@ -41,7 +41,8 @@ export class DetailAnnouncementComponent {
     description: '',
     createdAt: '',
     category : Category,
-    createStaff : ''
+    createStaff : '',
+    published : false,
   };
  feedback: Feedback = {
    staffId: 0,
@@ -77,6 +78,7 @@ private loadAnnouncementData(decodedId: string): void {
       return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
         tap(announcement => {
           this.announcement = announcement;
+          console.log(this.announcement);
           this.createdStaff = announcement.createdStaffId;
           this.accessStaffs = announcement.groupStatus === 1 ? announcement.staffInGroups : announcement.staff;
           this.replyPermission = this.currentUserId === announcement.createdStaffId;

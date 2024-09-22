@@ -31,6 +31,7 @@ public class EmailService {
 
     public void sendOTPEmail(String toEmail, String subject, String messageBody) {
         SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("kzheindev789@gmail.com");
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(messageBody);

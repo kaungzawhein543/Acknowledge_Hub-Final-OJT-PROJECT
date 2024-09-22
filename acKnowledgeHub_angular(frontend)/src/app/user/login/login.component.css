@@ -6,8 +6,11 @@ div >  .logo{
   color:#efefef;
   height: 20px;
   user-select: none;
-  
 }
+* {
+  box-sizing: border-box;
+}
+
 
 /* Keyframes for typing effect */
 @keyframes typing {
@@ -18,9 +21,24 @@ div >  .logo{
 /* Container for typing effect */
 .typing-container {
   display: flex;
+  width: auto;
+  justify-content: center;
   flex-direction: column;
   align-items: center;
 }
+
+@-moz-document url-prefix() {
+  .typing-container {
+    gap: 10px; /* or adjust the value slightly if needed */
+  }
+}
+
+
+.letter {
+  margin: 0;
+  padding: 0;
+}
+
 
 /* Text container for individual letters */
 .typing-text {

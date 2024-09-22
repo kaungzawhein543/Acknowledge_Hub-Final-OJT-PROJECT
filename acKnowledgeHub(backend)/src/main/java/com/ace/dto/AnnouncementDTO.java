@@ -23,6 +23,7 @@ public class AnnouncementDTO {
     private LocalDateTime scheduleAt;
     private String file;
     private String description;
+    private boolean isPublished;
     private String status = "active";
     private String createStaff;
     private Category category;

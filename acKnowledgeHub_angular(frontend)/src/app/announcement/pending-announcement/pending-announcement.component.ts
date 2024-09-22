@@ -213,12 +213,8 @@ export class PendingAnnouncementComponent implements OnInit {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onFileButtonClick(file: string) {
-    if (file) {
-      window.open(file, '_blank'); // Open the file in a new tab
-    } else {
-      console.log('No file available for this announcement');
-    }
+  onFileButtonClick(id: number) {
+    this.router.navigate(['/acknowledgeHub/announcement/detail/'+btoa(id.toString())]);
   }
 
 

@@ -86,7 +86,7 @@
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
                                 <ng-container *ngSwitchCase="'detail'">
-                                    <button mat-button (click)="onFileButtonClick(announcement.file)">
+                                    <button mat-button (click)="onFileButtonClick(announcement.id)">
                                         View File
                                     </button>
                                 </ng-container>

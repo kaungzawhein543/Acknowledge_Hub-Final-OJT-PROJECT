@@ -74,7 +74,7 @@
       <div class="file-input-wrapper">
         <label class="custom-file-upload">
           Choose File
-          <input type="file" (change)="onFileChange($event)" />
+          <input type="file" accept=".jpg, .jpeg, .png" (change)="onFileChange($event)" />
         </label>
       </div>
       <button (click)="uploadPhoto()">Upload Photo</button>

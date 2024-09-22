@@ -44,7 +44,7 @@ export class ExcelImportComponent {
         
           // Update the mapping to use the correct column headers
           this.staffs = sheetData.map((row: any) => ({
-            id: row['ID'],  // Assuming the ID column is present in the Excel file
+            id: row['Staff ID'],  // Assuming the ID column is present in the Excel file
             name: row['Name'],
             email: row['Email'],
             position: row['Position'],

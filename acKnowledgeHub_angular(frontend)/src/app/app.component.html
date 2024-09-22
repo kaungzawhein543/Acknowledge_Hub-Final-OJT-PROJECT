@@ -4,20 +4,20 @@
 
 
 <div *ngIf="!isLoading" class="">        
-    <app-navbar *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page"></app-navbar>
+    <app-navbar *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword"></app-navbar>
 
-    <div class="flex h-screen overflow-hidden bg-gray-300 " [ngClass]="{ 'login-page': isLoginPage && !isChangePasswordPage && !is404Page, 'app-container': !isLoginPage && !isChangePasswordPage && !is404Page,'notLoginPage':!isLoginPage && !isChangePasswordPage && !is404Page }" >
+    <div class="flex h-screen overflow-hidden bg-gray-300 " [ngClass]="{ 'login-page': isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword, 'app-container': !isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword,'notLoginPage':!isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage  && !isOtpRequest && !isOtpInput && !isAddPassword}" >
       <!-- Toast Container -->
       <div id="toast-container" ></div>
       
 
       <!-- Sidebar -->
-      <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black ">
+      <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black ">
         <app-sidebar></app-sidebar>
       </div>
       
       <!-- Main Content -->
-      <div [ngClass]="{' bg-gray-300 p-4': !isLoginPage && !isChangePasswordPage && !is404Page}" class="w-full overflow-auto">
+      <div [ngClass]="{' bg-gray-300 p-4': !isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword}" class="w-full overflow-auto">
         <router-outlet></router-outlet>
       </div>
     </div>

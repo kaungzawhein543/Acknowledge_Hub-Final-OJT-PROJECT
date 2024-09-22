@@ -1,5 +1,22 @@
-<div style="text-align: center;">
-    <h2>Thank you!</h2>
-    <p>You have noted {{publicId}}.</p>
-    <button disabled style="background-color: #28a745; color: white; padding: 10px 20px;">Noted</button>
+<div class="w-full h-full flex items-center justify-center">
+    <div class="max-w-sm mx-auto p-6 bg-white rounded-lg shadow-md text-center">
+        <!-- Success Icon -->
+        <div class="flex justify-center items-center bg-green-100 w-16 h-16 rounded-full mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+    
+        <!-- Title -->
+        <span class="text-lg font-semibold text-gray-800">Noted successful</span>
+    
+        <!-- Description -->
+        <p class="text-sm text-gray-500 mt-2">Thanks For Noted Our Announcement!And Wait For Other Announcements!</p>
+    
+        <!-- Button -->
+        <button [routerLink]="[this.dashboardUrl]" class="mt-6 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            Go back to dashboard
+        </button>
+    </div>
+    
 </div>

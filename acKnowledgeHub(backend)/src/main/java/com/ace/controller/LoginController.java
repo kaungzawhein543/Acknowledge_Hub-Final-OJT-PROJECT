@@ -158,7 +158,6 @@ public class LoginController {
         response.put("isLoggedIn", false);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
