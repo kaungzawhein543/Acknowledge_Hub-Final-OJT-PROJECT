@@ -12,6 +12,7 @@ import { AddStaff } from '../models/addStaff';
 import { announcementList } from '../models/announcement-list';
 import { AnnouncementListDTO } from '../models/announcement';
 import { ChangePasswordRequest } from '../models/change-password-request.model';
+import { text } from 'stream/consumers';
 
 
 
@@ -100,5 +101,12 @@ export class StaffService {
   // Method to change old password
   changeOldPassword(request: ChangePasswordRequest): Observable<string> {
     return this.http.post<string>(`${this.baseURL}/change_Old_Password`, request, { withCredentials :true , responseType: 'text' as 'json'});
+  }
+  activateStaff(id: number): Observable<any> {
+    return this.http.get(`${this.baseURL}/activate/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  InactivateStaff(id: number): Observable<any> {
+    return this.http.get(`${this.baseURL}/inactivate/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

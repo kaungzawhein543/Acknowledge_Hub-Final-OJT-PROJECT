@@ -95,7 +95,6 @@ public class AnnouncementController {
                     dto.setStaffInGroups(allStaff);
 
                     dto.setStaff(announcement.getStaff());
-
                     return ResponseEntity.ok(dto);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -394,6 +393,11 @@ public class AnnouncementController {
         return announcementList;
     }
 
+//    @GetMapping("/staff-requested-list/{id}")
+//    public List<AnnouncementListDTO> getStaffRequestedAnnouncementList(@PathVariable("id")Integer staffId){
+//        return announcement_service.getStaffRequestedAnnouncementList(staffId);
+//    }
+
     @GetMapping("/pending-list")
     public List<AnnouncementResponseListDTO> getPendingAnnouncement() {
         return announcement_service.getPendingAnnouncement();
@@ -425,12 +429,12 @@ public class AnnouncementController {
         return list;
     }
 
-    @GetMapping("request-list")
+    @GetMapping("/request-list")
     public List<RequestAnnouncementResponseDTO> getRequestAnnouncements() {
         return announcement_service.getRequestAnnouncements();
     }
 
-    @GetMapping("approved/{id}")
+    @GetMapping("/approved/{id}")
     public ResponseEntity<Boolean> approveRequestAnnouncement(@PathVariable("id") Integer id) {
         try {
             announcement_service.approvedRequestAnnouncement(id);
@@ -440,12 +444,28 @@ public class AnnouncementController {
         }
     }
 
-    @GetMapping("reject/{id}")
+    @GetMapping("/reject/{id}")
     public ResponseEntity<Boolean> rejectRequestAnnouncement(@PathVariable("id") Integer id) {
         try {
             announcement_service.rejectRequestAnnouncement(id);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("request-list/{id}")
+    public List<AnnouncementListDTO> getAnnouncementListByStaffRequest(@PathVariable("id") Integer staffId){
+        return announcement_service.getAnnouncementListByStaffRequest(staffId);
+    }
+
+    @GetMapping("cancel/{id}")
+    public ResponseEntity<String> cancelPendingAnnouncement(@PathVariable("id")Integer id){
+        try {
+            announcement_service.cancelPendingAnnouncement(id);
+            postSchedulerService.cancelScheduledPost(id);
+            return ResponseEntity.ok("Cancelling announcement is successful.");
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

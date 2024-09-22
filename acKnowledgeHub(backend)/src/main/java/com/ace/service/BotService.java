@@ -17,7 +17,7 @@ public class BotService {
     }
 
     @Async("taskExecutor")
-    public void sendFile(String chatId,MultipartFile file,Integer announcementId) {
-        myTelegramBot.sendPdf(chatId, file,announcementId);
+    public void sendFile(String chatId,MultipartFile file,Integer announcementId,byte updateStatus) {
+        myTelegramBot.sendPdf(chatId, file,announcementId,updateStatus);
     }
 }

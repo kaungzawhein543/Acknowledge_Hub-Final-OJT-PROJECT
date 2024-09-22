@@ -36,7 +36,7 @@
                 </button>
                 <!-- Dropdown for Report Types -->
                 <ul class="absolute left-2 w-41 bg-gray-100 text-black top-10 shadow-md rounded z-10"
-                    *ngIf="isReportDropdownOpen">
+                    *ngIf="isReportDropdownOpen" (click)="$event.stopPropagation()">
                     <li class="py-2 px-4 hover:bg-gray-100 cursor-pointer" (click)="generateReport('pdf')">
                         <i class="fa-regular fa-file-pdf"></i> Generate PDF
                     </li>
@@ -47,10 +47,10 @@
                 <button mat-button [matMenuTriggerFor]="menu">Columns</button>
             </div>
 
-            <mat-menu #menu="matMenu">
+            <mat-menu #menu="matMenu" [overlapTrigger]="false">
                 <div class="checkbox-container">
                     <mat-checkbox *ngFor="let col of columns" [(ngModel)]="columnVisibility[col.field]"
-                        (change)="onColumnVisibilityChange()" class="checkbox-item">
+                        (click)="$event.stopPropagation()" (change)="onColumnVisibilityChange()" class="checkbox-item">
                         {{ col.header }}
                     </mat-checkbox>
                 </div>

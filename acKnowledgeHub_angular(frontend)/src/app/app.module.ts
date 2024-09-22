@@ -73,6 +73,8 @@ import { DetailAnnouncementComponent } from './announcement/detail-announcement/
 import { CommonModule } from '@angular/common';
 import { LoadingService } from './services/loading.service';
 import { TimeAgoPipe } from './time-ago.pipe';
+import { UserAnnouncementListComponent } from './user/user-announcement-list/user-announcement-list.component';
+import { RequestListByUserComponent } from './announcement/request-list-by-user/request-list-by-user.component';
 
 @NgModule({
   declarations: [
@@ -123,7 +125,9 @@ import { TimeAgoPipe } from './time-ago.pipe';
     StaffChartComponent,
     LoaderComponent,
     DetailAnnouncementComponent,
-    TimeAgoPipe
+    TimeAgoPipe,
+    UserAnnouncementListComponent,
+    RequestListByUserComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

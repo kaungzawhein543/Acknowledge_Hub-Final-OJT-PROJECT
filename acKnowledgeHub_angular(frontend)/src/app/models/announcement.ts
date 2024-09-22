@@ -10,11 +10,11 @@ export interface announcement {
   status: string;
   createdAt: string;
   scheduleAt: Date;
-  forRequest :number;
+  forRequest: number;
   groupStatus: number;
   [key: string]: any;
-  oldVersionStaff :[];
-  oldVersionGroup : [];
+  oldVersionStaff: [];
+  oldVersionGroup: [];
   file?: File;  // File is handled separately
 }
 
@@ -43,6 +43,7 @@ export interface AnnouncementListDTO {
   created_at: Date; // Ensure this matches the date format from your backend
   scheduleAt: Date; // Ensure this matches the date format from your backend
   groupStatus: string; // Adjust type if needed
+  [key: string]: any;
 }
 
 export interface MonthlyCountDTO {

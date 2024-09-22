@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MtxGridColumn } from '@ng-matero/extensions/grid';
 import { AnnouncementService } from '../../services/announcement.service';
 import { AuthService } from '../../services/auth.service';
@@ -58,7 +58,6 @@ export class UserUnnotedComponent implements OnInit {
     this.authService.getUserInfo().subscribe({
       next: (data) => {
         this.staffId = data.user.id;
-        console.log("here is id " + this.staffId)
         this.getUnNotedList(this.staffId);
       },
       error: (e) => console.log(e)
@@ -83,6 +82,14 @@ export class UserUnnotedComponent implements OnInit {
       },
       (error) => console.error('Error fetching announcements:', error)
     );
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
   }
 
   toggleFilterDropdown() {
@@ -150,7 +157,7 @@ export class UserUnnotedComponent implements OnInit {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -186,7 +193,7 @@ export class UserUnnotedComponent implements OnInit {
 
 
   generateExcel(announcements: announcementList[], fileName: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const headers = visibleColumns.map(col => col.header);
     const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
     const worksheet = XLSX.utils.aoa_to_sheet(data);

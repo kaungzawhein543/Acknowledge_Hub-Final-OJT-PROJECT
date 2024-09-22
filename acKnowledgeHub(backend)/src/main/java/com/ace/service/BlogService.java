@@ -101,7 +101,11 @@ public class BlogService {
                        }
                    }
                    if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                       emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);
+                    if(updateStatus > 0){
+                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcementId);
+                    }else{
+                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have A New Announcement", file, file.getOriginalFilename(),announcementId);
+                    }
                    }
                    String description;
                    if(updateStatus > 0){
@@ -128,7 +132,12 @@ public class BlogService {
                                }
                            }
                            if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                               emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a new Announcement", file, file.getOriginalFilename(),announcementId);
+                            if(updateStatus > 0){
+                                emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcementId);
+                            }else{
+                                emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a Announcement", file, file.getOriginalFilename(),announcementId);
+
+                            }
                            }
                            String description;
                            if(updateStatus > 0){
@@ -152,7 +161,7 @@ public class BlogService {
             Notification notification = new Notification();
             notification.setDescription(description);
             notification.setStaff(staff);
-            String url = "/announcement/detail/";
+            String url = "/acknowledgeHub/announcement/detail/";
             notification.setChecked(false);
             notification.setUrl(url+Base64.getEncoder().encodeToString(announcement.getId().toString().getBytes()));
             notification.setAnnouncement(announcement);
@@ -189,5 +198,4 @@ public class BlogService {
        }
        return new NotificationDTO();
     }
-
 }

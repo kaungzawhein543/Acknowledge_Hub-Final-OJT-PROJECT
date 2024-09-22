@@ -9,14 +9,20 @@
                 class="ms-auto bg-green-600 text-white font-semibold px-4 py-2 rounded text-sm hover:bg-green-700 transition duration-200 flex items-center">
                 Import Excel
             </button>
-        </div>        
-        <form #staffForm="ngForm" (ngSubmit)="onSubmit(staffForm)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+        <form #staffForm="ngForm" (ngSubmit)="onSubmit(staffForm)"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="col-span-1">
                 <label for="companyStaffId" class="block text-gray-700 font-medium mb-2">
                     Staff ID
                 </label>
                 <input type="text" id="companyStaffId" name="companyStaffId" [(ngModel)]="staff.companyStaffId" required
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <span *ngIf="staffForm.submitted && staffForm.controls['companyStaffId'].errors">
+                    <small class="error" *ngIf="staffForm.controls['companyStaffId'].errors?.['required']">
+                        <i class="fa-solid fa-circle-exclamation"></i> Staff-ID is required
+                    </small>
+                </span>
             </div>
 
             <div class="col-span-1">
@@ -25,6 +31,11 @@
                 </label>
                 <input type="text" id="name" name="name" [(ngModel)]="staff.name" required
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <span *ngIf="staffForm.submitted && staffForm.controls['name'].errors">
+                    <small class="error" *ngIf="staffForm.controls['name'].errors?.['required']">
+                        <i class="fa-solid fa-circle-exclamation"></i> Name is required
+                    </small>
+                </span>
             </div>
 
             <div class="col-span-1">
@@ -33,6 +44,11 @@
                 </label>
                 <input type="text" id="email" name="email" [(ngModel)]="staff.email" required
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <span *ngIf="staffForm.submitted && staffForm.controls['email'].errors">
+                    <small class="error" *ngIf="staffForm.controls['email'].errors?.['required']">
+                        <i class="fa-solid fa-circle-exclamation"></i>Email is required
+                    </small>
+                </span>
             </div>
 
             <div class="col-span-1">

@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { AnnouncementService } from '../../services/announcement.service';
 import { AuthService } from '../../services/auth.service';
 import { MatPaginator } from '@angular/material/paginator';
@@ -82,7 +82,13 @@ export class UserNotedComponent implements OnInit {
       (error) => console.error('Error fetching announcements:', error)
     );
   }
-
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
   toggleFilterDropdown() {
     this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
     if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
@@ -147,7 +153,7 @@ export class UserNotedComponent implements OnInit {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -183,7 +189,7 @@ export class UserNotedComponent implements OnInit {
 
 
   generateExcel(announcements: staffNotedAnnouncement[], fileName: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const headers = visibleColumns.map(col => col.header);
     const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
     const worksheet = XLSX.utils.aoa_to_sheet(data);
@@ -231,7 +237,8 @@ export class UserNotedComponent implements OnInit {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onDetailButtonClick(announceemntId: number) {
-    this.router.navigate(['']);
+  onDetailButtonClick(id: number) {
+    const encodedId = btoa(id.toString());
+    this.router.navigate(['/announcement/detail/' + encodedId]);
   }
 }

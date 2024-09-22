@@ -1,25 +1,24 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { announcement } from '../../models/announcement';
+import { listAnnouncement } from '../../models/announcement-list';
 import { MatTableDataSource } from '@angular/material/table';
 import { AnnouncementService } from '../../services/announcement.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { announcementList } from '../../models/announcement-list';
-import autoTable from 'jspdf-autotable';
+import { AuthService } from '../../services/auth.service';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 @Component({
-  selector: 'app-pending-announcement',
-  templateUrl: './pending-announcement.component.html',
-  styleUrl: './pending-announcement.component.css'
+  selector: 'app-request-list-by-user',
+  templateUrl: './request-list-by-user.component.html',
+  styleUrl: './request-list-by-user.component.css'
 })
-export class PendingAnnouncementComponent implements OnInit {
+export class RequestListByUserComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  announcements: announcementList[] = [];
-  filteredAnnouncements: announcementList[] = [];
-  dataSource = new MatTableDataSource<announcementList>([]);
+  requestAnnouncements: listAnnouncement[] = [];
+  filteredAnnouncements: listAnnouncement[] = [];
+  dataSource = new MatTableDataSource<listAnnouncement>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
@@ -28,55 +27,72 @@ export class PendingAnnouncementComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
-
+  loginStaffId !: number;
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
     { field: 'category', header: 'Category' },
-    { field: 'createStaff', header: 'Create/Request Staff' },
-    { field: 'createdAt', header: 'Create At' },
-    { field: 'detail', header: 'View' },
-    { field: 'cancel', header: 'Action' }
+    { field: 'created_at', header: 'Created At' },
+    { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'status', header: 'Status' },
+    { field: 'detail', header: 'Detail' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
   selectedColumns = this.columns.map(col => col.field);
-
-  constructor(
-    private announcementService: AnnouncementService,
+  constructor(private announcementService: AnnouncementService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
+
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.todayDate = new Date().toISOString().split('T')[0];
-    this.fetchAnnouncements();
+    this.authService.getUserInfo().subscribe({
+      next: (data) => {
+        this.loginStaffId = data.user.id;
+        this.fetchAnnouncements(this.loginStaffId);
+      }
+    })
+
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+  }
+
+  fetchAnnouncements(id: number) {
+    this.announcementService.getAnnouncementListByStaffRequest(id).subscribe({
+      next: (data) => {
+        console.log("here is user request by " + data)
+        this.requestAnnouncements = data.map((item, index) => ({
+          ...item,
+          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
+        }));
+        this.filteredAnnouncements = this.requestAnnouncements;
+        this.dataSource.data = this.filteredAnnouncements;
+        this.dataSource.paginator = this.paginator;
+        this.filterAnnouncements();
+      },
+      error: (e) => console.log(e)
+    });
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
+
+  getRequestStaff(announcement: any): string {
+    const staffName = announcement.createStaff || 'N/A';
+    const companyName = announcement.staffCompany || 'N/A';
+    return `${staffName} (${companyName})`;
   }
 
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
-  }
-
-  fetchAnnouncements() {
-    this.announcementService.pendingAnnouncementBySchedule().subscribe(
-      (data) => {
-        this.announcements = data.map((item, index) => ({
-          ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        }));
-        this.filteredAnnouncements = this.announcements;
-        this.dataSource.data = this.filteredAnnouncements;
-        this.dataSource.paginator = this.paginator;
-      },
-      (error) => console.error('Error fetching announcements:', error)
-    );
-  }
-
-  toggleFilterDropdown() {
-    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
-    if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
   }
 
   toggleReportDropdown() {
@@ -85,18 +101,39 @@ export class PendingAnnouncementComponent implements OnInit {
   }
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
-    this.filteredAnnouncements = this.announcements.filter(a => {
+    this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.file?.toLowerCase() || '',
-        a.createStaff?.toLowerCase() || '',
         a.category?.toLowerCase() || '',
-        new Date(a.createdAt).toLocaleString().toLowerCase(),
+        a.createStaff?.toLowerCase() || '',
+        new Date(a.created_at).toLocaleString().toLowerCase(),
+        new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
     this.dataSource.data = this.filteredAnnouncements;
+  }
+
+  onStartDateChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.startDateTime = input.value || null;
+    this.validateDateRange();
+    this.filterAnnouncements();
+  }
+
+  onEndDateChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const today = new Date().toISOString().split('T')[0];
+    this.endDateTime = input.value <= today ? input.value : today;
+    this.validateDateRange();
+    this.filterAnnouncements();
+  }
+
+  validateDateRange() {
+    if (this.startDateTime && this.endDateTime && this.startDateTime > this.endDateTime) {
+      this.startDateTime = null;
+    }
   }
 
   generateReport(format: 'pdf' | 'excel') {
@@ -108,10 +145,7 @@ export class PendingAnnouncementComponent implements OnInit {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
-
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -136,6 +170,7 @@ export class PendingAnnouncementComponent implements OnInit {
       columnStyles: {
         0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
         1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+        // Add more column styles as needed
       },
       tableWidth: 'auto', // Auto width adjustment for table
     });
@@ -145,55 +180,31 @@ export class PendingAnnouncementComponent implements OnInit {
   }
 
 
-  generateExcel(announcements: announcementList[], fileName: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
-
+  generateExcel(announcements: listAnnouncement[], fileName: string) {
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const headers = visibleColumns.map(col => col.header);
-    const data = [headers, ...announcements.map(a =>
-      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
-    )];
-
+    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, fileName);
   }
+
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(data, fileName);
   }
 
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-
+  filterAnnouncements() {
+    this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
+      if (this.startDateTime && this.endDateTime) {
+        const createdAt = new Date(a.created_at);
+        return createdAt >= new Date(this.startDateTime) && createdAt <= new Date(this.endDateTime);
+      }
+      return true;
+    });
+    this.dataSource.data = this.filteredAnnouncements;
   }
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-  }
-
-  onStartDateChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.startDateTime = input.value || null;
-    this.validateDateRange();
-
-  }
-
-  onEndDateChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const today = new Date().toISOString().split('T')[0];
-    this.endDateTime = input.value <= today ? input.value : today;
-    this.validateDateRange();
-  }
-
-  validateDateRange() {
-    if (this.startDateTime && this.endDateTime && this.startDateTime > this.endDateTime) {
-      this.startDateTime = null;
-    }
-  }
-
 
   getNestedProperty(obj: any, path: string): any {
     if (!obj || !path) return null;
@@ -214,24 +225,7 @@ export class PendingAnnouncementComponent implements OnInit {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onFileButtonClick(id: number) {
-    this.router.navigate(['/acknowledgeHub/announcement/detail/'+btoa(id.toString())]);
-  }
-
-  onCancelButtonClick(id: number) {
-    this.announcementService.cancelPendingAnnouncement(id).subscribe({
-      next: (data: string) => {
-        this.ngOnInit();
-      },
-      error: (e) => console.log(e)
-    })
-  }
-
-  @HostListener('document:click', ['$event'])
-  closeDropdownOnClickOutside(event: Event) {
-    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
-    if (!clickedInsideDropdown) {
-      this.isReportDropdownOpen = false;
-    }
+  onDetailButtonClick(id: number) {
+    this.router.navigate(['announcement/detail/' + id]);
   }
 }

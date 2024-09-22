@@ -77,20 +77,32 @@
                         <th mat-header-cell *matHeaderCellDef class="header-center">
                             {{ col.header }}
                         </th>
-                        <td mat-cell *matCellDef="let announcement" class="data-right">
+                        <td mat-cell *matCellDef="let user" class="data-right">
                             <ng-container [ngSwitch]="col.field">
-
+                                <span *ngIf="loginRole === 'ADMIN' ">
+                                    <ng-container *ngSwitchCase="'status'">
+                                        <span *ngIf="user.status ==='inactive'">
+                                            <button mat-button (click)="onActiveButtonClick(user.id)">
+                                                Activate
+                                            </button></span>
+                                        <span *ngIf="user.status ==='active'">
+                                            <button mat-button style="color: rgb(215, 133, 133);"
+                                                (click)="inActiveButtonClick(user.id)">
+                                                Inactivate
+                                            </button></span>
+                                    </ng-container>
+                                </span>
                                 <!-- Truncate Description -->
                                 <ng-container *ngSwitchCase="'description'">
-                                    {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}
+                                    {{ (getNestedProperty(user, col.field) | slice:0:20) + '.........' }}
                                 </ng-container>
                                 <!-- Format Schedule -->
                                 <ng-container *ngSwitchCase="'schedule'">
-                                    {{ (getNestedProperty(announcement, col.field) | date:'HH:mm:ss') }}
+                                    {{ (getNestedProperty(user, col.field) | date:'HH:mm:ss') }}
                                 </ng-container>
                                 <!-- Default Handling -->
                                 <ng-container *ngSwitchDefault>
-                                    {{ getNestedProperty(announcement, col.field) || 'N/A' }}
+                                    {{ getNestedProperty(user, col.field) || 'N/A' }}
                                 </ng-container>
                             </ng-container>
                         </td>

@@ -60,10 +60,10 @@
                 <button mat-button [matMenuTriggerFor]="menu">Columns</button>
             </div>
 
-            <mat-menu #menu="matMenu">
+            <mat-menu #menu="matMenu" [overlapTrigger]="false">
                 <div class="checkbox-container">
                     <mat-checkbox *ngFor="let col of columns" [(ngModel)]="columnVisibility[col.field]"
-                        (change)="onColumnVisibilityChange()" class="checkbox-item">
+                        (click)="$event.stopPropagation()" (change)="onColumnVisibilityChange()" class="checkbox-item">
                         {{ col.header }}
                     </mat-checkbox>
                 </div>
@@ -90,7 +90,11 @@
                                         View File
                                     </button>
                                 </ng-container>
-
+                                <ng-container *ngSwitchCase="'cancel'">
+                                    <button mat-button (click)="onCancelButtonClick(announcement.id)">
+                                        Cancel
+                                    </button>
+                                </ng-container>
                                 <!-- Truncate Description -->
                                 <ng-container *ngSwitchCase="'description'">
                                     {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}

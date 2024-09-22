@@ -1,8 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { announcement, AnnouncementListDTO, AnnouncementStatsDTO, MonthlyCountDTO } from '../models/announcement';
-import saveAs from 'file-saver';
+import { announcement, AnnouncementStatsDTO, MonthlyCountDTO } from '../models/announcement';
 import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
 import { announcementList, listAnnouncement, requestAnnouncement } from '../models/announcement-list';
 import { announcementVersion } from '../models/announcement-version';
@@ -159,11 +158,21 @@ export class AnnouncementService {
     return this.http.get<requestAnnouncement[]>(`${this.BaseUrl}/request-list`);
   }
 
+  getAnnouncementListByStaffRequest(id: number): Observable<listAnnouncement[]> {
+    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/request-list/${id}`);
+  }
+
   approvedRequestAnnouncement(id: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.BaseUrl}/approved/${id}`);
   }
 
   rejectRequestAnnouncement(id: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.BaseUrl}/reject/${id}`);
+  }
+
+
+
+  cancelPendingAnnouncement(id: number): Observable<any> {
+    return this.http.get(`${this.BaseUrl}/cancel/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

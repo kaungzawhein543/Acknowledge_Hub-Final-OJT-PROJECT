@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-list-user',
@@ -26,7 +27,7 @@ export class ListUserComponent {
   todayDate: string | undefined;
   activeChecked = false;
   inactiveChecked = false;
-
+  loginRole !: string;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
 
@@ -38,6 +39,7 @@ export class ListUserComponent {
     { field: 'position', header: 'Position' },
     { field: 'department', header: 'Department' },
     { field: 'company', header: 'Company' },
+    { field: 'status', header: 'Action' }
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -46,12 +48,18 @@ export class ListUserComponent {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private staffService: StaffService
+    private staffService: StaffService,
+    private authService: AuthService,
   ) { }
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
     this.fetchAnnouncements();
+    this.authService.getUserInfo().subscribe({
+      next: (data) => {
+        this.loginRole = data.user.role;
+      }
+    })
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
 
@@ -69,6 +77,8 @@ export class ListUserComponent {
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
+        this.activeChecked = true;
+        this.inactiveChecked = true;
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -123,8 +133,9 @@ export class ListUserComponent {
     }
   }
 
+
   generatePDF(announcements: any[], filename: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'status');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
     // Define column headers and data rows
@@ -160,7 +171,7 @@ export class ListUserComponent {
 
 
   generateExcel(announcements: staffList[], fileName: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'status');
     const headers = visibleColumns.map(col => col.header);
     const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
     const worksheet = XLSX.utils.aoa_to_sheet(data);
@@ -208,4 +219,23 @@ export class ListUserComponent {
     return `${hours}:${minutes}:${seconds}`;
   }
 
+  onActiveButtonClick(id: number) {
+    this.staffService.activateStaff(id).subscribe({
+      next: (data: string) => {
+        console.log(data);
+        this.ngOnInit();
+      },
+      error: (e) => console.log(e)
+    })
+  }
+
+  inActiveButtonClick(id: number) {
+    this.staffService.InactivateStaff(id).subscribe({
+      next: (data: string) => {
+        console.log(data);
+        this.ngOnInit();
+      },
+      error: (e) => console.log(e)
+    })
+  }
 }

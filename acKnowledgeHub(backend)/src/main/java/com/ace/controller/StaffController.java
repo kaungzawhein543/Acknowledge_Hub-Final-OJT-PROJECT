@@ -288,7 +288,7 @@ public class StaffController {
 
                 Staff staff = staffService.findByStaffId(staffId);
                 if (staff != null) {
-                    List<AnnouncementListbyStaff> announcements = staffService.getAnnouncementsForStaff(staff.getId());
+                    List<AnnouncementListDTO> announcements = staffService.getAnnouncementsForStaff(staff.getId());
                     return ResponseEntity.ok(announcements);
                 } else {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found.");
@@ -403,5 +403,24 @@ public class StaffController {
 
 
 
+    @GetMapping("/activate/{id}")
+    public ResponseEntity<String> activateStaff(@PathVariable("id")Integer id){
+        try {
+            staffService.activateStaff(id);
+            return ResponseEntity.ok("Active Staff is successful.");
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body("Active staff is fail.");
+        }
+    }
+
+    @GetMapping("/inactivate/{id}")
+    public ResponseEntity<String> inActivateStaff(@PathVariable("id")Integer id){
+        try {
+            staffService.inActivateStaff(id);
+            return ResponseEntity.ok("Inactivate Staff is successful.");
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body("Inactivate staff is fail.");
+        }
+    }
 }
 

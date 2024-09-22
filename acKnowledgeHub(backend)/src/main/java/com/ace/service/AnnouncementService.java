@@ -163,7 +163,13 @@ public class AnnouncementService {
         return announcement_repo.countActiveAnnouncementsByMonth();
     }
 
+    public List<AnnouncementListDTO> getAnnouncementListByStaffRequest(Integer staffId){
+        return announcement_repo.getAnnouncementListByStaffRequest(staffId);
+    }
 
+    public void cancelPendingAnnouncement(Integer id ){
+        announcement_repo.cancelPendingAnnouncement(id);
+    }
 
 
 }

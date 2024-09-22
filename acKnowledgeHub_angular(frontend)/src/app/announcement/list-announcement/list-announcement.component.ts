@@ -36,7 +36,7 @@ export class ListAnnouncementComponent {
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
     { field: 'createStaff', header: 'Create/Request Staff' },
-    { field: 'file', header: 'Versions' },
+    //{ field: 'file', header: 'Versions' },
     { field: 'scheduleAt', header: 'Created At' },
     { field: 'note', header: 'Noted/UnNoted' },
     { field: 'detail', header: 'Details' },
@@ -61,9 +61,9 @@ export class ListAnnouncementComponent {
     return index.toString(); // Adjust 6 to the desired length
   }
 
-  getVersionNumber(title: string): string | null {
+  getVersionNumber(title: string): number | null {
     const match = title.match(/V(\d+)/);
-    return match ? match[1] : null;
+    return match ? parseInt(match[1], 10) : null;
   }
 
   fetchAnnouncements() {
@@ -90,6 +90,7 @@ export class ListAnnouncementComponent {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
   }
+
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
     this.filteredAnnouncements = this.announcements.filter(a => {

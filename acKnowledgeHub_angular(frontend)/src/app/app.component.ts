@@ -18,6 +18,8 @@ export class AppComponent implements OnInit {
   isLoginPage = false;
   isNotedSuccessfullPage = false;
   isChangePasswordPage = false;
+  isOTPRequestPage = false;
+  isAddPasswordPage = false;
   is404Page = false;
   screenWidth: number = 0;
   resizeSubject = new Subject<void>();
@@ -28,7 +30,7 @@ export class AppComponent implements OnInit {
   constructor(    private authService: AuthService,private sidebarService: SidebarService, private router: Router,@Inject(PLATFORM_ID) private platformId: Object,private loadingService:LoadingService) { }
 
   ngOnInit(): void {
-    this.loadingService.show(); 
+    this.loadingService.show();
     if (isPlatformBrowser(this.platformId)) {
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
@@ -46,7 +48,7 @@ export class AppComponent implements OnInit {
         this.isSidebarOpen = false;
         this.sidebarService.toggle();
       }
-  
+
       this.resizeSubject.pipe(
         debounceTime(500) // adjust the debounce time as needed
       ).subscribe(() => {
@@ -60,7 +62,7 @@ export class AppComponent implements OnInit {
         
       });
     }
-    
+
   }
 
   @HostListener('window:resize', ['$event'])

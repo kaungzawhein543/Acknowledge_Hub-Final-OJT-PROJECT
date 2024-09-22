@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { StaffService } from '../../services/staff.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -74,7 +74,13 @@ export class NotNotedAnnouncementComponent {
     this.getVersions();
     //  this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
-
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
   }

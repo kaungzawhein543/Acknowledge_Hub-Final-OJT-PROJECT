@@ -25,8 +25,8 @@ import { ChartService } from '../services/chart.service';
     ]),
   ],
 })
-export class DashboardComponent implements OnInit{
-  
+export class DashboardComponent implements OnInit {
+
   announcements: AnnouncementListDTO[] = [];
   staff: StaffProfileDTO | null = null;
   monthlyNotesCount: { [key: string]: number } = {};  // Object to store the notes count by month
@@ -34,13 +34,13 @@ export class DashboardComponent implements OnInit{
   
 
   monthNames: string[] = [
-    "January", "February", "March", "April", "May", "June", 
+    "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
   constructor(private authService: AuthService,
     private staffService: StaffService,
-    private chartService: ChartService) {}
+    private chartService: ChartService) { }
 
   ngOnInit(): void {
     this.loadannouncementListDESC();
@@ -57,7 +57,7 @@ export class DashboardComponent implements OnInit{
     );
     this.loadNotesCountByMonth();
 
-    
+
   }
 
 
@@ -75,10 +75,10 @@ export class DashboardComponent implements OnInit{
 
   // Extract the year and month part from "YYYY-MM" and return "Month Year" (e.g., "January 2024")
   getMonthNameWithYear(yearMonth: string): string {
-    console.log('Received:', yearMonth); // Debugging
+    // console.log('Received:', yearMonth); // Debugging
 
     const [year, monthPart] = yearMonth.split('-'); // Extract year and month part (e.g., "2024" and "01")
-    
+
     if (year && monthPart) {
       const monthIndex = parseInt(monthPart, 10) - 1; // Convert "01" to 0 for January
       const monthName = this.monthNames[monthIndex] || monthPart; // Get the month name
@@ -116,5 +116,6 @@ export class DashboardComponent implements OnInit{
     return this.objectKeys(this.monthlyNotesCount).length > 0;
   }
 
-  
+
+
 }
