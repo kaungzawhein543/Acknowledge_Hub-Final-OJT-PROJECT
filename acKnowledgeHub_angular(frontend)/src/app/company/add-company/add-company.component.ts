@@ -16,14 +16,16 @@ export class AddCompanyComponent {
   };
   constructor(private companyService: CompanyService) { }
   onSubmit(form: NgForm) {
-    if (form.valid) {
-      this.companyService.addCompany(this.company).subscribe({
-        next: (data) => {
-          console.log('successful')
-        },
-        error: (e) => console.log(e)
-      })
+    this.company.name = this.company.name.trim();
+    if (this.company.name != '') {
+      if (form.valid) {
+        this.companyService.addCompany(this.company).subscribe({
+          next: (data) => {
+            console.log('successful')
+          },
+          error: (e) => console.log(e)
+        })
+      }
     }
-
   }
 }

@@ -37,19 +37,23 @@ export class AddDepartmentComponent implements OnInit {
   }
 
   onSubmit(form: NgForm) {
-    if (this.department.company.id == undefined) {
-      this.companyError = true;
-    } else {
-      this.companyError = false;
-      if (form.valid) {
-        this.departmentService.addDepartment(this.department).subscribe({
-          next: (data) => {
-            console.log('successful')
-          },
-          error: (e) => console.log(e)
-        })
+    this.department.name = this.department.name.trim();
+    if (this.department.name != '') {
+      if (this.department.company.id == undefined) {
+        this.companyError = true;
+      } else {
+        this.companyError = false;
+        if (form.valid) {
+          this.departmentService.addDepartment(this.department).subscribe({
+            next: (data) => {
+              console.log('successful')
+            },
+            error: (e) => console.log(e)
+          })
+        }
       }
     }
+
   }
 
 }
