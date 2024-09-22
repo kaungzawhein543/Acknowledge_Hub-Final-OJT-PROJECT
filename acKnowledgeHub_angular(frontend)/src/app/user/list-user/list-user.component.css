@@ -62,3 +62,31 @@ p.data-grid-options {
 .mat-cell {
     padding: 8px;
 }
+
+.header-center {
+    text-align: center;
+}
+
+.mat-elevation-z8 table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.mat-elevation-z8 th,
+.mat-elevation-z8 td {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    text-align: left;
+}
+
+.mat-elevation-z8 th {
+    background-color: #f5f5f5;
+    /* You can adjust this color */
+    text-align: center;
+    /* Center align the headers */
+}
+
+.mat-elevation-z8 td {
+    text-align: left;
+    /* Adjust alignment if needed */
+}

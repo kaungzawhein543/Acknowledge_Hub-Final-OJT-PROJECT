@@ -19,24 +19,6 @@
                 [value]="endDateTime" (change)="onEndDateChange($event)" />
 
 
-            <div class="relative inline-block text-left">
-                <button (click)="toggleFilterDropdown()" class="text-dark py-2 px-2 rounded-md"
-                    style="border: 1px solid rgb(174, 174, 174);">
-                    <i class="fas fa-filter"></i> Filter
-                </button>
-                <div *ngIf="isFilterDropdownOpen"
-                    class="absolute mt-1 w-40 bg-gray-200 border border-gray-300 rounded-md shadow-lg z-60">
-                    <label class="block px-3 py-2">
-                        <input type="checkbox" [(ngModel)]="activeChecked" (change)="onActiveCheckboxChange($event)" />
-                        Active
-                    </label>
-                    <label class="block px-3 py-2">
-                        <input type="checkbox" [(ngModel)]="inactiveChecked"
-                            (change)="onInactiveCheckboxChange($event)" />
-                        Inactive
-                    </label>
-                </div>
-            </div>
         </div>
 
 

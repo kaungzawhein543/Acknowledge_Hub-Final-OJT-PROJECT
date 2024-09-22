@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -41,8 +42,8 @@ public class FeedbackReplyController {
 
 
         String description  = savedFeedbackReply.getFeedback().getAnnouncement().getCreateStaff().getName()+ " reply you in announcement!Check it out!";
-
-        Notification notification = blogService.createNotification(savedFeedbackReply.getFeedback().getAnnouncement(), savedFeedbackReply.getFeedback().getStaff(), description);
+        String url =  "/acknowledgeHub/announcement/detail/"+ Base64.getEncoder().encodeToString(savedFeedbackReply.getFeedback().getAnnouncement().getId().toString().getBytes());
+        Notification notification = blogService.createNotification(savedFeedbackReply.getFeedback().getAnnouncement(), savedFeedbackReply.getFeedback().getStaff(), description,url);
         notificationService.sendNotification(blogService.convertToDTO(notification));
         return ResponseEntity.ok(savedFeedbackReply);
     }

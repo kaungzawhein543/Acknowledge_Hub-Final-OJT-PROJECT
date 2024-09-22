@@ -66,7 +66,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   
     this.webSocketService.getNotifications().pipe(takeUntil(this.destroy$)).subscribe({
       next: (notifications) => {
-        this.notifications = this.filterLatestNotifications(notifications.reverse());
+        this.notifications = this.filterLatestNotifications(notifications).reverse();
         this.updateUnreadNotificationCount();
         this.cdr.detectChanges();
         if(this.unreadNotificationCount > 0){
@@ -149,8 +149,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.oldPhotoUrl = this.baseUrl + this.profile?.photoPath;
         this.profileService.updateProfile(this.profile);
 
-        console.log('Resolved photoPath:', this.profile?.photoPath);
-        console.log('Profile data:', this.profile);
       },
       (error) => {
         console.error('Error loading profile:', error);

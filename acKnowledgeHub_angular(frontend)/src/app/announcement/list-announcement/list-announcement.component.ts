@@ -258,7 +258,7 @@ export class ListAnnouncementComponent {
     const encodedName = btoa(name);
     const encodedStatus = btoa(groupStatus.toString());
     const encodedFile = btoa(file);
-    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
+    this.router.navigate(['/acknowledgeHub/announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
   }
 
   onDetailButtonClick(id: number) {

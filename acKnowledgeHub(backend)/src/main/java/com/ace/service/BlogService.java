@@ -97,7 +97,7 @@ public class BlogService {
                for (Staff AnnounceStaff : staffForAnnounce) {
                    if (AnnounceStaff != null) {
                        if(AnnounceStaff.getChatId() != null){
-                           botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
+                           botService.sendFile(AnnounceStaff.getChatId(), file, announcementId,updateStatus);
                        }
                    }
                    if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
@@ -113,8 +113,8 @@ public class BlogService {
                    }else{
                        description = announcementForNoti.getCreateStaff().getName()+" Created New Announcement!Check It Out!";
                    }
-                   System.out.println(announcementForNoti);
-                   Notification notification = createNotification(announcementForNoti, AnnounceStaff, description);
+                   String url =  "/acknowledgeHub/announcement/detail/"+Base64.getEncoder().encodeToString(announcementForNoti.getId().toString().getBytes());
+                   Notification notification = createNotification(announcementForNoti, AnnounceStaff, description,url);
                    notificationService.sendNotification(convertToDTO(notification));
                }
            } else {
@@ -125,7 +125,7 @@ public class BlogService {
                            if (AnnounceStaff.getChatId() != null) {
                                if(!file.isEmpty() && file != null){
                                    if(AnnounceStaff.getChatId() != null){
-                                       botService.sendFile(AnnounceStaff.getChatId(), file, announcementId);
+                                       botService.sendFile(AnnounceStaff.getChatId(), file, announcementId,updateStatus);
                                    }
                                }else{
                                    System.out.println("File is null or empty");
@@ -145,7 +145,8 @@ public class BlogService {
                            }else{
                                description = announcementForNoti.getCreateStaff().getName()+" Created New Announcement!Check It Out!";
                            }
-                           Notification notification = createNotification(announcementForNoti, AnnounceStaff, description);
+                           String url =  "/acknowledgeHub/announcement/detail/"+Base64.getEncoder().encodeToString(announcementForNoti.getId().toString().getBytes());
+                           Notification notification = createNotification(announcementForNoti, AnnounceStaff, description,url);
                            notificationService.sendNotification(convertToDTO(notification));
                        }
                    }
@@ -156,14 +157,13 @@ public class BlogService {
        }
     }
 
-    public Notification createNotification(Announcement announcement, Staff staff, String description) {
+    public Notification createNotification(Announcement announcement, Staff staff, String description,String url) {
         try{
             Notification notification = new Notification();
             notification.setDescription(description);
             notification.setStaff(staff);
-            String url = "/acknowledgeHub/announcement/detail/";
             notification.setChecked(false);
-            notification.setUrl(url+Base64.getEncoder().encodeToString(announcement.getId().toString().getBytes()));
+            notification.setUrl(url);
             notification.setAnnouncement(announcement);
             notificationService.saveNotification(notification);
             return notification;
@@ -179,7 +179,6 @@ public class BlogService {
                    .map(Group::getId)
                    .collect(Collectors.toList()): new ArrayList<>();
            String staffId = String.valueOf((notification.getStaff().getId()));
-           System.out.println("staff id is " +staffId);
            String status = notification.getStatus() != null ? notification.getStatus() : "unknown";
            return new NotificationDTO(
                    notification.getId(),

@@ -92,11 +92,6 @@ export class UserUnnotedComponent implements OnInit {
     }
   }
 
-  toggleFilterDropdown() {
-    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
-    if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
-  }
-
   toggleReportDropdown() {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
@@ -115,16 +110,6 @@ export class UserUnnotedComponent implements OnInit {
       return fieldsToSearch.some(field => field.includes(query));
     });
     this.dataSource.data = this.filteredAnnouncements;
-  }
-
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-    this.filterAnnouncements();
-  }
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-    this.filterAnnouncements();
   }
 
   onStartDateChange(event: Event) {

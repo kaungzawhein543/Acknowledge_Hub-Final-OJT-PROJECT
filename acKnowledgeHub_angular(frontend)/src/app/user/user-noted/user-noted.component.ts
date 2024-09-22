@@ -89,10 +89,6 @@ export class UserNotedComponent implements OnInit {
       this.isReportDropdownOpen = false;
     }
   }
-  toggleFilterDropdown() {
-    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
-    if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
-  }
 
   toggleReportDropdown() {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
@@ -111,16 +107,6 @@ export class UserNotedComponent implements OnInit {
       return fieldsToSearch.some(field => field.includes(query));
     });
     this.dataSource.data = this.filteredAnnouncements;
-  }
-
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-    this.filterAnnouncements();
-  }
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-    this.filterAnnouncements();
   }
 
   onStartDateChange(event: Event) {

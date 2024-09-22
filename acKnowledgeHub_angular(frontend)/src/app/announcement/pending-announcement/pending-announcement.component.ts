@@ -165,15 +165,6 @@ export class PendingAnnouncementComponent implements OnInit {
     saveAs(data, fileName);
   }
 
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-
-  }
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-  }
-
   onStartDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     this.startDateTime = input.value || null;

@@ -19,7 +19,7 @@ export class ListUserComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   announcements: staffList[] = [];
-  filteredAnnouncements: staffList[] = [];
+  filteredStaffs: staffList[] = [];
   dataSource = new MatTableDataSource<staffList>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
@@ -54,7 +54,7 @@ export class ListUserComponent {
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
-    this.fetchAnnouncements();
+    this.fetchStaffs();
     this.authService.getUserInfo().subscribe({
       next: (data) => {
         this.loginRole = data.user.role;
@@ -67,14 +67,15 @@ export class ListUserComponent {
     return index.toString(); // Adjust 6 to the desired length
   }
 
-  fetchAnnouncements() {
+  fetchStaffs() {
     this.staffService.getList().subscribe(
       (data) => {
         this.announcements = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredAnnouncements = data;
-        this.dataSource.data = this.filteredAnnouncements;
+        })); 
+         this.filteredStaffs = data;
+        //  this.dataSource.data = this.filteredStaffs;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
         this.activeChecked = true;
@@ -95,7 +96,7 @@ export class ListUserComponent {
   }
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
-    this.filteredAnnouncements = this.announcements.filter(a => {
+    this.filteredStaffs = this.announcements.filter(a => {
       const fieldsToSearch = [
         a.companyStaffId?.toLowerCase() || '',
         a.name?.toLowerCase() || '',
@@ -106,7 +107,7 @@ export class ListUserComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
-    this.dataSource.data = this.filteredAnnouncements;
+    this.dataSource.data = this.filteredStaffs;
   }
 
   onActiveCheckboxChange(event: any) {
@@ -127,9 +128,9 @@ export class ListUserComponent {
 
   generateReport(format: 'pdf' | 'excel') {
     if (format === 'pdf') {
-      this.generatePDF(this.filteredAnnouncements, 'report.pdf');
+      this.generatePDF(this.filteredStaffs, 'report.pdf');
     } else if (format === 'excel') {
-      this.generateExcel(this.filteredAnnouncements, 'report.xlsx');
+      this.generateExcel(this.filteredStaffs, 'report.xlsx');
     }
   }
 
@@ -186,7 +187,7 @@ export class ListUserComponent {
   }
 
   filterAnnouncements() {
-    this.filteredAnnouncements = this.announcements.filter(a => {
+    this.filteredStaffs = this.announcements.filter(a => {
       const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
       const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
@@ -197,7 +198,7 @@ export class ListUserComponent {
       // }
       return true;
     });
-    this.dataSource.data = this.filteredAnnouncements;
+    this.dataSource.data = this.filteredStaffs;
   }
 
   getNestedProperty(obj: any, path: string): any {
@@ -208,7 +209,7 @@ export class ListUserComponent {
   onColumnVisibilityChange() {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     this.selectedColumns = visibleColumns.map(col => col.field);
-    this.dataSource.data = [...this.filteredAnnouncements];
+    this.dataSource.data = [...this.filteredStaffs];
   }
 
   formatDateTime(datetime: string): string {

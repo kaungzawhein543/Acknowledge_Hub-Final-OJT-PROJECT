@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,13 +50,14 @@ public class FeedbackController {
 
         List<FeedbackListResponseDTO> feedbacks = feedbackService.getFeedbackByAnnouncement(feedback2.getAnnouncement().getId());
 
-        String description;
-        if(feedbacks.size() > 0){
-            description = feedback.getStaff().getName() + " and "+feedbacks.size()+" others are ask a question!Check it out!";
-        }else{
+        String description ="";
+        if(feedbacks.size() == 1) {
             description = feedback.getStaff().getName() + "  ask a question!Check it out!";
+        }else if (feedbacks.size() > 1){
+            description = feedback.getStaff().getName() + " and "+feedbacks.size()+" others are ask a question!Check it out!";
         }
-        Notification notification = blogService.createNotification(feedback.getAnnouncement(), feedback.getAnnouncement().getCreateStaff(), description);
+        String url =  "/acknowledgeHub/announcement/detail/"+ Base64.getEncoder().encodeToString(feedback.getAnnouncement().getId().toString().getBytes());
+        Notification notification = blogService.createNotification(feedback.getAnnouncement(), feedback.getAnnouncement().getCreateStaff(), description,url);
         notificationService.sendNotification(blogService.convertToDTO(notification));
         return ResponseEntity.ok(feedback2);
     }

@@ -34,15 +34,7 @@ export class UserAnnouncementListComponent {
   isReportDropdownOpen = false;
 
 
-  // id: number;
-  // title: string;
-  // description: string;
-  // createStaff: string; // Assuming `createStaff.name` is a string. Adjust if it's an object.
-  // category: string; // Assuming `category.name` is a string. Adjust if it's an object.
-  // status: string;
-  // created_at: Date; // Ensure this matches the date format from your backend
-  // scheduleAt: Date; // Ensure this matches the date format from your backend
-  // groupStatus: string; 
+
 
   columns = [
     { field: 'autoNumber', header: 'No.' },
@@ -95,10 +87,6 @@ export class UserAnnouncementListComponent {
     );
   }
 
-  toggleFilterDropdown() {
-    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
-    if (this.isReportDropdownOpen) this.isReportDropdownOpen = false; // Close report dropdown if open
-  }
 
   toggleReportDropdown() {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
@@ -119,15 +107,6 @@ export class UserAnnouncementListComponent {
     this.dataSource.data = this.filteredAnnouncements;
   }
 
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-    this.filterAnnouncements();
-  }
-
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
-    this.filterAnnouncements();
-  }
 
   onStartDateChange(event: Event) {
     const input = event.target as HTMLInputElement;

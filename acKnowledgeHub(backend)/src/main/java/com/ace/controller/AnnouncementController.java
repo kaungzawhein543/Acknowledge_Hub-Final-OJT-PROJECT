@@ -46,9 +46,11 @@ public class AnnouncementController {
     private final StaffService staffService;
     private final EmailService emailService;
     private final GroupService groupService;
+    private final NotificationService notificationService;
     private final UserNotedAnnouncementService userNotedAnnouncementService;
+    private final PositionService positionService;
 
-    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, GroupService groupService, UserNotedAnnouncementService userNotedAnnouncementService) {
+    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, GroupService groupService, NotificationService notificationService, UserNotedAnnouncementService userNotedAnnouncementService, PositionService positionService) {
         this.announcement_service = announcement_service;
         this.cloudinaryService = cloudinaryService;
         this.mapper = mapper;
@@ -59,7 +61,9 @@ public class AnnouncementController {
         this.staffService = staffService;
         this.emailService = emailService;
         this.groupService = groupService;
+        this.notificationService = notificationService;
         this.userNotedAnnouncementService = userNotedAnnouncementService;
+        this.positionService = positionService;
     }
 
     @GetMapping("/latest-version-by-id/{id}")
@@ -166,12 +170,36 @@ public class AnnouncementController {
                     LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
                     savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
                     blogService.createPost(savedAnnouncement);
+                }else{
+                    String description;
+                    if(updateStatus > 0){
+                        description = savedAnnouncement.getCreateStaff().getName()+"Request To Update The "+savedAnnouncement.getTitle()+" Announcement!Check It Out!";
+                    }else{
+                        description = savedAnnouncement.getCreateStaff().getName()+" Requested Announcement!Check It Out!";
+                    }
+                    Position postion = positionService.findByName("HR_MAIN");
+                    List<Staff> HrStaff = staffService.getStaffByPositionId(postion.getId());
+                    String url =  "/acknowledgeHub/announcement/request-list";
+                    Notification notification = blogService.createNotification(savedAnnouncement, HrStaff.get(0), description,url);
+                    notificationService.sendNotification(blogService.convertToDTO(notification));
                 }
             } else {
                 if (request.getForRequest() != 1) {
                     blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus(),updateStatus);
                     savedAnnouncement.setPublished(true);
                     announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
+                }else{
+                    String description;
+                    if(updateStatus > 0){
+                        description = savedAnnouncement.getCreateStaff().getName()+"Request To Update The "+savedAnnouncement.getTitle()+" Announcement!Check It Out!";
+                    }else{
+                        description = savedAnnouncement.getCreateStaff().getName()+" Requested Announcement!Check It Out!";
+                    }
+                    Position postion = positionService.findByName("HR_MAIN");
+                    List<Staff> HrStaff = staffService.getStaffByPositionId(postion.getId());
+                    String url =  "/acknowledgeHub/announcement/request-list";
+                    Notification notification = blogService.createNotification(savedAnnouncement,  HrStaff.get(0), description,url);
+                    notificationService.sendNotification(blogService.convertToDTO(notification));
                 }
             }
 
@@ -287,7 +315,7 @@ public class AnnouncementController {
         if(!notedAnnouncement.isPresent()){
             userNotedAnnouncementService.save(staffNotedAnnouncement);
         }
-            String frontendUrl = "http://localhost:4200/noted?announcementId=" + announcementId;
+            String frontendUrl = "http://localhost:4200/noted";
             response.setHeader("Location", frontendUrl);
             return new ResponseEntity<>(HttpStatus.FOUND);
     }
@@ -437,6 +465,11 @@ public class AnnouncementController {
     @GetMapping("/approved/{id}")
     public ResponseEntity<Boolean> approveRequestAnnouncement(@PathVariable("id") Integer id) {
         try {
+            Optional<Announcement> announcement = announcement_service.getAnnouncementById(id);
+            String url =  "/acknowledgeHub/announcement/detail/"+Base64.getEncoder().encodeToString(id.toString().getBytes());
+            String description = "Human Resource Approved Your Announcement!";
+            Notification notification = blogService.createNotification(announcement.get(),  announcement.get().getCreateStaff(), description,url);
+            notificationService.sendNotification(blogService.convertToDTO(notification));
             announcement_service.approvedRequestAnnouncement(id);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
