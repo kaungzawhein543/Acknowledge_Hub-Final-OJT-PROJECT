@@ -41,7 +41,7 @@ public class FeedbackController {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
-    @PostMapping
+    @PostMapping("/all/sendFeedback")
     public ResponseEntity<Feedback> addFeedback(@RequestBody FeedbackRequestDTO feedbackRequestDTO){
         Feedback feedback = new Feedback();
         Staff staff = staffService.findById(feedbackRequestDTO.getStaffId());
@@ -70,12 +70,12 @@ public class FeedbackController {
     }
 
 
-    @GetMapping("/all-by-announcement/{id}")
+    @GetMapping("/all/all-by-announcement/{id}")
     public List<FeedbackListResponseDTO> getFeedBackListByAnnouncementId(@PathVariable Integer id){
         return feedbackService.getFeedbackByAnnouncement(id);
     }
 
-    @GetMapping("list/{id}")
+    @GetMapping("/HRM/list/{id}")
     public List<FeedbackResponseListDTO> getList(@PathVariable Integer id){
         return feedbackService.getFeedbackList(id);
     }

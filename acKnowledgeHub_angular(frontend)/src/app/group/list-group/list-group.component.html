@@ -64,7 +64,7 @@
       <tr class="border-b border-gray-200" *ngFor="let staff of filterStaffListAfterSelect; let i = index">
         <td class="p-3">{{ i + 1 }}</td>
         <td class="p-3">
-          <img [src]="staff.photoPath" alt="Profile Picture" class="w-12 h-12 rounded-full">
+          <img [src]="staffPhotoUrl" alt="Profile Picture" class="w-12 h-12 rounded-full">
         </td>
         <td class="p-3">{{ staff.name }}</td>
         <td class="p-3">{{ staff.position.name }}</td>

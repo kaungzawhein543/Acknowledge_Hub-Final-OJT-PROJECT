@@ -32,7 +32,7 @@ public class FeedbackReplyController {
         this.notificationService = notificationService;
     }
 
-    @PostMapping
+    @PostMapping("/all/saveFeedbackReply")
     public ResponseEntity<FeedbackReply> saveFeedbackReply(@RequestBody FeedbackReplyRequestDTO feedbackReplyRequestDTO){
         FeedbackReply feedbackReply = new FeedbackReply();
         feedbackReply.setContent(feedbackReplyRequestDTO.getReplyText());

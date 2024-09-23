@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/excel")
 public class ExcelController {
 
     private final ExcelService excelService;
@@ -17,7 +17,7 @@ public class ExcelController {
         this.excelService = excelService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/sys/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             return "Please select a file to upload.";

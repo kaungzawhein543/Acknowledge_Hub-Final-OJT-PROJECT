@@ -36,7 +36,6 @@ export class AddDepartmentComponent implements OnInit {
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
-
         if (this.companies.length > 0) {
           this.department.company = this.companies[0];
         }

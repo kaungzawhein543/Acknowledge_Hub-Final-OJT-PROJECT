@@ -80,9 +80,9 @@
       </span>
       <i class="fa-solid fa-chevron-down"></i>
     </a>
-    <ul id="announcementMenu" class="space-y-2 pl-8 mt-2 hidden">
+    <ul id="announcementMenu" class="space-y-2 pl-8 mt-2 hidden" >
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="acknowledgeHub/announcement/add" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/announcement/add" routerLinkActive="active text-white hover:active hover:text-white" *ngIf="isMainHr">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-plus"></i>
           <span> Create Announcement</span>
@@ -161,9 +161,9 @@
     </a>
     <ul id="companyMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="acknowledgeHub/company/add" routerLinkActive="active text-white hover:active hover:text-white">
-        <span class="flex items-center space-x-3">
-          <i class="fa-solid fa-plus"></i>
+        routerLink="acknowledgeHub/company/add" routerLinkActive="active text-white hover:active hover:text-white" >
+        <span class="flex items-center space-x-3" >
+          <i class="fa-solid fa-plus" ></i>
           <span> Add Company</span>
         </span>
       </li>
@@ -243,7 +243,7 @@
     </a>
     <ul id="userMenu" class="space-y-2 pl-8 mt-2 hidden">
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="acknowledgeHub/users/add" routerLinkActive="active text-white hover:active hover:text-white">
+        routerLink="acknowledgeHub/users/add" routerLinkActive="active text-white hover:active hover:text-white" >
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-user-plus"></i>
           <span> Add Users</span>

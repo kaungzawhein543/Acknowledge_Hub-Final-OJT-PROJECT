@@ -66,7 +66,7 @@ public class AnnouncementController {
         this.positionService = positionService;
     }
 
-    @GetMapping("/latest-version-by-id/{id}")
+    @GetMapping("/all/latest-version-by-id/{id}")
     public ResponseEntity<AnnouncementUpdateDTO> getLatestAnnouncementById(@PathVariable int id) {
         Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
         String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
@@ -106,7 +106,7 @@ public class AnnouncementController {
 
 
     //    Create and update method (because update is also insert the row in database)
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/allHR/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Announcement> createAnnouncement(
             @RequestPart AnnouncementDTO request,
             @RequestPart(name = "userIds", required = false) List<Integer> userIds,
@@ -242,7 +242,7 @@ public class AnnouncementController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/all/{id}")
     public ResponseEntity<AnnouncementDTO> getAnnouncementById(@PathVariable Integer id) {
 
         return announcement_service.getAnnouncementById(id)
@@ -285,23 +285,20 @@ public class AnnouncementController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
-
-
-    @GetMapping("/getPublishedAnnouncements")
+    @GetMapping("/all/getPublishedAnnouncements")
     public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
         List<AnnouncementListDTO> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
 
-    @GetMapping("/announcement-versions/{announcementId}")
+    @GetMapping("/all/announcement-versions/{announcementId}")
     public List<String> getAnnouncementVersions(@PathVariable("announcementId") Integer announcementId) {
         System.out.println("They are"+announcement_service.getAllVersionsByFilePattern(announcementId));
         return announcement_service.getAllVersionsByFilePattern(announcementId);
     }
 
-    @GetMapping("/announcement-get-url")
+    @GetMapping("/all/announcement-get-url")
     public ResponseEntity<String> getAnnouncementDownloadLink(@RequestParam("fileName") String fileName){
 
         String Url = cloudinaryService.getUrlsOfAnnouncements(fileName);
@@ -309,7 +306,7 @@ public class AnnouncementController {
         return ResponseEntity.ok().body(Url);
     }
 
-    @GetMapping("/note")
+    @GetMapping("/all/note")
     public ResponseEntity<Void> noteAnnouncement(@RequestParam Integer announcementId, @RequestParam String userEmail, HttpServletResponse response) {
         StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
         Optional<Announcement> announcement = announcement_service.getAnnouncementById(announcementId);
@@ -325,7 +322,7 @@ public class AnnouncementController {
             return new ResponseEntity<>(HttpStatus.FOUND);
     }
 
-    @GetMapping("/downloadfile")
+    @GetMapping("/all/downloadfile")
     public ResponseEntity<byte[]> downloadFile(@RequestParam String file) {
         try {
             Map<String, Object> fileData = cloudinaryService.downloadFile(file);
@@ -360,7 +357,7 @@ public class AnnouncementController {
         return versionSuffix.isEmpty() ? baseName : versionSuffix + ".xlsx"; // Return the version as file name
     }
 
-    @GetMapping("/download")
+    @GetMapping("/all/download")
     public ResponseEntity<byte[]> downloadPdfFromEmail(@RequestParam("publicId") String publicId, @RequestParam("userEmail") String userEmail, HttpServletResponse response) {
         try {
             // Use the service method to download the file
@@ -408,66 +405,59 @@ public class AnnouncementController {
     }
 
 
-    @GetMapping("/staff-noted/{staffId}")
+    @GetMapping("/STF/staff-noted/{staffId}")
     public List<StaffNotedResponseDTO> getStaffNotedList(@PathVariable Integer staffId) {
         List<StaffNotedResponseDTO> announcementList = announcement_service.getStaffNoted(staffId);
         return announcementList;
     }
 
-    @GetMapping("/staff-unnoted/{staffId}")
+    @GetMapping("/STF/staff-unnoted/{staffId}")
     public List<AnnouncementResponseListDTO> getStaffUnNotedList(@PathVariable Integer staffId) {
         List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffUnNoted(staffId);
         return announcementList;
     }
 
-    @GetMapping("/staff/{staffId}")
+    @GetMapping("/STF/staff/{staffId}")
     public List<AnnouncementResponseListDTO> getStaffAnnouncement(@PathVariable Integer staffId) {
         List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffAnnouncement(staffId);
         return announcementList;
     }
 
-//    @GetMapping("/staff-requested-list/{id}")
-//    public List<AnnouncementListDTO> getStaffRequestedAnnouncementList(@PathVariable("id")Integer staffId){
-//        return announcement_service.getStaffRequestedAnnouncementList(staffId);
-//    }
-
-    @GetMapping("/pending-list")
+    @GetMapping("/sys/pending-list")
     public List<AnnouncementResponseListDTO> getPendingAnnouncement() {
         return announcement_service.getPendingAnnouncement();
     }
     //Mapping for staffNotedAnnouncement
-    @GetMapping("/staff-counts")
+    @GetMapping("/sys/staff-counts")
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_service.getAnnouncementStaffCounts();
     }
 
-
-    @GetMapping("/stats")
+    // Fetch the announcement statistics using the service
+    @GetMapping("/sys/stats")
     public AnnouncementStatsDTO getAnnouncementStats() {
-        // Fetch the announcement statistics using the service
         return announcement_service.getAnnouncementStats();
     }
 
     //Mapping to get all announcement monthly count
-    @GetMapping("/monthly-counts")
+    @GetMapping("/sys/monthly-counts")
     public List<MonthlyCountDTO> getMonthlyAnnouncementCounts() {
         return announcement_service.getMonthlyAnnouncementCounts();
     }
 
 
-    @GetMapping("/versions/{id}")
+    @GetMapping("/HRM/versions/{id}")
     public List<AnnouncementVersionDTO> getAnnouncementVersion(@PathVariable Integer id) {
         List<AnnouncementVersionDTO> list = announcement_service.getAnnouncementVersion(id);
-        log.info("here is versions" + list);
         return list;
     }
 
-    @GetMapping("/request-list")
+    @GetMapping("/HRM/request-list")
     public List<RequestAnnouncementResponseDTO> getRequestAnnouncements() {
         return announcement_service.getRequestAnnouncements();
     }
 
-    @GetMapping("/approved/{id}")
+    @GetMapping("/HRM/approved/{id}")
     public ResponseEntity<Boolean> approveRequestAnnouncement(@PathVariable("id") Integer id) {
         try {
             Optional<Announcement> announcement = announcement_service.getAnnouncementById(id);
@@ -482,7 +472,7 @@ public class AnnouncementController {
         }
     }
 
-    @GetMapping("/reject/{id}")
+    @GetMapping("/HRM/reject/{id}")
     public ResponseEntity<Boolean> rejectRequestAnnouncement(@PathVariable("id") Integer id) {
         try {
             announcement_service.rejectRequestAnnouncement(id);

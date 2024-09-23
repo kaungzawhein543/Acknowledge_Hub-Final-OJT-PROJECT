@@ -27,15 +27,15 @@ export class StaffService {
   constructor(private http: HttpClient) { }
 
   addStaff(staff: AddStaff): Observable<any> {
-    return this.http.post(`${this.baseURL}/add`, staff,{withCredentials: true,responseType: 'text' as'json'});
+    return this.http.post(`${this.baseURL}/sys/add`, staff,{ withCredentials: true});
   }
 
   getNotedUserByAnnouncementList(id: number): Observable<NotedUser[]> {
-    return this.http.get<NotedUser[]>(`${this.baseURL}/noted-list/${id}`);
+    return this.http.get<NotedUser[]>(`${this.baseURL}/all/noted-list/${id}`,{ withCredentials: true});
   }
 
   getUnNotedStaffByAnnouncementList(id: number, groupStatus: number): Observable<UnNotedUser[]> {
-    return this.http.get<UnNotedUser[]>(`${this.baseURL}/not-noted-list/${id}/${groupStatus}`);
+    return this.http.get<UnNotedUser[]>(`${this.baseURL}/HRM/not-noted-list/${id}/${groupStatus}`,{ withCredentials: true});
   }
 
   // getAllCompany(): Observable<Company[]> {
@@ -60,34 +60,34 @@ export class StaffService {
   }
 
   getStaffs(page: number, size: number, searchTerm: string): Observable<any> {
-    const apiUrl = `${this.baseURL}?page=${page}&size=${size}&searchTerm=${searchTerm}`;
-    return this.http.get<any>(apiUrl);
+    const apiUrl = `${this.baseURL}/allHR/getStaff?page=${page}&size=${size}&searchTerm=${searchTerm}`;
+    return this.http.get<any>(apiUrl , { withCredentials: true});
   }
 
   getStaffList(): Observable<StaffGroup[]> {
-    return this.http.get<StaffGroup[]>(`${this.baseURL}/group-staff`);
+    return this.http.get<StaffGroup[]>(`${this.baseURL}/sys/group-staff`,{ withCredentials: true});
   }
 
   getList(): Observable<staffList[]> {
-    return this.http.get<staffList[]>(`${this.baseURL}/list`);
+    return this.http.get<staffList[]>(`${this.baseURL}/sys/list`,{ withCredentials: true});
   }
 
   getHRList(): Observable<staffList[]> {
-    return this.http.get<staffList[]>(`${this.baseURL}/hr-list`);
+    return this.http.get<staffList[]>(`${this.baseURL}/sys/hr-list`,{ withCredentials: true});
   }
 
   putHRMain(id: number): Observable<staffList[]> {
-    return this.http.get<staffList[]>(`${this.baseURL}/put-HR/${id}`);
+    return this.http.get<staffList[]>(`${this.baseURL}/sys/put-HR/${id}`,{ withCredentials: true});
   }
 
   //method to get staff summary count
   getStaffCount(): Observable<StaffSummaryCount> {
-    return this.http.get<StaffSummaryCount>(`${this.baseURL}/summary`, { withCredentials: true });
+    return this.http.get<StaffSummaryCount>(`${this.baseURL}/sys/summary`, { withCredentials: true });
   }
 
   //method to get announcment by staff id card
   getAnnouncementDESC(): Observable<AnnouncementListDTO[]> {
-    return this.http.get<AnnouncementListDTO[]>(`${this.baseURL}/staff-announcements`, { withCredentials: true });
+    return this.http.get<AnnouncementListDTO[]>(`${this.baseURL}/all/staff-announcements`, { withCredentials: true });
   }
 
   //method to change profile photo
@@ -95,12 +95,12 @@ export class StaffService {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post(`${this.baseURL}/profile/upload-photo`, formData, { withCredentials: true, responseType: 'text' as 'json' });
+    return this.http.post(`${this.baseURL}/all/profile/upload-photo`, formData, { withCredentials: true, responseType: 'text' as 'json' });
   }
 
   // Method to change old password
   changeOldPassword(request: ChangePasswordRequest): Observable<string> {
-    return this.http.post<string>(`${this.baseURL}/change_Old_Password`, request, { withCredentials :true , responseType: 'text' as 'json'});
+    return this.http.post<string>(`${this.baseURL}/all/change_Old_Password`, request, { withCredentials :true , responseType: 'text' as 'json'});
   }
   activateStaff(id: number): Observable<any> {
     return this.http.get(`${this.baseURL}/activate/${id}`, { withCredentials: true, responseType: 'text' as 'json' });

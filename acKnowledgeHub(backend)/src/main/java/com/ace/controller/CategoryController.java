@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/category")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CategoryController {
 
     private final CategoryService service;
@@ -23,7 +22,7 @@ public class CategoryController {
         this.service = service;
     }
 
-    @PostMapping(value = "/save")
+    @PostMapping(value = "/sys/save")
     public Category save(
             @RequestParam(value = "name") String name,
             @RequestParam(value = "description") String description) throws IOException {
@@ -36,7 +35,7 @@ public class CategoryController {
 
 
 
-    @PutMapping(value = "/update/{id}")
+    @PutMapping(value = "/sys/update/{id}")
     public Category update(@PathVariable("id") int id,
                            @RequestParam("name") String name,
                            @RequestParam("description") String description) throws IOException {
@@ -47,7 +46,7 @@ public class CategoryController {
         return service.update(id, updated);
     }
 
-    @DeleteMapping("/deleteCategory/{id}")
+    @DeleteMapping("/sys/deleteCategory/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Integer id){
         Optional<Category> resultCategory = service.showById(id);
         if(resultCategory.isPresent()){
@@ -57,7 +56,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete category");
     }
 
-    @PutMapping("/softDeleteCategory/{id}")
+    @PutMapping("/sys/softDeleteCategory/{id}")
     public ResponseEntity<Void> deleteSoftly(@PathVariable Integer id) {
         Optional<Category> resultCategory = service.showById(id);
         if (resultCategory.isPresent()) {
@@ -68,13 +67,13 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/allcategories")
+    @GetMapping("/all/allcategories")
     public ResponseEntity<List<Category>> getAllParentCategory() {
         List<Category> categories = service.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/category/{id}")
+    @GetMapping("/all/category/{id}")
     public ResponseEntity<Category> showById(@PathVariable int id) {
         Optional<Category> category = service.showById(id);
         if (category.isPresent()) {

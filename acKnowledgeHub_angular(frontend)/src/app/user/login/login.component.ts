@@ -17,6 +17,7 @@ export class LoginComponent {
   logoutMessage: string = '';
   showPassword: boolean = false;
   showError: boolean = false;
+  
   constructor(private authService: AuthService, private router: Router) { }
 
   onLogin(form: NgForm) {

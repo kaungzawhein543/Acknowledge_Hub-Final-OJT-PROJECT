@@ -50,7 +50,7 @@ public class Staff implements UserDetails {
     private Role role = Role.USER;
     @Column(name = "photo_path")  // Field to store the file path
     private String photoPath;
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "position_id")
     private Position position;
     @ManyToOne(cascade = CascadeType.MERGE)
@@ -86,8 +86,17 @@ public class Staff implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+
+        if (this.position != null && this.position.getName() != null) {
+            authorities.add(new SimpleGrantedAuthority(this.position.getName()));
+
+        }
+        return authorities;
     }
+
 
 
     @Override

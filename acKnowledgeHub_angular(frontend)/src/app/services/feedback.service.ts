@@ -16,35 +16,35 @@ export class FeedbackService {
   constructor(private http: HttpClient) { }
 
   getFeedbackList(id: number): Observable<feedbackList[]> {
-    return this.http.get<feedbackList[]>(`${this.baseURL}/list/${id}`);
+    return this.http.get<feedbackList[]>(`${this.baseURL}/HRM/list/${id}`,{ withCredentials: true});
   }
 
   getFeedbackAndReplyByAnnouncement(id: number): Observable<feedbackResponse[]> {
-    return this.http.get<feedbackResponse[]>(`${this.baseURL}/all-by-announcement/${id}`);
+    return this.http.get<feedbackResponse[]>(`${this.baseURL}/all/all-by-announcement/${id}`,{ withCredentials: true});
   }
 
   sendFeedback(feedback: Feedback): Observable<any> {
-    return this.http.post(`${this.baseURL}`, feedback,{ withCredentials : true, responseType : 'text' as 'json'});
+    return this.http.post(`${this.baseURL}/all/sendFeedback`, feedback,{ withCredentials : true, responseType : 'text' as 'json'});
   }
 
   deleteFeedback(id: number): Observable<any> {
-    return this.http.delete(`${this.baseURL}/${id}`);
+    return this.http.delete(`${this.baseURL}/${id}`,{ withCredentials: true});
   }
 
   updateFeedback(feedback: Feedback): Observable<any> {
-    return this.http.put(`${this.baseURL}`, feedback);
+    return this.http.put(`${this.baseURL}`, feedback,{ withCredentials: true});
   }
 
   sendRepliedFeedback(feedbackReply: FeedbackReply): Observable<any> {
-    return this.http.post(`${this.baseURL2}`, feedbackReply);
+    return this.http.post(`${this.baseURL2}/all/saveFeedbackReply`, feedbackReply,{withCredentials : true});
   }
 
   updateRepliedFeedback(feedbackReply: FeedbackReply): Observable<any> {
-    return this.http.put(`${this.baseURL2}`, feedbackReply);
+    return this.http.put(`${this.baseURL2}`, feedbackReply,{ withCredentials: true});
   }
 
   deleteRepliedFeedback(id: number): Observable<any> {
-    return this.http.delete(`${this.baseURL2}/${id}`);
+    return this.http.delete(`${this.baseURL2}/${id},`,{ withCredentials: true});
   }
 
 }

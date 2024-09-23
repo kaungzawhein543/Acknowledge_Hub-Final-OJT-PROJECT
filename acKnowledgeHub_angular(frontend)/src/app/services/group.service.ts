@@ -17,20 +17,20 @@ export class GroupService {
 
 
   getAllGroups(): Observable<Group[]> {
-    return this.http.get<Group[]>(`${this.baseURL}`, { withCredentials: true });
+    return this.http.get<Group[]>(`${this.baseURL}/sys/getAllGroup`, { withCredentials: true });
   }
   deleteGroup(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseURL}/softDelete/` + id, { withCredentials: true });
+    return this.http.get<void>(`${this.baseURL}/HRM/softDelete/` + id, { withCredentials: true });
   }
 
   getGroupsByHR(id: number): Observable<Group[]> {
-    return this.http.get<Group[]>(`${this.baseURL}/HR/${id}`, { withCredentials: true });
+    return this.http.get<Group[]>(`${this.baseURL}/allHR/HR/${id}`, { withCredentials: true });
   }
 
   createGroup(userIds: number[], groupName: string): Observable<string> {
     const encodedGroupName = encodeURIComponent(groupName);
 
-    const url = `${this.baseURL}/create?name=${encodedGroupName}`;
+    const url = `${this.baseURL}/HRM/create?name=${encodedGroupName}`;
 
     return this.http.post(url, userIds, {
       responseType: 'text', // Expect plain text response
