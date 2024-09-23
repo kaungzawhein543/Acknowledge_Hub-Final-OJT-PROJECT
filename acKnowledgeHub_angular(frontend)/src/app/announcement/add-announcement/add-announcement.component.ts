@@ -190,6 +190,8 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     const formData = new FormData();
+    const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
+    const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;

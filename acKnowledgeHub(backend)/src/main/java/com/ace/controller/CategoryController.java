@@ -23,7 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/sys/save")
-    public Category save(
+    public ResponseEntity<String> save(
             @RequestParam(value = "name") String name,
             @RequestParam(value = "description") String description) throws IOException {
         Category existingCategory= service.findByLowerName(name);
@@ -45,6 +45,9 @@ public class CategoryController {
     @PutMapping(value = "/sys/update/{id}")
     public Category update(@PathVariable("id") int id,
                            @RequestParam("name") String name,
+                           @RequestParam("description") String description) throws IOException {
+        Category updated = new Category();
+        updated.setId(id);
         updated.setName(name);
         updated.setDescription(description);
         return service.update(id, updated);

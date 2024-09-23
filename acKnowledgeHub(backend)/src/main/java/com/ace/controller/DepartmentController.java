@@ -34,7 +34,7 @@ public class DepartmentController {
     }
 
     @PostMapping("/sys/createDepartment")
-    public Department createDepartment(@RequestBody Department department) {
+    public ResponseEntity<String> createDepartment(@RequestBody Department department) {
         Department existingDepartment = departmentService.getDepartmentByLowerName(department.getName(),department.getCompany().getId());
         if(existingDepartment == null){
             departmentService.saveDepartment(department);

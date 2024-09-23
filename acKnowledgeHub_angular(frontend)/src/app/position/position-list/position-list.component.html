@@ -15,7 +15,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngIf="!positions || positions.length === 0">
+                        <tr *ngIf="positions.length === 0">
                             <td colspan="5" class="text-center text-gray-500 py-4">There is no data available.</td>
                         </tr>
                         <tr *ngFor="let position of positions; let i = index" class="border-b">

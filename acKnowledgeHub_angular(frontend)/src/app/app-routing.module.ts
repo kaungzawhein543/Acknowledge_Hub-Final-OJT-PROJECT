@@ -41,7 +41,7 @@ import { RequestListByUserComponent } from './announcement/request-list-by-user/
 import { RequestListComponent } from './announcement/request-list/request-list.component';
 import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
 import { AddPositionComponent } from './position/add-position/add-position.component';
-import { PositionListComponent } from './position/position-list.component/position-list.component';
+import { PositionListComponent } from './position/position-list/position-list.component'; 
 
 const routes: Routes = [
   { path: 'acknowledgeHub/login', component: LoginComponent },
