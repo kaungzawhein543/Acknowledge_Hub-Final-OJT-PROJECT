@@ -224,6 +224,6 @@ export class UserAnnouncementListComponent {
 
   onDetailButtonClick(id: number) {
     const encodedId = btoa(id.toString());
-    this.router.navigate(['/announcement/detail/' + encodedId]);
+    this.router.navigate(['/acknowledgeHub/announcement/detail/' + encodedId]);
   }
 }

@@ -126,7 +126,7 @@
         <td class="p-3">{{ staff.company.name }}</td>
         <td class="p-3">{{ staff.department.name }}</td>
         <td class="p-3">
-          <span class="p-1 bg-red-500 hover:bg-red-600 cursor-pointer text-md text-white rounded-md" (click)="removeStaff(staff)">Remove</span>
+          <span class="p-1 bg-red-500 hover:bg-red-600 cursor-pointer text-md text-white rounded-md" (click)="openDeleteModal(staff)">Remove</span>
         </td>
       </tr>
     </tbody>
@@ -139,4 +139,8 @@
   </div>
   
   
-  
+  <app-confirmation-modal 
+  #confirmationModal
+  [message]="'Are you sure you want to remove this memeber?'" 
+  (confirmed)="removeStaff()"
+></app-confirmation-modal>

@@ -10,6 +10,7 @@ import { GroupService } from '../../services/group.service';
 import { error } from 'console';
 import { ToastService } from '../../services/toast.service';
 import { map } from 'rxjs';
+import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 
 
 @Component({
@@ -41,7 +42,9 @@ export class AddGroupComponent {
   departmentstatus: number | undefined;
   status: boolean = false;
   showConfirmBox : boolean = false;
+  staffForDelete !: StaffGroup;
   @ViewChild('staff') staff!: MatSelectionList;
+  @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
 
   constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
 
@@ -261,10 +264,15 @@ export class AddGroupComponent {
     this.toastService.showToast('Here is some information.', 'info');
   }
 
-  removeStaff(staff: StaffGroup): void {
-    // Find and remove the staff from the selectedStaff array
-    this.selectedStaff = this.selectedStaff.filter(s => s.staffId !== staff.staffId);
-    this.filterStaffAfterSelect(); // Reapply filter to update the displayed staff list
+  removeStaff(): void {
+   if(this.staffForDelete){
+     // Find and remove the staff from the selectedStaff array
+     this.selectedStaff = this.selectedStaff.filter(s => s.staffId !== this.staffForDelete.staffId);
+     this.filterStaffAfterSelect(); // Reapply filter to update the displayed staff list
+   }
   }
-  
+  openDeleteModal(staff: StaffGroup) {
+    this.staffForDelete = staff;
+    this.modal.open();
+  }
 }

@@ -234,7 +234,7 @@ export class RequestListComponent implements OnInit {
   }
 
   onDetailButtonClick(id: number) {
-    this.router.navigate(['announcement/detail/' + id]);
+    this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
   }
 }
 

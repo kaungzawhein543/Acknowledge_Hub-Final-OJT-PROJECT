@@ -87,4 +87,16 @@ export class ListGroupComponent {
     this.errorMessage = errorMessage;
     this.toastService.showToast('An error occurred!', 'error');
   }
+
+  showSuccessToast() {
+    this.toastService.showToast('Add Group  successful!', 'success');
+  }
+
+  showErrorToast() {
+    this.toastService.showToast('An error occurred!', 'error');
+  }
+
+  showInfoToast() {
+    this.toastService.showToast('Here is some information.', 'info');
+  }
 }

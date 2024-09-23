@@ -24,14 +24,14 @@ export class AddPasswordComponent {
     }
     this.authService.addPassword(this.email, this.password).subscribe(
       response => {
-        this.successMessage = response;
+        this.successMessage = "Change Password Successfully.";
         this.errorMessage = '';
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/acknowledgeHub/login']);
         }, 2000); // Wait for 2 seconds before redirecting
       },
       error => {
-        this.errorMessage = error.error;
+        this.errorMessage = "Change Password Failed";
         this.successMessage = '';
       }
     );

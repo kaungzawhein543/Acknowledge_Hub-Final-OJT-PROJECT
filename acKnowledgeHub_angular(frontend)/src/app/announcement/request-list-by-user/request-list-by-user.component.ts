@@ -226,6 +226,6 @@ export class RequestListByUserComponent {
   }
 
   onDetailButtonClick(id: number) {
-    this.router.navigate(['announcement/detail/' + id]);
+    this.router.navigate(['/acknowledgeHub/announcement/detail/' + id]);
   }
 }

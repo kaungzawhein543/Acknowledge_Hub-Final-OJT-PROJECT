@@ -35,17 +35,5 @@ export class ListCompaniesComponent implements OnInit {
       });
   }
 
-  showDepartments(id: number) {
-    this.departmentService.getDepartmentListByCompanyId(id).subscribe({
-      next: (data) => {
-        this.selectedDepartment = data;
-      },
-      error: (e) => console.log(e)
-    });
-  }
-
-  closeModal(): void {
-    this.selectedDepartment = null;
-  }
 
 }

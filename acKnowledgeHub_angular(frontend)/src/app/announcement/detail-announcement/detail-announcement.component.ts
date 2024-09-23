@@ -8,7 +8,7 @@ import { FeedbackReply } from '../../models/feedbackReply';
 import { NgForm } from '@angular/forms';
 import { Feedback } from '../../models/feedback';
 import { StaffService } from '../../services/staff.service';
-import { forkJoin, switchMap, tap } from 'rxjs';
+import { forkJoin, map, switchMap, tap } from 'rxjs';
 import { Category } from '../../models/category';
 
 @Component({
@@ -29,6 +29,7 @@ export class DetailAnnouncementComponent {
   currentUserId !: number;
   replyPermission : boolean = false;
   isAdmin : boolean = false;
+  isHrMain : boolean = false;
   createdStaff : number = 1;
   accessStaffs : number[] = [];
   noted : boolean = false;
@@ -71,10 +72,13 @@ export class DetailAnnouncementComponent {
 
 private loadAnnouncementData(decodedId: string): void {
   this.authService.getUserInfo().pipe(
-    switchMap((userData: { user: { id: number; role: string; }; }) => {
-      this.currentUserId = userData.user.id;
-      this.isAdmin = userData.user.role === 'ADMIN';
-
+    switchMap((data: { isLoggedIn: boolean; company: string; position: string; user: { id: number; role: string; position: string; }; }) => {
+      // Access the 'user' and 'position' data from the response
+      this.currentUserId = data.user.id;
+      this.isAdmin = data.user.role === 'ADMIN';
+      this.isHrMain = data.position === 'HR_MAIN'; // Position from the root level
+    
+  
       return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
         tap(announcement => {
           this.announcement = announcement;
@@ -83,7 +87,7 @@ private loadAnnouncementData(decodedId: string): void {
           this.replyPermission = this.currentUserId === announcement.createdStaffId;
         }),
         switchMap((announcement: any) => {
-          if (!this.isAdmin && this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {
+          if (!this.isAdmin && !this.isHrMain &&  this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {
             this.router.navigate(['/acknowledgeHub/404']);
             return [];
           }
@@ -95,10 +99,10 @@ private loadAnnouncementData(decodedId: string): void {
           ]);
         }),
         tap(([noted, notedStaff, unNotedStaff, feedbackData]) => {
-          if(noted === true){ 
+          if(String(noted) === "true"){ 
             this.noted = true;
             console.log(`Noted is ${this.noted}`);
-          }else if(noted === false){
+          }else if(String(noted) === "false"){
             this.notNoted = true;
             console.log(`unNoted is ${this.notNoted}`);
           }

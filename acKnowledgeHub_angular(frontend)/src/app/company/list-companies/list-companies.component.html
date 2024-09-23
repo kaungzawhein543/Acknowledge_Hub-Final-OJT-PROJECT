@@ -11,7 +11,6 @@
                         <tr class="bg-gray-200 text-gray-700">
                             <th class="px-4 py-2 text-left">#</th>
                             <th class="px-4 py-2 text-left">Name</th>
-                            <th class="px-4 py-2 text-left">Departments</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -21,26 +20,11 @@
                         <tr *ngFor="let company of companies; let i = index" class="border-b">
                             <td class="px-4 py-2">{{ i + 1 }}</td>
                             <td class="px-4 py-2">{{ company.name }}</td>
-                            <td class="px-4 py-2 flex space-x-2">
-                                <button class="bg-blue-400 hover:bg-blue-800 text-white py-1 px-2 rounded"
-                                    (click)="showDepartments(company.id)">show departments</button>
-                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div *ngIf="selectedDepartment"
-            class="fixed inset-0 bg-gray-800 bg-opacity-50  flex items-center justify-center" style="z-index: 9999;">
-            <div class="bg-white rounded-lg shadow-lg w-1/2 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ selectedDepartment.length > 0 ?
-                    selectedDepartment[0].company.name + "'s Departments" : "Departments" }}</h3>
-                <ol class="list-decimal pl-5">
-                    <li *ngFor="let department of selectedDepartment" class="p-2  hover:bg-gray-200">{{
-                        department.name }}</li>
-                </ol>
-                <button (click)="closeModal()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
-            </div>
-        </div>
+       
     </div>
 </div>
