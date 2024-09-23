@@ -1,6 +1,6 @@
 <ul class="space-y-2 w-60" *ngIf="isSidebarOpen" [@sidebarAnimation]>
   <li style="margin: 16px; padding: 3px;">
-    <span class="text-gray-600 font-extrabold">Main Links</span>
+    <!-- <span class="text-gray-600 font-extrabold">Main Links</span> -->
   </li>
 
   <!-- <div *ngIf="isAdmin">
@@ -101,7 +101,7 @@
         routerLink="announcement/list" routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
           <i class="fa-solid fa-list"></i>
-          <span> Announcement List</span>
+          <span>List  Announcement</span>
         </span>
       </li>
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
@@ -126,11 +126,23 @@
       <i class="fa-solid fa-chevron-down"></i>
     </a>
     <ul id="categoryMenu" class="space-y-2 pl-8 mt-2 hidden">
+     
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
-        routerLink="list-category" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-layer-group"></i>  Category
-      </li>
+      routerLink="add-category" routerLinkActive="active text-white hover:active hover:text-white">
+      <span class="flex items-center space-x-3">
+        <i class="fa-solid fa-plus"></i>
+        <span> Create Category</span>
+      </span>
+    </li>
+    <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+      routerLink="list-category" routerLinkActive="active text-white hover:active hover:text-white">
+      <span class="flex items-center space-x-3">
+        <i class="fa-solid fa-list"></i>
+        <span>List  Category</span>
+      </span>
+    </li>
     </ul>
+  
   </li>
 
   <li *ngIf="isAdmin || isMainHr">

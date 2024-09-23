@@ -56,6 +56,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RequestAnnouncementComponent } from './announcement/request-announcement/request-announcement.component';
+import { ScrollTopModule } from 'primeng/scrolltop';
 
 import { UserChartComponent } from './chart/user-chart/user-chart.component';
 import { ProfileComponent } from './user/profile/profile.component';
@@ -128,6 +129,7 @@ import { CommonModule } from '@angular/common';
     MatButtonToggleModule,
     ScrollingModule,
     MatListOption,
+    ScrollTopModule,
     MatButtonModule,
     MatRadioModule,
     MtxGridModule,

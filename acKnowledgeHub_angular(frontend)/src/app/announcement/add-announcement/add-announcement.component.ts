@@ -9,6 +9,7 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 
 @Component({
@@ -54,6 +55,9 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   selectedFile: File | null = null;
   createStaffId !: number;
   fileErrorMessage !: boolean;
+  ErrorMessage !: boolean;
+  formSubmitted: boolean = false;
+
   updateInterval: any;
   intervalId: any;
 
@@ -68,11 +72,20 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
+
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
     this.audio.load();
    }
+
+   showSuccessToast() {
+    this.toastService.showToast(' Announcement created successful!', 'success');
+  }
+  showErrorToast() {
+    this.toastService.showToast('An error occurred!', 'error');
+  }
 
   ngOnInit(): void {
     this.loadGroups();
@@ -90,6 +103,12 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
         this.setMinDateTime();
       }, 60000);
   }
+
+  onCreate() {
+    // this.showSuccessToast();
+     this.formSubmitted = true;  
+  }
+
   playNotificationSound() {
     this.audio.play().catch(error => {
       console.error('Error playing sound:', error);
@@ -172,14 +191,10 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
 
   onSubmit(): void {
     const formData = new FormData();
-    console.log(this.minDateTime)
-    console.log(this.scheduleDate);
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
       this.dateError = 'The schedule date cannot be earlier than the current date & time.';
       return;
     }
-    
-    
     
     // Create the announcement object
     const announcement = {
@@ -218,6 +233,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
         console.log(response);
+        this.showSuccessToast();
       },
       error => {
         console.error(error);

@@ -18,7 +18,7 @@ export class AnnouncementService {
 
   //Create Announcement
   createAnnouncement(formData: FormData, userId: number): Observable<any> {
-    return this.http.post(`${this.BaseUrl}/create?createUserId=${userId}`, formData);
+    return this.http.post(`${this.BaseUrl}/create?createUserId=${userId}`, formData,{responseType: 'text' as'json'});
   }
 
   //Get Latest Version of Announcement

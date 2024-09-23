@@ -18,30 +18,46 @@
       <!-- Title and Description -->
       <div class="card col-span-6 flex flex-col">
         <div class="bg-white p-6 rounded-lg shadow-md pt-9">
-            <div class="mb-6">
-              <label for="title" class="block text-lg font-semibold text-gray-800">Title</label>
-              <input
-                id="title"
-                [(ngModel)]="announcementTitle"
-                name="title"
-                type="text"
-                class="mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-                placeholder="Enter announcement title"
-                required
-              />
-            </div>
-      
-            <div>
-              <label for="description" class="block text-lg font-semibold text-gray-800">Description</label>
-              <textarea
-                id="description"
-                [(ngModel)]="announcementDescription"
-                name="description"
-                rows="4"
-                class="mt-2 p-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-                placeholder="Enter announcement description (optional)"
-              ></textarea>
-            </div>
+          <div class="mb-6">
+            <label for="title" class="block text-lg font-semibold text-gray-800">Title</label>
+          
+            <!-- Show error message when title is required and the input is touched -->
+            <span *ngIf="formSubmitted && titleInput.invalid" class="text-red-600">
+              Title is required!
+            </span>
+          
+            <input
+              id="title"
+              [(ngModel)]="announcementTitle"
+              #titleInput="ngModel" 
+              name="title"
+              type="text"
+              class="mt-2 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+              placeholder="Enter announcement title"
+              required
+            />
+          </div>
+          
+          <div>
+            <label for="description" class="block text-lg font-semibold text-gray-800">Description</label>
+          
+            <!-- Show error message when description is required and invalid -->
+            <span *ngIf="formSubmitted && DescriptionInput.invalid" class="text-red-600">
+              Description is required!
+            </span>
+          
+            <textarea
+              id="description"
+              [(ngModel)]="announcementDescription"
+              #DescriptionInput="ngModel"
+              name="description"
+              rows="4"
+              class="mt-2 p-2 block w-full border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+              placeholder="Enter announcement description"
+              required 
+            ></textarea>
+          </div>
+          
         </div>
     
         <!-- Category Selection -->
@@ -138,6 +154,12 @@
       <!-- Group Selection -->
       <div *ngIf="selectedOption === 'group'" class="bg-white p-6 rounded-lg shadow-md mt-3 flex-1" style="min-height: 280px;">
         <label class="block text-lg font-semibold text-gray-800">Select Groups</label>
+        
+        <!-- Error message for no group selection -->
+        <span *ngIf="formSubmitted && selectedGroups.length === 0" class="text-red-600">
+          Please select at least one group.
+        </span>
+        
         <select multiple (change)="onGroupChange($event)" class="mt-2 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
           <option class="p-2" *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
           <option *ngIf="groups.length === 0" class="p-2 text-gray-500 text-center border-0 outline-none" disabled>
@@ -145,19 +167,25 @@
           </option>
         </select>
       </div>
+      
   
 <!-- Staff Selection -->
-<div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0" style="max-height: 280px;" (scroll)="onScroll($event)">
- <div class="sticky top-0 w-full bg-white">
+<div *ngIf="selectedOption === 'staff'" class="bg-white p-6 rounded-lg shadow-md mt-3 overflow-y-auto pt-0" style="max-height: 280px;">
+  <div class="sticky top-0 w-full bg-white">
     <label class="block text-lg font-semibold text-gray-800">Select Staffs</label>
     
+    <!-- Error message for no staff selection -->
+    <span *ngIf="formSubmitted && selectedStaffs.length === 0" class="text-red-600">
+      Please select at least one staff member.
+    </span>
+
     <input
       type="text"
       class="border-2 rounded-lg p-2 w-full"
       placeholder="Enter Staff Name or (Position).."
       (input)="onInputChange($event)"
     />
- </div>
+  </div>
 
   <div class="mt-2 space-y-3 h-40">
     <div class="overflow-auto">
@@ -186,13 +214,12 @@
   </div>
 </div>
 
-
       <!-- Submit Button -->
       <div class="mt-2 ">
         <a (click)="playNotificationSound()">Click To Noti</a>
         <button
-          type="submit"
-          class="w-1/4 float-end py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          type="submit" (click)="onCreate()"
+          class="w-1/4 float-end py-3 bg-blue-900 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Create
         </button>

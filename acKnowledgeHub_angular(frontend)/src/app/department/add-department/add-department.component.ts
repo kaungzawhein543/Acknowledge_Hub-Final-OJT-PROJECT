@@ -5,6 +5,8 @@ import { data } from 'jquery';
 import { Company } from '../../models/Company';
 import { Department } from '../../models/Department';
 import { Form, NgForm } from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-department',
@@ -19,7 +21,16 @@ export class AddDepartmentComponent implements OnInit {
     company: {} as Company
   };
   companies!: Company[];
-  constructor(private departmentService: DepartmentService, private companyService: CompanyService) { }
+  constructor(private departmentService: DepartmentService, 
+    private companyService: CompanyService,
+    private toastService: ToastService,
+    private router: Router,
+
+  ) { }
+
+  showSuccessToast() {
+    this.toastService.showToast(' Deperment created successful!', 'success');
+  }
 
   ngOnInit(): void {
     this.companyService.getAllCompany().subscribe({
@@ -41,6 +52,9 @@ export class AddDepartmentComponent implements OnInit {
         this.departmentService.addDepartment(this.department).subscribe({
           next: (data) => {
             console.log('successful')
+            this.showSuccessToast();
+            this.router.navigate(['department/list']); 
+
           },
           error: (e) => console.log(e)
         })
