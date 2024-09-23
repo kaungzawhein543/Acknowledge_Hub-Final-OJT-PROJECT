@@ -19,7 +19,7 @@ export class NotificationService {
   }
 
   updateNotification(staffId : number,notificationId : number): Observable<Notification[]>{
-    return this.http.get<Notification[]>(`${this.apiUrl}/api/v1/notifications/check/${staffId}/${notificationId}`)
+    return this.http.get<Notification[]>(`${this.apiUrl}/api/v1/notifications/check/${staffId}/${notificationId}`,{ withCredentials: true})
   }
 
   toggleNotificationStatus(notificationIds: number[]): Observable<void> {

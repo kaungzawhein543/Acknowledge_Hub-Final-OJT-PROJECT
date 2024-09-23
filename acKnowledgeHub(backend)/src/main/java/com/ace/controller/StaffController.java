@@ -71,17 +71,17 @@ public class StaffController {
         this.announcementService = announcementService;
     }
 
-    @GetMapping("/list")
+    @GetMapping("/sys/list")
     public List<StaffResponseDTO> getStaffList() {
         return staffService.getStaffList();
     }
 
-    @GetMapping("/active-list")
-    public List<ActiveStaffResponseDTO> getActiveStaffList() {
-        return staffService.getActiveStaffList();
-    }
+//    @GetMapping("/active-list")
+//    public List<ActiveStaffResponseDTO> getActiveStaffList() {
+//        return staffService.getActiveStaffList();
+//    }
 
-    @PostMapping("/add")
+    @PostMapping("/sys/add")
     public ResponseEntity<String> addStaff(@RequestBody StaffRequestDTO staffRequestDTO) {
 
         try {
@@ -104,19 +104,19 @@ public class StaffController {
         }
     }
 
-    @GetMapping("/group-staff")
+    @GetMapping("/sys/group-staff")
     public List<StaffGroupDTO> getStaffListByDepartmentId() {
         List<StaffGroupDTO> staffList = staffService.getStaffListForGroup();
         return staffList;
     }
 
-    @GetMapping("/noted-list/{id}")
+    @GetMapping("/all/noted-list/{id}")
     public List<NotedResponseDTO> getNotedStaff(@PathVariable("id") Integer announcementId) {
         List<NotedResponseDTO> staffList = staffService.getNotedStaffList(announcementId);
         return staffList;
     }
 
-    @GetMapping("/not-noted-list/{id}/{groupStatus}")
+    @GetMapping("/HRM/not-noted-list/{id}/{groupStatus}")
     public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @PathVariable("groupStatus") byte groupStatus) {
         List<UnNotedResponseDTO> staffList = new ArrayList<UnNotedResponseDTO>();
         if (groupStatus == 1) {
@@ -127,7 +127,7 @@ public class StaffController {
         return staffList;
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/allHR/getStaff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedResponse<StaffDTO>> getStaffs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, @RequestParam(required = false) String searchTerm) {
         Page<StaffDTO> staffPage;
         if (searchTerm != null && !searchTerm.isEmpty()) {
@@ -140,12 +140,12 @@ public class StaffController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/hr-list")
+    @GetMapping("/sys/hr-list")
     public List<StaffResponseDTO> getHRList() {
         return staffService.getHRStaffList();
     }
 
-    @GetMapping("put-HR/{id}")
+    @GetMapping("/sys/put-HR/{id}")
     public List<StaffResponseDTO> putStaffHRMain(@PathVariable("id") Integer staffId) {
         Staff staffMain = staffService.getHRMainStaff("Human Resource(Main)");
         if (staffMain != null) {
@@ -162,13 +162,13 @@ public class StaffController {
     }
 
 
-    @GetMapping("/staff-count-by-announcement")
+    @GetMapping("/sys/staff-count-by-announcement")
     public List<Map<String, Object>> getStaffCountByAnnouncement() {
         return staffService.getStaffCountByAnnouncement();
     }
 
     //get announcements list by staff id
-    @GetMapping("/announcements/count")
+    @GetMapping("/STF/announcements/count")
     public ResponseEntity<Map<String, Object>> getAnnouncements(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         String token = null;
@@ -212,7 +212,7 @@ public class StaffController {
 
 
     // method to get announcement noted by staff for chart
-    @GetMapping("/notesCountByMonth")
+    @GetMapping("/STF/notesCountByMonth")
     public ResponseEntity<Map<String, Object>> getNotesCountByMonth(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         String token = null;
@@ -257,13 +257,13 @@ public class StaffController {
     }
 
     //Mapping to get staff summary count
-    @GetMapping("/summary")
+    @GetMapping("/sys/summary")
     public StaffSummaryDTO getStaffSummary() {
         return staffService.getStaffSummary();
     }
 
     //Mapping to get announcement by staff id desc
-    @GetMapping("/staff-announcements")
+    @GetMapping("/all/staff-announcements")
     public ResponseEntity<?> getMyAnnouncements(HttpServletRequest request) {
         String token = null;
         Cookie[] cookies = request.getCookies();
@@ -302,7 +302,7 @@ public class StaffController {
     }
 
     //update profile photo
-    @PostMapping("/profile/upload-photo")
+    @PostMapping("/all/profile/upload-photo")
     public ResponseEntity<?> uploadProfilePhoto(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         String token = null;
         Cookie[] cookies = request.getCookies();
@@ -390,7 +390,7 @@ public class StaffController {
     }
 
     //Change Password from profile(changeOldPassword)
-    @PostMapping("/change_Old_Password")
+    @PostMapping("/all/change_Old_Password")
     public ResponseEntity<String> changeOldPassword(@RequestBody ChangePasswordRequest request) {
         String result = staffService.changeOldPassword(request);
 

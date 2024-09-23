@@ -16,12 +16,12 @@ public class PositionController {
         this.positionService = positionService;
     }
 
-    @GetMapping("/list")
+    @GetMapping("/sys/list")
     public List<Position> getAllPosition(){
         return positionService.getPositionList();
     }
 
-    @PostMapping
+    @PostMapping("/sys/addPosition")
     public ResponseEntity<Position> addPosition(@RequestBody Position position){
         Position responsePosition =  positionService.addPosition(position);
         return ResponseEntity.ok(responsePosition);

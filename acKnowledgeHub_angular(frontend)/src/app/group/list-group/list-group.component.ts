@@ -24,6 +24,8 @@ export class ListGroupComponent {
   filterStaffListAfterSelect : StaffGroup[] = [];
   staffSearchTermConfirm : string = '';
   selectedStaff: StaffGroup[] = [];
+  staffPhotoUrl: string | null = null;
+
   
   
   constructor(private groupService: GroupService, private toastService: ToastService) {}
@@ -35,7 +37,7 @@ export class ListGroupComponent {
   showStaffs(group: any): void {
     this.selectedGroup = group;
     this.selectedGroup.staff = group.staff.map((staff: StaffGroup) => {
-      staff.photoPath = "http://localhost:8080" + staff.photoPath + "?"+ Date.now();
+      this.staffPhotoUrl = "http://localhost:8080" + staff.photoPath + "?"+ Date.now();
       console.log(staff.photoPath);
       return staff; // Return the modified staff object
     });    this.filterStaffListAfterSelect = this.selectedGroup.staff;

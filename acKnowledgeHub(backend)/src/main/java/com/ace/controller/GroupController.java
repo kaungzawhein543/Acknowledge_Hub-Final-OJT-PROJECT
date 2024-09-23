@@ -28,7 +28,7 @@ public class GroupController {
         this.mapper = mapper;
     }
 
-    @GetMapping
+    @GetMapping("/sys/getAllGroup")
     public ResponseEntity<List<GroupDTO>> getAllGroups() {
         List<Group> groups = groupService.getAllGroups();
 
@@ -57,13 +57,13 @@ public class GroupController {
     }
 
 
-    @GetMapping("HR/{id}")
+    @GetMapping("/allHR/HR/{id}")
     public ResponseEntity<List<GroupResponseDTO>> getGroupsHR(@PathVariable("id") Integer id) {
         List<GroupResponseDTO> groups = groupService.getGroupsByHR(id);
         return ResponseEntity.ok().body(groups);
     }
 
-    @PostMapping("/create")
+    @PostMapping("/HRM/create")
     public ResponseEntity<String> addGroup(
             @RequestParam String name,
             @RequestBody List<Integer> userIds
@@ -79,27 +79,27 @@ public class GroupController {
             return ResponseEntity.ok("Group name is already exist.");
         }
     }
-
-    @PutMapping("/update/{groupId}")
-    public void updateGroup(
-            @PathVariable int groupId,
-            @RequestParam String name,
-            @RequestParam List<Integer> userIds
-    ) {
-        groupService.updateGroup(groupId, name, userIds);
-    }
+//
+//    @PutMapping("/update/{groupId}")
+//    public void updateGroup(
+//            @PathVariable int groupId,
+//            @RequestParam String name,
+//            @RequestParam List<Integer> userIds
+//    ) {
+//        groupService.updateGroup(groupId, name, userIds);
+//    }
     @GetMapping("/{groupId}")
     public Group getGroup(@PathVariable int groupId){
         return groupService.getGroupById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Id is not Found"+ groupId));
     }
 
-    @DeleteMapping("/softDelete/{groupId}")
+    @DeleteMapping("/HRM/softDelete/{groupId}")
     public void deleteGroup(@PathVariable int groupId){
         groupService.deactivateGroup(groupId);
     }
 
-    @PutMapping("/activate/{groupId}")
+    @PutMapping("/HRM/activate/{groupId}")
     public void reactivateGroup(@PathVariable int groupId) {
         groupService.reactivateGroup(groupId);
     }

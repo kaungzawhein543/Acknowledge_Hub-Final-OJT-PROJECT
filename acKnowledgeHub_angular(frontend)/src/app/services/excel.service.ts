@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ExcelServiceService {
-  private apiUrl = 'http://localhost:8080/api/v1';
+  private apiUrl = 'http://localhost:8080/api/v1/excel';
 
   constructor(private http: HttpClient) { }
 
@@ -14,6 +14,6 @@ export class ExcelServiceService {
     const formData: FormData = new FormData();
     formData.append('file', file);
   
-return this.http.post(`${this.apiUrl}/upload`, formData, { responseType: 'text', withCredentials: true });
+return this.http.post(`${this.apiUrl}/sys/upload`, formData, { responseType: 'text', withCredentials: true });
   }
 }

@@ -249,7 +249,7 @@ export class ListAnnouncementComponent {
     const encodedId = btoa(id.toString());
     const encodedName = btoa(name);
     const encodedFile = btoa(file);
-    this.router.navigate(['announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
+    this.router.navigate(['acknowledgeHub/announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
   }
 
   onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
@@ -257,12 +257,12 @@ export class ListAnnouncementComponent {
     const encodedName = btoa(name);
     const encodedStatus = btoa(groupStatus.toString());
     const encodedFile = btoa(file);
-    this.router.navigate(['announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
+    this.router.navigate(['acknowledgeHub/announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
   }
 
   onDetailButtonClick(id: number) {
     if(id){
-      this.router.navigate(['announcement/detail/' + btoa(id.toString())]);
+      this.router.navigate(['acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
     }
   }
 }

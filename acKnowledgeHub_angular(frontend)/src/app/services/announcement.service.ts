@@ -19,7 +19,7 @@ export class AnnouncementService {
 
   //Create Announcement
   createAnnouncement(formData: FormData, userId: number): Observable<any> {
-    return this.http.post(`${this.BaseUrl}/create?createUserId=${userId}`, formData, {responseType: 'text'});
+    return this.http.post(`${this.BaseUrl}/allHR/create?createUserId=${userId}`, formData, {withCredentials: true,responseType: 'text'},);
   }
 
   //Get Latest Version of Announcement
@@ -28,17 +28,17 @@ export class AnnouncementService {
   }
 
   getUrlOfAnnouncement(fileName: string): Observable<any> {
-    return this.http.get(`${this.BaseUrl}/announcement-get-url?fileName=${fileName}`, { responseType: "text" as "json", withCredentials: true });
+    return this.http.get(`${this.BaseUrl}/all/announcement-get-url?fileName=${fileName}`, { responseType: "text" as "json", withCredentials: true });
   }
 
   //Edit Announcement
   editAnnouncement(announcement: announcement): Observable<any> {
-    return this.http.put<String>(`${this.BaseUrl}/${announcement.id}`, announcement);
+    return this.http.put<String>(`${this.BaseUrl}/${announcement.id}`, announcement,{ withCredentials: true});
   }
 
   //Get Announcement
   getAnnouncementById(id: number): Observable<updateAnnouncement> {
-    return this.http.get(`${this.BaseUrl}/${id}`, { responseType: 'text' }).pipe(
+    return this.http.get(`${this.BaseUrl}/all/${id}`, {  withCredentials: true,responseType: 'text' }).pipe(
       map(response => {
         try {
           return JSON.parse(response) as updateAnnouncement; // Parse JSON response
@@ -53,7 +53,7 @@ export class AnnouncementService {
 
   //Get Announcement
   getLatestAnnouncementById(id: number): Observable<updateAnnouncement> {
-    return this.http.get(`${this.BaseUrl}/latest-version-by-id/${id}`, { responseType: 'text' }).pipe(
+    return this.http.get(`${this.BaseUrl}/HRM/latest-version-by-id/${id}`, {  withCredentials: true,responseType: 'text' }).pipe(
       map(response => {
         try {
           return JSON.parse(response) as updateAnnouncement; // Parse JSON response
@@ -68,34 +68,34 @@ export class AnnouncementService {
 
   //Get Published Announcement
   getPublishAnnouncements(): Observable<listAnnouncement[]> {
-    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/getPublishedAnnouncements`);
+    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/all/getPublishedAnnouncements`);
   }
 
   //Delete Announcement
   deleteAnnouncement(id: number): Observable<string> {
-    return this.http.delete<string>(`${this.BaseUrl}/${id}`);
+    return this.http.delete<string>(`${this.BaseUrl}/${id}`,{ withCredentials: true});
   }
 
 
   downloadPdf(publicId: string): Observable<Blob> {
     const headers = new HttpHeaders({ 'Accept': 'application/pdf' });
-    return this.http.get(`${this.BaseUrl}/download/${publicId}`, { headers, responseType: 'blob' });
+    return this.http.get(`${this.BaseUrl}/all/download/${publicId}`, { headers, withCredentials: true, responseType: 'blob' });
   }
 
   userNotedAnnouncement(staffId: number): Observable<staffNotedAnnouncement[]> {
-    return this.http.get<staffNotedAnnouncement[]>(`${this.BaseUrl}/staff-noted/${staffId}`);
+    return this.http.get<staffNotedAnnouncement[]>(`${this.BaseUrl}/STF/staff-noted/${staffId}`,{ withCredentials: true});
   }
 
   userUnNotedAnnouncement(staffId: number): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/staff-unnoted/${staffId}`);
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff-unnoted/${staffId}`,{ withCredentials: true});
   }
 
   userAnnouncement(staffId: number): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/staff/${staffId}`);
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff/${staffId}`,{ withCredentials: true});
   }
 
   pendingAnnouncementBySchedule(): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/pending-list`)
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/sys/pending-list`,{ withCredentials: true})
   }
 
   //Get All
@@ -122,7 +122,7 @@ export class AnnouncementService {
   }
   downloadFile(filePath: string): void {
     const params = new HttpParams().set('file', filePath);
-    this.http.get(`${this.BaseUrl}/downloadfile`, { params, responseType: 'blob' }).subscribe(blob => {
+    this.http.get(`${this.BaseUrl}/all/downloadfile`, { params, withCredentials: true, responseType: 'blob' }).subscribe(blob => {
       // Create a new Blob object using the response data of the file
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -137,33 +137,33 @@ export class AnnouncementService {
   }
 
   getAnnouncementVersions(id: number): Observable<announcementVersion[]> {
-    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/versions/${id}`)
+    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/versions/${id}`,{ withCredentials: true})
   }
   //Announcement stats card
   getAnnouncementStats(): Observable<AnnouncementStatsDTO> {
-    return this.http.get<AnnouncementStatsDTO>(`${this.BaseUrl}/stats`, { withCredentials: true });
+    return this.http.get<AnnouncementStatsDTO>(`${this.BaseUrl}/sys/stats`, { withCredentials: true });
   }
 
   getMonthlyAnnouncementCounts(): Observable<MonthlyCountDTO[]> {
-    return this.http.get<MonthlyCountDTO[]>(`${this.BaseUrl}/monthly-counts`, { withCredentials: true });
+    return this.http.get<MonthlyCountDTO[]>(`${this.BaseUrl}/sys/monthly-counts`, { withCredentials: true });
   }
   private getFileName(filePath: string): string {
     // Extract file name from filePath if needed
     return filePath.split('/').pop() || 'downloaded-file';
   }
   getAnnouncementVersion(announcementId: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.BaseUrl}/announcement-versions/${announcementId}`);
+    return this.http.get<string[]>(`${this.BaseUrl}/all/announcement-versions/${announcementId}`,{ withCredentials: true});
   }
 
   getRequestAnnouncementList(): Observable<requestAnnouncement[]> {
-    return this.http.get<requestAnnouncement[]>(`${this.BaseUrl}/request-list`);
+    return this.http.get<requestAnnouncement[]>(`${this.BaseUrl}/HRM/request-list`,{ withCredentials: true});
   }
 
   approvedRequestAnnouncement(id: number): Observable<boolean> {
-    return this.http.get<boolean>(`${this.BaseUrl}/approved/${id}`);
+    return this.http.get<boolean>(`${this.BaseUrl}/HRM/approved/${id}`,{ withCredentials: true});
   }
 
   rejectRequestAnnouncement(id: number): Observable<boolean> {
-    return this.http.get<boolean>(`${this.BaseUrl}/reject/${id}`);
+  return this.http.get<boolean>(`${this.BaseUrl}/HRM/reject/${id}`,{ withCredentials: true});
   }
 }

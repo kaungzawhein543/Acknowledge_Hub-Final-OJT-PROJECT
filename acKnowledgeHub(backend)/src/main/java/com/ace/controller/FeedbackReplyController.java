@@ -31,7 +31,7 @@ public class FeedbackReplyController {
         this.notificationService = notificationService;
     }
 
-    @PostMapping
+    @PostMapping("/all/saveFeedbackReply")
     public ResponseEntity<FeedbackReply> saveFeedbackReply(@RequestBody FeedbackReplyRequestDTO feedbackReplyRequestDTO){
 //        System.out.println("reply text"+feedbackReplyRequestDTO.getReplyText());
 //        System.out.println("reply by "+ feedbackReplyRequestDTO.getReplyBy());

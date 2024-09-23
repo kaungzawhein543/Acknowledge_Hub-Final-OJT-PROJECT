@@ -12,14 +12,14 @@ export class DepartmentService {
   constructor(private http: HttpClient) { }
 
   addDepartment(department: Department): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, department);
+    return this.http.post(`${this.baseUrl}/sys/createDepartment`, department,{ withCredentials: true});
   }
 
   getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}/company/${companyId}`);
+    return this.http.get<Department[]>(`${this.baseUrl}/sys/company/${companyId}`,{ withCredentials: true});
   }
 
   getAllDepartments(): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}`);
+    return this.http.get<Department[]>(`${this.baseUrl}/sys/getAllCompany`,{ withCredentials: true});
   }
 }

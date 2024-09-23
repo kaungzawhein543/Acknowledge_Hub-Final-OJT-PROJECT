@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -72,13 +73,26 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 username = claims.getSubject();
                 String role = claims.get("role", String.class); // Extract role
-                if (role != null) {
-                    var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                String position = claims.get("position", String.class); // Extract position if stored in JWT
+
+                if (username != null) {
                     var userDetails = staffService.loadUserByUsername(username);
 
                     if (userDetails != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        // Create a list of authorities based on both role and position
+                        var authorities = new ArrayList<SimpleGrantedAuthority>();
+                        if (role != null) {
+                            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                        }
+                        if (position != null) {
+                            authorities.add(new SimpleGrantedAuthority(position)); // Add position-based authority
+                        }
+
+                        // Create authentication token
                         var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                        // Set authentication in context
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     }
                 }

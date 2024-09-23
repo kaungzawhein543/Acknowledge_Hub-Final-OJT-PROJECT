@@ -17,33 +17,23 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    @GetMapping
+    @GetMapping("/sys/getAllCompany")
     public List<Department> getAllDepartments() {
         return departmentService.getAllDepartments();
     }
-    @GetMapping("/company/{companyId}")
+    @GetMapping("/sys/company/{companyId}")
     public List<Department> getDepartmentsByCompany(@PathVariable Integer companyId) {
         return departmentService.getDepartmentsByCompanyId(companyId);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/sys/{id}")
     public Department getDepartmentById(@PathVariable int id) {
         return departmentService.getDepartmentById(id);
     }
 
-    @PostMapping
+    @PostMapping("/sys/createDepartment")
     public Department createDepartment(@RequestBody Department department) {
         return departmentService.saveDepartment(department);
-    }
-
-    @PutMapping("/{id}")
-    public Department updateDepartment(@PathVariable int id, @RequestBody Department department) {
-        return departmentService.updateDepartment(id, department);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteDepartment(@PathVariable int id) {
-        departmentService.deleteDepartment(id);
     }
 
 
