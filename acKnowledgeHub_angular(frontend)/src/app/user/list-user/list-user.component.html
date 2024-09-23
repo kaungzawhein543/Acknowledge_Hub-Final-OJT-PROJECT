@@ -54,10 +54,10 @@
                 <button mat-button [matMenuTriggerFor]="menu">Columns</button>
             </div>
 
-            <mat-menu #menu="matMenu">
+            <mat-menu #menu="matMenu" [overlapTrigger]="false">
                 <div class="checkbox-container">
                     <mat-checkbox *ngFor="let col of columns" [(ngModel)]="columnVisibility[col.field]"
-                        (change)="onColumnVisibilityChange()" class="checkbox-item">
+                        (click)="$event.stopPropagation()" (change)="onColumnVisibilityChange()" class="checkbox-item">
                         {{ col.header }}
                     </mat-checkbox>
                 </div>
@@ -81,15 +81,17 @@
                             <ng-container [ngSwitch]="col.field">
                                 <span *ngIf="loginRole === 'ADMIN' ">
                                     <ng-container *ngSwitchCase="'status'">
-                                        <span *ngIf="user.status ==='inactive'">
-                                            <button mat-button (click)="onActiveButtonClick(user.id)">
-                                                Activate
-                                            </button></span>
-                                        <span *ngIf="user.status ==='active'">
-                                            <button mat-button style="color: rgb(215, 133, 133);"
-                                                (click)="inActiveButtonClick(user.id)">
-                                                Inactivate
-                                            </button></span>
+                                        <span *ngIf="user.companyStaffId != 'ADMIN001'">
+                                            <span *ngIf="user.status ==='inactive'">
+                                                <button mat-button (click)="onActiveButtonClick(user.id)"
+                                                    style="margin-left: 20%;">
+                                                    Activate
+                                                </button></span>
+                                            <span *ngIf="user.status ==='active'">
+                                                <button mat-button style="color: rgb(215, 133, 133); margin-left: 20%;"
+                                                    (click)="inActiveButtonClick(user.id)">
+                                                    Inactivate
+                                                </button></span></span>
                                     </ng-container>
                                 </span>
                                 <!-- Truncate Description -->

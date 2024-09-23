@@ -18,7 +18,7 @@
             <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
                 [value]="endDateTime" (change)="onEndDateChange($event)" />
 
-          
+
         </div>
 
 
@@ -68,7 +68,8 @@
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
                                 <ng-container *ngSwitchCase="'detail'">
-                                    <button mat-button (click)="onDetailButtonClick(announcement.id)">
+                                    <button mat-button (click)="onDetailButtonClick(announcement.id)"
+                                        style="margin-left: 20%;">
                                         View
                                     </button>
                                 </ng-container>

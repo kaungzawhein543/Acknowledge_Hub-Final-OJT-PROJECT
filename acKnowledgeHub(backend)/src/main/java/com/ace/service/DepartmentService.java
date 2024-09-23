@@ -27,9 +27,9 @@ public class DepartmentService {
         return departmentRepository.findByCompanyId(companyId);
     }
 
-//    public Optional<Department> findById(int id){
-//        return departmentRepository.findById(id);
-//    }
+    public Department getDepartmentByLowerName(String name,Integer companyId){
+        return departmentRepository.getDepartmentByLowerName(name,companyId);
+    }
 
 
     public Department getDepartmentById(int id) {

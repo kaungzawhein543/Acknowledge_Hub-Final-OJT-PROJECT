@@ -75,6 +75,7 @@ import { LoadingService } from './services/loading.service';
 import { TimeAgoPipe } from './time-ago.pipe';
 import { UserAnnouncementListComponent } from './user/user-announcement-list/user-announcement-list.component';
 import { RequestListByUserComponent } from './announcement/request-list-by-user/request-list-by-user.component';
+import { PositionListComponent } from './position/position-list/position-list.component';
 
 @NgModule({
   declarations: [
@@ -127,7 +128,8 @@ import { RequestListByUserComponent } from './announcement/request-list-by-user/
     DetailAnnouncementComponent,
     TimeAgoPipe,
     UserAnnouncementListComponent,
-    RequestListByUserComponent
+    RequestListByUserComponent,
+    PositionListComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

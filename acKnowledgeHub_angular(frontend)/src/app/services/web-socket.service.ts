@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
-import { Client, Message , Stomp } from '@stomp/stompjs';
+import { Client, Message, Stomp } from '@stomp/stompjs';
 import { Notification } from '../models/Notification';
 import { AuthService } from './auth.service';
 import SockJS from 'sockjs-client';
@@ -17,7 +17,7 @@ export class WebSocketService {
   private notificationsSubject = new BehaviorSubject<Notification[]>([]);
   private notificationSubject = new Subject<Notification>();
   private isConnected = false;
-  
+
 
   constructor(private authService: AuthService) {
     this.initializeWebSocketConnection();
@@ -42,21 +42,21 @@ export class WebSocketService {
   private initializeWebSocketConnection(): void {
     const id = this.getIdFromLocalStorage();
     if (id === null) {
-        setTimeout(() => this.initializeWebSocketConnection(), 1000); 
-        return;
+      setTimeout(() => this.initializeWebSocketConnection(), 1000);
+      return;
     }
     this.disconnectWebSocket();
     this.notificationsSubject.next([]);
     console.log('Initializing WebSocket connection...');
     this.connectNotifications(id).then(() => {
-        console.log('WebSocket connected successfully.');
-        this.requestAllNotifications();
+      console.log('WebSocket connected successfully.');
+      this.requestAllNotifications();
     }).catch((error) => {
-        console.error('WebSocket connection failed, retrying...', error);
-        setTimeout(() => this.initializeWebSocketConnection(), 1000);
+      console.error('WebSocket connection failed, retrying...', error);
+      setTimeout(() => this.initializeWebSocketConnection(), 1000);
     });
-}
- 
+  }
+
   private disconnectWebSocket(): void {
     if (this.client && this.client.active) {
       this.client.deactivate();
@@ -69,8 +69,8 @@ export class WebSocketService {
     return new Promise((resolve, reject) => {
       const socket = new SockJS(`http://localhost:8080/ws`);
       this.stompClient = Stomp.over(socket);
-      
-  
+
+
       this.client = new Client({
         webSocketFactory: () => socket,
         connectHeaders: {
@@ -88,44 +88,44 @@ export class WebSocketService {
         resolve();
       };
 
-  
+
       this.client.onStompError = (frame) => {
         console.error('WebSocket error:', frame);
         reject(frame);
-    };
-      this.client.activate(); 
-  });
-}
-private handleNotificationsMessage(message: Message): void {
-  try {
-    const data = JSON.parse(message.body);
-    if (Array.isArray(data)) {
-      const notifications: Notification[] = data;
-      this.notificationsSubject.next(notifications);
-    }
-  } catch (error) {
-    console.error('Error parsing notifications message:', error);
+      };
+      this.client.activate();
+    });
   }
-}
+  private handleNotificationsMessage(message: Message): void {
+    try {
+      const data = JSON.parse(message.body);
+      if (Array.isArray(data)) {
+        const notifications: Notification[] = data;
+        this.notificationsSubject.next(notifications);
+      }
+    } catch (error) {
+      console.error('Error parsing notifications message:', error);
+    }
+  }
 
-private subscribeToNotifications(staffId: number): void {
-  this.client.subscribe(`/topic/notifications/${staffId}`, (message: Message) => {
-    this.handleNotificationsMessage(message);
-  });
+  private subscribeToNotifications(staffId: number): void {
+    this.client.subscribe(`/topic/notifications/${staffId}`, (message: Message) => {
+      this.handleNotificationsMessage(message);
+    });
 
-  this.client.subscribe(`/topic/notification/${staffId}`, (message: Message) => {
-    const notification = JSON.parse(message.body) as Notification;
-    console.log('Received new notification:', notification);
-    this.notificationSubject.next(notification);
-  });
-}
+    this.client.subscribe(`/topic/notification/${staffId}`, (message: Message) => {
+      const notification = JSON.parse(message.body) as Notification;
+      console.log('Received new notification:', notification);
+      this.notificationSubject.next(notification);
+    });
+  }
   private requestAllNotifications(): void {
     const staffId = this.getIdFromLocalStorage();
     if (staffId) {
       this.client.publish({
         destination: '/app/getNotifications',
-        headers: { 'X-Staff-Id': staffId.toString() }, 
-        body: staffId.toString() 
+        headers: { 'X-Staff-Id': staffId.toString() },
+        body: staffId.toString()
       });
       console.log('Requested all notifications for staff ID:', staffId);
     } else {
@@ -138,7 +138,7 @@ private subscribeToNotifications(staffId: number): void {
     if (staffId) {
       this.client.publish({
         destination: '/app/sendNotification',
-        headers: { 'X-Staff-Id': staffId.toString() }, 
+        headers: { 'X-Staff-Id': staffId.toString() },
         body: JSON.stringify(notification)
       });
     } else {
@@ -157,5 +157,5 @@ private subscribeToNotifications(staffId: number): void {
   public getStatusUpdates(): Observable<number[]> {
     return this.statusUpdateSubject.asObservable();
   }
-  
+
 }

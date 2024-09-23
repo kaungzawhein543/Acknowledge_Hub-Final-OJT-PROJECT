@@ -27,7 +27,7 @@ export class AddPasswordComponent {
         this.successMessage = response;
         this.errorMessage = '';
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate(['acknowledgeHub/login']);
         }, 2000); // Wait for 2 seconds before redirecting
       },
       error => {

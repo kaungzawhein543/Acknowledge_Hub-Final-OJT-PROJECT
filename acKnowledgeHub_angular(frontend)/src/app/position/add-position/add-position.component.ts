@@ -18,13 +18,15 @@ export class AddPositionComponent {
   constructor(private positionService: PositionService) { }
 
   onSubmit(form: NgForm) {
-    if (form.valid) {
-      this.positionService.addPosition(this.position).subscribe({
-        next: (data) => {
-          console.log("successful");
-          form.reset();
-        }, error: (e) => console.log(e)
-      })
+    this.position.name = this.position.name.trim();
+    if (this.position.name != '') {
+      if (form.valid) {
+        this.positionService.addPosition(this.position).subscribe({
+          next: (data) => {
+            console.log("successful");
+          }, error: (e) => console.log(e)
+        })
+      }
     }
   }
 }

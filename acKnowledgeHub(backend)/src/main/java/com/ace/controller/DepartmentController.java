@@ -3,6 +3,8 @@ package com.ace.controller;
 import com.ace.entity.Department;
 import com.ace.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,8 +34,15 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public Department createDepartment(@RequestBody Department department) {
-        return departmentService.saveDepartment(department);
+    public ResponseEntity<String> createDepartment(@RequestBody Department department) {
+        Department existingDepartment = departmentService.getDepartmentByLowerName(department.getName(),department.getCompany().getId());
+        if(existingDepartment == null){
+            departmentService.saveDepartment(department);
+            return ResponseEntity.ok("Adding department is successful.");
+        }else{
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Department is already exist");
+        }
+
     }
 
     @PutMapping("/{id}")

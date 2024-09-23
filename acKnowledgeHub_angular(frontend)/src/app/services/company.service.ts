@@ -11,8 +11,8 @@ export class CompanyService {
   private baseUrl = 'http://localhost:8080/api/v1/company';
   constructor(private http: HttpClient) { }
 
-  addCompany(company: Company): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, company);
+  addCompany(company: Company): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}`, company, { withCredentials: true, responseType: 'text' as 'json' });
   }
 
   getAllCompany(): Observable<Company[]> {

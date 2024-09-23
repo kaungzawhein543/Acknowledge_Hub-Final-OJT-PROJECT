@@ -3,39 +3,44 @@ import { Category } from '../../models/category';
 import { CategoryService } from '../../services/category.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { error } from 'console';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-category',
   templateUrl: './add-category.component.html',
   styleUrls: ['./add-category.component.css'] // Note: It's styleUrls not styleUrl
 })
-export class AddCategoryComponent implements OnInit {
+export class AddCategoryComponent {
   category: Category = new Category();
   submitted = false;
 
   constructor(
-    private categoryService: CategoryService, 
+    private categoryService: CategoryService,
     private router: Router,
-    ) {}
-
-  ngOnInit(): void {
-    
-  }
+  ) { }
 
   saveCategory(): void {
-
-      this.categoryService.add(this.category).subscribe(
-        data => {
+    this.category.name = this.category.name.trim();
+    this.category.description = this.category.description.trim();
+    if (this.category.name != '' && this.category.description != '') {
+      this.categoryService.add(this.category).subscribe({
+        next: (data) => {
           console.log('Category saved successfully!', data);
           this.router.navigate(['/acknowledgeHub/list-category']); // Adjust the route as needed
         },
-        error => {
-          console.error('There was an error saving the category!', error);
+        error: (errorResponse: HttpErrorResponse) => {
+          if (errorResponse.status === 409) {
+            console.log("Category is already exist");
+          } else {
+            console.log("an error is occured");
+          }
         }
-      );
+      });
+    }
   }
-  
-  
+
+
 
   onSubmit(form: NgForm): void {
     if (form.valid) {

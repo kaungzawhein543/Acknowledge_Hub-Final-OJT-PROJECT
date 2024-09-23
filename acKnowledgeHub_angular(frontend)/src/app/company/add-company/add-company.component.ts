@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { CompanyService } from '../../services/company.service';
 import { Company } from '../../models/Company';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -16,13 +17,22 @@ export class AddCompanyComponent {
   };
   constructor(private companyService: CompanyService) { }
   onSubmit(form: NgForm) {
-    if (form.valid) {
-      this.companyService.addCompany(this.company).subscribe({
-        next: (data) => {
-          console.log('successful')
-        },
-        error: (e) => console.log(e)
-      })
+    this.company.name = this.company.name.trim();
+    if (this.company.name != '') {
+      if (form.valid) {
+        this.companyService.addCompany(this.company).subscribe({
+          next: (data: string) => {
+            console.log(data);
+          },
+          error: (errorResponse: HttpErrorResponse) => {
+            if (errorResponse.status === 409) {
+              console.log('Company already exists.');
+            } else {
+              console.log('An error occurred:', errorResponse.message);
+            }
+          }
+        })
+      }
     }
 
   }

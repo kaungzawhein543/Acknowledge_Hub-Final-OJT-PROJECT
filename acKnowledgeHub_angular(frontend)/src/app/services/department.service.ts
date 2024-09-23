@@ -12,7 +12,7 @@ export class DepartmentService {
   constructor(private http: HttpClient) { }
 
   addDepartment(department: Department): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, department);
+    return this.http.post(`${this.baseUrl}`, department, { withCredentials: true, responseType: 'text' as 'json' });
   }
 
   getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {

@@ -18,37 +18,33 @@ export class OtpRequestComponent {
   constructor(private service: AuthService, private router: Router) { }
 
   onSubmit(form: NgForm): void {
-    this.trimEmail();
-    if (form.valid) {
-      this.loading = true;
-      this.service.getOTP(this.staffId).subscribe({
-        next: (data) => {
-          console.log(data)
-          this.responseEmail = data;
-          if (this.responseEmail && this.responseEmail.email && this.responseEmail.expiryTime) {
-            sessionStorage.setItem('email', this.responseEmail.email);
-            sessionStorage.setItem('staffId', this.staffId);
-            const expiryTime = this.responseEmail.expiryTime;
-            sessionStorage.setItem('otpExpiry', new Date(expiryTime).toISOString());
-            this.gotoOTPInput();
-          } else {
+    this.staffId = this.staffId.trim();
+    if (this.staffId != '') {
+      if (form.valid) {
+        this.loading = true;
+        this.service.getOTP(this.staffId).subscribe({
+          next: (data) => {
+            console.log(data)
+            this.responseEmail = data;
+            if (this.responseEmail && this.responseEmail.email && this.responseEmail.expiryTime) {
+              sessionStorage.setItem('email', this.responseEmail.email);
+              sessionStorage.setItem('staffId', this.staffId);
+              const expiryTime = this.responseEmail.expiryTime;
+              sessionStorage.setItem('otpExpiry', new Date(expiryTime).toISOString());
+              this.gotoOTPInput();
+            } else {
+              this.status = true;
+              console.error('Response did not contain the required data.');
+            }
+            this.loading = false;
+          },
+          error: (error) => {
+            this.loading = false;
             this.status = true;
-            console.error('Response did not contain the required data.');
+            console.error('Error occurred:', error);
           }
-          this.loading = false;
-        },
-        error: (error) => {
-          this.loading = false;
-          this.status = true;
-          console.error('Error occurred:', error);
-        }
-      });
-    }
-  }
-
-  trimEmail() {
-    if (this.staffId) {
-      this.staffId = this.staffId.trim();
+        });
+      }
     }
   }
 

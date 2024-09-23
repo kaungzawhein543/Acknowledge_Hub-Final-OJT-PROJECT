@@ -24,17 +24,22 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/save")
-    public Category save(
+    public ResponseEntity<String> save(
             @RequestParam(value = "name") String name,
             @RequestParam(value = "description") String description) throws IOException {
-        Category category = new Category();
-        category.setName(name);
-        category.setDescription(description);
-        category.setCreatedAt(LocalDate.now());
-        return service.save(category);
+        Category existingCategory= service.findByLowerName(name);
+        if(existingCategory == null){
+            Category category = new Category();
+            category.setName(name);
+            category.setDescription(description);
+            category.setCreatedAt(LocalDate.now());
+            service.save(category);
+            return ResponseEntity.ok("Adding category is successful.");
+        }else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category is already exist.");
+        }
+
     }
-
-
 
     @PutMapping(value = "/update/{id}")
     public Category update(@PathVariable("id") int id,
@@ -66,7 +71,6 @@ public class CategoryController {
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();  // No body
     }
-
 
     @GetMapping("/allcategories")
     public ResponseEntity<List<Category>> getAllParentCategory() {

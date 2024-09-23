@@ -50,4 +50,8 @@ public class CategoryService {
         repository.softDeleteCategory(id);
     }
 
+    public Category findByLowerName(String name){
+        return repository.findByLowerName(name);
+    }
+
 }
