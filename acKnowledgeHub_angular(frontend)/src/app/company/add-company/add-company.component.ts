@@ -24,7 +24,7 @@ export class AddCompanyComponent {
         next: (data) => {
           console.log('successful')
           this.showSuccessToast();
-          this.router.navigate(['company/list']); 
+          this.router.navigate(['/acknowledgeHub/company/list']); 
 
         },
         error: (e) => console.log(e)

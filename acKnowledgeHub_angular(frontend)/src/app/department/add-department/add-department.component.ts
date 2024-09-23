@@ -61,7 +61,7 @@ export class AddDepartmentComponent implements OnInit {
           next: (data) => {
             console.log('successful')
             this.showSuccessToast();
-            this.router.navigate(['department/list']); 
+            this.router.navigate(['/acknowledgeHub/department/list']); 
 
           },
           error: (e) => console.log(e)

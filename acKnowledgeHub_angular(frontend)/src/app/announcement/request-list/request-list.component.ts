@@ -58,6 +58,7 @@ export class RequestListComponent implements OnInit {
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
         }));
+        console.log(data)
         this.filteredAnnouncements = this.requestAnnouncements;
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;

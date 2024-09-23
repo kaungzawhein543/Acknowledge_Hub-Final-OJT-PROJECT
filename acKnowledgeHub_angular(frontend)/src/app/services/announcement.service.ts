@@ -136,7 +136,7 @@ export class AnnouncementService {
   }
 
   getAnnouncementVersions(id: number): Observable<announcementVersion[]> {
-    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/versions/${id}`,{ withCredentials: true})
+    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/HRM/versions/${id}`,{ withCredentials: true})
   }
   //Announcement stats card
   getAnnouncementStats(): Observable<AnnouncementStatsDTO> {

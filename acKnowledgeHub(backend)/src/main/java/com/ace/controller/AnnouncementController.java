@@ -201,7 +201,7 @@ public class AnnouncementController {
                     }else{
                         description = savedAnnouncement.getCreateStaff().getName()+" Requested Announcement!Check It Out!";
                     }
-                    Position postion = positionService.findByName("HR_MAIN");
+                    Position postion = positionService.findByName("Human Resource(Main)");
                     List<Staff> HrStaff = staffService.getStaffByPositionId(postion.getId());
                     String url =  "/acknowledgeHub/announcement/request-list";
                     Notification notification = blogService.createNotification(savedAnnouncement,  HrStaff.get(0), description,url);

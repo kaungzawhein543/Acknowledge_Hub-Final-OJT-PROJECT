@@ -41,7 +41,7 @@ export class AddUserComponent implements OnInit {
     private router: Router,) { }
 
     showSuccessToast() {
-      this.toastService.showToast('Staff successful!', 'success');
+      this.toastService.showToast('Staff Add Successfully!', 'success');
     }
 
   ngOnInit(): void {
@@ -88,7 +88,6 @@ export class AddUserComponent implements OnInit {
     if (form.valid) {
       this.staffService.addStaff(this.staff).subscribe({
         next: (data) => {
-          console.log("Add staff is successful");
           this.showSuccessToast();
           this.router.navigate(['/acknowledgeHub/users/list']);
         },

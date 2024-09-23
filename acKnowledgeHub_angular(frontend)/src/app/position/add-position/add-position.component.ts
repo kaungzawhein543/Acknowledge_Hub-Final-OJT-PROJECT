@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Position } from '../../models/Position';
 import { NgForm } from '@angular/forms';
 import { PositionService } from '../../services/position.service';
+import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-add-position',
@@ -14,15 +16,20 @@ export class AddPositionComponent {
     id: 0,
     name: ''
   }
+  
+  showSuccessToast() {
+    this.toastService.showToast('Position created successful!', 'success');
+  }
 
-  constructor(private positionService: PositionService) { }
+  constructor(private positionService: PositionService,private router: Router,private toastService: ToastService) { }
 
   onSubmit(form: NgForm) {
     if (form.valid) {
       this.positionService.addPosition(this.position).subscribe({
         next: (data) => {
-          console.log("successful");
-          form.reset();
+          this.showSuccessToast();
+          this.router.navigate(['/acknowledgeHub/department/list']); 
+          // form.reset();
         }, error: (e) => console.log(e)
       })
     }
