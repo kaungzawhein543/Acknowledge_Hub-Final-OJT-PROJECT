@@ -72,9 +72,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "WHERE s.id = :staffId")
     List<AnnouncementResponseListDTO> getStaffAnnouncementGroup(@Param("staffId") Integer staffId);
 
-    @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name,  a.category.name) " +
+    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
             "from Announcement a WHERE a.isPublished = false and a.permission = 'approved'")
-    List<AnnouncementResponseListDTO> getPendingAnnouncement();
+    List<AnnouncementListDTO> getPendingAnnouncement();
 
     //Query for staffNotedAnnouncement
     @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +

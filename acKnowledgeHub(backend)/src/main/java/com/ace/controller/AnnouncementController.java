@@ -427,7 +427,7 @@ public class AnnouncementController {
 //    }
 
     @GetMapping("/pending-list")
-    public List<AnnouncementResponseListDTO> getPendingAnnouncement() {
+    public List<AnnouncementListDTO> getPendingAnnouncement() {
         return announcement_service.getPendingAnnouncement();
     }
     //Mapping for staffNotedAnnouncement

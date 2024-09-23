@@ -118,7 +118,7 @@ public class AnnouncementService {
         return combinedAnnouncements;
     }
 
-    public List<AnnouncementResponseListDTO> getPendingAnnouncement(){
+    public List<AnnouncementListDTO> getPendingAnnouncement(){
         return announcement_repo.getPendingAnnouncement();
     }
 

@@ -18,7 +18,7 @@ export class AnnouncementService {
 
   //Create Announcement
   createAnnouncement(formData: FormData, userId: number): Observable<any> {
-    return this.http.post(`${this.BaseUrl}/create?createUserId=${userId}`, formData, {responseType: 'text'});
+    return this.http.post(`${this.BaseUrl}/create?createUserId=${userId}`, formData, { responseType: 'text' });
   }
 
   //Get Latest Version of Announcement
@@ -93,8 +93,8 @@ export class AnnouncementService {
     return this.http.get<announcementList[]>(`${this.BaseUrl}/staff/${staffId}`);
   }
 
-  pendingAnnouncementBySchedule(): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/pending-list`)
+  pendingAnnouncementBySchedule(): Observable<listAnnouncement[]> {
+    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/pending-list`)
   }
 
   //Get All
