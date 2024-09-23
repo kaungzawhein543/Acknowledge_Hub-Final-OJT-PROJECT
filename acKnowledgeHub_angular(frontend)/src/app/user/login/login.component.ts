@@ -48,9 +48,9 @@ export class LoginComponent {
           }
         } else {
           this.authService.getUser().subscribe(user => {
-            if (user.user.role === "USER" && user.position !== "HR_MAIN") {
+            if (user.user.role === "USER" && user.position !== "Human Resource(Main)") {
                 this.router.navigate(['/acknowledgeHub/staff-dashboard']);
-            } else if (user.user.role === "ADMIN" || user.position === "HR_MAIN") {
+            } else if (user.user.role === "ADMIN" || user.position === "Human Resource(Main)") {
                 this.router.navigate(['/acknowledgeHub/system-dashboard']);
             }
         });

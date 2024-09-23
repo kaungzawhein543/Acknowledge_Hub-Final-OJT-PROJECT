@@ -23,6 +23,7 @@ export class AddHRMainComponent {
     this.staffService.getHRList().subscribe({
       next: (data) => {
         this.staffHRList = data;
+        console.log(data);
       },
       error: (e) => console.error(e)
     });

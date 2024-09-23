@@ -61,7 +61,7 @@ export class AnnouncementComponent implements OnInit {
     const feedbackReply: FeedbackReply = {
       replyText: feedback.replyText!,
       replyBy: this.loginId,
-      feedbackId: feedback.feedbackId
+      feedbackId: feedback.id
     };
     console.log(feedbackReply.replyText)
     this.feedbackService.sendRepliedFeedback(feedbackReply).subscribe({

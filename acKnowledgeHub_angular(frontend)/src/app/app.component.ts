@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { LoadingService } from './services/loading.service';
 import { AuthService } from './services/auth.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'acKnowledgeHub_angular';
+  title = 'Acknowledge Hub';
   isSidebarOpen = true;
   isLoginPage = false;
   isNotedSuccessfullPage = false;
@@ -27,7 +28,7 @@ export class AppComponent implements OnInit {
   isOtpRequest : boolean = false;
   isOtpInput : boolean = false;
   isAddPassword : boolean = false;
-  constructor(    private authService: AuthService,private sidebarService: SidebarService, private router: Router,@Inject(PLATFORM_ID) private platformId: Object,private loadingService:LoadingService) { }
+  constructor(    private authService: AuthService,private sidebarService: SidebarService, private router: Router,@Inject(PLATFORM_ID) private platformId: Object,private loadingService:LoadingService,private titleService: Title) { }
 
   ngOnInit(): void {
     this.loadingService.show();

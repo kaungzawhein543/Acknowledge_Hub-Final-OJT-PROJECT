@@ -20,7 +20,7 @@ export class NotedComponent {
               if(userInfo.isLoggedIn === false){
                 this.dashboardUrl  ='/acknowledgeHub/login';
               }
-              if(userInfo.user.role === 'ADMIN' || userInfo.position === 'HR_MAIN') {
+              if(userInfo.user.role === 'ADMIN' || userInfo.position === 'Human Resource(Main)') {
                 this.dashboardUrl = '/acknowledgeHub/system-dashboard';
               } else if (userInfo.user.role === 'USER') {
                 this.dashboardUrl = '/acknowledgeHub/staff-dashboard';

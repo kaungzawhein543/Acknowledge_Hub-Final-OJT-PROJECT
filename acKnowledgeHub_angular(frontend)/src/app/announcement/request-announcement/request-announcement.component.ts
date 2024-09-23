@@ -55,7 +55,7 @@ export class RequestAnnouncementComponent {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-  currentHrCompany !: string;
+  currentHumanResourceCompany !: string;
   updateInterval: any;
   intervalId: any;
   filteredGroups : Group[] = [];
@@ -81,7 +81,7 @@ export class RequestAnnouncementComponent {
     this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
-        this.currentHrCompany = data.company;
+        this.currentHumanResourceCompany = data.company;
         this.createStaffId = data.user.id;
         this.loadGroups(this.createStaffId);
       }
@@ -92,8 +92,8 @@ export class RequestAnnouncementComponent {
       }, 60000);
   }
 
-  loadGroups(HrId: number) {
-    this.groupService.getGroupsByHR(HrId).subscribe(
+  loadGroups(HumanResourceId: number) {
+    this.groupService.getGroupsByHR(HumanResourceId).subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
         this.filteredGroups = [...this.groups];
@@ -131,7 +131,7 @@ export class RequestAnnouncementComponent {
           const processedStaffs = response.data.content
             .filter((staff: { company?: { name?: string }; }) => {
               const companyName = staff.company?.name;
-              const matchesCompany = companyName === this.currentHrCompany;
+              const matchesCompany = companyName === this.currentHumanResourceCompany;
               return matchesCompany;
             })
             .map((staff: { position: Position; }) => {
@@ -193,7 +193,7 @@ export class RequestAnnouncementComponent {
     const formData = new FormData();
   
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
-      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      this.dateError = 'The schedule date should be later than current time!';
       return;
     }
     // Create the announcement object
@@ -376,5 +376,20 @@ export class RequestAnnouncementComponent {
     });
     this.cdr.detectChanges();
   }
+  onDateChange() {
+    if (this.scheduleDate) {
+      const selectedDate = new Date(this.scheduleDate);
+      const now = new Date();
+  
+      if (selectedDate < now) {
+        this.dateError = 'The schedule date should be later than current time!'; 
+      } else {
+        this.dateError = ""; 
+      }
+    } else {
+      this.dateError = ""; 
+    }
+  }
+  
   
 }

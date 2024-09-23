@@ -10,6 +10,7 @@ export class ConfirmationModalComponent {
   @Output() confirmed = new EventEmitter<void>();
   @Input() message = 'Are you sure you want to proceed?';
   @Input() confirmAction: (() => void) | null = null;
+  @Input() icon = 'fa-solid fa-triangle-exclamation';
 
   open(action: (() => void) | null = null) {
     this.isOpen = true;

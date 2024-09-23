@@ -190,7 +190,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   onSubmit(): void {
     const formData = new FormData();
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
-      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
     
@@ -377,7 +377,20 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     console.log('MinDateTime set to:', this.minDateTime);
   }
   
-
+  onDateChange() {
+    if (this.scheduleDate) {
+      const selectedDate = new Date(this.scheduleDate);
+      const now = new Date();
+  
+      if (selectedDate < now) {
+        this.dateError = 'The schedule date should be later than current time!'; 
+      } else {
+        this.dateError = ""; 
+      }
+    } else {
+      this.dateError = ""; 
+    }
+  }
   
 
 

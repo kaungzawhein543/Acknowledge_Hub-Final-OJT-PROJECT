@@ -9,6 +9,7 @@ div >  .logo{
 }
 * {
   box-sizing: border-box;
+}
 
 .logo-container {
   z-index: 0; 

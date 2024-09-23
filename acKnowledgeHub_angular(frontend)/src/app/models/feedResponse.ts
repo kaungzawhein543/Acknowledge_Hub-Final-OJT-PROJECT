@@ -1,5 +1,5 @@
 export interface feedbackResponse {
-    feedbackId: number;
+    id: number;
     content?: string;
     staffName?: string;
     reply?: string;
@@ -8,4 +8,5 @@ export interface feedbackResponse {
     replyText?: string;
     createdAt :string;
     replyAt : string;
+    announcementId : number;
 }

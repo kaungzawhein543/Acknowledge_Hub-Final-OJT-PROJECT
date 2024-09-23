@@ -12,9 +12,11 @@
       
 
       <!-- Sidebar -->
-      <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black ">
-        <app-sidebar></app-sidebar>
-      </div>
+      <div *ngIf="!isLoginPage && !isChangePasswordPage && !is404Page && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword" [ngClass]="{'sidebar': true, 'sidebar-closed': !isSidebarOpen}" class="bg-white text-black"><div class="overflow-auto h-full">
+    <app-sidebar></app-sidebar>
+  </div>
+</div>
+
       
       <!-- Main Content -->
       <div [ngClass]="{' bg-gray-300 p-4': !isLoginPage && !isChangePasswordPage && !is404Page  && !isNotedSuccessfullPage && !isOtpRequest && !isOtpInput && !isAddPassword}" class="w-full overflow-auto">

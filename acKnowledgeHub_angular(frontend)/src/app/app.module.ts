@@ -62,7 +62,6 @@ import { LoginComponent } from './user/login/login.component';
 import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
 import { RequestListComponent } from './announcement/request-list/request-list.component';
 import { NotedComponent } from './user/noted/noted.component';
-import { ScrollTopModule } from 'primeng/scrolltop';
 
 import { UserChartComponent } from './chart/user-chart/user-chart.component';
 import { ProfileComponent } from './user/profile/profile.component';
@@ -76,6 +75,7 @@ import { LoadingService } from './services/loading.service';
 import { TimeAgoPipe } from './time-ago.pipe';
 import { UserAnnouncementListComponent } from './user/user-announcement-list/user-announcement-list.component';
 import { RequestListByUserComponent } from './announcement/request-list-by-user/request-list-by-user.component';
+import { PositionListComponent } from './position/position-list.component/position-list.component';
 
 @NgModule({
   declarations: [
@@ -128,7 +128,8 @@ import { RequestListByUserComponent } from './announcement/request-list-by-user/
     DetailAnnouncementComponent,
     TimeAgoPipe,
     UserAnnouncementListComponent,
-    RequestListByUserComponent
+    RequestListByUserComponent,
+    PositionListComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr
@@ -148,7 +149,6 @@ import { RequestListByUserComponent } from './announcement/request-list-by-user/
     MatButtonToggleModule,
     ScrollingModule,
     MatListOption,
-    ScrollTopModule,
     MatButtonModule,
     MatRadioModule,
     MtxGridModule,

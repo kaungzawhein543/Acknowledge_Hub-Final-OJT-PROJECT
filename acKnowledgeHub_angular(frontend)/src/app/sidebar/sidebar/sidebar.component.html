@@ -138,6 +138,17 @@
     <span class="text-gray-600 p-3 font-semibold">Additional Links</span>
   </li>
 
+  <div *ngIf="isAdmin">
+    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="acknowledgeHub/add-hr-main" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fas fa-id-badge"></i>
+        <span>Add Human Resource (MAIN)</span>
+      </a>
+    </li>
+  </div>
+
+
   <!-- Company with Sub-items -->
   <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
@@ -192,8 +203,35 @@
         </span>
       </li>
     </ul>
+  </li>
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('positionMenu')">
+      <span class="flex items-center space-x-3">
+        <i class="fas fa-user-tie"></i>
+        <span>Position</span>
+      </span>
+      <i class="fa-solid fa-chevron-down"></i>
+    </a>
+    <ul id="positionMenu" class="space-y-2 pl-8 mt-2 hidden">
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/position/add" routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-plus"></i>
+          <span> Add Position</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/position/list" routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fas fa-users-cog"></i>
+          <span> Position List</span>
+        </span>
+      </li>
+    </ul>
 
   </li>
+
   <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('userMenu')">
@@ -245,13 +283,6 @@
         </span>
       </li>
     </ul>
-  </li>
-
-
-  <li class="absolute bottom-0 left-0  p-3">
-    <span class="text-gray-400 font-semibold copyrightext">
-      &copy; 2024 ACE Inspiration
-    </span>
   </li>
 
 </ul>

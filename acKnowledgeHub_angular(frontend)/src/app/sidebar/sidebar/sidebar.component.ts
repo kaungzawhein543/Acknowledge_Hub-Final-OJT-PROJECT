@@ -76,10 +76,10 @@ export class SidebarComponent implements OnInit, AfterViewInit {
         this.isAdmin = data;
       }
     )
-    this.authService.hasPostion("HR_MAIN").subscribe(
+    this.authService.hasPostion("Human Resource(Main)").subscribe(
       (data) => {
         this.isMainHr = data;
-        this.authService.hasPostion("HR").subscribe(
+        this.authService.hasPostion("Human Resource").subscribe(
           (data) => {
             this.isHr = data;
           }

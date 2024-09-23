@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
@@ -29,13 +30,15 @@ public class FeedbackController {
     private final AnnouncementService announcementService;
     private final BlogService blogService;
     private final NotificationService notificationService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public FeedbackController(FeedbackService feedbackService, StaffService staffService, AnnouncementService announcementService, BlogService blogService, NotificationService notificationService) {
+    public FeedbackController(FeedbackService feedbackService, StaffService staffService, AnnouncementService announcementService, BlogService blogService, NotificationService notificationService, SimpMessagingTemplate simpMessagingTemplate) {
         this.feedbackService = feedbackService;
         this.staffService = staffService;
         this.announcementService = announcementService;
         this.blogService = blogService;
         this.notificationService = notificationService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @PostMapping
@@ -59,6 +62,10 @@ public class FeedbackController {
         String url =  "/acknowledgeHub/announcement/detail/"+ Base64.getEncoder().encodeToString(feedback.getAnnouncement().getId().toString().getBytes());
         Notification notification = blogService.createNotification(feedback.getAnnouncement(), feedback.getAnnouncement().getCreateStaff(), description,url);
         notificationService.sendNotification(blogService.convertToDTO(notification));
+
+        System.out.println("Sending feedback to topic: /topic/feedback/" + staff.getId());
+        simpMessagingTemplate.convertAndSend("/topic/feedback/" + 2, feedback2);
+
         return ResponseEntity.ok(feedback2);
     }
 

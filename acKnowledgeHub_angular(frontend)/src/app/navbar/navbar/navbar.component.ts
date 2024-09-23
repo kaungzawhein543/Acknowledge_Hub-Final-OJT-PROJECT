@@ -30,7 +30,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   profile: StaffProfileDTO | null = null;
   baseUrl = 'http://localhost:8080';
   oldPhotoUrl: string | null = null;
-  originalTitle: string = 'AcknowledgeHub';
+  originalTitle: string = 'Acknowledge Hub';
   notificationTitle: string = '(1) New Notification!';
   titleInterval: any; 
 
@@ -72,7 +72,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if(this.unreadNotificationCount > 0){
           this.handleVisibilityChange();
         }else{
-          this.titleService.setTitle('AcknowledgeHub')
+          this.titleService.setTitle('Acknowledge Hub')
         }
       },
       error: (error) => {

@@ -143,10 +143,10 @@ public class AnnouncementController {
 
 
             // If ScheduledAt is null assign default
-            if (announcement.getScheduleAt() == null) {
-                LocalDateTime publishDateTime = LocalDateTime.now();
-                announcement.setScheduleAt(publishDateTime);
-            }
+//            if (announcement.getScheduleAt() == null) {
+//                LocalDateTime publishDateTime = LocalDateTime.now();
+//                announcement.setScheduleAt(publishDateTime);
+//            }
             if (request.getForRequest() == 1) {
                 announcement.setPermission("pending");
             } else {
@@ -165,16 +165,22 @@ public class AnnouncementController {
 
 
             // Send Announcement to Telegram & email
-            if (request.getScheduleAt() != null) {
-                if (request.getForRequest() != 1) {
-                    LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
-                    savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
-                    blogService.createPost(savedAnnouncement);
-                }else{
+            if (request.getScheduleAt() != null) {  //schedule ဟုတ်မဟုတ်စစ်တယ် (null မဟုတ်ခဲ့ဘူးဆိုရင်)
+                if (request.getForRequest() != 1) {         // request ဟုတ်မဟုတ် စစ်တယ် (request ဟုတ်မနေဘူးဆိုရင်)
+                    if(request.getScheduleAt().isBefore(LocalDateTime.now()) || announcement.getScheduleAt().isEqual(LocalDateTime.now())){    //schedule ကအခုအချိန်ထက်ကျော်သွားတာဖစ်ဖစ် အခုချိန်နဲ့ညီခဲ့မယ်ဆိုရင် တစ်ခါတည်းpublish ဖစ်အောင်လုပ်မယ်
+                        blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus(),updateStatus);
+                        savedAnnouncement.setPublished(true);
+                        announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
+                    }else{  //schedule က အခုအချိန်ထက်နောက်မကျတဲ့အပြင်အခုအချိန်နဲ့လည်းမညီခဲ့ဘူးဆိုရင်
+                        LocalDateTime requestAnnounceScheduleTime = request.getScheduleAt();
+                        savedAnnouncement.setScheduleAt(requestAnnounceScheduleTime);
+                        blogService.createPost(savedAnnouncement);
+                    }
+                }else{  //Announcement က request ဖစ်ခဲ့မယ်ဆိုရင်
                     String description;
-                    if(updateStatus > 0){
+                    if(updateStatus > 0){ //Announcement က update လုပ်ဖို့အတွက်ဆိုရင်
                         description = savedAnnouncement.getCreateStaff().getName()+"Request To Update The "+savedAnnouncement.getTitle()+" Announcement!Check It Out!";
-                    }else{
+                    }else{ // Announcement က update လုပ်ဖို့မဟုတ်ဘူးဆိုရင်
                         description = savedAnnouncement.getCreateStaff().getName()+" Requested Announcement!Check It Out!";
                     }
                     Position postion = positionService.findByName("HR_MAIN");
@@ -183,12 +189,12 @@ public class AnnouncementController {
                     Notification notification = blogService.createNotification(savedAnnouncement, HrStaff.get(0), description,url);
                     notificationService.sendNotification(blogService.convertToDTO(notification));
                 }
-            } else {
-                if (request.getForRequest() != 1) {
+            } else { //schedule က null ဖစ်ခဲ့မယ်ဆိုရင်
+                if (request.getForRequest() != 1) { // Announcement က request မဟုတ်ဘူးဆိုရင်
                     blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus(),updateStatus);
                     savedAnnouncement.setPublished(true);
                     announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
-                }else{
+                }else{ // Announcement က request ဖစ်နေမယ်ဆိုရင်
                     String description;
                     if(updateStatus > 0){
                         description = savedAnnouncement.getCreateStaff().getName()+"Request To Update The "+savedAnnouncement.getTitle()+" Announcement!Check It Out!";
@@ -268,7 +274,6 @@ public class AnnouncementController {
                         }
                     }
                     dto.setStaffInGroups(allStaff);
-                    System.out.println(allStaff);
 
                     List<Integer> staffIds = announcement.getStaff().stream()
                             .map(Staff::getId)

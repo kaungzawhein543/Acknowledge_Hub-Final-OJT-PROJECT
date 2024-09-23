@@ -5,10 +5,6 @@
     <!-- Header Section -->
     <div #topContainer class="relative bg-gradient-to-r from-blue-900 to-blue-900 text-white p-6 rounded-t-lg flex justify-between items-center shadow-lg">
       <span class="text-3xl font-extrabold tracking-wide font-poppins drop-shadow-md">Detail Announcement</span>
-      
-      <!-- Loading Skeleton for Creator Info -->
-      <div *ngIf="isloading" class="loading qube-title"></div>
-      
       <!-- Creator Info -->
       <div class="text-right" *ngIf="!isloading">
         <span class="block text-base font-medium opacity-75">Created by:</span>
@@ -17,67 +13,49 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex flex-col bg-white p-6 rounded-b-lg shadow-lg space-y-6">
-      
+    <div class="flex flex-col bg-white p-6 rounded-b-lg shadow-lg space-y-6 overflow-auto">
+
       <!-- Date and Category Section -->
       <div class="flex flex-col lg:flex-row justify-between items-center mb-6 border-b pb-4 border-gray-200">
-        
-        <!-- Loading Skeleton for Date -->
-        <div class="text-center lg:text-right" *ngIf="isloading">
-          <div class="loading qube-cat"></div>
-        </div>
-        
-        <div class="text-center lg:text-right" *ngIf="!isloading">
+        <div class="text-center lg:text-right">
           <i class="fas fa-calendar-alt text-gray-500"></i>
           <span class="text-md font-medium">{{ announcement.createdAt | date: 'medium' }}</span>
         </div>
 
-        <!-- Loading Skeleton for Category -->
-        <div class="text-center lg:text-left mt-3 lg:mt-0" *ngIf="isloading">
-          <div class="loading qube-cat"></div>
-        </div>
-
-        <div class="text-center lg:text-left mt-3 lg:mt-0" *ngIf="!isloading">
+        <div class="text-center lg:text-left mt-3 lg:mt-0">
           <span class="text-lg font-medium text-gray-800 me-2">Category: {{announcement.category.name}}</span>
-          <button *ngIf="this.currentUserId === this.createdStaff && announcement.published" class="bg-white border-2 border-blue-300 hover:bg-blue-600 hover:text-white text-blue-500 py-2 px-3 rounded-md" [routerLink]="['/acknowledgeHub/announcement/update/', this.announcement.id]">
+          <button *ngIf="this.currentUserId === this.createdStaff" class="bg-white border-2 border-blue-300 hover:bg-blue-600 hover:text-white text-blue-500 py-2 px-3 rounded-md" (click)="goEditPage(this.announcement.id)">
             <i class="fas fa-edit icon"></i>
-            <span class="edit-text" >Edit</span>
+            <span class="edit-text">Edit</span>
           </button>
         </div>
       </div>
 
       <!-- Title Section -->
-      <div class="text-center" *ngIf="isloading">
-        <div class="loading qube-title"></div>
-      </div>
-      <div class="text-center" *ngIf="!isloading">
+      <div class="text-center">
         <p class="text-2xl font-semibold text-gray-900 uppercase">{{ announcement.title }}</p>
       </div>
 
       <!-- Description Section -->
-      <div class="text-justify space-y-4" *ngIf="isloading">
-        <div class="loading qube-cat"></div>
-        <div class="loading qube-cat"></div>
-      </div>
-      <div class="text-justify space-y-4" *ngIf="!isloading">
+      <div class="text-justify space-y-4">
         <p class="text-lg tracking-wide text-gray-700">{{ announcement.description }}</p>
         <div class="flex items-center text-gray-700">
           <i class="fas fa-file-alt mr-2"></i>
-          <span class="text-base">Attached File: <a class="text-blue-600 underline cursor-pointer" (click)="downloadFile(this.announcement.file)">Download</a></span>
+          <span class="text-base">Attached File: <a class="text-blue-600 underline" (click)="downloadFile(this.announcement.file)">Download</a></span>
         </div>
       </div>
 
-      <!-- Action Buttons for Announcement -->
-      <div class="flex justify-between">
-        
-        <!-- Loading Skeleton for Action Buttons -->
-        <div *ngIf="isloading" class="loading qube-title"></div>
-        
-        <div class="flex flex-col space-y-3" *ngIf="!isloading">
+      <!-- Action Buttons: Noted and Ask Question -->
+      <div class="space-y-6 overflow-auto">
+
+        <!-- Noted Section -->
+        <div>
           <div class="p-2 border border-gray-200" *ngIf="this.currentUserId !== this.createdStaff || !isAdmin">
-            <span *ngIf="noted"><i class="fas fa-check-to-slot"></i>You Already Noted This Announcement!</span>
-            <button *ngIf="notNoted" class="bg-indigo-600 p-3 rounded-md hover:bg-indigo-700 text-white" (click)="notedAnnouncement(currentUserId, announcement.id)">
-              <i class="fas fa-exclamation-triangle me-1"></i>Noted Here
+            <span *ngIf="noted">
+              <i class="fas fa-check-to-slot"></i> You Already Noted This Announcement!
+            </span>
+            <button *ngIf="!noted" class="bg-indigo-600 p-3 rounded-md hover:bg-indigo-700 text-white" (click)="notedAnnouncement(currentUserId, announcement.id)">
+              <i class="fas fa-exclamation-triangle me-1"></i> Noted Here
             </button>
           </div>
       
@@ -167,12 +145,12 @@
           </div>
           
           <ng-container *ngIf="replyPermission && !question.replyBy">
-            <button (click)="toggleReplyForm(question.feedbackId)"   class="mt-4 text-blue-500 font-medium text-sm hover:underline"
+            <button (click)="toggleReplyForm(question.id)"   class="mt-4 text-blue-500 font-medium text-sm hover:underline"
             >
               Reply
             </button>
 
-            <div *ngIf="replyFormsVisible[question.feedbackId]" class="mt-4">
+            <div *ngIf="replyFormsVisible[question.id]" class="mt-4">
               <!-- Reply Textarea -->
               <textarea 
                 [(ngModel)]="question.replyText" 
@@ -205,7 +183,7 @@
             <div class="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div class="flex items-start space-x-4">
                 <!-- Profile Image -->
-                <img
+                <img  
                 class="w-8 h-8 rounded-full"
                 src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg"
                 alt="Profile"

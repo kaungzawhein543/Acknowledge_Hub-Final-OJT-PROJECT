@@ -20,7 +20,7 @@ export class GroupService {
     return this.http.get<Group[]>(`${this.baseURL}`, { withCredentials: true });
   }
   deleteGroup(id: number): Observable<void> {
-    return this.http.get<void>(`${this.baseURL}/softDelete/` + id, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseURL}/softDelete/` + id, { withCredentials: true });
   }
 
   getGroupsByHR(id: number): Observable<Group[]> {

@@ -17,7 +17,7 @@ export const roleBaseRedirectGuard: CanActivateFn = (route, state) => {
         router.navigate(['/acknowledgeHub/login']);
         return of(true);
       }
-      if (userInfo.user.role === 'ADMIN' || userInfo.position === 'HR_MAIN') {
+      if (userInfo.user.role === 'ADMIN' || userInfo.position === 'Human Resource(Main)') {
         router.navigate(['/acknowledgeHub/system-dashboard']);
         return of(false);
       } else if (userInfo.user.role === 'USER') {

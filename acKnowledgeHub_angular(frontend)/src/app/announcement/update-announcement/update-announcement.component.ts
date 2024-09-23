@@ -64,7 +64,12 @@ export class UpdateAnnouncementComponent implements OnInit{
   ) {}
   
   ngOnInit(): void {
-    this.announcementId += this.route.snapshot.paramMap.get('id');
+    if(this.announcementId.length == 0){
+      this.announcementId += this.route.snapshot.paramMap.get('id');
+      console.log(this.announcementId)
+      this.announcementId = atob(this.announcementId);
+      console.log(this.announcementId)
+    }
     this.loadGroups();
     this.loadCategories();
     this.loadStaffs();
@@ -402,6 +407,21 @@ onFileChange(event: Event): void {
   
     // Set the minimum datetime to 2 minutes before the current date and time
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  onDateChange() {
+    if (this.scheduleDate) {
+      const selectedDate = new Date(this.scheduleDate);
+      const now = new Date();
+  
+      if (selectedDate < now) {
+        this.dateError = 'The schedule date should be later than current time!'; 
+      } else {
+        this.dateError = ""; 
+      }
+    } else {
+      this.dateError = ""; 
+    }
   }
 
 }

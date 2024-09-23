@@ -31,11 +31,11 @@ export class RoleGuard implements CanActivate {
 
         // Determine access based on position and route
         if (currentRoute.includes('/acknowledgeHub/staff-dashboard')) {
-          // Staff-dashboard: Accessible to any role/position except ADMIN and HR_MAIN
-          hasPosition = userInfo.user.role !== 'ADMIN' && userInfo.position !== 'HR_MAIN';
+          // Staff-dashboard: Accessible to any role/position except ADMIN and Human Resource(Main)
+          hasPosition = userInfo.user.role !== 'ADMIN' && userInfo.position !== 'Human Resource(Main)';
         } else if (currentRoute.includes('/acknowledgeHub/system-dashboard')) {
           // HR-dashboard: Accessible to HR_MAIN and ADMIN roles
-          hasPosition = userInfo.position === 'HR_MAIN' || userInfo.user.role === 'ADMIN';
+          hasPosition = userInfo.position === 'Human Resource(Main)' || userInfo.user.role === 'ADMIN';
         // } else if (currentRoute.includes('/admin-dashboard')) {
         //   // Admin-dashboard: Only accessible to ADMIN
         //   hasPosition = userInfo.position === 'ADMIN';
@@ -46,7 +46,7 @@ export class RoleGuard implements CanActivate {
             hasPosition = true;
           } else if (userInfo.user.role === 'USER') {
             // USER can only access if they have the HR_MAIN position
-            hasPosition = userInfo.position === 'HR_MAIN';
+            hasPosition = userInfo.position === 'Human Resource(Main)';
           }
         } else if (currentRoute.includes('/acknowledgeHub/department')) {
           // Department route logic
@@ -55,7 +55,7 @@ export class RoleGuard implements CanActivate {
             hasPosition = true;
           } else if (userInfo.user.role === 'USER') {
             // USER can only access if they have the HR_MAIN position
-            hasPosition = userInfo.position === 'HR_MAIN';
+            hasPosition = userInfo.position === 'Human Resource(Main)';
           }
         } else if (requiredPositions.length > 0) {
           // Check if ADMIN role is present in required roles

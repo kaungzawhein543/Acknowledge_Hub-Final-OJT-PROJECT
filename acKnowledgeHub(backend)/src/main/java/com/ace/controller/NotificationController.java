@@ -75,9 +75,7 @@ public class NotificationController {
     public void sendNotification(@Payload NotificationDTO notification) {
         try {
             simpMessagingTemplate.convertAndSend("/topic/notification/" + notification.getStaffId(), notification);
-
         } catch (Exception e) {
-
             System.err.println("Error sending notification: " + e.getMessage());
         }
     }

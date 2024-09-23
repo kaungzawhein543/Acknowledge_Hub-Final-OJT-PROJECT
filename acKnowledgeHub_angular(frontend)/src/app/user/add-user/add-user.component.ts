@@ -21,10 +21,10 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './add-user.component.css'
 })
 export class AddUserComponent implements OnInit {
-
   positions: Position[] = [];
   departments: Department[] = [];
   companies: Company[] = [];
+  filteredDepartments: Department[] = [];
   staff: AddStaff = {
     companyStaffId: '',
     email: '',
@@ -90,7 +90,7 @@ export class AddUserComponent implements OnInit {
         next: (data) => {
           console.log("Add staff is successful");
           this.showSuccessToast();
-          this.router.navigate(['users/list']);
+          this.router.navigate(['/acknowledgeHub/users/list']);
         },
         error: (error) => {
           console.log("Error occurred while adding staff:", error);

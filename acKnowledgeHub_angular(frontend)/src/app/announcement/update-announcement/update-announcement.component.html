@@ -13,9 +13,11 @@
         id="scheduleDate"
         [(ngModel)]="scheduleDate"
         name="scheduleDate"
+        [min]="minDateTime"
+        (change)="onDateChange()"
         type="datetime-local"
         class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
-        <span *ngIf="dateError">{{dateError}}</span>
+        <span *ngIf="dateError" class="text-red-600">{{dateError}}</span>
       </div>
     </div>
   </div>

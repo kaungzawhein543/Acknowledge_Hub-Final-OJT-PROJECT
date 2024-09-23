@@ -8,8 +8,9 @@ import { FeedbackReply } from '../../models/feedbackReply';
 import { NgForm } from '@angular/forms';
 import { Feedback } from '../../models/feedback';
 import { StaffService } from '../../services/staff.service';
-import { forkJoin, map, switchMap, tap } from 'rxjs';
+import { forkJoin, map, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { Category } from '../../models/category';
+import { WebSocketService } from '../../services/web-socket.service';
 
 @Component({
   selector: 'app-detail-announcement',
@@ -33,7 +34,7 @@ export class DetailAnnouncementComponent {
   currentUserId !: number;
   replyPermission : boolean = false;
   isAdmin : boolean = false;
-  isHrMain : boolean = false;
+  isHumanResourceMain : boolean = false;
   createdStaff : number = 1;
   accessStaffs : number[] = [];
   noted : boolean = false;
@@ -42,6 +43,7 @@ export class DetailAnnouncementComponent {
   unNotedCount : number = 0;
   errorMessage: string | null = null; 
   submittedReply = false; 
+  private destroy$ = new Subject<void>();
   announcement: any = {
     id: 1,
     title: '',
@@ -74,7 +76,8 @@ export class DetailAnnouncementComponent {
    private authService: AuthService,
    private router : Router,
    private staffService : StaffService,
-   private elRef: ElementRef
+   private elRef: ElementRef,
+   private webSocketService: WebSocketService
  ) {}
 
  ngOnInit(): void {
@@ -83,6 +86,16 @@ export class DetailAnnouncementComponent {
     if (id) {
       const decodedId = atob(id);
       this.loadAnnouncementData(decodedId);
+      this.webSocketService.getFeedbacks().pipe(takeUntil(this.destroy$)).subscribe({
+        next: (feedbacks) => {
+          // Process incoming feedback
+          console.log('Received feedback:', feedbacks);
+        },
+        error: (error) => {
+          console.error('Error receiving feedback:', error);
+        }
+      });
+      
     }
   });
 }
@@ -93,7 +106,7 @@ private loadAnnouncementData(decodedId: string): void {
       // Access the 'user' and 'position' data from the response
       this.currentUserId = data.user.id;
       this.isAdmin = data.user.role === 'ADMIN';
-      this.isHrMain = data.position === 'HR_MAIN'; // Position from the root level
+      this.isHumanResourceMain = data.position === 'Human Resource(Main)'; // Position from the root level
     
   
       return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
@@ -104,7 +117,7 @@ private loadAnnouncementData(decodedId: string): void {
           this.replyPermission = this.currentUserId === announcement.createdStaffId;
         }),
         switchMap((announcement: any) => {
-          if (!this.isAdmin && !this.isHrMain &&  this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {
+          if (!this.isAdmin && !this.isHumanResourceMain &&  this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {
             this.router.navigate(['/acknowledgeHub/404']);
             return [];
           }
@@ -177,7 +190,7 @@ sendReply(question: any, feedback: feedbackResponse, index: number) {
   const feedbackReply: FeedbackReply = {
     replyText: question.replyText!,
     replyBy: this.currentUserId,
-    feedbackId: feedback.feedbackId
+    feedbackId: feedback.id
   };
 
   // Send the reply via the service
@@ -232,6 +245,9 @@ sendReply(question: any, feedback: feedbackResponse, index: number) {
   });
 }
 
+goEditPage(announcementId : number){
+  this.router.navigate(['/acknowledgeHub/announcement/update/'+btoa(announcementId.toString())])
+}
 
 
  private fetchAnnouncementData(): void {

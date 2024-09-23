@@ -20,7 +20,7 @@ export class Page404Component implements OnInit{
           this.buttonRoute = "/acknowledgeHub/system-dashboard";
         } else {
           // If not an admin, check if the user has the 'HR_MAIN' position
-          this.authService.hasPostion("HR_MAIN").subscribe(
+          this.authService.hasPostion("Human Resource(Main)").subscribe(
             (hasHrMain) => {
               if (hasHrMain) {
                 this.buttonRoute = "/acknowledgeHub/system-dashboard";
