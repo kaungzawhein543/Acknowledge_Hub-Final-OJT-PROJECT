@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AnnouncementService } from '../../services/announcement.service';
 import { feedbackResponse } from '../../models/feedResponse';
@@ -17,6 +17,10 @@ import { Category } from '../../models/category';
   styleUrl: './detail-announcement.component.css'
 })
 export class DetailAnnouncementComponent {
+  @ViewChild('askQuestionSection', { static: false }) askQuestionSection!: ElementRef;
+  @ViewChild('topContainer') topContainer!: ElementRef;
+
+  
   isloading : boolean = true;
   isQuestionLoading : boolean = true;
   isReportDropdownOpen = false;
@@ -36,6 +40,8 @@ export class DetailAnnouncementComponent {
   notNoted : boolean = false;
   notedCount : number = 0;
   unNotedCount : number = 0;
+  errorMessage: string | null = null; 
+  submittedReply = false; 
   announcement: any = {
     id: 1,
     title: '',
@@ -50,14 +56,25 @@ export class DetailAnnouncementComponent {
    announcementId: 0,
    content: ''
  };
+ visibleQuestions: number = 3; 
+ step: number = 10;
+ showUpArrow = false;
+  showScrollTopButton: boolean = false; 
 
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    // Show button if scrolled down 200px or more
+    this.showScrollTopButton = window.scrollY > 200;
+  }
+  
  constructor(
    private route: ActivatedRoute,
    private announcementService: AnnouncementService,
    private feedbackService: FeedbackService,
    private authService: AuthService,
    private router : Router,
-   private staffService : StaffService
+   private staffService : StaffService,
+   private elRef: ElementRef
  ) {}
 
  ngOnInit(): void {
@@ -137,48 +154,86 @@ private loadAnnouncementData(decodedId: string): void {
 
 
 
-
  toggleReplyForm(id: number) {
    this.replyFormsVisible[id] = !this.replyFormsVisible[id];
  }
- sendReply(feedback: feedbackResponse, index: number) {
-   const feedbackReply: FeedbackReply = {
-     replyText: feedback.replyText!,
-     replyBy: this.currentUserId,
-     feedbackId: feedback.feedbackId
-   };
-   this.feedbackService.sendRepliedFeedback(feedbackReply).subscribe({
-     next: (data) => {
-       this.questionList![index].reply = feedbackReply.replyText;
-       this.questionList![index].replyBy = feedbackReply.replyBy;
-       this.questionList![index].showInput = false;
-       this.fetchAnnouncementData();
-       this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id).subscribe({
+
+ 
+
+sendReply(question: any, feedback: feedbackResponse, index: number) {
+  // Mark the reply as submitted to trigger validation messages
+  this.submittedReply = true;
+
+  // Validate the reply input
+  if (!question.replyText || question.replyText.trim().length < 5) {
+    this.errorMessage = 'Reply is required and must be at least 5 characters long.';
+    return;
+  }
+
+  // Clear any previous error message
+  this.errorMessage = null;
+
+  // Create the feedback reply object
+  const feedbackReply: FeedbackReply = {
+    replyText: question.replyText!,
+    replyBy: this.currentUserId,
+    feedbackId: feedback.feedbackId
+  };
+
+  // Send the reply via the service
+  this.feedbackService.sendRepliedFeedback(feedbackReply).subscribe({
+    next: (data) => {
+      // Update the local question list with the reply
+      this.questionList![index].reply = feedbackReply.replyText;
+      this.questionList![index].replyBy = feedbackReply.replyBy;
+      this.questionList![index].showInput = false;
+
+      // Fetch updated announcement data
+      this.fetchAnnouncementData();
+
+      // Optionally refresh feedback and reply list
+      this.feedbackService.getFeedbackAndReplyByAnnouncement(this.announcement.id).subscribe({
         next: (data) => {
           this.questionList = data.map(feedback => ({
             ...feedback,
             showInput: false,
             replyText: ''
           }));
-        }
+        },
+        error: (err) => console.error('Error fetching feedback:', err)
       });
-     },
-     error: (e) => console.log(e)
-   });
- }
+    },
+    error: (e) => {
+      console.log('Error sending feedback reply:', e);
+      this.errorMessage = 'Failed to send your reply. Please try again.';
+    }
+  });
+}
+
+
+
  onSubmit(form: NgForm): void {
-   if (form.valid) {
-     this.feedback.staffId = this.currentUserId;
-     this.feedback.announcementId = this.announcement.id;
-     this.feedbackService.sendFeedback(this.feedback).subscribe({
-       next: (data) => {
-         this.fetchAnnouncementData();
-         form.reset();
-       },
-       error: (e) => console.log(e)
-     });
-   }
- }
+   if (form.invalid) {
+    form.controls['question'].markAsTouched();
+
+    return; 
+  }
+
+  // Proceed with form submission if valid
+  this.feedback.staffId = this.currentUserId;
+  this.feedback.announcementId = this.announcement.id;
+
+  this.feedbackService.sendFeedback(this.feedback).subscribe({
+    next: (data) => {
+      this.fetchAnnouncementData();  // Refresh data after successful submission
+      form.resetForm();  // Reset the form and clear the error messages
+    },
+    error: (e) => console.log(e)
+  });
+}
+
+
+
  private fetchAnnouncementData(): void {
   let id = this.route.snapshot.paramMap.get('id');
   if(id){
@@ -215,4 +270,18 @@ notedAnnouncement(userId: number,announcementId : number){
     this.announcementService.downloadFile(version);
   }
 
+  scrollToAskQuestion() {
+    this.askQuestionSection.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  showMoreQuestions() {
+    this.visibleQuestions += 5; // Show more questions
+    this.showScrollTopButton = true; // Show Scroll to Top button on the first click
+  }
+
+  scrollToTop(): void {
+    this.topContainer.nativeElement.scrollIntoView({ behavior: 'smooth' }); // Scroll to the top container
+  }
+
 }
+

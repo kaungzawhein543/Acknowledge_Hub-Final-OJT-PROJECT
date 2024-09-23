@@ -106,3 +106,58 @@
 .question-loading{
   height: 100px !important;
 }
+
+.under{
+  margin-top: 40px;
+  border-top: 2px solid #424242;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+.button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px; /* Adjust as needed */
+  z-index: 1000;
+}
+
+.button-box {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 2px;
+  font-size: 10px; /* Adjust size if needed */
+  cursor: pointer;
+  display: flex;
+  align-items: right;
+  transition: background-color 0.3s ease;
+}
+
+
+
+.button-box:hover {
+  background-color: #007bff;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  position: fixed;
+  bottom: 20px;
+  right: 40px; /* Adjust this value to move the button left */
+}
+
+.up-arrow-button {
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 50%;
+  padding: 10px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 24px;
+}
+
+.up-arrow-button:hover {
+  background-color: #303f9f;
+}

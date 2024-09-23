@@ -62,6 +62,7 @@ import { LoginComponent } from './user/login/login.component';
 import { AddHRMainComponent } from './user/add-hr-main/add-hr-main.component';
 import { RequestListComponent } from './announcement/request-list/request-list.component';
 import { NotedComponent } from './user/noted/noted.component';
+import { ScrollTopModule } from 'primeng/scrolltop';
 
 import { UserChartComponent } from './chart/user-chart/user-chart.component';
 import { ProfileComponent } from './user/profile/profile.component';
@@ -147,6 +148,7 @@ import { RequestListByUserComponent } from './announcement/request-list-by-user/
     MatButtonToggleModule,
     ScrollingModule,
     MatListOption,
+    ScrollTopModule,
     MatButtonModule,
     MatRadioModule,
     MtxGridModule,

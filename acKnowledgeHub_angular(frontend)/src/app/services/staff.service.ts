@@ -27,7 +27,7 @@ export class StaffService {
   constructor(private http: HttpClient) { }
 
   addStaff(staff: AddStaff): Observable<any> {
-    return this.http.post(`${this.baseURL}/add`, staff);
+    return this.http.post(`${this.baseURL}/add`, staff,{withCredentials: true,responseType: 'text' as'json'});
   }
 
   getNotedUserByAnnouncementList(id: number): Observable<NotedUser[]> {

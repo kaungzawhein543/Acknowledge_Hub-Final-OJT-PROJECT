@@ -97,6 +97,7 @@ export class MychartComponent implements AfterViewInit {
       this.filteredData = this.announcementData.slice(0,5);
     }
   
+    //.slice(0,2)
     this.noData = !(this.filteredData.length > 0 && this.announcementByIdData.length > 0);
     if (this.noData) {
       if (this.chart) {

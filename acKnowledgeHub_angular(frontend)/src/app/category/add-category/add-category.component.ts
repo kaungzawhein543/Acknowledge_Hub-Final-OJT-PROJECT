@@ -3,6 +3,7 @@ import { Category } from '../../models/category';
 import { CategoryService } from '../../services/category.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-add-category',
@@ -16,6 +17,7 @@ export class AddCategoryComponent implements OnInit {
   constructor(
     private categoryService: CategoryService, 
     private router: Router,
+    private toastService: ToastService
     ) {}
 
   ngOnInit(): void {
@@ -27,6 +29,7 @@ export class AddCategoryComponent implements OnInit {
       this.categoryService.add(this.category).subscribe(
         data => {
           console.log('Category saved successfully!', data);
+          this.showSuccessToast();
           this.router.navigate(['/acknowledgeHub/list-category']); // Adjust the route as needed
         },
         error => {
@@ -35,7 +38,9 @@ export class AddCategoryComponent implements OnInit {
       );
   }
   
-  
+  showSuccessToast() {
+    this.toastService.showToast('Add Category  successful!', 'success');
+  }
 
   onSubmit(form: NgForm): void {
     if (form.valid) {

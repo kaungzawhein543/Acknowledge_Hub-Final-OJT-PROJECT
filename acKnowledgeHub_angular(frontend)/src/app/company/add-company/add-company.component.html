@@ -4,12 +4,11 @@
             Add Company
         </p>
         <form #companyForm="ngForm" (ngSubmit)="onSubmit(companyForm)" class="space-y-6">
-            <div>
+           
                 <label for="companyStaffId" class="block text-gray-700 font-medium mb-2">
-                    Company Name
-                </label>
-            </div>
-
+                   <b> Company Name</b>
+                </label>    
+           
             <input type="text" id="name" name="name" [(ngModel)]="company.name" required
                 class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
             <span *ngIf="companyForm.submitted && companyForm.controls['name'].errors">

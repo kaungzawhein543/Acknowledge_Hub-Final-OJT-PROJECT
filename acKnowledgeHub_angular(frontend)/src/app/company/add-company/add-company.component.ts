@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { CompanyService } from '../../services/company.service';
 import { Company } from '../../models/Company';
+import { ToastService } from '../../services/toast.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -14,16 +16,23 @@ export class AddCompanyComponent {
     id: 0,
     name: ''
   };
-  constructor(private companyService: CompanyService) { }
+  constructor(private companyService: CompanyService, private toastService: ToastService,    private router: Router,
+  ) { }
   onSubmit(form: NgForm) {
     if (form.valid) {
       this.companyService.addCompany(this.company).subscribe({
         next: (data) => {
           console.log('successful')
+          this.showSuccessToast();
+          this.router.navigate(['company/list']); 
+
         },
         error: (e) => console.log(e)
       })
     }
 
+  }
+  showSuccessToast() {
+    this.toastService.showToast('Company Created successful!', 'success');
   }
 }
