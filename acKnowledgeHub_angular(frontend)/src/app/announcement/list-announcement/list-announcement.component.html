@@ -80,7 +80,8 @@
             <td mat-cell *matCellDef="let announcement" class="data-right">
               <ng-container [ngSwitch]="col.field">
                 <ng-container *ngSwitchCase="'note'">
-                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title,announcement.file)">
+                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title,announcement.file)"
+                    style="margin-left: 20%;">
                     Noted
                   </button>
                   <button mat-button style="color: rgb(215, 133, 133);"
@@ -93,7 +94,7 @@
                   <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm' }}</span>
                 </ng-container>
                 <ng-container *ngSwitchCase="'detail'">
-                  <button mat-button (click)="onDetailButtonClick(announcement.id)">
+                  <button mat-button (click)="onDetailButtonClick(announcement.id)" style="margin-left: 20%;">
                     View
                   </button>
                 </ng-container>

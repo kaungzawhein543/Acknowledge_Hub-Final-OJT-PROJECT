@@ -48,7 +48,7 @@ const routes: Routes = [
   { path: 'acknowledgeHub/change-password/:staffId', component: ChangepasswordComponent },
   { path: 'acknowledgeHub/import-excel', component: ExcelImportComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN','USER'],position:['Human Resource(Main)'] } },
   { path: 'acknowledgeHub/404', component: Page404Component },
-  { path: 'acknowledgeHub/profile', component: ProfileComponent, canActivate: [AuthGuard,RoleGuard], data: {  roles: ['USER','ADMIN']  }},
+  { path: 'acknowledgeHub/profile', component: ProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER', 'ADMIN'] } },
   { path: 'acknowledgeHub/otp-input', component: OtpInputComponent },
   { path: 'acknowledgeHub/noted', component: NotedComponent },
   { path: 'acknowledgeHub/otp-request', component: OtpRequestComponent },
@@ -93,7 +93,7 @@ const routes: Routes = [
   {
     path: 'acknowledgeHub/announcement', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: '/acknowledgeHub/404', pathMatch: 'full' },
-      { path: 'detail/:id',component: DetailAnnouncementComponent,canActivate:[AuthGuard]},
+      { path: 'detail/:id', component: DetailAnnouncementComponent, canActivate: [AuthGuard] },
       { path: 'list', component: ListAnnouncementComponent, canActivate: [AuthGuard] },
       { path: 'request', component: RequestAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], positions: ['Human Resource'] } },
       { path: 'add', component: AddAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] } },

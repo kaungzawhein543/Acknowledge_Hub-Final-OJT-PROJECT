@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { staffList } from '../../models/staff';
 import { MatTableDataSource } from '@angular/material/table';
@@ -73,8 +73,8 @@ export class ListUserComponent {
         this.announcements = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); 
-         this.filteredStaffs = data;
+        }));
+        this.filteredStaffs = data;
         //  this.dataSource.data = this.filteredStaffs;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
@@ -201,6 +201,13 @@ export class ListUserComponent {
     this.dataSource.data = this.filteredStaffs;
   }
 
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
+    }
+  }
   getNestedProperty(obj: any, path: string): any {
     if (!obj || !path) return null;
     return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);

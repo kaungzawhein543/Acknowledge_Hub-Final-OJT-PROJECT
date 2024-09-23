@@ -77,29 +77,40 @@ export class AddUserComponent implements OnInit {
   }
   onCompanyChange(): void {
     if (this.staff.companyId) {
-      this.filteredDepartments = this.departments.filter(department => department.company.id === this.staff.companyId);
-    } else {
-      this.filteredDepartments = [];
+      this.getDepartmentsByCompanyId(this.staff.companyId);
     }
     this.staff.departmentId = 0; // Reset the department selection
   }
 
-  onSubmit(form: NgForm): void {
-    if (form.valid) {
-      this.staffService.addStaff(this.staff).subscribe({
-        next: (data) => {
-          this.showSuccessToast();
-          this.router.navigate(['/acknowledgeHub/users/list']);
-        },
-        error: (error) => {
-          console.log("Error occurred while adding staff:", error);
-          if (error instanceof HttpErrorResponse) {
-            console.log("HttpErrorResponse details:", error);
-          }
+  getDepartmentsByCompanyId(companyId: number) {
+    this.departmentService.getDepartmentListByCompanyId(companyId).subscribe({
+      next: (data) => {
+        this.departments = data;
+        if (this.departments.length > 0) {
+          this.staff.departmentId = this.departments[0].id;
+        } else {
+          console.log("There is no dapartments")
         }
-      });
-    }
+      },
+      error: (e) => console.log(e)
+    });
   }
-  
-  
+
+  onSubmit(form: NgForm): void {
+    this.staff.companyStaffId = this.staff.companyStaffId?.trim();
+    this.staff.name = this.staff.name?.trim();
+    this.staff.email = this.staff.email?.trim();
+    if (this.staff.companyStaffId != '' && this.staff.name != '' && this.staff.email != '') {
+      if (form.valid) {
+        this.staffService.addStaff(this.staff).subscribe({
+          next: (data) => {
+            console.log("add staff is successful");
+          },
+          error: (e) => console.log(e)
+        });
+      }
+    }
+
+
+  }
 }

@@ -1,12 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-div >  .logo{
+
+div>.logo {
   font-family: "Lora", serif;
   font-weight: 700;
-  font-size:40px;
-  color:#efefef;
+  font-size: 40px;
+  color: #efefef;
   height: 20px;
   user-select: none;
 }
+
 * {
   box-sizing: border-box;
 }
@@ -26,8 +28,13 @@ div >  .logo{
 
 /* Keyframes for typing effect */
 @keyframes typing {
-  from { opacity: 1; }
-  to { opacity: 1; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Container for typing effect */
@@ -41,7 +48,8 @@ div >  .logo{
 
 @-moz-document url-prefix() {
   .typing-container {
-    gap: 10px; /* or adjust the value slightly if needed */
+    gap: 10px;
+    /* or adjust the value slightly if needed */
   }
 }
 
@@ -57,19 +65,22 @@ div >  .logo{
   display: flex;
   font-family: "Lora", serif;
   font-weight: 700;
-  font-size: 70px; /* Adjust as needed */
+  font-size: 70px;
+  /* Adjust as needed */
   white-space: nowrap;
   user-select: none;
-  
+
 
 }
 
 /* Individual letters */
 .letter {
   display: inline-block;
-  opacity: 0; /* Start hidden */
-  animation: typing 0.5s forwards; /* Apply typing animation */
-  
+  opacity: 0;
+  /* Start hidden */
+  animation: typing 0.5s forwards;
+  /* Apply typing animation */
+
 }
 
 /* Use nth-child to stagger the animation of each letter */
@@ -107,7 +118,8 @@ div >  .logo{
 
 /* Adjust font size for smaller text */
 .typing-text:nth-of-type(2) .letter {
-  font-size: 20px; /* Adjust as needed */
+  font-size: 20px;
+  /* Adjust as needed */
 }
 
 
@@ -127,7 +139,8 @@ div >  .logo{
 
 /* Left Side of Card */
 .login-card-left {
-  position: absolute; /* Positioned relative to .login-card */
+  position: absolute;
+  /* Positioned relative to .login-card */
   left: 0;
   top: 0;
   width: 100%;
@@ -139,14 +152,18 @@ div >  .logo{
   justify-content: center;
   padding: 20px;
   color: rgb(255, 255, 255);
-  overflow: hidden; /* Hide overflow to maintain layout */
-  animation: slideLeft 1s forwards; /* Slide left animation */
-  box-sizing: border-box; /* Include padding in width and height */
+  overflow: hidden;
+  /* Hide overflow to maintain layout */
+  animation: slideLeft 1s forwards;
+  /* Slide left animation */
+  box-sizing: border-box;
+  /* Include padding in width and height */
 }
 
 /* Wrapper for text */
 .text-wrapper {
-  width: 100%; /* Full width */
+  width: 100%;
+  /* Full width */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -167,18 +184,22 @@ div >  .logo{
 
 /* Right Side of Card */
 .login-card-right {
-  position: absolute; /* Positioned relative to .login-card */
+  position: absolute;
+  /* Positioned relative to .login-card */
   right: 0;
   top: 0;
-  width: 50%; /* Adjust based on the desired width */
+  width: 50%;
+  /* Adjust based on the desired width */
   height: 100%;
   padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  opacity: 0; /* Initially hidden */
-  background-color: #f4f4f4; /* Background color for the right side */
-  animation: fadeIn 1s 1s forwards;  
+  opacity: 0;
+  /* Initially hidden */
+  background-color: #f4f4f4;
+  /* Background color for the right side */
+  animation: fadeIn 1s 1s forwards;
 }
 
 /* Slide left animation */
@@ -186,19 +207,24 @@ div >  .logo{
   0% {
     width: 100%;
   }
+
   100% {
-    width: 50%;;
+    width: 50%;
+    ;
   }
 }
+
 /* Fade in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
+
 /* Input Group */
 .input-group {
   display: flex;
@@ -255,7 +281,8 @@ div >  .logo{
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  /* Smooth transition */
 }
 
 .login-button:hover {

@@ -3,9 +3,12 @@ package com.ace.controller;
 import com.ace.entity.Company;
 import com.ace.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/company/sys")
@@ -27,8 +30,15 @@ public class CompanyController {
     }
 
     @PostMapping
-    public Company createCompany(@RequestBody Company company) {
-        return companyService.saveCompany(company);
+    public ResponseEntity<String> createCompany(@RequestBody Company company) {
+        Company existingCompany = companyService.findByName(company.getName());
+        if (existingCompany == null) {
+            companyService.saveCompany(company);
+            return ResponseEntity.ok("Adding company is successful.");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Company already exists.");
+        }
+
     }
 
     @PutMapping("/{id}")

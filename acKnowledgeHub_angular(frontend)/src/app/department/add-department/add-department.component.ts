@@ -7,6 +7,7 @@ import { Department } from '../../models/Department';
 import { Form, NgForm } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-department',
@@ -52,20 +53,26 @@ export class AddDepartmentComponent implements OnInit {
   }
 
   onSubmit(form: NgForm) {
-    if (this.department.company.id == undefined) {
-      this.companyError = true;
-    } else {
-      this.companyError = false;
-      if (form.valid) {
-        this.departmentService.addDepartment(this.department).subscribe({
-          next: (data) => {
-            console.log('successful')
-            this.showSuccessToast();
-            this.router.navigate(['/acknowledgeHub/department/list']); 
-
-          },
-          error: (e) => console.log(e)
-        })
+    this.department.name = this.department.name.trim();
+    if (this.department.name != '') {
+      if (this.department.company.id == undefined) {
+        this.companyError = true;
+      } else {
+        this.companyError = false;
+        if (form.valid) {
+          this.departmentService.addDepartment(this.department).subscribe({
+            next: (data) => {
+              console.log('successful')
+            },
+            error: (errorResponse: HttpErrorResponse) => {
+              if (errorResponse.status === 409) {
+                console.log('Department already exists.');
+              } else {
+                console.log('An error occurred:', errorResponse.message);
+              }
+            }
+          })
+        }
       }
     }
   }

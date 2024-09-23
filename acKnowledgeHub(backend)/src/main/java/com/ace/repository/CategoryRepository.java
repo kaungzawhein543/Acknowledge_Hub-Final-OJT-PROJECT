@@ -21,4 +21,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query("SELECT c FROM Category c WHERE c.status = 'active'")
     List<Category> findAllActiveCategories();
 
+    @Query("select c from Category c where Lower(c.name)=Lower(:name)")
+    Category findByLowerName(@Param("name")String name);
+
 }

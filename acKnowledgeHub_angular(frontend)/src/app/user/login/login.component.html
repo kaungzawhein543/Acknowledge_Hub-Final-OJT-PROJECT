@@ -1,8 +1,9 @@
 <div class="login-card">
   <!-- Left Side (Logo and Information) -->
-   
+
   <div class="login-card-left">
-    <div style="display: flex; flex-direction: column; position: relative; justify-content: center; align-items: center; gap: 0;">
+    <div
+      style="display: flex; flex-direction: column; position: relative; justify-content: center; align-items: center; gap: 0;">
       <div class="typing-container">
         <div class="typing-text">
           <span class="letter">A</span>
@@ -29,13 +30,13 @@
           <span class="letter">.</span>
         </div>
       </div>
-      
+
     </div>
-    </div>
+  </div>
 
   <!-- Right Side (Login Form) -->
   <div class="login-card-right">
-    <p class="text-4xl font-semibold medium text-gray-800 text-center mb-6" style="color: #1b4980;" >
+    <p class="text-4xl font-semibold medium text-gray-800 text-center mb-6" style="color: #1b4980;">
       Login
     </p>
     <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
@@ -43,23 +44,16 @@
       <div *ngIf="errorMessage" class="error-message">
         {{ errorMessage }}
       </div>
-     
+
 
       <!-- Staff ID Input -->
       <div class="input-group">
         <label for="staffId">
           <i class="fa fa-user"></i>
         </label>
-        <input
-          type="text"
-          id="staffId"
-          name="staffId"
-          [(ngModel)]="staffId"
-          #staffIdInput="ngModel"
-          required
-          placeholder="Staff Id"
-        />
-       
+        <input type="text" id="staffId" name="staffId" [(ngModel)]="staffId" #staffIdInput="ngModel" required
+          placeholder="Staff Id" />
+
       </div>
       <div *ngIf="showError && !errorMessage && staffIdInput.invalid" class="input-error">
         Staff ID is required.
@@ -70,19 +64,16 @@
         <label for="password">
           <i class="fa fa-lock"></i>
         </label>
-        <input
-          [type]="showPassword ? 'text' : 'password'"
-          id="password"
-          name="password"
-          required
-          placeholder="Password"
-          [(ngModel)]="password"
-          #passwordInput="ngModel"
-        />
-        <!-- <button type="button" (click)="togglePasswordVisibility()" class="toggle-password">
-          <i [class]="showPassword ? 'fa fa-eye' : 'fa fa-eye-slash'"></i>
-        </button> -->
-        
+        <div class="relative">
+          <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" required
+            placeholder="Password" [(ngModel)]="password" #passwordInput="ngModel" />
+          <button type="button" (click)="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center">
+            <i *ngIf="showPassword" class="fa-regular fa-eye "></i>
+            <i *ngIf="!showPassword" class="fa-regular fa-eye-slash"></i>
+          </button>
+        </div>
+
       </div>
       <div *ngIf="showError && !errorMessage && passwordInput.invalid" class="input-error">
         Password is required.
@@ -90,13 +81,17 @@
 
       <!-- Remember Me and Log In Button -->
       <div class="form-actions">
-        <label class="remember-me relative" >
-          <input type="checkbox"  (change)="showToolTip($event)"/> Remember Me
+        <label class="remember-me relative">
+          <input type="checkbox" (change)="showToolTip($event)" /> Remember Me
         </label>
         <button type="submit" class="login-button">Log In</button>
       </div>
+      <div *ngIf="isLocked" style="justify-content: center; font-size: 14px; color: red;">
+        Too many failed. Please wait for {{ formattedCountdown }}.
+      </div>
       <div class="text-center">
-        <a class="underline cursor-pointer text-xs hover:font-medium" routerLink="/acknowledgeHub/otp-request">Forget Password?</a>
+        <a class="underline cursor-pointer text-xs hover:font-medium" routerLink="/acknowledgeHub/otp-request">Forget
+          Password?</a>
       </div>
 
       <!-- Register Link -->

@@ -26,11 +26,18 @@ public class CategoryController {
     public Category save(
             @RequestParam(value = "name") String name,
             @RequestParam(value = "description") String description) throws IOException {
-        Category category = new Category();
-        category.setName(name);
-        category.setDescription(description);
-        category.setCreatedAt(LocalDate.now());
-        return service.save(category);
+        Category existingCategory= service.findByLowerName(name);
+        if(existingCategory == null){
+            Category category = new Category();
+            category.setName(name);
+            category.setDescription(description);
+            category.setCreatedAt(LocalDate.now());
+            service.save(category);
+            return ResponseEntity.ok("Adding category is successful.");
+        }else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category is already exist.");
+        }
+
     }
 
 
@@ -38,9 +45,6 @@ public class CategoryController {
     @PutMapping(value = "/sys/update/{id}")
     public Category update(@PathVariable("id") int id,
                            @RequestParam("name") String name,
-                           @RequestParam("description") String description) throws IOException {
-        Category updated = new Category();
-        updated.setId(id);
         updated.setName(name);
         updated.setDescription(description);
         return service.update(id, updated);

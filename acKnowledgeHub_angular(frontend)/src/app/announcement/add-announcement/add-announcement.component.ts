@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef,OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 
 import { Group } from '../../models/Group';
@@ -30,7 +30,7 @@ import { ToastService } from '../../services/toast.service';
     ]),
   ],
 })
-export class AddAnnouncementComponent implements OnInit ,OnDestroy{
+export class AddAnnouncementComponent implements OnInit, OnDestroy {
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
   private audio: HTMLAudioElement;
   groups: Group[] = [];
@@ -41,8 +41,8 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
-  minDateTime: string ='';
-  dateError : string = '';
+  minDateTime: string = '';
+  dateError: string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -62,7 +62,8 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
 
   updateInterval: any;
   intervalId: any;
-
+  titleError: boolean = false;
+  descriptionError: boolean = false;
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
@@ -81,7 +82,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
     this.audio.load();
-   }
+  }
 
    showSuccessToast() {
     this.toastService.showToast(' Announcement created successful!', 'success');
@@ -99,11 +100,11 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
         this.createStaffId = data.user.id;
       }
     )
-    
+
     this.setMinDateTime();
     this.intervalId = setInterval(() => {
-        this.setMinDateTime();
-      }, 60000);
+      this.setMinDateTime();
+    }, 60000);
   }
 
   onCreate() {
@@ -193,7 +194,17 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
-    
+    if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '') {
+      this.titleError = true;
+      return;
+    } else if (trimmedDescription === '') {
+      this.descriptionError = true;
+      return;
+    }
     // Create the announcement object
     const announcement = {
       title: this.announcementTitle,
@@ -222,7 +233,7 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     // Append the selected file if any
     if (this.selectedFile) {
       formData.append('files', this.selectedFile);
-    }else{
+    } else {
       this.fileErrorMessage = true;
       return;
     }
@@ -294,6 +305,15 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
     }
   }
 
+  clearTitleError(): void {
+    this.titleError = false;
+  }
+
+  // Clear the description error on focus or input
+  clearDescriptionError(): void {
+    this.descriptionError = false;
+  }
+
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -362,16 +382,16 @@ export class AddAnnouncementComponent implements OnInit ,OnDestroy{
 
   setMinDateTime(): void {
     const now = new Date();
-  
+
     // Adjust the time to 2 minutes before the current time
     now.setMinutes(now.getMinutes() - 2);
-  
+
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
     const day = now.getDate().toString().padStart(2, '0');
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
-  
+
     // Set the minimum datetime to 2 minutes before the current date and time
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
     console.log('MinDateTime set to:', this.minDateTime);

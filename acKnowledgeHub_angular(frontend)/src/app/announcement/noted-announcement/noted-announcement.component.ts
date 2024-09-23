@@ -45,6 +45,7 @@ export class NotedAnnouncementComponent {
     { field: 'staffId', header: 'Staff Id' },
     { field: 'name', header: 'Name' },
     { field: 'email', header: 'Email' },
+    { field: 'notedAt', header: 'Noted At' },
     { field: 'positionName', header: 'Position' },
     { field: 'departmentName', header: 'Department' },
     { field: 'companyName', header: 'Company' },

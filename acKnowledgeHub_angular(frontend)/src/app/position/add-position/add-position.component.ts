@@ -24,14 +24,16 @@ export class AddPositionComponent {
   constructor(private positionService: PositionService,private router: Router,private toastService: ToastService) { }
 
   onSubmit(form: NgForm) {
-    if (form.valid) {
-      this.positionService.addPosition(this.position).subscribe({
-        next: (data) => {
-          this.showSuccessToast();
-          this.router.navigate(['/acknowledgeHub/department/list']); 
-          // form.reset();
-        }, error: (e) => console.log(e)
-      })
+    this.position.name = this.position.name.trim();
+    if (this.position.name != '') {
+      if (form.valid) {
+        this.positionService.addPosition(this.position).subscribe({
+          next: (data) => {
+            this.showSuccessToast();
+            this.router.navigate(['/acknowledgeHub/position/list']); 
+          }, error: (e) => console.log(e)
+        })
+      }
     }
   }
 }
