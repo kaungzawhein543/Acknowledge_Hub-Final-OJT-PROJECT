@@ -75,7 +75,7 @@
 .qube-title.loading {
   height: 40px;
   margin-bottom: 16px;
-  width: 60%; /* Adjust width to match the title's actual width */
+  width: 40%; /* Adjust width to match the title's actual width */
 }
 
 .qube-cat.loading {
@@ -105,6 +105,9 @@
 
 .question-loading{
   height: 100px !important;
+}
+.button-loading{
+  height:20px !important;
 }
 
 .under{
@@ -160,4 +163,24 @@
 
 .up-arrow-button:hover {
   background-color: #303f9f;
+}
+.typing-animation {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 1.2em; /* Adjust size as needed */
+  margin-right: 0.5rem; /* Space between dots and text */
+}
+
+.typing-animation::after {
+  content: '';
+  animation: typing 1.5s infinite steps(5);
+}
+
+@keyframes typing {
+  0% { content: '.'; }
+  20% { content: '..'; }
+  40% { content: '...'; }
+  60% { content: '....'; }
+  80% { content: '...'; }
+  100% { content: '..'; }
 }

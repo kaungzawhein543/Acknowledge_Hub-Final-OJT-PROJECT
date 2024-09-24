@@ -35,7 +35,7 @@ export class StaffService {
   }
 
   getUnNotedStaffByAnnouncementList(id: number, groupStatus: number): Observable<UnNotedUser[]> {
-    return this.http.get<UnNotedUser[]>(`${this.baseURL}/HRM/not-noted-list/${id}/${groupStatus}`,{ withCredentials: true});
+    return this.http.get<UnNotedUser[]>(`${this.baseURL}/all/not-noted-list/${id}/${groupStatus}`,{ withCredentials: true});
   }
 
   // getAllCompany(): Observable<Company[]> {

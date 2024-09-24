@@ -25,6 +25,8 @@ export class AddCompanyComponent {
       if (form.valid) {
         this.companyService.addCompany(this.company).subscribe({
           next: (data: string) => {
+            this.toastService.showToast("Company Add Successfully",'success');
+            this.router.navigate(['/acknowledgeHub/company/list']);
             console.log(data);
           },
           error: (errorResponse: HttpErrorResponse) => {

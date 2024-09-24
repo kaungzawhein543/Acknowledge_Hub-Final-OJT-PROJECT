@@ -62,7 +62,8 @@ export class AddDepartmentComponent implements OnInit {
         if (form.valid) {
           this.departmentService.addDepartment(this.department).subscribe({
             next: (data) => {
-              console.log('successful')
+              this.toastService.showToast("Department Add Successfully",'success');
+              this.router.navigate(['/acknowledgeHub/department/list']);
             },
             error: (errorResponse: HttpErrorResponse) => {
               if (errorResponse.status === 409) {

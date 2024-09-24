@@ -104,7 +104,8 @@ export class AddUserComponent implements OnInit {
       if (form.valid) {
         this.staffService.addStaff(this.staff).subscribe({
           next: (data) => {
-            console.log("add staff is successful");
+            this.toastService.showToast("Staff Add Successfully",'success');
+            this.router.navigate(['/acknowledgeHub/users/list']);
           },
           error: (e) => console.log(e)
         });

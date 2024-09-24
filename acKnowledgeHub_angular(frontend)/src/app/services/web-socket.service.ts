@@ -20,9 +20,9 @@ import { feedbackResponse } from '../models/feedResponse';
     private notificationsSubject = new BehaviorSubject<Notification[]>([]);
     private notificationSubject = new Subject<Notification>();
     private feedbacksSubject = new BehaviorSubject<feedbackResponse[]>([]);
-    private feedbackSubject = new Subject<Feedback>();
+    private feedbackSubject = new Subject<feedbackResponse>();
     private isConnected = false;
-    
+    private typingSubject = new Subject<{staffId: number,typing: boolean ,announcementId : number }>();
 
     constructor(private authService: AuthService) {
       this.initializeWebSocketConnection();
@@ -81,7 +81,6 @@ import { feedbackResponse } from '../models/feedResponse';
           connectHeaders: {
             'X-Staff-Id': id.toString(),
           },
-          debug: (str) => console.log(`Notifications debug: ${str}`),
           reconnectDelay: 5000,
           heartbeatIncoming: 4000,
           heartbeatOutgoing: 4000,
@@ -90,6 +89,8 @@ import { feedbackResponse } from '../models/feedResponse';
         this.client.onConnect = (frame) => {
           console.log('Connected to WebSocket:', frame);
           this.subscribeToNotifications(id);
+          this.subscribeToFeedbacks(id); 
+          this.subscribeToTyping();
           resolve();
         };
 
@@ -127,17 +128,22 @@ import { feedbackResponse } from '../models/feedResponse';
   }
 
   private subscribeToFeedbacks(staffId: number): void {
-    this.client.subscribe(`/topic/feedback/${staffId}`, (message: Message) => {
+    this.client.subscribe(`/topic/feedback/`, (message: Message) => {
       console.log('Received feedback message:', message.body);
       try {
-        const feedback: Feedback = JSON.parse(message.body);
-        this.feedbackSubject.next(feedback);
+        const feedback: feedbackResponse = JSON.parse(message.body);
+        this.feedbackSubject.next(feedback)
       } catch (error) {
         console.error('Error parsing feedback message:', error);
       }
     });
   }
-  
+  private subscribeToTyping(): void {
+    this.client.subscribe('/topic/typing', (message: Message) => {
+      const typingStatus = JSON.parse(message.body);
+      this.typingSubject.next(typingStatus);
+    });
+  }
     
     private requestAllNotifications(): void {
       const staffId = this.getIdFromLocalStorage();
@@ -147,7 +153,6 @@ import { feedbackResponse } from '../models/feedResponse';
           headers: { 'X-Staff-Id': staffId.toString() }, 
           body: staffId.toString() 
         });
-        console.log('Requested all notifications for staff ID:', staffId);
       } else {
         console.error('No staffId found for requesting notifications.');
       }
@@ -161,7 +166,6 @@ import { feedbackResponse } from '../models/feedResponse';
           headers: { 'X-Staff-Id': staffId.toString() }, 
           body: staffId.toString() 
         });
-        console.log('Requested all feedbacks for staff ID:', staffId);
       } else {
         console.error('No staffId found for requesting feedbacks.');
       }
@@ -192,6 +196,28 @@ import { feedbackResponse } from '../models/feedResponse';
         console.error('No staffId found for sending feedback.');
       }
     }
+
+    public sendTypingStatus(typing: boolean,announcementId:number): void {
+      this.authService.getUserInfo().subscribe(
+        data => {
+          const staffId = data.user.id; // Access the staffId from the response
+    
+          if (staffId) {
+            this.client.publish({
+              destination: '/app/typing',
+              headers: { 'X-Staff-Id': staffId.toString() },
+              body: JSON.stringify({ staffId, typing ,announcementId})
+            });
+          } else {
+            console.error('Staff ID not found. Cannot send typing status.');
+          }
+        },
+        error => {
+          console.error('Error fetching user info:', error);
+        }
+      );
+    }
+    
     public sendFeedbackReply(feedbackReply: FeedbackReply): void {
       const staffId = this.getIdFromLocalStorage();
       if (staffId) {
@@ -217,10 +243,15 @@ import { feedbackResponse } from '../models/feedResponse';
       return this.feedbacksSubject.asObservable();
     }
     
-    public getNewFeedbacks(): Observable<Feedback> {
+    
+    public getNewFeedbacks(): Observable<feedbackResponse> {
       return this.feedbackSubject.asObservable();
     }
 
+    public getTypingStatus(): Observable<{ staffId: number,  typing: boolean, announcementId : number }> {
+      return this.typingSubject.asObservable();
+    }
+  
     public getStatusUpdates(): Observable<number[]> {
       return this.statusUpdateSubject.asObservable();
     }

@@ -1,6 +1,7 @@
 import { Category } from "./category";
 
 export interface updateAnnouncement {
+    announcedAt: string;
     id: number;
     title: string;
     description: string;

@@ -4,9 +4,9 @@
     <div>
       <!-- Schedule Date -->
       <label for="scheduleDate" class="block text-md font-semibold text-gray-800">Schedule Date (Optional)</label>
-      <input id="scheduleDate" [(ngModel)]="scheduleDate" name="scheduleDate" type="datetime-local" [min]="minDateTime"
+      <input id="scheduleDate" [(ngModel)]="scheduleDate" name="scheduleDate" type="datetime-local" [min]="minDateTime"  (change)="onDateChange()"
         class="mt-1 mb-3 block w-full border p-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
-      <span *ngIf="dateError">{{ dateError }}</span>
+      <span *ngIf="dateError" class="text-red-600">{{ dateError }}</span>
     </div>
   </div>
   <form (ngSubmit)="onSubmit()" class="space-y-6 grid grid-cols-12 gap-6 justify-between items-center">

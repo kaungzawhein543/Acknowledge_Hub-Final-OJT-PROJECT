@@ -9,4 +9,6 @@ export interface feedbackResponse {
     createdAt :string;
     replyAt : string;
     announcementId : number;
+    photoPath : string;
+    replyPhotoPath : string;
 }

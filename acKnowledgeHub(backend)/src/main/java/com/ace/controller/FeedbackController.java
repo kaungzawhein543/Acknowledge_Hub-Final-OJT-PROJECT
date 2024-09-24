@@ -31,14 +31,16 @@ public class FeedbackController {
     private final BlogService blogService;
     private final NotificationService notificationService;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ModelMapper mapper;
 
-    public FeedbackController(FeedbackService feedbackService, StaffService staffService, AnnouncementService announcementService, BlogService blogService, NotificationService notificationService, SimpMessagingTemplate simpMessagingTemplate) {
+    public FeedbackController(FeedbackService feedbackService, StaffService staffService, AnnouncementService announcementService, BlogService blogService, NotificationService notificationService, SimpMessagingTemplate simpMessagingTemplate, ModelMapper mapper) {
         this.feedbackService = feedbackService;
         this.staffService = staffService;
         this.announcementService = announcementService;
         this.blogService = blogService;
         this.notificationService = notificationService;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.mapper = mapper;
     }
 
     @PostMapping("/all/sendFeedback")
@@ -63,8 +65,9 @@ public class FeedbackController {
         Notification notification = blogService.createNotification(feedback.getAnnouncement(), feedback.getAnnouncement().getCreateStaff(), description,url);
         notificationService.sendNotification(blogService.convertToDTO(notification));
 
-        System.out.println("Sending feedback to topic: /topic/feedback/" + staff.getId());
-        simpMessagingTemplate.convertAndSend("/topic/feedback/" + 2, feedback2);
+        FeedbackResponseListDTO sendNewFeedbackDTO = mapper.map(feedback2,FeedbackResponseListDTO.class);
+        sendNewFeedbackDTO.setPhotoPath(feedback2.getStaff().getPhotoPath());
+        simpMessagingTemplate.convertAndSend("/topic/feedback/", sendNewFeedbackDTO);
 
         return ResponseEntity.ok(feedback2);
     }

@@ -116,7 +116,7 @@ public class StaffController {
         return staffList;
     }
 
-    @GetMapping("/HRM/not-noted-list/{id}/{groupStatus}")
+    @GetMapping("/all/not-noted-list/{id}/{groupStatus}")
     public List<UnNotedResponseDTO> getUnNotedStaff(@PathVariable("id") Integer announcementId, @PathVariable("groupStatus") byte groupStatus) {
         List<UnNotedResponseDTO> staffList = new ArrayList<UnNotedResponseDTO>();
         if (groupStatus == 1) {

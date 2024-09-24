@@ -26,6 +26,7 @@ public class AnnouncementDTO {
     private boolean isPublished;
     private String status = "active";
     private String createStaff;
+    private LocalDateTime announcedAt;
     private Category category;
     private List<Integer> group;
     //    private List<String> department;

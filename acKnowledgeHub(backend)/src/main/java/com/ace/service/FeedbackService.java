@@ -49,7 +49,9 @@ public class FeedbackService {
                         (String) result[3],     // replyContent
                         (String) result[4],        // replyStaffId
                         (Date) result[5],
-                        (Date) result[6]
+                        (Date) result[6],
+                        (String) result[7],
+                        (String) result[8]
                 ))
                 .collect(Collectors.toList());
     }
@@ -59,6 +61,7 @@ public class FeedbackService {
     }
 
     public List<FeedbackResponseListDTO> getFeedbackList(Integer id){
+        System.out.println(feedbackRepository.getAllFeedbackList(id));
         return feedbackRepository.getAllFeedbackList(id);
     }
 }

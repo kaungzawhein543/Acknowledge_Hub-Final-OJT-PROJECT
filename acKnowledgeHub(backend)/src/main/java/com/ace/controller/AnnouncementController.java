@@ -254,6 +254,7 @@ public class AnnouncementController {
                     dto.setDescription(announcement.getDescription());
                     dto.setCategory(announcement.getCategory());
                     dto.setPublished(announcement.isPublished());
+                    dto.setAnnouncedAt(announcement.getScheduleAt());
                     dto.setCreatedStaffId(announcement.getCreateStaff().getId());
                     dto.setCreateStaff(announcement.getCreateStaff().getName());
                     dto.setGroupStatus(announcement.getGroupStatus());
