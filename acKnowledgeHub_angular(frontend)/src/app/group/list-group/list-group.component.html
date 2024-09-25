@@ -1,11 +1,11 @@
 <div class="container  bg-white shadow-lg rounded-lg w-full">
-    <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
-        <h3 class="text-lg font-semibold">Group List</h3>
-        <!-- <a class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded" routerLink="/add-category"><i class="fas fa-add"></i>Add Category</a> -->
-      </div>
-    <div *ngIf="errorMessage" class="mb-4 text-red-600">{{ errorMessage }}</div>
-  
-    <div class="bg-white p-6 rounded-b shadow-md">
+  <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
+    <h3 class="text-lg font-semibold">Group List</h3>
+    <!-- <a class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded" routerLink="/add-category"><i class="fas fa-add"></i>Add Category</a> -->
+  </div>
+  <div *ngIf="errorMessage" class="mb-4 text-red-600">{{ errorMessage }}</div>
+
+  <div class="bg-white p-6 rounded-b shadow-md">
     <table class="min-w-full table-auto divide-y divide-gray-200">
       <thead class="bg-gray-100">
         <tr>
@@ -18,7 +18,7 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
         <tr *ngFor="let group of groups;let i = index">
-            <td class="px-4 py-2">{{ i + 1 }}</td>
+          <td class="px-4 py-2">{{ i + 1 }}</td>
           <td class="px-4 py-2 text-sm text-gray-900">{{ group.name }}</td>
           <td class="px-4 py-2 text-sm text-gray-500">{{ group.createdAt | date }}</td>
           <td class="px-4 py-2 text-sm text-gray-500">{{ group.staff.length }} Members</td>
@@ -29,52 +29,54 @@
         </tr>
       </tbody>
     </table>
-    </div>
+  </div>
 
-    <div *ngIf="showConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
-      <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
+  <div *ngIf="showConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
+    <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
       <div class="border-b border-gray-400 text-center p-3 ">
-       Group Members & Info
+        Group Members & Info
         <i class="fas fa-x float-end cursor-pointer  rounded-full p-1" (click)="showSelectedStaff()"></i>
       </div>
       <div class="flex items-center m-2">
         <span class="font-semibold">Group Name:</span>
-        <input type="text" disabled=""  [(ngModel)]="selectedGroup.name"  class="disabled p-2 border border-gray-500 rounded-md ms-2">
+        <input type="text" disabled="" [(ngModel)]="selectedGroup.name"
+          class="disabled p-2 border border-gray-500 rounded-md ms-2">
       </div>
-  
+
       <!-- Search Bar -->
       <div class="mb-3">
-        <input type="text" id="search-bar" placeholder="Search Staff" class="p-2 border border-gray-500 rounded-md w-full" [(ngModel)]="staffSearchTermConfirm" (input)="filterStaffAfterSelect()">
+        <input type="text" id="search-bar" placeholder="Search Staff"
+          class="p-2 border border-gray-500 rounded-md w-full" [(ngModel)]="staffSearchTermConfirm"
+          (input)="filterStaffAfterSelect()">
       </div>
-  
+
       <!-- Table for Staff Data -->
-<div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
-  <table class="w-full text-left table-auto border-collapse">
-    <thead>
-      <tr class="border-b border-gray-300 bg-gray-200">
-        <th class="p-3">No.</th>
-        <th class="p-3">Profile</th>
-        <th class="p-3">Name</th>
-        <th class="p-3">Position</th>
-        <th class="p-3">Company</th>
-        <th class="p-3">Department</th>
-      </tr>
-    </thead>
-    <tbody id="staff-table-body">
-      <tr class="border-b border-gray-200" *ngFor="let staff of filterStaffListAfterSelect; let i = index">
-        <td class="p-3">{{ i + 1 }}</td>
-        <td class="p-3">
-          <img [src]="staffPhotoUrl" alt="Profile Picture" class="w-12 h-12 rounded-full">
-        </td>
-        <td class="p-3">{{ staff.name }}</td>
-        <td class="p-3">{{ staff.position.name }}</td>
-        <td class="p-3">{{ staff.company.name }}</td>
-        <td class="p-3">{{ staff.department.name }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+      <div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+        <table class="w-full text-left table-auto border-collapse">
+          <thead>
+            <tr class="border-b border-gray-300 bg-gray-200">
+              <th class="p-3">No.</th>
+              <th class="p-3">Profile</th>
+              <th class="p-3">Name</th>
+              <th class="p-3">Position</th>
+              <th class="p-3">Company</th>
+              <th class="p-3">Department</th>
+            </tr>
+          </thead>
+          <tbody id="staff-table-body">
+            <tr class="border-b border-gray-200" *ngFor="let staff of filterStaffListAfterSelect; let i = index">
+              <td class="p-3">{{ i + 1 }}</td>
+              <td class="p-3">
+                <img [src]="staffPhotoUrl" alt="Profile Picture" class="w-12 h-12 rounded-full">
+              </td>
+              <td class="p-3">{{ staff.name }}</td>
+              <td class="p-3">{{ staff.position.name }}</td>
+              <td class="p-3">{{ staff.company.name }}</td>
+              <td class="p-3">{{ staff.department.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
     </div>
   </div>
-  

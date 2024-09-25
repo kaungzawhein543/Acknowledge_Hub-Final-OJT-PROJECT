@@ -22,11 +22,11 @@ export class AddGroupComponent {
   companySearchTerm: string = '';
   departmentSearchTerm: string = '';
   staffSearchTerm: string = '';
-  staffSearchTermConfirm : string = '';
+  staffSearchTermConfirm: string = '';
   groupName: string = '';
   validationError: string = '';
   selectAll: boolean = false;
-  
+
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
 
@@ -36,12 +36,12 @@ export class AddGroupComponent {
   staffList: StaffGroup[] = [];
   filteredStaffList: StaffGroup[] = [];
   selectedStaff: StaffGroup[] = [];
-  filterStaffListAfterSelect : StaffGroup[] = [];
+  filterStaffListAfterSelect: StaffGroup[] = [];
 
   companystatus: number | undefined;
   departmentstatus: number | undefined;
   status: boolean = false;
-  showConfirmBox : boolean = false;
+  showConfirmBox: boolean = false;
   staffForDelete !: StaffGroup;
   @ViewChild('staff') staff!: MatSelectionList;
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
@@ -72,7 +72,7 @@ export class AddGroupComponent {
       }
     });
     this.staffService.getStaffList().pipe(
-      map((data: any[]) => 
+      map((data: any[]) =>
         data.map(staff => ({
           ...staff,
           photoPath: staff.photoPath ? `http://localhost:8080${staff.photoPath}?${Date.now()}` : ''
@@ -97,7 +97,7 @@ export class AddGroupComponent {
     );
   }
   showSelectedStaff(): void {
-    if(this.groupName.length === 0 || this.groupName.length <= 3 ){
+    if (this.groupName.length === 0 || this.groupName.length <= 3) {
       this.validationError = this.validateGroupName();
       console.log("Error")
       return;
@@ -139,7 +139,7 @@ export class AddGroupComponent {
     console.log('Filtered staff:', this.filterStaffListAfterSelect);
   }
 
-  
+
   toggleSelection(event: MatSelectionListChange): void {
     event.options.forEach(option => {
       const staff = option.value;
@@ -265,11 +265,11 @@ export class AddGroupComponent {
   }
 
   removeStaff(): void {
-   if(this.staffForDelete){
-     // Find and remove the staff from the selectedStaff array
-     this.selectedStaff = this.selectedStaff.filter(s => s.staffId !== this.staffForDelete.staffId);
-     this.filterStaffAfterSelect(); // Reapply filter to update the displayed staff list
-   }
+    if (this.staffForDelete) {
+      // Find and remove the staff from the selectedStaff array
+      this.selectedStaff = this.selectedStaff.filter(s => s.staffId !== this.staffForDelete.staffId);
+      this.filterStaffAfterSelect(); // Reapply filter to update the displayed staff list
+    }
   }
   openDeleteModal(staff: StaffGroup) {
     this.staffForDelete = staff;

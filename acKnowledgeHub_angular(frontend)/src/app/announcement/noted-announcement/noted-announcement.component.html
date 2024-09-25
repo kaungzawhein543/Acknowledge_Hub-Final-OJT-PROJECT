@@ -1,17 +1,29 @@
 <div class="container bg-white  mx-auto p-4">
     <!-- Header Section -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-3">
         <span class="text-5xl font-semibold" style="font-size: 30px;">{{announcementTitle}}'s Noted List</span>
         <!-- Search Input on the Right Side -->
         <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
             (input)="onSearchChange()" />
     </div>
 
-
     <!-- Search and Filters Section -->
     <div class="flex justify-between mb-4">
 
         <div class="flex gap-4">
+            <div class="flex flex-col">
+                <label for="startDate" style="font-size: 14px;">Noted Date (Start)</label>
+                <input type="date" class="border p-2 rounded w-40" [min]="minCreatedAtDate"
+                    [max]="endDateTime || todayDate" [value]="startDateTime" (change)="onStartDateChange($event)" />
+            </div>
+
+            <!-- End Date Container -->
+            <div class="flex flex-col">
+                <label for="endDate" style="font-size: 14px;">Noted Date (End)</label>
+                <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
+                    [value]="endDateTime" (change)="onEndDateChange($event)" />
+            </div>
+
             <!-- Checkbox Filters -->
             <div class="relative inline-block text-left">
                 <select [(ngModel)]="selectedVersionId" (ngModelChange)="onVersionChange($event)"
@@ -73,7 +85,7 @@
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
                                 <ng-container *ngSwitchCase="'notedAt'">
-                                    <span>{{ announcement.notedAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+                                    <span>{{ announcement.notedAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
                                 </ng-container>
                                 <!-- Truncate Description -->
                                 <ng-container *ngSwitchCase="'description'">

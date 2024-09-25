@@ -1,10 +1,9 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
 import { AnnouncementService } from '../../services/announcement.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { announcementList } from '../../models/announcement-list';
+import { announcementList, listAnnouncement } from '../../models/announcement-list';
 import autoTable from 'jspdf-autotable';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -17,9 +16,9 @@ import saveAs from 'file-saver';
 export class PendingAnnouncementComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  announcements: announcementList[] = [];
-  filteredAnnouncements: announcementList[] = [];
-  dataSource = new MatTableDataSource<announcementList>([]);
+  announcements: listAnnouncement[] = [];
+  filteredAnnouncements: listAnnouncement[] = [];
+  dataSource = new MatTableDataSource<listAnnouncement>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
@@ -35,9 +34,10 @@ export class PendingAnnouncementComponent implements OnInit {
     { field: 'description', header: 'Description' },
     { field: 'category', header: 'Category' },
     { field: 'createStaff', header: 'Create/Request Staff' },
-    { field: 'createdAt', header: 'Create At' },
+    { field: 'created_at', header: 'Create At' },
+    { field: 'scheduleAt', header: 'Schedule At' },
     { field: 'detail', header: 'View' },
-    { field: 'cancel', header: 'Action' }
+    { field: 'action', header: 'Action' }
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -92,7 +92,7 @@ export class PendingAnnouncementComponent implements OnInit {
         a.file?.toLowerCase() || '',
         a.createStaff?.toLowerCase() || '',
         a.category?.toLowerCase() || '',
-        new Date(a.createdAt).toLocaleString().toLowerCase(),
+        new Date(a.created_at).toLocaleString().toLowerCase(),
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
@@ -145,7 +145,7 @@ export class PendingAnnouncementComponent implements OnInit {
   }
 
 
-  generateExcel(announcements: announcementList[], fileName: string) {
+  generateExcel(announcements: listAnnouncement[], fileName: string) {
     // Exclude 'note' and 'detail' columns from the report
     const visibleColumns = this.columns
       .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
@@ -206,13 +206,22 @@ export class PendingAnnouncementComponent implements OnInit {
   }
 
   onFileButtonClick(id: number) {
-    this.router.navigate(['/acknowledgeHub/announcement/detail/'+btoa(id.toString())]);
+    this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
   }
 
   onCancelButtonClick(id: number) {
     this.announcementService.cancelPendingAnnouncement(id).subscribe({
       next: (data: string) => {
-        this.ngOnInit();
+        this.fetchAnnouncements();
+      },
+      error: (e) => console.log(e)
+    })
+  }
+
+  onPublishButtonClick(id: number) {
+    this.announcementService.postPublishNow(id).subscribe({
+      next: (data: string) => {
+        this.fetchAnnouncements();
       },
       error: (e) => console.log(e)
     })

@@ -84,7 +84,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     this.audio.load();
   }
 
-   showSuccessToast() {
+  showSuccessToast() {
     this.toastService.showToast(' Announcement created successful!', 'success');
   }
   showErrorToast() {
@@ -109,7 +109,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
 
   onCreate() {
     // this.showSuccessToast();
-     this.formSubmitted = true;  
+    this.formSubmitted = true;
   }
 
   playNotificationSound() {
@@ -190,27 +190,47 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     const formData = new FormData();
-    const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
-    const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
+    const trimmedTitle = this.announcementTitle.trim();
+    const trimmedDescription = this.announcementDescription.trim();
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
-    if (trimmedTitle === '' && trimmedDescription === '') {
+    if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
       this.titleError = true;
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedDescription === '' && !this.selectedFile) {
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    }
+    else if (trimmedDescription === '') {
       this.descriptionError = true;
       return;
     } else if (trimmedTitle === '') {
       this.titleError = true;
       return;
-    } else if (trimmedDescription === '') {
-      this.descriptionError = true;
+    } else if (!this.selectedFile) {
+      this.fileErrorMessage = true;
       return;
+    } else {
+      // If all checks are passed, append the file
+      formData.append('files', this.selectedFile);
     }
     // Create the announcement object
     const announcement = {
-      title: this.announcementTitle,
-      description: this.announcementDescription,
+      title: this.announcementTitle = trimmedTitle,
+      description: this.announcementDescription = trimmedDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
       category: this.selectedCategory,
@@ -230,14 +250,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     if (this.selectedGroups && this.selectedGroups.length) {
       const groupIds = this.selectedGroups.map(group => group.id);
       formData.append('groupIds', new Blob([JSON.stringify(groupIds)], { type: 'application/json' }));
-    }
-
-    // Append the selected file if any
-    if (this.selectedFile) {
-      formData.append('files', this.selectedFile);
-    } else {
-      this.fileErrorMessage = true;
-      return;
     }
 
     // Call the service to create the announcement
@@ -398,22 +410,22 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
     console.log('MinDateTime set to:', this.minDateTime);
   }
-  
+
   onDateChange() {
     if (this.scheduleDate) {
       const selectedDate = new Date(this.scheduleDate);
       const now = new Date();
-  
+
       if (selectedDate < now) {
-        this.dateError = 'The schedule date should be later than current time!'; 
+        this.dateError = 'The schedule date should be later than current time!';
       } else {
-        this.dateError = ""; 
+        this.dateError = "";
       }
     } else {
-      this.dateError = ""; 
+      this.dateError = "";
     }
   }
-  
+
 
 
 

@@ -91,7 +91,7 @@
                 </ng-container>
 
                 <ng-container *ngSwitchCase="'scheduleAt'">
-                  <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+                  <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
                 </ng-container>
                 <ng-container *ngSwitchCase="'detail'">
                   <button mat-button (click)="onDetailButtonClick(announcement.id)" style="margin-left: 20%;">

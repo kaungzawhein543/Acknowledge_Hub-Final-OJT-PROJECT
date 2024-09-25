@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/announcement/STF/**", "/api/v1/category/STF/**",
                                 "/api/v1/staff/STF/**").access(notAdminOrHrMainAuthorizationManager())
 
+                        //Admin,HR_Main and Normal Hr
+                        .requestMatchers("/api/v1/staff/allSys/**").access(adminOrHrMainOrNormalHrAuthorizationManager())
                         // Catch-all authenticated requests
                         .anyRequest().authenticated()
                 )
@@ -105,6 +107,25 @@ public class SecurityConfig {
                         .anyMatch(authority -> authority.getAuthority().equals("Human Resource(Main)"));
 
                 return new AuthorizationDecision(isHrMain || isHr);
+            }
+            return new AuthorizationDecision(false);
+        };
+    }
+
+    //Method for ADMIN,HR_MAIN and Normal HR
+    @Bean
+    public AuthorizationManager<RequestAuthorizationContext> adminOrHrMainOrNormalHrAuthorizationManager() {
+        return (authenticationSupplier, context) -> {
+            Authentication auth = authenticationSupplier.get();
+            if (auth != null && auth.isAuthenticated()) {
+                boolean isAdmin = auth.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+                boolean isHr = auth.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("Human Resource"));
+                boolean isHrMain = auth.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("Human Resource(Main)"));
+
+                return new AuthorizationDecision(isAdmin ||isHrMain || isHr);
             }
             return new AuthorizationDecision(false);
         };

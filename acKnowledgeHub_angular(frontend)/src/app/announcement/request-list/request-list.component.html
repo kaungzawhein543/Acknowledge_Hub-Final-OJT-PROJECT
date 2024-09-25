@@ -70,7 +70,7 @@
                                         Approve
                                     </button>
                                     <button mat-button style="color: rgb(215, 133, 133);"
-                                        (click)="onRejectButtonClick(announcement.id )">
+                                        (click)="openCorfirmModal(announcement.id)">
                                         Reject
                                     </button>
                                 </ng-container>
@@ -78,6 +78,9 @@
                                     <button mat-button (click)="onDetailButtonClick(announcement.id)">
                                         View
                                     </button>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'scheduleAt'">
+                                    <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
                                 </ng-container>
                                 <!-- For Request Staff Column -->
                                 <ng-container *ngSwitchCase="'createStaff'">
@@ -109,3 +112,6 @@
         <!-- Paginator -->
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div>
+
+    <app-confirmation-modal #confirmationModal [message]="'Are you sure you want to remove this memeber?'"
+        (confirmed)="onModalConfirm($event)"></app-confirmation-modal>

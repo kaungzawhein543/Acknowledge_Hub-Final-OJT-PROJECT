@@ -330,4 +330,9 @@ private final GroupRepository groupRepository;
         staff.get().setStatus("inactive");
         staffRepository.save(staff.get());
     }
+
+    public List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id){
+        return staffRepository.getStaffListByAnnouncementId(id);
+    }
+
 }

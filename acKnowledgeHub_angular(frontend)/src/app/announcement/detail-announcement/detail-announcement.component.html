@@ -1,9 +1,10 @@
 <!-- Container -->
-<div  class="container  relative bg-gray-100 w-full h-fit min-h-full p-6 pt-4 rounded-md">
+<div class="container  relative bg-gray-100 w-full h-fit min-h-full p-6 pt-4 rounded-md">
   <div class="lg:w-9/12 md:w-10/12 sm:w-full flex mx-auto flex-col border-b border-gray-300">
-    
+
     <!-- Header Section -->
-    <div #topContainer class="relative bg-gradient-to-r from-blue-900 to-blue-900 text-white p-6 rounded-t-lg flex justify-between items-center shadow-lg">
+    <div #topContainer
+      class="relative bg-gradient-to-r from-blue-900 to-blue-900 text-white p-6 rounded-t-lg flex justify-between items-center shadow-lg">
       <span class="text-3xl font-extrabold tracking-wide font-poppins drop-shadow-md">Detail Announcement</span>
       <!-- Creator Info -->
       <div class="text-right" *ngIf="!isloading">
@@ -24,7 +25,9 @@
 
         <div class="text-center lg:text-left mt-3 lg:mt-0">
           <span class="text-lg font-medium text-gray-800 me-2">Category: {{announcement.category.name}}</span>
-          <button *ngIf="this.currentUserId === this.createdStaff" class="bg-white border-2 border-blue-300 hover:bg-blue-600 hover:text-white text-blue-500 py-2 px-3 rounded-md" (click)="goEditPage(this.announcement.id)">
+          <button *ngIf="this.currentUserId === this.createdStaff"
+            class="bg-white border-2 border-blue-300 hover:bg-blue-600 hover:text-white text-blue-500 py-2 px-3 rounded-md"
+            (click)="goEditPage(this.announcement.id)">
             <i class="fas fa-edit icon"></i>
             <span class="edit-text">Edit</span>
           </button>
@@ -39,9 +42,21 @@
       <!-- Description Section -->
       <div class="text-justify space-y-4">
         <p class="text-lg tracking-wide text-gray-700">{{ announcement.description }}</p>
-        <div class="flex items-center text-gray-700">
-          <i class="fas fa-file-alt mr-2"></i>
-          <span class="text-base">Attached File: <a class="text-blue-600 underline" (click)="downloadFile(this.announcement.file)">Download</a></span>
+        <div class="flex justify-between">
+          <div class="flex items-center text-gray-700">
+            <i class="fas fa-file-alt mr-2"></i>
+            <span class="text-base">Attached File: <a class="text-blue-600 underline"
+                (click)="downloadFile(this.announcement.file)">Download</a></span>
+          </div>
+          <div *ngIf="isAdmin || isHumanResourceMain || replyPermission">
+            <span *ngIf="announcement.groupStatus == 0">
+              <button (click)="showStaffs(announcement.id)" class="px-2 py-1 bg-green-500 text-white rounded">Show
+                Staffs</button>
+            </span>
+            <span *ngIf="announcement.groupStatus == 1"><button (click)="showGroups(announcement.id)"
+                class="px-2 py-1 bg-green-500 text-white rounded">Show
+                Gorups</button></span>
+          </div>
         </div>
       </div>
 
@@ -54,13 +69,15 @@
             <span *ngIf="noted">
               <i class="fas fa-check-to-slot"></i> You Already Noted This Announcement!
             </span>
-            <button *ngIf="!noted" class="bg-indigo-600 p-3 rounded-md hover:bg-indigo-700 text-white" (click)="notedAnnouncement(currentUserId, announcement.id)">
+            <button *ngIf="!noted" class="bg-indigo-600 p-3 rounded-md hover:bg-indigo-700 text-white"
+              (click)="notedAnnouncement(currentUserId, announcement.id)">
               <i class="fas fa-exclamation-triangle me-1"></i> Noted Here
             </button>
           </div>
-      
+
           <!-- Noted and Unnoted Count for Admin or Creator -->
-          <div class="text-sm text-gray-600 mb-20 flex space-x-4 mt-3" *ngIf="this.currentUserId === this.createdStaff || isAdmin">
+          <div class="text-sm text-gray-600 mb-20 flex space-x-4 mt-3"
+            *ngIf="this.currentUserId === this.createdStaff || isAdmin">
             <span class="flex items-center space-x-1">
               <i class="fas fa-check-circle text-green-500"></i>
               <span>Noted: {{ this.notedCount }}</span>
@@ -72,65 +89,55 @@
           </div>
         </div>
 
-    <!-- Sticky Container for Ask a Question Section -->
-<div class="under sticky top-0 z-10 bg-white p-4 shadow-md">
-  <div class="flex justify-center items-start">
-    <div class="w-full ">
-      <!-- Question Title -->
-      <span class="question block text-lg font-semibold text-gray-800 mb-4">
-        Ask a Question:
-      </span>
+        <!-- Sticky Container for Ask a Question Section -->
+        <div class="under sticky top-0 z-10 bg-white p-4 shadow-md">
+          <div class="flex justify-center items-start">
+            <div class="w-full ">
+              <!-- Question Title -->
+              <span class="question block text-lg font-semibold text-gray-800 mb-4">
+                Ask a Question:
+              </span>
 
-      <!-- Ask Question Form -->
-      <form #announcementForm="ngForm" (ngSubmit)="onSubmit(announcementForm)" novalidate>
-        <!-- Question Input Textarea -->
-        <textarea
-          id="question"
-          [(ngModel)]="feedback.content"
-          name="question"
-          class="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-          [ngClass]="{'border-red-500': question.invalid && (question.touched || announcementForm.submitted)}"
-          rows="4"
-          placeholder="Ask your question here..."
-          required
-          minlength="10"
-          #question="ngModel"
-        ></textarea>
-      
-        <!-- Error Handling -->
-        <div *ngIf="question.invalid && (question.touched || announcementForm.submitted)" class="text-red-500 mt-1">
-          <div *ngIf="question.errors?.['required']">Please fill in the box.</div>
-          <div *ngIf="question.errors?.['minlength']">Question must be at least 10 characters long.</div>
+              <!-- Ask Question Form -->
+              <form #announcementForm="ngForm" (ngSubmit)="onSubmit(announcementForm)" novalidate>
+                <!-- Question Input Textarea -->
+                <textarea id="question" [(ngModel)]="feedback.content" name="question"
+                  class="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                  [ngClass]="{'border-red-500': question.invalid && (question.touched || announcementForm.submitted)}"
+                  rows="4" placeholder="Ask your question here..." required minlength="10"
+                  #question="ngModel"></textarea>
+
+                <!-- Error Handling -->
+                <div *ngIf="question.invalid && (question.touched || announcementForm.submitted)"
+                  class="text-red-500 mt-1">
+                  <div *ngIf="question.errors?.['required']">Please fill in the box.</div>
+                  <div *ngIf="question.errors?.['minlength']">Question must be at least 10 characters long.</div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end mt-4">
+                  <button type="submit"
+                    class="bg-blue-900 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-900">
+                    Submit
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
         </div>
-      
-        <!-- Submit Button -->
-        <div class="flex justify-end mt-4">
-          <button
-            type="submit"
-            class="bg-blue-900 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-900"
-          >
-            Submit
-          </button>
-        </div>
-      </form>
-      
-    </div>
-  </div>
-</div>
 
       </div>
 
       <!-- Q&A Replies Section -->
       <div *ngIf="questionList.length > 0" class="mt-6 space-y-6">
-        <div *ngFor="let question of questionList.slice(0, visibleQuestions); let i = index" class="p-5 bg-white border border-gray-200 rounded-sm shadow-md">
+        <div *ngFor="let question of questionList.slice(0, visibleQuestions); let i = index"
+          class="p-5 bg-white border border-gray-200 rounded-sm shadow-md">
           <div class="flex items-start space-x-4">
             <!-- Profile Image -->
-            <img
-            class="w-10 h-10 rounded-full"
-            src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg"
-            alt="Profile"
-          />
-          
+            <img class="w-10 h-10 rounded-full"
+              src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg" alt="Profile" />
+
             <!-- Staff Details & Content -->
             <div class="flex-1">
               <!-- Staff Name & Date -->
@@ -138,58 +145,46 @@
                 <span class="font-semibold text-lg text-gray-900">{{ question.staffName }}</span>
                 <span class="text-xs text-gray-400">{{ question.createdAt | date:'mediumDate' }}</span>
               </div>
-          
+
               <!-- Question Content -->
               <p class="text-gray-700 mt-2 text-sm leading-relaxed">{{ question.content }}</p>
             </div>
           </div>
-          
+
           <ng-container *ngIf="replyPermission && !question.replyBy">
-            <button (click)="toggleReplyForm(question.id)"   class="mt-4 text-blue-500 font-medium text-sm hover:underline"
-            >
+            <button (click)="toggleReplyForm(question.id)"
+              class="mt-4 text-blue-500 font-medium text-sm hover:underline">
               Reply
             </button>
 
             <div *ngIf="replyFormsVisible[question.id]" class="mt-4">
               <!-- Reply Textarea -->
-              <textarea 
-                [(ngModel)]="question.replyText" 
-                name="reply" 
-                #replyModel="ngModel"  
-                class="w-full p-3 rounded-lg border border-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors" 
-                rows="3" 
-                placeholder="Write a reply..."
-                required  
-                minlength="5"  
-              ></textarea>
-              
+              <textarea [(ngModel)]="question.replyText" name="reply" #replyModel="ngModel"
+                class="w-full p-3 rounded-lg border border-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors"
+                rows="3" placeholder="Write a reply..." required minlength="5"></textarea>
+
               <!-- Error Messages for Reply -->
               <div *ngIf="replyModel.invalid && (replyModel.touched || submittedReply)" class="text-red-500 mt-1">
                 <div *ngIf="replyModel.errors?.['required']">Please enter a reply.</div>
                 <div *ngIf="replyModel.errors?.['minlength']">Reply must be at least 5 characters long.</div>
               </div>
-              
+
               <!-- Submit Button -->
-              <button 
-                (click)="sendReply(question, question, i)" 
-                class="bg-blue-900 hover:bg-blue-700 text-white py-2 px-5 rounded-md mt-3 text-sm transition-transform transform hover:scale-105"
-              >
+              <button (click)="sendReply(question, question, i)"
+                class="bg-blue-900 hover:bg-blue-700 text-white py-2 px-5 rounded-md mt-3 text-sm transition-transform transform hover:scale-105">
                 Submit
               </button>
             </div>
-                
+
           </ng-container>
           <ng-container *ngIf="question.replyBy">
             <div class="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div class="flex items-start space-x-4">
                 <!-- Profile Image -->
-                <img  
-                class="w-8 h-8 rounded-full"
-                src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg"
-                alt="Profile"
-              />
-              
-          
+                <img class="w-8 h-8 rounded-full"
+                  src="https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg" alt="Profile" />
+
+
                 <!-- Reply Details & Content -->
                 <div class="flex-1">
                   <!-- Name & Date -->
@@ -197,40 +192,99 @@
                     <span class="font-semibold text-sm text-gray-700">{{ question.replyBy }}</span>
                     <span class="text-xs text-gray-400">{{ question.replyAt | date:'mediumDate' }}</span>
                   </div>
-          
+
                   <!-- Reply Content -->
                   <p class="text-gray-600 mt-2 text-sm leading-relaxed">{{ question.reply }}</p>
                 </div>
               </div>
             </div>
           </ng-container>
-          
         </div>
 
         <!-- See More Button with Arrow -->
         <div *ngIf="questionList.length > visibleQuestions" class="text-center">
-          <button 
-            (click)="showMoreQuestions()" 
+          <button (click)="showMoreQuestions()"
             class="inline-flex items-center justify-center text-blue-500 hover:text-blue-700 hover:underline text-sm font-medium transition-colors mt-6">
             <span class="mr-2">See More</span>
             <i class="fas fa-chevron-down"></i> <!-- Arrow icon -->
-        </button>
-        
-          </div>
-   </div>
-
-   </div>
-  
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
 
- <!-- Scroll to Top Button with a new arrow icon -->
- <div class="button-container" *ngIf="showScrollTopButton">
+  <!-- Scroll to Top Button with a new arrow icon -->
+  <div class="button-container" *ngIf="showScrollTopButton">
     <button mat-icon-button class="up-arrow-button" (click)="scrollToTop()">
       <i class="fas fa-arrow-up"></i>
     </button>
-  
+
+  </div>
 </div>
 
 
+
+<div *ngIf="showConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
+  <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
+    <div class="border-b border-gray-400 text-center p-3 ">
+      Staffs that have been announced
+      <i class="fas fa-x float-end cursor-pointer  rounded-full p-1" (click)="showSelectedStaff()"></i>
+    </div>
+
+    <!-- Table for Staff Data -->
+    <div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+      <table class="w-full text-left table-auto border-collapse">
+        <thead>
+          <tr class="border-b border-gray-300 bg-gray-200">
+            <th class="p-3">No.</th>
+
+            <th class="p-3">Name</th>
+            <th class="p-3">Position</th>
+            <th class="p-3">Company</th>
+            <th class="p-3">Department</th>
+          </tr>
+        </thead>
+        <tbody id="staff-table-body">
+          <tr class="border-b border-gray-200" *ngFor="let staff of staffsByAnnouncement; let i = index">
+            <td class="p-3">{{ i + 1 }}</td>
+            <td class="p-3">{{ staff.name }}</td>
+            <td class="p-3">{{ staff.position}}</td>
+            <td class="p-3">{{ staff.department}}</td>
+            <td class="p-3">{{ staff.company }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+
+<div *ngIf="showGroupConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
+  <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
+    <div class="border-b border-gray-400 text-center p-3 ">
+      Gorups that have been announced
+      <i class="fas fa-x float-end cursor-pointer  rounded-full p-1" (click)="showSelectedGroup()"></i>
+    </div>
+
+    <!-- Table for Staff Data -->
+    <div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+      <table class="w-full text-left table-auto border-collapse">
+        <thead>
+          <tr class="border-b border-gray-300 bg-gray-200">
+            <th class="p-3">No.</th>
+            <th class="p-3">Name</th>
+          </tr>
+        </thead>
+        <tbody id="staff-table-body">
+          <tr class="border-b border-gray-200" *ngFor="let group of groupsByAnnouncement; let i = index">
+            <td class="p-3">{{ i + 1 }}</td>
+            <td class="p-3">{{ group.name }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>

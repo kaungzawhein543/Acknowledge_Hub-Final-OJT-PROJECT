@@ -1,43 +1,46 @@
 <nav class="bg-white shadow-md text-black p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
-    <!-- Navbar Left Section -->
-    <div class="flex items-center space-x-4">
-      <!-- Sidebar Toggle Button -->
-      <button (click)="toggleSidebar()" class="p-2 px-3.5 hover:bg-gray-200 rounded-3xl">
-        <i class="fas fa-bars text-gray-700 text-lg"></i>
-      </button>
-  
-      <!-- Brand Name -->
-      <div class="text-2xl font-bold">
-        <a href="#" class="flex items-center space-x-2 hover:text-gray-400">
-            <div style="display: flex;flex-direction: column;position: relative;justify-content: center;align-items: center;gap:0;">
-                <span class="logo">ACE</span>
-                <span style="font-size: 10px;" class="logo">Acknowledge Hub.</span>
-              </div>
-        </a>
-      </div>
-    </div>
+  <!-- Navbar Left Section -->
+  <div class="flex items-center space-x-4">
+    <!-- Sidebar Toggle Button -->
+    <button (click)="toggleSidebar()" class="p-2 px-3.5 hover:bg-gray-200 rounded-3xl">
+      <i class="fas fa-bars text-gray-700 text-lg"></i>
+    </button>
 
-    
-    <!-- Navbar Right Section -->
-    <div class="flex items-center space-x-4">
-      <!-- Notifications Icon -->
-      <button class="relative p-2 px-4 hover:bg-gray-200 rounded-full" (click)="toggleNotifications()"
-        aria-label="Notifications" role="button" aria-controls="notifications-dropdown">
-        <i class="fas fa-bell text-gray-600 text-lg" *ngIf="showNotifications" aria-hidden="true"></i>
-        <i class="far fa-bell text-gray-600 text-lg" *ngIf="!showNotifications" aria-hidden="true"></i>
-        <span *ngIf="unreadNotificationCount > 0"
-          class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-2 py-1" aria-live="polite">
-          {{ unreadNotificationCount }}
-        </span>
-      </button>
-      
-      <div *ngIf="showNotifications" id="notifications-dropdown"
-        class="absolute top-full right-10 w-[30%] bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-[500px] overflow-y-auto"
-        aria-labelledby="notifications-header">
-        <div *ngIf="notifications.length === 0" class="p-4 text-center text-gray-600" id="notifications-header">
-          No new notifications
+    <!-- Brand Name -->
+    <div class="text-2xl font-bold">
+      <a href="#" class="flex items-center space-x-2 hover:text-gray-400">
+        <div
+          style="display: flex;flex-direction: column;position: relative;justify-content: center;align-items: center;gap:0;">
+          <span class="logo">ACE</span>
+          <span style="font-size: 10px;" class="logo">Acknowledge Hub.</span>
         </div>
-        <div *ngFor="let notification of notifications; trackBy: trackNotificationById" (click)="goAnotherRouteAndupdateNotification(this.staff_id,notification.id,notification.url)" [routerLink]="[notification.url]" class="p-4 border-b last:border-b-0 hover:bg-gray-100  transition-all cursor-pointer rounded-lg flex items-start space-x-4">
+      </a>
+    </div>
+  </div>
+
+
+  <!-- Navbar Right Section -->
+  <div class="flex items-center space-x-4">
+    <!-- Notifications Icon -->
+    <button class="relative p-2 px-4 hover:bg-gray-200 rounded-full" (click)="toggleNotifications()"
+      aria-label="Notifications" role="button" aria-controls="notifications-dropdown">
+      <i class="fas fa-bell text-gray-600 text-lg" *ngIf="showNotifications" aria-hidden="true"></i>
+      <i class="far fa-bell text-gray-600 text-lg" *ngIf="!showNotifications" aria-hidden="true"></i>
+      <span *ngIf="unreadNotificationCount > 0"
+        class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-2 py-1" aria-live="polite">
+        {{ unreadNotificationCount }}
+      </span>
+    </button>
+
+    <div *ngIf="showNotifications" id="notifications-dropdown"
+      class="absolute top-full right-10 w-[30%] bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-[500px] overflow-y-auto"
+      aria-labelledby="notifications-header">
+      <div *ngIf="notifications.length === 0" class="p-4 text-center text-gray-600" id="notifications-header">
+        No new notifications
+      </div>
+      <div *ngFor="let notification of notifications; trackBy: trackNotificationById"
+        (click)="goAnotherRouteAndupdateNotification(this.staff_id,notification.id,notification.url)"
+        class="p-4 border-b last:border-b-0 hover:bg-gray-100  transition-all cursor-pointer rounded-lg flex items-start space-x-4">
         <!-- Icon or Image Placeholder (if applicable) -->
         <div class="flex-shrink-0">
           <i [ngClass]="getNotificationIcon(notification)" class="text-2xl p-2 text-gray-700 "></i>
@@ -53,37 +56,36 @@
           </p>
         </div>
         <div class="flex flex-col justify-start items-end h-[80px]">
-          <div class="m-2">   
+          <div class="m-2">
             <small class="text-gray-400 text-xs">{{ notification.created_at | timeAgo }}</small>
           </div>
           <div class="w-2 h-2 bg-blue-500 rounded-full" *ngIf="!notification.checked"></div>
         </div>
       </div>
 
-      </div>
-  
-      <!-- Profile Icon -->
-      <div class="relative">
-        <button class="relative hover:bg-gray-100 rounded-full px-3" (click)="toggleDropdown()">
-          <div class="flex items-center justify-evenly w-50 space-x-4">
-            <div class="flex flex-col">
-              <strong>{{name}}</strong>
-              <span class="text-sm">{{position}}</span>
-            </div>
-            <img class="w-10 h-10 rounded-full" [src]="oldPhotoUrl" alt="Profile">
-          </div>
-        </button>
-        <!-- Dropdown menu -->
-        <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-          <a routerLink="acknowledgeHub/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-            <i class="fas fa-user-circle mr-4"></i>Profile
-          </a>
-          <a (click)="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-            <i class="fas fa-sign-out-alt mr-4"></i>Logout
-          </a>
-                  </div>
-      </div>
-      
     </div>
-  </nav>
-  
+
+    <!-- Profile Icon -->
+    <div class="relative">
+      <button class="relative hover:bg-gray-100 rounded-full px-3" (click)="toggleDropdown()">
+        <div class="flex items-center justify-evenly w-50 space-x-4">
+          <div class="flex flex-col">
+            <strong>{{name}}</strong>
+            <span class="text-sm">{{position}}</span>
+          </div>
+          <img class="w-10 h-10 rounded-full" [src]="oldPhotoUrl" alt="Profile">
+        </div>
+      </button>
+      <!-- Dropdown menu -->
+      <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+        <a routerLink="acknowledgeHub/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+          <i class="fas fa-user-circle mr-4"></i>Profile
+        </a>
+        <a (click)="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+          <i class="fas fa-sign-out-alt mr-4"></i>Logout
+        </a>
+      </div>
+    </div>
+
+  </div>
+</nav>

@@ -18,7 +18,7 @@ import { AuthService } from '../../services/auth.service';
 export class ListUserComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  announcements: staffList[] = [];
+  staffs: staffList[] = [];
   filteredStaffs: staffList[] = [];
   dataSource = new MatTableDataSource<staffList>([]);
   searchQuery: string = '';
@@ -58,11 +58,18 @@ export class ListUserComponent {
     this.authService.getUserInfo().subscribe({
       next: (data) => {
         this.loginRole = data.user.role;
+        this.setColumnsBasedOnRole();
       }
     })
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
 
+  setColumnsBasedOnRole() {
+    if (this.loginRole !== 'ADMIN') {
+      this.columns = this.columns.filter(col => col.field !== 'status');
+    }
+    this.selectedColumns = this.columns.map(col => col.field);
+  }
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
   }
@@ -70,7 +77,7 @@ export class ListUserComponent {
   fetchStaffs() {
     this.staffService.getList().subscribe(
       (data) => {
-        this.announcements = data.map((item, index) => ({
+        this.staffs = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
         }));
@@ -96,7 +103,7 @@ export class ListUserComponent {
   }
   onSearchChange() {
     const query = this.searchQuery.toLowerCase();
-    this.filteredStaffs = this.announcements.filter(a => {
+    this.filteredStaffs = this.staffs.filter(a => {
       const fieldsToSearch = [
         a.companyStaffId?.toLowerCase() || '',
         a.name?.toLowerCase() || '',
@@ -187,7 +194,7 @@ export class ListUserComponent {
   }
 
   filterAnnouncements() {
-    this.filteredStaffs = this.announcements.filter(a => {
+    this.filteredStaffs = this.staffs.filter(a => {
       const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
       const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));

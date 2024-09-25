@@ -56,7 +56,7 @@
         <i class="fas fa-check-circle text-green-500"></i>
         {{ fileName }}
       </span>
-      <span *ngIf="fileErrorMessage" class="text-red-600">You need to choose a file!</span>
+      <span *ngIf="fileErrorMessage" class="error">You need to choose a file!</span>
 
       <!-- Radio Buttons -->
       <div class="bg-white p-4 rounded-lg shadow-md flex-1 mt-2">
@@ -92,12 +92,12 @@
 
               <i class="fa-solid fa-users-line p-2 rounded-md cursor-pointer hover:bg-gray-100 mt-2 border shadow-md"
                 *ngIf="groupotion" (click)="showSelectedOptionBox()"><span
-                  class="bg-red-600 text-white p-1 rounded-lg absolute left-6 top-0"
-                  style="font-size: 10px;">{{ selectedGroups.length }}</span></i>
+                  class="bg-red-600 text-white p-1 rounded-lg absolute left-6 top-0" style="font-size: 10px;">{{
+                  selectedGroups.length }}</span></i>
               <i class="fa-solid fa-user p-2 rounded-md cursor-pointer hover:bg-gray-100 mt-2 border shadow-md"
                 *ngIf="staffoption" (click)="showSelectedOptionBox()"><span
-                  class="bg-red-600 text-white p-1 rounded-lg absolute left-6 top-0"
-                  style="font-size: 10px;">{{ selectedStaffs.length }}</span></i>
+                  class="bg-red-600 text-white p-1 rounded-lg absolute left-6 top-0" style="font-size: 10px;">{{
+                  selectedStaffs.length }}</span></i>
             </div>
           </div>
           <div class="mt-2 flex space-x-6">
@@ -127,7 +127,7 @@
         </div>
         <div class="mt-2 space-y-3 h-40">
           <div class="overflow-auto">
-            <span *ngIf="formSubmitted && selectedGroups.length === 0" class="text-red-600">
+            <span *ngIf="formSubmitted && selectedGroups.length === 0" class="error">
               Please select at least one group.
             </span>
             <div *ngFor="let group of filteredGroups" class="flex items-center p-2">
@@ -149,7 +149,7 @@
         <div class="sticky top-0 w-full bg-white">
           <label class="block text-lg font-semibold text-gray-800">Select Staffs</label>
           <!-- Error message for no staff selection -->
-          <span *ngIf="formSubmitted && selectedStaffs.length === 0" class="text-red-600">
+          <span *ngIf="formSubmitted && selectedStaffs.length === 0" class="error">
             Please select at least one staff member.
           </span>
           <input type="text" class="border-2 rounded-lg p-2 w-full" placeholder="Search with Staff Name or (Position).."
@@ -184,10 +184,8 @@
 
       <!-- Submit Button -->
       <div class="mt-2">
-        <button
-          type="submit" (click)="onCreate()"
-          class="w-1/4 float-end py-3 bg-blue-900 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
+        <button type="submit" (click)="onCreate()"
+          class="w-1/4 float-end py-3 bg-blue-900 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           Create
         </button>
       </div>

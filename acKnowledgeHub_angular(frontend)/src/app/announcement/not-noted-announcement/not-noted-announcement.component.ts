@@ -72,7 +72,7 @@ export class NotNotedAnnouncementComponent {
     });
     this.getUnNotedStaffList(this.announcementId, this.groupStatus);
     this.getVersions();
-    //  this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+    this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
   @HostListener('document:click', ['$event'])
   closeDropdownOnClickOutside(event: Event) {
@@ -96,7 +96,6 @@ export class NotNotedAnnouncementComponent {
         if (this.versions.length > 0) {
           this.selectedVersionId = this.versions[this.versions.length - 1].id;
         }
-
       },
       error: (e) => console.log(e)
     });
@@ -121,14 +120,15 @@ export class NotNotedAnnouncementComponent {
         this.staffs = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredStaffs = data;
+        }));
+        this.filteredStaffs = [...this.staffs];
         this.dataSource.data = this.filteredStaffs;
         this.dataSource.paginator = this.paginator;
-        //  this.filterAnnouncements();
       },
       (error) => console.error('Error fetching announcements:', error)
     );
   }
+
 
   toggleFilterDropdown() {
     this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
@@ -152,6 +152,13 @@ export class NotNotedAnnouncementComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+
+    // Re-assign auto numbers for the filtered results
+    this.filteredStaffs = this.filteredStaffs.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
+
     this.dataSource.data = this.filteredStaffs;
   }
 
@@ -162,20 +169,20 @@ export class NotNotedAnnouncementComponent {
     //  this.filterAnnouncements();
   }
 
-  onStartDateChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.startDateTime = input.value || null;
-    this.validateDateRange();
-    //  this.filterAnnouncements();
-  }
+  // onStartDateChange(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   this.startDateTime = input.value || null;
+  //   this.validateDateRange();
+  //   //  this.filterAnnouncements();
+  // }
 
-  onEndDateChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const today = new Date().toISOString().split('T')[0];
-    this.endDateTime = input.value <= today ? input.value : today;
-    this.validateDateRange();
-    //  this.filterAnnouncements();
-  }
+  // onEndDateChange(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   const today = new Date().toISOString().split('T')[0];
+  //   this.endDateTime = input.value <= today ? input.value : today;
+  //   this.validateDateRange();
+  //   //  this.filterAnnouncements();
+  // }
 
   validateDateRange() {
     if (this.startDateTime && this.endDateTime && this.startDateTime > this.endDateTime) {

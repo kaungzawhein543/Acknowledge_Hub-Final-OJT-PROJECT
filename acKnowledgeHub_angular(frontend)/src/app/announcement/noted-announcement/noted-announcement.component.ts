@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild, inject } from '@angular/core';
 
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MtxGridColumn } from '@ng-matero/extensions/grid';
@@ -29,7 +29,6 @@ export class NotedAnnouncementComponent {
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
-  todayDate: string | undefined;
   activeChecked = false;
   inactiveChecked = false;
   announcementId !: number;
@@ -40,6 +39,8 @@ export class NotedAnnouncementComponent {
   announcementTitle !: string;
   announcementFile !: string;
   originId !: number;
+  minCreatedAtDate: string = '';
+  todayDate: string = new Date().toISOString().split('T')[0];
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'staffId', header: 'Staff Id' },
@@ -48,7 +49,7 @@ export class NotedAnnouncementComponent {
     { field: 'notedAt', header: 'Noted At' },
     { field: 'positionName', header: 'Position' },
     { field: 'departmentName', header: 'Department' },
-    { field: 'companyName', header: 'Company' },
+    { field: 'companyName', header: 'Company' }
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -58,8 +59,8 @@ export class NotedAnnouncementComponent {
     private staffService: StaffService,
     private router: Router,
     private route: ActivatedRoute,
-    private announcementService: AnnouncementService
-  ) { }
+    private announcementService: AnnouncementService,
+  ) { this.setMinCreatedAtDate(); }
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
@@ -110,10 +111,11 @@ export class NotedAnnouncementComponent {
         this.staffs = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredStaffs = this.staffs;
+        }));
+        this.setMinCreatedAtDate();
+        this.filteredStaffs = this.staffs;
         this.dataSource.data = this.filteredStaffs;
         this.dataSource.paginator = this.paginator;
-        //  this.filterAnnouncements();
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -148,22 +150,52 @@ export class NotedAnnouncementComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredStaffs = this.filteredStaffs.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredStaffs;
   }
+
+  setMinCreatedAtDate() {
+    if (this.staffs.length > 0) {
+      const validStaffs = this.staffs.filter(staff => staff.createdAt);
+
+      if (validStaffs.length > 0) {
+        const earliestCreatedAt = validStaffs
+          .map(staff => new Date(staff.createdAt!))
+          .reduce((earliest, current) => current < earliest ? current : earliest, new Date());
+
+        this.minCreatedAtDate = earliestCreatedAt.toISOString().split('T')[0];
+      }
+    }
+  }
+
 
   onStartDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     this.startDateTime = input.value || null;
-    this.validateDateRange();
-    //  this.filterAnnouncements();
+    this.filterStafffs(); // Filter staff based on the new start date
   }
 
   onEndDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
     const today = new Date().toISOString().split('T')[0];
-    this.endDateTime = input.value <= today ? input.value : today;
-    this.validateDateRange();
-    //  this.filterAnnouncements();
+    this.endDateTime = input.value <= today ? input.value : today; // Ensure end date can't be after today
+    this.filterStafffs(); // Filter staff based on the new end date
+  }
+
+  filterStafffs() {
+    this.filteredStaffs = this.staffs.filter(staff => {
+      const createdAt = staff.createdAt ? new Date(staff.createdAt) : null;
+      const notedAt = staff.notedAt ? new Date(staff.notedAt) : null;
+
+      const isAfterStartDate = this.startDateTime ? (createdAt && createdAt >= new Date(this.startDateTime)) : true;
+      const isBeforeEndDate = this.endDateTime ? (notedAt && notedAt <= new Date(this.endDateTime)) : (notedAt && notedAt <= new Date());
+
+      return isAfterStartDate && isBeforeEndDate;
+    });
+    this.dataSource.data = this.filteredStaffs;
   }
 
   validateDateRange() {

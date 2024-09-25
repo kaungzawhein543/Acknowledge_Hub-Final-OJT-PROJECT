@@ -24,7 +24,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private updateInterval: any;
   isDropdownOpen = false;
   position: string = '';
-  staff_id : number = 0;
+  staff_id: number = 0;
   name: string = '';
   private audio: HTMLAudioElement;
   profile: StaffProfileDTO | null = null;
@@ -32,16 +32,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   oldPhotoUrl: string | null = null;
   originalTitle: string = 'Acknowledge Hub';
   notificationTitle: string = '(1) New Notification!';
-  titleInterval: any; 
+  titleInterval: any;
 
   constructor(
-    private sidebarService: SidebarService, 
-    private authService: AuthService, 
+    private sidebarService: SidebarService,
+    private authService: AuthService,
     private router: Router,
     private webSocketService: WebSocketService,
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
-    private profileService : ProfileService,
+    private profileService: ProfileService,
     private titleService: Title
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
@@ -63,15 +63,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.oldPhotoUrl = this.baseUrl + this.profile.photoPath;
       }
     });
-  
+
     this.webSocketService.getNotifications().pipe(takeUntil(this.destroy$)).subscribe({
       next: (notifications) => {
         this.notifications = this.filterLatestNotifications(notifications).reverse();
         this.updateUnreadNotificationCount();
         this.cdr.detectChanges();
-        if(this.unreadNotificationCount > 0){
+        if (this.unreadNotificationCount > 0) {
           this.handleVisibilityChange();
-        }else{
+        } else {
           this.titleService.setTitle('Acknowledge Hub')
         }
       },
@@ -79,7 +79,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         console.error('Error receiving notifications:', error);
       }
     });
-  
+
     this.webSocketService.getNewNotifications().pipe(takeUntil(this.destroy$)).subscribe({
       next: (notification: Notification) => {
         this.notifications = this.filterLatestNotifications([notification, ...this.notifications]);
@@ -88,9 +88,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
         });
         this.incrementUnreadNotificationCount(notification);
         this.cdr.detectChanges();
-        if(this.unreadNotificationCount > 0){
+        if (this.unreadNotificationCount > 0) {
           this.handleVisibilityChange();
-        }else{
+        } else {
           this.titleService.setTitle('AcknowledgeHub')
         }
       },
@@ -98,20 +98,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
         console.error('Error receiving new notifications:', error);
       }
     });
-  
+
     this.subscribeToStatusUpdates();
     this.startUpdateInterval();
   }
-  
+
   // Utility function to filter notifications and keep the latest "ask a question" notification
   filterLatestNotifications(notifications: Notification[]): Notification[] {
     const announcementMap = new Map<number, Notification>();
     let latestAskQuestionNotification: Notification | null = null;
-  
+
     notifications.forEach(notification => {
       const announcementId = notification.announcementDetails?.id;
       const containsAskQuestion = notification.title?.includes("ask a question") || notification.description?.includes("ask a question");
-  
+
       // Check if the notification contains "ask a question"
       if (containsAskQuestion) {
         // If it's the first one or it's newer than the current latest, replace it
@@ -129,19 +129,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
         announcementMap.set(notification.id, notification);
       }
     });
-  
+
     // Convert the map back to an array and add the latest "ask a question" notification
     const filteredNotifications = Array.from(announcementMap.values());
     if (latestAskQuestionNotification) {
       filteredNotifications.unshift(latestAskQuestionNotification);
     }
-  
+
     return filteredNotifications;
   }
   setTitle(newTitle: string) {
     this.titleService.setTitle(newTitle);
   }
-  
+
   loadProfile(): void {
     this.authService.getProfile().subscribe(
       (data) => {
@@ -158,7 +158,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   getNotificationIcon(notification: Notification): string {
     const title = notification.title?.toLowerCase();
     const description = notification.description?.toLowerCase();
-  
+
     if (title?.includes("ask a question") || description?.includes("ask a question")) {
       return 'fas fa-question-circle'; // FontAwesome Q&A icon
     } else if (title?.includes("create") || description?.includes("create")) {
@@ -170,7 +170,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
     return 'fas fa-info-circle'; // Default icon if none match
   }
-  
+
   // Start interval to update "time ago" every 1 minute
   startUpdateInterval() {
     this.updateInterval = setInterval(() => {
@@ -264,12 +264,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   goAnotherRouteAndupdateNotification(staff_id: number, notificationId: number, notificationUrl: string) {
     const notification = this.notifications.find(n => n.id === notificationId);
-    console.log(notificationUrl);
     if (notification) {
       notification.checked = true;
       notification.status = 'inactive';
-  
-      // this.router.navigate([`${notificationUrl}`]);
+
+      this.router.navigate([`${notificationUrl}`]);
       this.notificationService.updateNotification(staff_id, notificationId).subscribe(
         () => {
           this.showNotifications = false;
@@ -279,7 +278,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       console.error('Notification not found');
     }
   }
-  
+
 
   trackNotificationById(index: number, notification: Notification): number {
     return notification.id;
@@ -295,7 +294,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (this.titleInterval) {
         clearInterval(this.titleInterval);  // Stop the title toggling
       }
-      if(this.unreadNotificationCount >0){
+      if (this.unreadNotificationCount > 0) {
         this.titleService.setTitle(`(${this.unreadNotificationCount}) AcknowledgeHub`);  // Restore the original title
       }
     }
@@ -309,7 +308,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if (showNotification) {
           this.titleService.setTitle(`(${this.unreadNotificationCount}) New Notification!`);
         } else {
-          this.titleService.setTitle(this.originalTitle); 
+          this.titleService.setTitle(this.originalTitle);
         }
         showNotification = !showNotification; // Toggle between titles
       }, 1000);  // Every 1 second

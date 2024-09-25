@@ -1,6 +1,6 @@
 <div class="container bg-white mx-auto p-4">
     <!-- Header Section -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-3">
         <span class="text-5xl font-semibold" style="font-size: 30px;">Pending Announcements List</span>
         <!-- Search Input on the Right Side -->
         <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
@@ -12,13 +12,18 @@
     <div class="flex justify-between mb-4">
 
         <div class="flex gap-4">
+            <div class="flex flex-col">
+                <label for="startDate" style="font-size: 14px;">Start Date</label>
+                <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate"
+                    [value]="startDateTime" (change)="onStartDateChange($event)" />
+            </div>
 
-            <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate" [value]="startDateTime"
-                (change)="onStartDateChange($event)" />
-            <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
-                [value]="endDateTime" (change)="onEndDateChange($event)" />
-
-
+            <!-- End Date Container -->
+            <div class="flex flex-col">
+                <label for="endDate" style="font-size: 14px;">End Date</label>
+                <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
+                    [value]="endDateTime" (change)="onEndDateChange($event)" />
+            </div>
         </div>
 
 
@@ -67,15 +72,21 @@
                         </th>
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
+                                <ng-container *ngSwitchCase="'scheduleAt'">
+                                    <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+                                </ng-container>
                                 <ng-container *ngSwitchCase="'detail'">
                                     <button mat-button (click)="onFileButtonClick(announcement.id)"
                                         style="margin-left: 20%;">
                                         View
                                     </button>
                                 </ng-container>
-                                <ng-container *ngSwitchCase="'cancel'">
-                                    <button mat-button (click)="onCancelButtonClick(announcement.id)"
-                                        style="margin-left: 20%;">
+                                <ng-container *ngSwitchCase="'action'">
+                                    <button mat-button style="color: rgb(15, 159, 73);"
+                                        (click)="onPublishButtonClick(announcement.id)">
+                                        Publish Now
+                                    </button>
+                                    <button mat-button (click)="onCancelButtonClick(announcement.id)" s>
                                         Cancel
                                     </button>
                                 </ng-container>

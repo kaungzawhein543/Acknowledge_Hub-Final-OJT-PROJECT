@@ -1,8 +1,7 @@
-import { Component, HostListener, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AnnouncementService } from '../../services/announcement.service';
 import { AuthService } from '../../services/auth.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { announcementList } from '../../models/announcement-list';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import jsPDF from 'jspdf';
@@ -36,7 +35,7 @@ export class UserNotedComponent implements OnInit {
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createdAt', header: 'Created At' },
+    { field: 'createdAt', header: 'Announced At' },
     { field: 'notedAt', header: 'Noted At' },
     { field: 'createStaff', header: 'Create/Request Staff' },
     { field: 'detail', header: 'View' },
@@ -106,6 +105,10 @@ export class UserNotedComponent implements OnInit {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 
@@ -201,6 +204,10 @@ export class UserNotedComponent implements OnInit {
       }
       return true;
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 

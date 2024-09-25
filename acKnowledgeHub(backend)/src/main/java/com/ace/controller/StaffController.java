@@ -422,5 +422,10 @@ public class StaffController {
             return ResponseEntity.internalServerError().body("Inactivate staff is fail.");
         }
     }
+
+    @GetMapping("/allSys/list-by-announcement/{id}")
+    public List<StaffResponseDTO> getStaffByAnnouncementById(@PathVariable("id")Integer id){
+        return staffService.getStaffListByAnnouncementId(id);
+    }
 }
 

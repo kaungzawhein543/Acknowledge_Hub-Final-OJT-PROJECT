@@ -41,8 +41,8 @@ export class RequestAnnouncementComponent {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
-  minDateTime: string ='';
-  dateError : string = '';
+  minDateTime: string = '';
+  dateError: string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -58,14 +58,18 @@ export class RequestAnnouncementComponent {
   currentHumanResourceCompany !: string;
   updateInterval: any;
   intervalId: any;
-  filteredGroups : Group[] = [];
+  filteredGroups: Group[] = [];
+  titleError: boolean = false;
+  descriptionError: boolean = false;
+  fileErrorMessage: boolean = false;
+  formSubmitted: boolean = false;
 
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
-  selectAllStaffs : boolean = false;
+  selectAllStaffs: boolean = false;
 
   constructor(
     private groupService: GroupService,
@@ -73,7 +77,7 @@ export class RequestAnnouncementComponent {
     private staffService: StaffService,
     public announcementService: AnnouncementService,
     private authService: AuthService,
-    private cdr : ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -88,8 +92,8 @@ export class RequestAnnouncementComponent {
     )
     this.setMinDateTime();
     this.intervalId = setInterval(() => {
-        this.setMinDateTime();
-      }, 60000);
+      this.setMinDateTime();
+    }, 60000);
   }
 
   loadGroups(HumanResourceId: number) {
@@ -137,7 +141,7 @@ export class RequestAnnouncementComponent {
             .map((staff: { position: Position; }) => {
               return {
                 ...staff,
-                position:  staff.position.name
+                position: staff.position.name
               };
             });
 
@@ -158,6 +162,10 @@ export class RequestAnnouncementComponent {
         console.error('Error fetching staff:', error);
       }
     );
+  }
+
+  onCreate() {
+    this.formSubmitted = true;
   }
 
   groupInputChange(event: Event): void {
@@ -191,10 +199,42 @@ export class RequestAnnouncementComponent {
 
   onSubmit(): void {
     const formData = new FormData();
-  
+    const trimmedTitle = this.announcementTitle.trim();
+    const trimmedDescription = this.announcementDescription.trim();
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
-      this.dateError = 'The schedule date should be later than current time!';
+      this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
+    }
+    if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedDescription === '' && !this.selectedFile) {
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    }
+    else if (trimmedDescription === '') {
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '') {
+      this.titleError = true;
+      return;
+    } else if (!this.selectedFile) {
+      this.fileErrorMessage = true;
+      return;
+    } else {
+      // If all checks are passed, append the file
+      formData.append('files', this.selectedFile);
     }
     // Create the announcement object
     const announcement = {
@@ -202,8 +242,8 @@ export class RequestAnnouncementComponent {
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
-      category : this.selectedCategory,
-      forRequest : 1
+      category: this.selectedCategory,
+      forRequest: 1
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -300,6 +340,7 @@ export class RequestAnnouncementComponent {
       this.selectedFile = input.files[0];
       this.fileName = this.selectedFile.name;
       this.fileSelected = true;
+      this.fileErrorMessage = false;
     } else {
       this.selectedFile = null;
       this.fileName = '';
@@ -313,7 +354,7 @@ export class RequestAnnouncementComponent {
 
     if (this.searchTerm) {
       this.filterStaffs();
-    }else{
+    } else {
       this.resetStaffList();
     }
   }
@@ -340,19 +381,19 @@ export class RequestAnnouncementComponent {
       this.selectedOptionsBox = false;
     }
   }
-  
+
   setMinDateTime(): void {
     const now = new Date();
-  
+
     // Adjust the time to 2 minutes before the current time
     now.setMinutes(now.getMinutes() - 2);
-  
+
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
     const day = now.getDate().toString().padStart(2, '0');
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
-  
+
     // Set the minimum datetime to 2 minutes before the current date and time
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
     console.log('MinDateTime set to:', this.minDateTime);
@@ -380,16 +421,22 @@ export class RequestAnnouncementComponent {
     if (this.scheduleDate) {
       const selectedDate = new Date(this.scheduleDate);
       const now = new Date();
-  
+
       if (selectedDate < now) {
-        this.dateError = 'The schedule date should be later than current time!'; 
+        this.dateError = 'The schedule date should be later than current time!';
       } else {
-        this.dateError = ""; 
+        this.dateError = "";
       }
     } else {
-      this.dateError = ""; 
+      this.dateError = "";
     }
   }
-  
-  
+
+  clearTitleError(): void {
+    this.titleError = false;
+  }
+
+  clearDescriptionError(): void {
+    this.descriptionError = false;
+  }
 }

@@ -424,7 +424,7 @@ public class AnnouncementController {
     }
 
     @GetMapping("/sys/pending-list")
-    public List<AnnouncementResponseListDTO> getPendingAnnouncement() {
+    public List<AnnouncementListDTO> getPendingAnnouncement() {
         return announcement_service.getPendingAnnouncement();
     }
     //Mapping for staffNotedAnnouncement
@@ -490,9 +490,20 @@ public class AnnouncementController {
     @GetMapping("cancel/{id}")
     public ResponseEntity<String> cancelPendingAnnouncement(@PathVariable("id")Integer id){
         try {
-            announcement_service.cancelPendingAnnouncement(id);
             postSchedulerService.cancelScheduledPost(id);
+            announcement_service.cancelPendingAnnouncement(id);
             return ResponseEntity.ok("Cancelling announcement is successful.");
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("publish-now/{id}")
+    public ResponseEntity<String> postAnnouncementPublishNow(@PathVariable("id")Integer id){
+        try{
+            postSchedulerService.cancelScheduledPost(id);
+            blogService.publishPost(id);
+            return ResponseEntity.ok("Updating announcement post now successfully");
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -18,7 +18,7 @@ export class AnnouncementService {
 
   //Create Announcement
   createAnnouncement(formData: FormData, userId: number): Observable<any> {
-    return this.http.post(`${this.BaseUrl}/allHR/create?createUserId=${userId}`, formData, {withCredentials: true,responseType: 'text'},);
+    return this.http.post(`${this.BaseUrl}/allHR/create?createUserId=${userId}`, formData, { withCredentials: true, responseType: 'text' },);
   }
 
   //Get Latest Version of Announcement
@@ -32,12 +32,12 @@ export class AnnouncementService {
 
   //Edit Announcement
   editAnnouncement(announcement: announcement): Observable<any> {
-    return this.http.put<String>(`${this.BaseUrl}/${announcement.id}`, announcement,{ withCredentials: true});
+    return this.http.put<String>(`${this.BaseUrl}/${announcement.id}`, announcement, { withCredentials: true });
   }
 
   //Get Announcement
   getAnnouncementById(id: number): Observable<updateAnnouncement> {
-    return this.http.get(`${this.BaseUrl}/all/${id}`, {  withCredentials: true,responseType: 'text' }).pipe(
+    return this.http.get(`${this.BaseUrl}/all/${id}`, { withCredentials: true, responseType: 'text' }).pipe(
       map(response => {
         try {
           return JSON.parse(response) as updateAnnouncement; // Parse JSON response
@@ -52,7 +52,7 @@ export class AnnouncementService {
 
   //Get Announcement
   getLatestAnnouncementById(id: number): Observable<updateAnnouncement> {
-    return this.http.get(`${this.BaseUrl}/HRM/latest-version-by-id/${id}`, {  withCredentials: true,responseType: 'text' }).pipe(
+    return this.http.get(`${this.BaseUrl}/HRM/latest-version-by-id/${id}`, { withCredentials: true, responseType: 'text' }).pipe(
       map(response => {
         try {
           return JSON.parse(response) as updateAnnouncement; // Parse JSON response
@@ -72,7 +72,7 @@ export class AnnouncementService {
 
   //Delete Announcement
   deleteAnnouncement(id: number): Observable<string> {
-    return this.http.delete<string>(`${this.BaseUrl}/${id}`,{ withCredentials: true});
+    return this.http.delete<string>(`${this.BaseUrl}/${id}`, { withCredentials: true });
   }
 
 
@@ -82,19 +82,19 @@ export class AnnouncementService {
   }
 
   userNotedAnnouncement(staffId: number): Observable<staffNotedAnnouncement[]> {
-    return this.http.get<staffNotedAnnouncement[]>(`${this.BaseUrl}/STF/staff-noted/${staffId}`,{ withCredentials: true});
+    return this.http.get<staffNotedAnnouncement[]>(`${this.BaseUrl}/STF/staff-noted/${staffId}`, { withCredentials: true });
   }
 
   userUnNotedAnnouncement(staffId: number): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff-unnoted/${staffId}`,{ withCredentials: true});
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff-unnoted/${staffId}`, { withCredentials: true });
   }
 
   userAnnouncement(staffId: number): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff/${staffId}`,{ withCredentials: true});
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff/${staffId}`, { withCredentials: true });
   }
 
-  pendingAnnouncementBySchedule(): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/sys/pending-list`,{ withCredentials: true})
+  pendingAnnouncementBySchedule(): Observable<listAnnouncement[]> {
+    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/sys/pending-list`, { withCredentials: true })
   }
 
   //Get All
@@ -136,7 +136,7 @@ export class AnnouncementService {
   }
 
   getAnnouncementVersions(id: number): Observable<announcementVersion[]> {
-    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/HRM/versions/${id}`,{ withCredentials: true})
+    return this.http.get<announcementVersion[]>(`${this.BaseUrl}/HRM/versions/${id}`, { withCredentials: true })
   }
   //Announcement stats card
   getAnnouncementStats(): Observable<AnnouncementStatsDTO> {
@@ -151,11 +151,11 @@ export class AnnouncementService {
     return filePath.split('/').pop() || 'downloaded-file';
   }
   getAnnouncementVersion(announcementId: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.BaseUrl}/all/announcement-versions/${announcementId}`,{ withCredentials: true});
+    return this.http.get<string[]>(`${this.BaseUrl}/all/announcement-versions/${announcementId}`, { withCredentials: true });
   }
 
   getRequestAnnouncementList(): Observable<requestAnnouncement[]> {
-    return this.http.get<requestAnnouncement[]>(`${this.BaseUrl}/HRM/request-list`,{ withCredentials: true});
+    return this.http.get<requestAnnouncement[]>(`${this.BaseUrl}/HRM/request-list`, { withCredentials: true });
   }
 
   getAnnouncementListByStaffRequest(id: number): Observable<listAnnouncement[]> {
@@ -163,16 +163,20 @@ export class AnnouncementService {
   }
 
   approvedRequestAnnouncement(id: number): Observable<boolean> {
-    return this.http.get<boolean>(`${this.BaseUrl}/HRM/approved/${id}`,{ withCredentials: true});
+    return this.http.get<boolean>(`${this.BaseUrl}/HRM/approved/${id}`, { withCredentials: true });
   }
 
   rejectRequestAnnouncement(id: number): Observable<boolean> {
-  return this.http.get<boolean>(`${this.BaseUrl}/HRM/reject/${id}`,{ withCredentials: true});
+    return this.http.get<boolean>(`${this.BaseUrl}/HRM/reject/${id}`, { withCredentials: true });
   }
 
 
 
   cancelPendingAnnouncement(id: number): Observable<any> {
     return this.http.get(`${this.BaseUrl}/cancel/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  postPublishNow(id: number): Observable<any> {
+    return this.http.get(`${this.BaseUrl}/publish-now/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

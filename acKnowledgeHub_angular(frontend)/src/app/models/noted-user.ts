@@ -4,6 +4,7 @@ export class NotedUser {
     departmentName?: string;
     companyName?: string;
     positionName?: string;
+    createdAt?: Date;
     notedAt?: Date;
     email?: string;
     [key: string]: any;

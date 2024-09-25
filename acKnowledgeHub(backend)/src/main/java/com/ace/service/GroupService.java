@@ -129,4 +129,9 @@ public class GroupService {
 
         return group.getStaff();
     }
+
+    public List<GroupResponseDTO> getGroupListByAnnouncementId(Integer id){
+        return groupRepository.getGroupsByAnnouncementId(id);
+    }
+
 }

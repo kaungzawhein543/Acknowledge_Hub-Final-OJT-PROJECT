@@ -37,10 +37,11 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("select s.chatId from Staff s")
     public List<String> findAllChatIds();
 
-    @Query("SELECT NEW com.ace.dto.NotedResponseDTO( s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, sn.notedAt, s.email) " +
+    @Query("SELECT NEW com.ace.dto.NotedResponseDTO( s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name,a.scheduleAt , sn.notedAt, s.email) " +
             "FROM Staff s " +
             "JOIN StaffNotedAnnouncement sn ON s.id = sn.staff.id " +
-            "WHERE sn.announcement.id = :announcementId")
+            "Join sn.announcement a " +
+            "WHERE a.id = :announcementId")
     List<NotedResponseDTO> getNotedStaffByAnnouncement(@Param("announcementId") Integer announcementId);
 
     @Query("SELECT NEW com.ace.dto.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
@@ -81,7 +82,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<StaffGroupDTO> getStaffListForGroup();
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
-            "from Staff s order by s.companyStaffId")
+            "from Staff s order by s.companyStaffId  DESC")
     List<StaffResponseDTO> getStaffList();
 
     @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
@@ -100,11 +101,17 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "SUM(CASE WHEN s.status = 'inactive' THEN 1 ELSE 0 END)) " +
             "FROM Staff s")
     StaffSummaryDTO getStaffSummary();
+
     @Query("SELECT s FROM Staff s JOIN s.announcement a WHERE a.id = :announcementId")
     List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
 
 
     @Query("select s.company.name from Staff s where s.id = ?1")
     String getCompanyNameById(Integer id);
+
+    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+            "from Staff s " +
+            "Join s.announcement a where a.id = ?1  order by s.company.name")
+    List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id);
 }
 

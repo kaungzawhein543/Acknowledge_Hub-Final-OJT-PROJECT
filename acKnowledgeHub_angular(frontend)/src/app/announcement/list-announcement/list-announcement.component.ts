@@ -37,7 +37,7 @@ export class ListAnnouncementComponent {
     { field: 'description', header: 'Description' },
     { field: 'createStaff', header: 'Create/Request Staff' },
     //{ field: 'file', header: 'Versions' },
-    { field: 'scheduleAt', header: 'Created At' },
+    { field: 'scheduleAt', header: 'Announced At' },
     { field: 'note', header: 'Noted/UnNoted' },
     { field: 'detail', header: 'Details' },
   ];
@@ -104,6 +104,10 @@ export class ListAnnouncementComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 
@@ -224,9 +228,12 @@ export class ListAnnouncementComponent {
       }
       return true;
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
-
   getNestedProperty(obj: any, path: string): any {
     if (!obj || !path) return null;
     return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
@@ -262,7 +269,7 @@ export class ListAnnouncementComponent {
   }
 
   onDetailButtonClick(id: number) {
-    if(id){
+    if (id) {
       this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
     }
   }

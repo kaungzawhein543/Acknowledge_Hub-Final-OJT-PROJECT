@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
+import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 @Component({
   selector: 'app-request-list',
   templateUrl: './request-list.component.html',
@@ -26,6 +27,8 @@ export class RequestListComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
+  rejectAnnouncementId !: number;
+  @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
 
   columns = [
     { field: 'autoNumber', header: 'No.' },
@@ -85,8 +88,8 @@ export class RequestListComponent implements OnInit {
     });
   }
 
-  onRejectButtonClick(id: number) {
-    this.announcementService.rejectRequestAnnouncement(id).subscribe({
+  onRejectButtonClick() {
+    this.announcementService.rejectRequestAnnouncement(this.rejectAnnouncementId).subscribe({
       next: (data: boolean) => {
         this.fetchAnnouncements();
       },
@@ -236,6 +239,16 @@ export class RequestListComponent implements OnInit {
 
   onDetailButtonClick(id: number) {
     this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
+  }
+  openCorfirmModal(id: number) {
+    this.rejectAnnouncementId = id;
+    this.modal.showReasonInput = true;
+    this.modal.open();
+  }
+
+  onModalConfirm(event: { reason: string }) {
+    const reason = event.reason;
+    this.onRejectButtonClick();
   }
 }
 
