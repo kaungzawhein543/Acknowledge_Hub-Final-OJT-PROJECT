@@ -88,6 +88,12 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
             "GROUP BY a.id, a.title, a.created_at")
     List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
+//    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
+//            "FROM Announcement a " +
+//            "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
+//            "WHERE a.groupStatus = 1 " +
+//            "GROUP BY a.id, a.title, a.created_at")
+//    List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
 
     //Query for announcement stats card
     @Query("SELECT new com.ace.dto.AnnouncementStatsDTO( " +

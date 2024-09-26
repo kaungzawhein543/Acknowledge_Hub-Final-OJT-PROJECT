@@ -5,12 +5,26 @@ import { Company } from '../../models/Company';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 
 @Component({
   selector: 'app-add-company',
   templateUrl: './add-company.component.html',
-  styleUrl: './add-company.component.css'
+  styleUrl: './add-company.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddCompanyComponent {
   company: Company = {

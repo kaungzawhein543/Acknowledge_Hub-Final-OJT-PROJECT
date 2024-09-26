@@ -1,20 +1,20 @@
-<div class="container  d-flex justify-content-center  align-items-center ">
-    <div class="position-relative">
+<div class="container  d-flex justify-content-center  align-items-center " @cardAnimation>
+    <div class="card position-relative">
         <div class="p-2 text-center bg-gray-300 ">
             <h6>Please enter the one-time password <br> to verify your account</h6>
             <div> <span>A code has been sent to </span>{{this.email | hideEmail}}</div>
             <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2">
-                <input class="m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[0]"
+                <input class="card m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[0]"
                     (input)="onInput(0)" maxlength="1" />
-                <input class="m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[1]"
+                <input class="card m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[1]"
                     (input)="onInput(1)" maxlength="1" />
-                <input class="m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[2]"
+                <input class="card m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[2]"
                     (input)="onInput(2)" maxlength="1" />
-                <input class="m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[3]"
+                <input class="card m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[3]"
                     (input)="onInput(3)" maxlength="1" />
-                <input class="m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[4]"
+                <input class="card m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[4]"
                     (input)="onInput(4)" maxlength="1" />
-                <input class="m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[5]"
+                <input class="card m-2 text-center form-control rounded" type="text" [(ngModel)]="otp[5]"
                     (input)="onInput(5)" maxlength="1" />
             </div>
             <span *ngIf="validationError" class="mt-2 text-danger error">
@@ -34,14 +34,14 @@
                     <div bis_skin_checked="1"></div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="card mt-2">
                 <button class="btn btn-primary text-white px-4 validate" (click)="validateOtp()">Validate</button>
             </div>
-            <div class="mt-4">
+            <div class="card mt-4">
                 <button class="px-4 underline" [ngClass]="{
                     'text-blue-600 hover:text-blue-800': !isCountdownActive(),
                     'text-gray-400 cursor-not-allowed': isCountdownActive()
-                  }" (click)="resend()" [disabled]="isCountdownActive()">
+                  }" (click)="resend()" [disabled]="isCountdownActive()"> <i class="fas fa-arrow-left mr-2"></i>
                     Resend OTP
                 </button>
             </div>

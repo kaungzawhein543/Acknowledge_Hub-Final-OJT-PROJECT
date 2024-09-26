@@ -12,10 +12,15 @@
       </div>
     </div>
 
+    <!-- <button (click)="switchChart()">Switch Chart</button> -->
     <!-- Chart only section -->
     <div *ngIf="!noData" class="card myChart">
       <canvas id="chart"></canvas>
     </div>
+    <!-- Add a second chart container -->
+    <!-- <div *ngIf="showSecondChart" class="card mySecondChart">
+      <canvas id="secondChart"></canvas>
+    </div> -->
 
     <div *ngIf="noData" class="card no-data-message">
       No announcements found for the selected dates.

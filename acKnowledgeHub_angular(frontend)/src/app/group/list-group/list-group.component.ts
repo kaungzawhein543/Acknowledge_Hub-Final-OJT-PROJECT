@@ -3,11 +3,28 @@ import { Group } from '../../models/Group';
 import { GroupService } from '../../services/group.service';
 import { ToastService } from '../../services/toast.service';
 import { StaffGroup } from '../../models/staff-group';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-list-group',
   templateUrl: './list-group.component.html',
-  styleUrl: './list-group.component.css'
+  styleUrl: './list-group.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        // Staggered animation for .card
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          ])
+        ]),
+     
+      ])
+    ])
+  ],  
+
 })
 export class ListGroupComponent {
   groups: Group[] = [];

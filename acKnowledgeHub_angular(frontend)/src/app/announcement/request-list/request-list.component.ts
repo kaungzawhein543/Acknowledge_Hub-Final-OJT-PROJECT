@@ -8,10 +8,25 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
+
 @Component({
   selector: 'app-request-list',
   templateUrl: './request-list.component.html',
-  styleUrl: './request-list.component.css'
+  styleUrl: './request-list.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class RequestListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

@@ -9,13 +9,30 @@ import autoTable from 'jspdf-autotable';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { AuthService } from '../../services/auth.service';
+import { StaffProfileDTO } from '../../models/staff';
+
+
 @Component({
   selector: 'app-pending-announcement',
   templateUrl: './pending-announcement.component.html',
-  styleUrl: './pending-announcement.component.css'
+  styleUrl: './pending-announcement.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class PendingAnnouncementComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+ @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   announcements: announcementList[] = [];
   filteredAnnouncements: announcementList[] = [];
@@ -28,6 +45,10 @@ export class PendingAnnouncementComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
+
+  isaHrMain: boolean = false; // Initialize the isaHrMain variable
+  profile: StaffProfileDTO | null = null;
+
 
   columns = [
     { field: 'autoNumber', header: 'No.' },
@@ -44,6 +65,7 @@ export class PendingAnnouncementComponent implements OnInit {
   selectedColumns = this.columns.map(col => col.field);
 
   constructor(
+    private authService :AuthService,
     private announcementService: AnnouncementService,
     private router: Router,
     private route: ActivatedRoute
@@ -53,6 +75,22 @@ export class PendingAnnouncementComponent implements OnInit {
     this.todayDate = new Date().toISOString().split('T')[0];
     this.fetchAnnouncements();
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+    this.authService.getProfile().subscribe(
+      (data) => {
+        this.profile = data;
+        console.log('Profile fetched successfully:', this.profile);
+
+        // Check if the user position is "Human Resource(Main)"
+        if (this.profile.position === "Human Resource(Main)") {
+          this.isaHrMain = true;
+        } else {
+          this.isaHrMain = false;
+        }
+      },
+      (error) => {
+        console.error('Error fetching profile:', error);
+      }
+    );
   }
 
   generateAutoNumber(index: number): string {

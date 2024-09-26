@@ -3,11 +3,25 @@ import { staffList } from '../../models/staff';
 import { StaffService } from '../../services/staff.service';
 import { Router } from '@angular/router';
 import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-add-hr-main',
   templateUrl: './add-hr-main.component.html',
-  styleUrl: './add-hr-main.component.css'
+  styleUrl: './add-hr-main.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddHRMainComponent {
   private staffToBeMainHR: number | null = null;

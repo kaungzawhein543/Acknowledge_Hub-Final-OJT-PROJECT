@@ -149,24 +149,28 @@ export class ProfileComponent implements OnInit {
 
   // Method to handle password change
   changePassword(): void {
+    if (this.oldPassword === this.newPassword) {
+      this.changePasswordMessage = 'New password cannot be the same as old password';
+      return;
+    }
+  
     const request: ChangePasswordRequest = {
       staffId: this.profile?.companyStaffId ?? '',
       oldPassword: this.oldPassword,
       newPassword: this.newPassword
     };
-
+  
     this.staffService.changeOldPassword(request).subscribe(
       response => {
         this.changePasswordMessage = null;
         this.successMessage = response;
         this.oldPassword = '';
         this.newPassword = '';
-         setTimeout(() => {
+        setTimeout(() => {
           this.successMessage = '';
         }, 3000);
         this.closeChangePasswordModal();
         this.showSuccessToast();
-
       },
       error => {
         console.error('Error changing password', error);

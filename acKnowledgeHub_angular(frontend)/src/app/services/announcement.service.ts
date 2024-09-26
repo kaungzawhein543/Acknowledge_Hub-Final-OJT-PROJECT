@@ -173,6 +173,6 @@ export class AnnouncementService {
 
 
   cancelPendingAnnouncement(id: number): Observable<any> {
-    return this.http.get(`${this.BaseUrl}/cancel/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
+    return this.http.get(`${this.BaseUrl}/HRM/cancel/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

@@ -1,5 +1,3 @@
-
-
 import { Component, OnInit } from '@angular/core';
 import { StaffService } from '../../services/staff.service';
 import { PositionService } from '../../services/position.service';
@@ -14,11 +12,25 @@ import { AddStaff } from '../../models/addStaff';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-add-user',
   templateUrl: './add-user.component.html',
-  styleUrl: './add-user.component.css'
+  styleUrl: './add-user.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddUserComponent implements OnInit {
   positions: Position[] = [];
