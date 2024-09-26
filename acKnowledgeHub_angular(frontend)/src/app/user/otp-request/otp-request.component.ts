@@ -3,11 +3,25 @@ import { NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ResponseEmail } from '../../models/response-email';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-otp-request',
   templateUrl: './otp-request.component.html',
-  styleUrl: './otp-request.component.css'
+  styleUrl: './otp-request.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class OtpRequestComponent {
 

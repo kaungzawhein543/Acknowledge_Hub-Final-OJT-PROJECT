@@ -11,12 +11,25 @@ import { error } from 'console';
 import { ToastService } from '../../services/toast.service';
 import { map } from 'rxjs';
 import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 
 
 @Component({
   selector: 'app-add-group',
   templateUrl: './add-group.component.html',
-  styleUrls: ['./add-group.component.css']
+  styleUrls: ['./add-group.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddGroupComponent {
   companySearchTerm: string = '';
@@ -46,6 +59,11 @@ export class AddGroupComponent {
   @ViewChild('staff') staff!: MatSelectionList;
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
 
+  //for loading
+  loadingCompanies = true;
+  loadingDepartments = true;
+  loadingStaff = true;
+
   constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
 
   ngOnInit(): void {
@@ -54,8 +72,8 @@ export class AddGroupComponent {
       next: (data) => {
         this.companies = data;
         this.filteredCompanies = data;
-        // Select the first company by default
         this.companystatus = data[0].id;
+        this.loadingCompanies = false;
       },
       error: (e) => console.log(e)
     });
@@ -63,8 +81,8 @@ export class AddGroupComponent {
       next: (data) => {
         this.departments = data;
         this.filteredDepartments = data;
-        // Select the first department by default
         this.departmentstatus = data[0].id;
+        this.loadingDepartments = false;
       },
       error: (e) => {
         console.log(e)
@@ -81,8 +99,8 @@ export class AddGroupComponent {
     ).subscribe({
       next: (data) => {
         this.staffList = data;
-        console.log(this.staffList); // Debugging line to check the transformed data
         this.showStaff(1);
+        this.loadingStaff = false;
       },
       error: (e) => {
         console.log(e);

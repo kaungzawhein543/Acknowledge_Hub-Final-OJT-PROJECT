@@ -4,11 +4,25 @@ import { ConfirmationModalComponent } from '../../confirmation-modal/confirmatio
 import { CompanyService } from '../../services/company.service';
 import { Router } from '@angular/router';
 import { DepartmentService } from '../../services/department.service';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-list-departments',
   templateUrl: './list-departments.component.html',
-  styleUrls: ['./list-departments.component.css'] // Fixed styleUrls typo
+  styleUrls: ['./list-departments.component.css'], // Fixed styleUrls typo
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ListDepartmentsComponent {
   private itemIdToDelete: number | null = null;

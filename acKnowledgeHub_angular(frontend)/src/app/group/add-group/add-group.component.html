@@ -1,5 +1,6 @@
-<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-full mx-auto">
-    <div class="text-center font-bold text-2xl text-gray-800 mb-3 border-b-2 pb-4">
+<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-full mx-auto" @cardAnimation>
+  <div class="card">
+    <div class="card text-center font-bold text-2xl text-gray-800 mb-3 border-b-2 pb-4">
       Create a New Group
     </div>
     <div class="w-3/12">
@@ -17,10 +18,11 @@
     
     
   
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="card grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- COMPANY Section -->
       <div class="bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
         <div class="text-center font-semibold text-xl mb-5 text-gray-800 border-b pb-2">COMPANY</div>
+        <div *ngIf="loadingCompanies">Loading...</div>
         <input [(ngModel)]="companySearchTerm" (input)="filterCompany()" class="mb-4 p-2 w-full rounded-lg border border-gray-300" placeholder="Search Company">
         <div *ngFor="let company of filteredCompanies">
           <div class="flex justify-between items-center mb-4">
@@ -38,8 +40,9 @@
       </div>
   
       <!-- DEPARTMENT Section -->
-      <div class="bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
+      <div class="card bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
         <div class="text-center font-semibold text-xl mb-5 text-gray-800 border-b pb-2">DEPARTMENT</div>
+        <div *ngIf="loadingDepartments">Loading...</div>
         <input [(ngModel)]="departmentSearchTerm" (input)="filterDepartment()" class="mb-4 p-2 w-full rounded-lg border border-gray-300" placeholder="Search Department">
         <div *ngFor="let department of filteredDepartments">
           <div class="flex justify-between items-center mb-4">
@@ -57,9 +60,10 @@
       </div>
   
       <!-- STAFF Section -->
-      <div class="bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
+      <div class="card bg-gray-50 shadow-inner rounded-lg p-5 overflow-y-auto max-h-96">
         <div class="text-center font-semibold text-xl mb-5 text-gray-800 border-b pb-2">STAFF</div>
         <div class="flex items-center mb-4">
+          <div *ngIf="loadingStaff">Loading...</div>
           <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()" class="mr-2" id="selectAll">
           <label for="selectAll" class="text-sm font-medium text-gray-800">Select All</label>
         </div>
@@ -137,6 +141,7 @@
       <button class="p-2 bg-blue-500 rounded-md px-4 absolute bottom-2 right-5 text-white float-end mt-5 z-50" (click)="getSelectedGroup()">Create Group</button>
     </div>
   </div>
+</div>
   
   
   <app-confirmation-modal 

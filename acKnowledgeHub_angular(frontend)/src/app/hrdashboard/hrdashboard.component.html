@@ -1,25 +1,24 @@
 <!-- Grid Container -->
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6 bg-gray-100 p-4 rounded-2xl shadow-md" @cardAnimation>
 <!-- Card 1 -->
-<div class="card bg-blue-100 p-4 rounded-md shadow-lg" *ngIf="stats" style="color: rgb(0, 16, 16);" >
+<div class="card bg-blue-100 p-4 rounded-md shadow-lg" style="color: rgb(0, 16, 16);">
   <span class="text-base font-semibold text-gray-800 mb-3 block">Announcements</span>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4" *ngIf="stats && stats.totalAnnouncements > 0; else noDataTemplate">
 
-   <!-- Total Announcements -->
-<div class="text-sm text-gray-700" >
-  <div class="flex justify-between items-center mb-2">
-    <span>Total Announcements:</span>
-    <span class="font-medium text-gray-800">{{ animatedStats.totalAnnouncements }}</span>
-  </div>
-  <div class="relative">
-    <div class="w-full bg-gray-300 h-1 rounded-full">
-      <div class="progress-bar bg-blue-500 h-1 rounded-full text-xs font-medium text-blue-100 text-center"
-           [ngStyle]="{ 'width': progressBarWidth, 'transition': 'width 1s ease' }">
+    <!-- Total Announcements -->
+    <div class="text-sm text-gray-700">
+      <div class="flex justify-between items-center mb-2">
+        <span>Total Announcements:</span>
+        <span class="font-medium text-gray-800">{{ animatedStats.totalAnnouncements }}</span>
+      </div>
+      <div class="relative">
+        <div class="w-full bg-gray-300 h-1 rounded-full">
+          <div class="progress-bar bg-blue-500 h-1 rounded-full text-xs font-medium text-blue-100 text-center"
+               [ngStyle]="{ 'width': progressBarWidth, 'transition': 'width 1s ease' }">
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
 
     <!-- Published Announcements -->
     <div class="text-sm text-gray-700">
@@ -39,7 +38,7 @@
       </div>
     </div>
 
-    <!-- Drafts -->
+    <!-- Pending Announcements -->
     <div class="text-sm text-gray-700">
       <div class="flex justify-between items-center mb-2">
         <span>Pending:</span>
@@ -58,7 +57,13 @@
     </div>
 
   </div>
+  <ng-template #noDataTemplate>
+    <div class="flex justify-center items-center" style="height: 130px !important;">
+      <div class="text-gray-500">No data available..</div>
+    </div>
+  </ng-template>
 </div>
+
 
 
   
@@ -88,7 +93,7 @@
   <span class="text-base font-semibold text-gray-800 mb-3 block">Announcements by Month</span>
 
   <!-- Container with fixed height and overflow-y for scrollbar -->
-  <div class="space-y-3 max-h-48 overflow-y-auto">
+  <div class="space-y-3 max-h-48 overflow-y-auto" *ngIf="monthlyCounts && monthlyCounts.length > 0; else noDataTemplate">
     <div  *ngFor="let count of monthlyCounts" 
          class="flex justify-between items-center p-3 bg-white rounded-lg shadow hover:shadow-lg hover:bg-yellow-50 transition-all duration-300 ease-in-out">
 
@@ -105,6 +110,11 @@
       </div>
     </div>
   </div>
+  <ng-template #noDataTemplate>
+    <div class="flex justify-center items-center" style="height: 130px !important;">
+      <div class="text-gray-500">No data available..</div>
+    </div>
+  </ng-template>
 </div>
 
 

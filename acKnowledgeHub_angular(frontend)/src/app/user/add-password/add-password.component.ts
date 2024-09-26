@@ -1,11 +1,25 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-add-password',
   templateUrl: './add-password.component.html',
-  styleUrl: './add-password.component.css'
+  styleUrl: './add-password.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddPasswordComponent {
   password: string = '';

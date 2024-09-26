@@ -36,8 +36,6 @@ export class LoginComponent {
     }
 
     const trimmedPassword = this.password.trim();
-
-    
     this.authService.login(this.staffId, trimmedPassword,this.rememberMe).subscribe(
       response => {
         const body = response.body;

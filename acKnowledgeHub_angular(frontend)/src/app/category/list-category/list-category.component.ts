@@ -3,10 +3,24 @@ import { Category } from '../../models/category';
 import { CategoryService } from '../../services/category.service'; 
 import { Router } from '@angular/router';
 import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 @Component({
   selector: 'app-list-category',
   templateUrl: './list-category.component.html',
-  styleUrls: ['./list-category.component.css']
+  styleUrls: ['./list-category.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ListCategoryComponent implements OnInit {
   private itemIdToDelete: number | null = null;

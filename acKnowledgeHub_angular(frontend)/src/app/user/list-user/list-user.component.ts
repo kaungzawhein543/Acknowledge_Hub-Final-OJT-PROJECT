@@ -9,11 +9,25 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import { AuthService } from '../../services/auth.service';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-list-user',
   templateUrl: './list-user.component.html',
-  styleUrl: './list-user.component.css'
+  styleUrl: './list-user.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ListUserComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

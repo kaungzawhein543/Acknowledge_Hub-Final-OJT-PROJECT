@@ -3,11 +3,25 @@ import { AuthService } from '../../services/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { ResponseEmail } from '../../models/response-email';
 import { Router } from '@angular/router';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-otp',
   templateUrl: './otp-input.component.html',
-  styleUrls: ['./otp-input.component.css']
+  styleUrls: ['./otp-input.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(100, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class OtpInputComponent implements OnInit {
   otp: string[] = Array(6).fill('');
@@ -86,6 +100,7 @@ export class OtpInputComponent implements OnInit {
     this.service.sendOTP(this.email, this.OTP).subscribe({
       next: (data) => {
         if (data === 1) {
+          console.log(data)
           this.router.navigate(['/acknowledgeHub/add-password']);
         } else {
           this.validationError = "Wrong OTP! Please Try Again!";

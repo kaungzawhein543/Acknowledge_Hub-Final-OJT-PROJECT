@@ -487,7 +487,7 @@ public class AnnouncementController {
         return announcement_service.getAnnouncementListByStaffRequest(staffId);
     }
 
-    @GetMapping("cancel/{id}")
+    @GetMapping("/HRM/cancel/{id}")
     public ResponseEntity<String> cancelPendingAnnouncement(@PathVariable("id")Integer id){
         try {
             announcement_service.cancelPendingAnnouncement(id);

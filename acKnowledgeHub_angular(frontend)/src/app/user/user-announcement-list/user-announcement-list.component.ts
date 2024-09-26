@@ -11,11 +11,25 @@ import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import { StaffService } from '../../services/staff.service';
 import { AnnouncementListDTO } from '../../models/announcement';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-user-announcement-list',
   templateUrl: './user-announcement-list.component.html',
-  styleUrl: './user-announcement-list.component.css'
+  styleUrl: './user-announcement-list.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class UserAnnouncementListComponent {
 

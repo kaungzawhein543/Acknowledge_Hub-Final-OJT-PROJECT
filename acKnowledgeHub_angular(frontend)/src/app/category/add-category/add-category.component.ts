@@ -4,11 +4,25 @@ import { CategoryService } from '../../services/category.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-add-category',
   templateUrl: './add-category.component.html',
-  styleUrls: ['./add-category.component.css'] // Note: It's styleUrls not styleUrl
+  styleUrls: ['./add-category.component.css'], // Note: It's styleUrls not styleUrl
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddCategoryComponent implements OnInit {
   category: Category = new Category();

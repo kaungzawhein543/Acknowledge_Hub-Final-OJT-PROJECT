@@ -8,11 +8,25 @@ import { Router } from '@angular/router';
 import { DepartmentService } from '../../services/department.service';
 import { error } from 'console';
 import { Department } from '../../models/Department';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-list-companies',
   templateUrl: './list-companies.component.html',
-  styleUrl: './list-companies.component.css'
+  styleUrl: './list-companies.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ListCompaniesComponent implements OnInit {
   private itemIdToDelete: number | null = null;

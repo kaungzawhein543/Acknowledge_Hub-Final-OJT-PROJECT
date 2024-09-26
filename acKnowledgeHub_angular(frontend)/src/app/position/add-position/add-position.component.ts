@@ -4,11 +4,25 @@ import { NgForm } from '@angular/forms';
 import { PositionService } from '../../services/position.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-add-position',
   templateUrl: './add-position.component.html',
-  styleUrl: './add-position.component.css'
+  styleUrl: './add-position.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddPositionComponent {
 

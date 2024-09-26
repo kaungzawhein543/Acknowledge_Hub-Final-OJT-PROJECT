@@ -8,7 +8,7 @@ import { FeedbackReply } from '../../models/feedbackReply';
 import { NgForm } from '@angular/forms';
 import { Feedback } from '../../models/feedback';
 import { StaffService } from '../../services/staff.service';
-import { forkJoin, map, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { forkJoin, map, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
 import { Category } from '../../models/category';
 import { WebSocketService } from '../../services/web-socket.service';
 
@@ -44,6 +44,14 @@ export class DetailAnnouncementComponent {
   errorMessage: string | null = null; 
   submittedReply = false; 
   private destroy$ = new Subject<void>();
+  isTyping: boolean = false;
+  typingSubscription!: Subscription;
+  typingUserId : number = 0;
+  typingAnnouncementId : number = 0;
+  publishedOrNot : boolean = false;
+  notedPermission : boolean = false;
+  annnounceDate : string = "";
+  announcementStatus : string = '';
   announcement: any = {
     id: 1,
     title: '',
@@ -86,19 +94,38 @@ export class DetailAnnouncementComponent {
     if (id) {
       const decodedId = atob(id);
       this.loadAnnouncementData(decodedId);
-      this.webSocketService.getFeedbacks().pipe(takeUntil(this.destroy$)).subscribe({
-        next: (feedbacks) => {
-          // Process incoming feedback
-          console.log('Received feedback:', feedbacks);
+      this.webSocketService.getNewFeedbacks().pipe(takeUntil(this.destroy$)).subscribe({
+        next: (feedback) => {
+          if (feedback.announcementId === Number(decodedId)) {
+            const existingFeedbackIndex = this.questionList.findIndex(q => q.id === feedback.id);
+            feedback.photoPath = 'http://localhost:8080'+feedback.photoPath+'?'+Date.now()
+            feedback.replyPhotoPath = 'http://localhost:8080'+feedback.replyPhotoPath+'?'+Date.now()
+            if (existingFeedbackIndex !== -1) {
+              this.questionList[existingFeedbackIndex] = feedback; // Replace the existing feedback
+            } else {
+              // Add new feedback
+              this.questionList.unshift(feedback); // Add to the front of the list
+            }
+          }
         },
         error: (error) => {
           console.error('Error receiving feedback:', error);
         }
       });
+      this.typingSubscription = this.webSocketService.getTypingStatus().subscribe(
+        (status) => {
+          this.typingAnnouncementId = status.announcementId; 
+          this.typingUserId = status.staffId;
+          this.isTyping = Boolean(status.typing);
+        }
+      );
+      
+      
       
     }
   });
 }
+
 
 private loadAnnouncementData(decodedId: string): void {
   this.authService.getUserInfo().pipe(
@@ -112,9 +139,21 @@ private loadAnnouncementData(decodedId: string): void {
       return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
         tap(announcement => {
           this.announcement = announcement;
+          this.publishedOrNot = announcement.published;
+          if(!this.publishedOrNot){
+            this.annnounceDate = this.announcement.announcedAt.toString();
+            this.announcementStatus = "(Not announced yet)";
+          }else if (new Date(this.announcement.announcedAt).getTime() > Date.now()) {
+            this.annnounceDate = this.announcement.announcedAt.toString();
+            this.announcementStatus = "(Not announced yet)";
+          }else{
+            this.annnounceDate = this.announcement.announcedAt.toString();
+            this.announcementStatus = "";
+          }
           this.createdStaff = announcement.createdStaffId;
           this.accessStaffs = announcement.groupStatus === 1 ? announcement.staffInGroups : announcement.staff;
           this.replyPermission = this.currentUserId === announcement.createdStaffId;
+          this.notedPermission = this.accessStaffs.includes(this.currentUserId);
         }),
         switchMap((announcement: any) => {
           if (!this.isAdmin && !this.isHumanResourceMain &&  this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {
@@ -141,10 +180,14 @@ private loadAnnouncementData(decodedId: string): void {
           this.questionList = feedbackData.map((feedback: any) => ({
             ...feedback,
             showInput: false,
-            replyText: ''
+            replyText: '',
+            photoPath: 'http://localhost:8080'+feedback.photoPath+'?'+Date.now(),
+            replyPhotoPath: 'http://localhost:8080'+feedback.replyPhotoPath+'?'+Date.now(),
           }));
+          console.log(this.questionList)
           setTimeout(() => {
             this.isloading = false;
+            this.isQuestionLoading = false;
           }, 300);
         })
       );
@@ -176,12 +219,19 @@ private loadAnnouncementData(decodedId: string): void {
 sendReply(question: any, feedback: feedbackResponse, index: number) {
   // Mark the reply as submitted to trigger validation messages
   this.submittedReply = true;
-
+  var feedbackId : number = 0;
   // Validate the reply input
   if (!question.replyText || question.replyText.trim().length < 5) {
     this.errorMessage = 'Reply is required and must be at least 5 characters long.';
     return;
   }
+  if(question.feedbackId === undefined){
+    feedbackId = feedback.id;
+  }else{
+    feedback =  question.feedbackId;
+  }
+
+
 
   // Clear any previous error message
   this.errorMessage = null;
@@ -190,7 +240,7 @@ sendReply(question: any, feedback: feedbackResponse, index: number) {
   const feedbackReply: FeedbackReply = {
     replyText: question.replyText!,
     replyBy: this.currentUserId,
-    feedbackId: feedback.id
+    feedbackId: feedbackId
   };
 
   // Send the reply via the service
@@ -228,10 +278,9 @@ sendReply(question: any, feedback: feedbackResponse, index: number) {
  onSubmit(form: NgForm): void {
    if (form.invalid) {
     form.controls['question'].markAsTouched();
-
     return; 
   }
-
+  this.webSocketService.sendTypingStatus(false,this.announcement.id); 
   // Proceed with form submission if valid
   this.feedback.staffId = this.currentUserId;
   this.feedback.announcementId = this.announcement.id;
@@ -265,7 +314,9 @@ goEditPage(announcementId : number){
           this.questionList = data.map(feedback => ({
             ...feedback,
             showInput: false,
-            replyText: ''
+            replyText: '',
+            photoPath: 'http://localhost:8080'+feedback.photoPath+'?'+Date.now(),
+            replyPhotoPath: 'http://localhost:8080'+feedback.replyPhotoPath+'?'+Date.now(),
           }));
         },
         error: (e) => console.log(e)
@@ -298,6 +349,26 @@ notedAnnouncement(userId: number,announcementId : number){
   scrollToTop(): void {
     this.topContainer.nativeElement.scrollIntoView({ behavior: 'smooth' }); // Scroll to the top container
   }
+  onTyping(event: Event): void {
+    const inputValue = (event.target as HTMLInputElement).value;
+    // Check if the user is typing (you can add more logic here, like if inputValue is not empty)
+    if (inputValue.length > 0) {
+      this.webSocketService.sendTypingStatus(true,this.announcement.id); // Send typing status to server
+    } else {
+      this.webSocketService.sendTypingStatus(false,this.announcement.id); // Stop typing if input is empty
+    }
+  }
 
+  // Method to be called when the user stops typing (on blur)
+  onStopTyping(): void {
+    this.webSocketService.sendTypingStatus(false,this.announcement.id); // Send typing stopped status
+  }
+
+  ngOnDestroy(): void {
+    // Clean up the subscription when the component is destroyed
+    if (this.typingSubscription) {
+      this.typingSubscription.unsubscribe();
+    }
+  }
 }
 

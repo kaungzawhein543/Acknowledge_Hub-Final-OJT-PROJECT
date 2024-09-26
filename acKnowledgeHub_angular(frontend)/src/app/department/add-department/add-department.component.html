@@ -1,13 +1,15 @@
-<div class="h-full flex items-center justify-center bg-gray-100">
-    <div class="w-full max-w-lg bg-white rounded-lg shadow-lg p-8">
-        <p class="text-3xl font-bold text-gray-800 text-center mb-6">
-            Add Department
-        </p>
-        <form #departmentForm="ngForm" (ngSubmit)="onSubmit(departmentForm)" class="space-y-6">
-            <div>
-                <label for="company" class="block text-gray-700 font-medium mb-2">
-                    Company
-                </label>
+<div class="container py-10 bg-gray-100 rounded-lg" style="height: 100%;" @cardAnimation>
+    <div class="card flex justify-center mt-16">
+      <div class="w-full max-w-lg">
+        <div class="bg-white shadow-2xl rounded-lg" style="min-height: 200px;">
+          <div class=" text-white text-center py-4 rounded-t-lg" style="background-color: #1b4980;">
+            <h2 class="text-2xl font-bold">Add Department</h2>
+          </div>
+          <div class="p-6">
+        <form #departmentForm="ngForm" (ngSubmit)="onSubmit(departmentForm)">
+            <div class="card">
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700 font-semibold mb-2">Company Name</label>
                 <select id="company" name="company" [(ngModel)]="department.company"
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"
                     (change)="onCompanyChange()">
@@ -22,10 +24,8 @@
                     </small>
                 </div>
             </div>
-            <div>
-                <label for="department" class="block text-gray-700 font-medium mb-2">
-                    Department Name
-                </label>
+            <div class="mb-6"> <!-- Added margin-bottom for spacing -->
+                <label for="department" class="block text-gray-700 font-semibold mb-2">DepartmentName</label>
                 <input type="text" id="department" name="department" [(ngModel)]="department.name" required
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
                 <span *ngIf="departmentForm.submitted && departmentForm.controls['department'].errors">
@@ -34,18 +34,19 @@
                     </small>
                 </span>
             </div>
+            </div>
 
-            <div class="flex space-x-4">
-                <!-- Submit Button -->
-                <button type="submit"
-                    class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
-                    ADD
-                </button>
-
+            <div class="card flex space-x-4">
                 <!-- Reset Button -->
                 <button type="reset"
                     class="w-full bg-gray-300 text-gray-700 font-semibold py-3 rounded hover:bg-gray-400 transition duration-200 flex items-center justify-center">
                     RESET
+                </button>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                    class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                    ADD
                 </button>
             </div>
         </form>

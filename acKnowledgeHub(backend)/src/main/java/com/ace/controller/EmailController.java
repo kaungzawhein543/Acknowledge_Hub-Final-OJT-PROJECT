@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,10 +25,12 @@ public class EmailController {
 
     private final StaffService staffService;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    public EmailController(StaffService staffService, EmailService emailService) {
+    public EmailController(StaffService staffService, EmailService emailService,PasswordEncoder passwordEncoder) {
         this.staffService = staffService;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping(value = "/send-otp")
