@@ -96,6 +96,7 @@ const routes: Routes = [
       { path: 'detail/:id', component: DetailAnnouncementComponent, canActivate: [AuthGuard] },
       { path: 'list', component: ListAnnouncementComponent, canActivate: [AuthGuard] },
       { path: 'request', component: RequestAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], positions: ['Human Resource'] } },
+      { path: 'requested-list', component: RequestListByUserComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], positions: ['Human Resource'] } },
       { path: 'add', component: AddAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] } },
       { path: 'request-list', component: RequestListComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] } },
       { path: 'update/:id', component: UpdateAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] } },

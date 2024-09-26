@@ -132,12 +132,12 @@ public class BlogService {
                                }
                            }
                            if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                            if(updateStatus > 0){
-                                emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcementId);
-                            }else{
-                                emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a Announcement", file, file.getOriginalFilename(),announcementId);
+                               if(updateStatus > 0){
+                                   emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcementId);
+                               }else{
+                                   emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a Announcement", file, file.getOriginalFilename(),announcementId);
 
-                            }
+                               }
                            }
                            String description;
                            if(updateStatus > 0){

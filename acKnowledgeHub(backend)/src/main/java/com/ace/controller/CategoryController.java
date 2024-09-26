@@ -42,7 +42,7 @@ public class CategoryController {
 
 
 
-    @PutMapping(value = "/sys/update/{id}")
+    @PostMapping(value = "/sys/update/{id}")
     public Category update(@PathVariable("id") int id,
                            @RequestParam("name") String name,
                            @RequestParam("description") String description) throws IOException {

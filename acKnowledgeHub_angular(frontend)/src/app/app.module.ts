@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -161,7 +161,7 @@ import { CountdownComponent } from './countdown/countdown.component';
     MatPaginatorModule,
     BrowserAnimationsModule,
     BrowserModule,
-    CommonModule
+    CommonModule,
   ],
   providers: [
     provideClientHydration(),

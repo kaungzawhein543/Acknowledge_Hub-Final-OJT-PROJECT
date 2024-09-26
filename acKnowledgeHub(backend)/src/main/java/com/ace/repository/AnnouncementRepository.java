@@ -2,6 +2,8 @@ package com.ace.repository;
 
 import com.ace.dto.*;
 import com.ace.entity.Announcement;
+import com.ace.entity.Group;
+import com.ace.entity.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,9 +19,12 @@ import java.util.List;
 public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
     //List<Announcement> findByStatus(String status);
 
-    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
-            "from Announcement a where a.permission = 'approved' order by a.scheduleAt DESC")
+    @Query("SELECT NEW com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus, a.file) " +
+            "FROM Announcement a " +
+            "WHERE a.permission = 'approved' AND a.isPublished = true " +
+            "ORDER BY a.scheduleAt DESC")
     List<AnnouncementListDTO> getAnnouncementList();
+
 
 
     @Modifying
@@ -126,6 +131,12 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 
     @Modifying
     @Transactional
+    @Query("UPDATE Announcement a set a.isPublished = true where a.id = ?1")
+    void publishAnnouncement(Integer id);
+
+
+    @Modifying
+    @Transactional
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
     void rejectRequestAnnouncement(Integer id);
 
@@ -137,4 +148,11 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Transactional
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
     void cancelPendingAnnouncement(Integer id);
+
+//    @Query("SELECT s FROM Announcement a JOIN a.staff s WHERE a.id = :announcementId")
+//    List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
+//
+//    // Method to find groups associated with a specific announcement
+//    @Query("SELECT g FROM Announcement a JOIN a.group g WHERE a.id = :announcementId")
+//    List<Group> findGroupsByAnnouncementId(@Param("announcementId") Integer announcementId);
 }

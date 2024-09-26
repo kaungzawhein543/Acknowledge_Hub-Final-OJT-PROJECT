@@ -59,6 +59,8 @@ export class RequestAnnouncementComponent {
   updateInterval: any;
   intervalId: any;
   filteredGroups : Group[] = [];
+  fileErrorMessage !: boolean;
+  fileErrorText : string = '';
 
   private page = 0;
   private pageSize = 20;
@@ -66,6 +68,9 @@ export class RequestAnnouncementComponent {
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
   selectAllStaffs : boolean = false;
+  titleError: boolean = false;
+  descriptionError: boolean = false;
+  formSubmitted: boolean = false;
 
   constructor(
     private groupService: GroupService,
@@ -122,6 +127,12 @@ export class RequestAnnouncementComponent {
       return;
     }
     this.isLoading = true;
+    var loggedInStaffId = 0;
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        loggedInStaffId = data.user.id;
+      }
+    ); // Replace with actual way to get logged-in staff ID
     const query = this.searchTerm.trim();
     this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
@@ -133,6 +144,10 @@ export class RequestAnnouncementComponent {
               const companyName = staff.company?.name;
               const matchesCompany = companyName === this.currentHumanResourceCompany;
               return matchesCompany;
+            })
+            .filter((staff: { id: number }) => {
+              console.log(`Checking staff with ID ${staff.id}`); // Log each staff's ID
+              return staff.id !== loggedInStaffId; // Filter out logged-in staff
             })
             .map((staff: { position: Position; }) => {
               return {
@@ -191,9 +206,21 @@ export class RequestAnnouncementComponent {
 
   onSubmit(): void {
     const formData = new FormData();
-  
+    const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
+    const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
-      this.dateError = 'The schedule date should be later than current time!';
+      this.dateError = 'The schedule date cannot be late than the current date & time.';
+      return;
+    }
+    if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '') {
+      this.titleError = true;
+      return;
+    } else if (trimmedDescription === '') {
+      this.descriptionError = true;
       return;
     }
     // Create the announcement object
@@ -293,8 +320,35 @@ export class RequestAnnouncementComponent {
   }
 
 
-  onFileChange(event: Event): void {
+  onFileChange(event: any): void {
     const input = event.target as HTMLInputElement;
+    const maxSize = 2 * 1024 * 1024;
+  
+    const allowedFormats = [
+      'application/msword',                    // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/vnd.ms-excel',              // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/pdf',                       // .pdf
+      'application/zip',                       // .zip
+      'application/x-rar-compressed'           // .rar
+    ];
+
+    // Check file format (MIME type)
+    if (!allowedFormats.includes(event.target.files[0].type)) {
+      this.fileErrorText='Invalid file format. Only Word, Excel, PDF, ZIP, and RAR files are allowed.';
+      this.fileErrorMessage = true;
+      return;
+    }
+
+    const file: File = event.target.files[0];
+    if (file.size > maxSize) {
+      this.fileErrorText = 'File size exceeds 2MB';
+      this.fileErrorMessage = true;
+      return;
+    }else{
+      this.fileErrorMessage = false;
+    }
 
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
@@ -391,5 +445,7 @@ export class RequestAnnouncementComponent {
     }
   }
   
-  
+  onCreate(){
+    this.formSubmitted = true;  
+  }
 }

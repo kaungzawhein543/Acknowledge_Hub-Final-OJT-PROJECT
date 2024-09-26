@@ -3,6 +3,9 @@ import { NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ResponseEmail } from '../../models/response-email';
+import { StaffService } from '../../services/staff.service';
+import * as bcrypt from 'bcryptjs';
+
 
 @Component({
   selector: 'app-otp-request',
@@ -15,13 +18,16 @@ export class OtpRequestComponent {
   responseEmail!: ResponseEmail;
   loading: boolean = false;
   status: boolean = false;
-  constructor(private service: AuthService, private router: Router) { }
+  error : string = '';
+  constructor(private service: AuthService, private router: Router,private staffService :StaffService) { }
 
   onSubmit(form: NgForm): void {
     this.staffId = this.staffId.trim();
     if (this.staffId != '') {
       if (form.valid) {
+        this.checkOldPassword(this.staffId);
         this.loading = true;
+       
         this.service.getOTP(this.staffId).subscribe({
           next: (data) => {
             console.log(data)
@@ -53,5 +59,23 @@ export class OtpRequestComponent {
   }
   gotoback() {
     this.router.navigate(['/login']);
+  }
+
+  checkOldPassword(staffId: string): void {
+    this.staffService.checkOldPassword(staffId).subscribe(
+      (isPasswordMatch: boolean) => {
+        if (isPasswordMatch) {
+          this.error = "You need to change your default password first!";
+          setTimeout(() => {
+            this.router.navigate(["/acknowledgeHub/login"]);
+          }, 2000);
+          return;
+        } 
+      },
+      error => {
+        console.error('Error checking old password:', error);
+        this.error = "An error occurred while checking the password. Please try again.";
+      }
+    );
   }
 }

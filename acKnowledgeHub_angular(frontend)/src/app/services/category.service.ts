@@ -25,7 +25,7 @@ export class CategoryService {
         .set('name', category.name)
         .set('description', category.description)
 
-    return this.http.put<Category>(`${this.baseUrl}/sys/update/${id}`, {withCredentials:true, params ,});
+    return this.http.post<Category>(`${this.baseUrl}/sys/update/${id}`, null, { params,withCredentials:true});
 }
 
 

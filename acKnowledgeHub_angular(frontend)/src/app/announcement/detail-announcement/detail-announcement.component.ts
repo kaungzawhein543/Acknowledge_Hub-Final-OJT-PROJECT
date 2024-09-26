@@ -50,6 +50,8 @@ export class DetailAnnouncementComponent {
   typingAnnouncementId : number = 0;
   publishedOrNot : boolean = false;
   notedPermission : boolean = false;
+  annnounceDate : string = "";
+  announcementStatus : string = '';
   announcement: any = {
     id: 1,
     title: '',
@@ -136,8 +138,18 @@ private loadAnnouncementData(decodedId: string): void {
   
       return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
         tap(announcement => {
-          this.publishedOrNot = announcement.published;
           this.announcement = announcement;
+          this.publishedOrNot = announcement.published;
+          if(!this.publishedOrNot){
+            this.annnounceDate = this.announcement.announcedAt.toString();
+            this.announcementStatus = "(Not announced yet)";
+          }else if (new Date(this.announcement.announcedAt).getTime() > Date.now()) {
+            this.annnounceDate = this.announcement.announcedAt.toString();
+            this.announcementStatus = "(Not announced yet)";
+          }else{
+            this.annnounceDate = this.announcement.announcedAt.toString();
+            this.announcementStatus = "";
+          }
           this.createdStaff = announcement.createdStaffId;
           this.accessStaffs = announcement.groupStatus === 1 ? announcement.staffInGroups : announcement.staff;
           this.replyPermission = this.currentUserId === announcement.createdStaffId;

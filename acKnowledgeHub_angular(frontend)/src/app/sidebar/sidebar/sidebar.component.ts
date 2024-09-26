@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { combineLatest, Observable } from 'rxjs';
@@ -31,6 +31,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   isSidebarOpen = true;
   private currentOpenMenu: string | null = null;
 
+
   toggleMenu(menuId: string): void {
     const menu = document.getElementById(menuId);
     if (menu) {
@@ -62,6 +63,11 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
+  }
+  @HostListener('window:keydown.control.b', ['$event'])
+  handleBoldShortcut(event: KeyboardEvent) {
+    event.preventDefault(); // Prevent browser's default action (typically opening bookmarks)
+    this.toggleSidebar();
   }
 
   ngAfterViewInit() {

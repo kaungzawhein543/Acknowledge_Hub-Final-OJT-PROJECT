@@ -100,7 +100,14 @@ export class StaffService {
 
   // Method to change old password
   changeOldPassword(request: ChangePasswordRequest): Observable<string> {
-    return this.http.post<string>(`${this.baseURL}/all/change_Old_Password`, request, { withCredentials :true , responseType: 'text' as 'json'});
+    return this.http.post<string>(`${this.baseURL}/all/check_old_password`, request, { withCredentials :true , responseType: 'text' as 'json'});
+  }
+
+  checkOldPassword(staffId: string): Observable<boolean> {
+    const requestBody = { id: staffId, password: 'acknowledgeHub' }; // Set the password to check
+    return this.http.post<boolean>(`${this.baseURL}/check_old_password`, requestBody, {
+      withCredentials: true,
+    });
   }
   activateStaff(id: number): Observable<any> {
     return this.http.get(`${this.baseURL}/activate/${id}`, { withCredentials: true, responseType: 'text' as 'json' });

@@ -38,7 +38,7 @@ public class EmailController {
                 int otp = random.nextInt(1000000);
                 String otpNumber = String.format("%06d", otp);
                 String otpAndText = otpNumber + " is your verification code.";
-                emailService.sendOTPEmail(dto.getEmail(), "Verification code", otpAndText);
+                emailService.sendOTPEmail(dto.getEmail(), otpAndText);
                 LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
                 EmailService.storeOTP(dto.getEmail(), otpNumber, expiryTime);
                 EmailResponseDTO emailDTO = new EmailResponseDTO();

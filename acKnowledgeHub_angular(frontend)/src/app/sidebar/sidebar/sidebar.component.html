@@ -14,8 +14,6 @@
     </li>
   </div>
 
-
-
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
@@ -32,6 +30,15 @@
         routerLink="acknowledgeHub/announcement/request" routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-plus"></i>
         <span> Request Announcement</span>
+      </a>
+    </li>
+  </div>
+  <div *ngIf="!isAdmin && !isMainHr && isHr">
+    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
+      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+        routerLink="acknowledgeHub/announcement/requested-list" routerLinkActive="active text-white hover:active hover:text-white">
+        <i class="fas fa-envelope-open-text"></i>
+        <span> Announcement Requested</span>
       </a>
     </li>
   </div>
@@ -107,7 +114,7 @@
         routerLink="acknowledgeHub/announcement/request-list"
         routerLinkActive="active text-white hover:active hover:text-white">
         <span class="flex items-center space-x-3">
-          <i class="fa-regular fa-paper-plane"></i>
+          <i class="fas fa-envelope-open-text"></i>
           <span> Request Announcement</span>
         </span>
       </li>
@@ -128,7 +135,7 @@
      
       <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
         routerLink="acknowledgeHub/list-category" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-layer-group"></i>  Category
+        <i class="fa-solid fa-layer-group"></i>  Category List
       </li>
     </ul>
   

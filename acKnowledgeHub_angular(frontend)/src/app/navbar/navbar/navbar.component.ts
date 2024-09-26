@@ -33,6 +33,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   originalTitle: string = 'Acknowledge Hub';
   notificationTitle: string = '(1) New Notification!';
   titleInterval: any; 
+  isSettingsModalOpen = false;
+  notificationPreference = 'email'; // Default value
+  language = 'en';
 
   constructor(
     private sidebarService: SidebarService, 
@@ -314,5 +317,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
         showNotification = !showNotification; // Toggle between titles
       }, 1000);  // Every 1 second
     }
+  }
+  openSettingsModal() {
+    this.isSettingsModalOpen = true;
+  }
+
+  // Method to close the settings modal
+  closeSettingsModal() {
+    this.isSettingsModalOpen = false;
+  }
+
+  // Method to save settings
+  saveSettings() {
+    // Logic to save the settings goes here
+    console.log('Settings saved:', {
+      notificationPreference: this.notificationPreference,
+      language: this.language,
+    });
+
+    this.closeSettingsModal(); // Close the modal after saving
   }
 }

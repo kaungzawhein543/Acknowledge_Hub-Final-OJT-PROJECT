@@ -45,7 +45,12 @@ export class UpdateAnnouncementComponent implements OnInit{
   filteredGroups: Group[] = [];
   showPreviousVersion : boolean = false;
   announcementVersions : string[] = [];
-
+  fileErrorMessage !: boolean;
+  fileErrorText : string = '';
+  titleError: boolean = false;
+  descriptionError: boolean = false;
+  formSubmitted: boolean = false;
+  
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
@@ -165,13 +170,23 @@ export class UpdateAnnouncementComponent implements OnInit{
     if (this.isLoading || !this.hasMore) return;
   
     this.isLoading = true;
-  
+    var loggedInStaffId = 0;
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        loggedInStaffId = data.user.id;
+      }
+    );
     this.staffService.getStaffs(this.page,this.pageSize,this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
         
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content.map((staff: { position: Position; }) => ({
+          const processedStaffs = response.data.content
+          .filter((staff: { id: number }) => {
+            console.log(`Checking staff with ID ${staff.id}`); // Log each staff's ID
+            return staff.id !== loggedInStaffId; // Filter out logged-in staff
+          })
+          .map((staff: { position: Position; }) => ({
             ...staff,
             position: staff.position.name  // Extract only the name
           }));
@@ -206,9 +221,21 @@ export class UpdateAnnouncementComponent implements OnInit{
 
   onSubmit(): void {
     const formData = new FormData();
-
+    const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
+    const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
     if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
-      this.dateError = 'The schedule date cannot be earlier than the current date & time.';
+      this.dateError = 'The schedule date cannot be late than the current date & time.';
+      return;
+    }
+    if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '') {
+      this.titleError = true;
+      return;
+    } else if (trimmedDescription === '') {
+      this.descriptionError = true;
       return;
     }
     // Create the announcement object
@@ -259,6 +286,9 @@ export class UpdateAnnouncementComponent implements OnInit{
     this.loadStaffs(); // Load all staff without any filtering
   }
 
+  onCreate(){
+    this.formSubmitted = true;  
+  }
   
 
   onOptionChange(option: string): void {
@@ -318,9 +348,35 @@ onStaffChange(event: Event): void {
 }
 
 
-onFileChange(event: Event): void {
+onFileChange(event: any): void {
   const input = event.target as HTMLInputElement;
+  const maxSize = 2 * 1024 * 1024;
   
+    const allowedFormats = [
+      'application/msword',                    // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/vnd.ms-excel',              // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/pdf',                       // .pdf
+      'application/zip',                       // .zip
+      'application/x-rar-compressed'           // .rar
+    ];
+
+    // Check file format (MIME type)
+    if (!allowedFormats.includes(event.target.files[0].type)) {
+      this.fileErrorText='Invalid file format. Only Word, Excel, PDF, ZIP, and RAR files are allowed.';
+      this.fileErrorMessage = true;
+      return;
+    }
+
+    const file: File = event.target.files[0];
+    if (file.size > maxSize) {
+      this.fileErrorText = 'File size exceeds 2MB';
+      this.fileErrorMessage = true;
+      return;
+    }else{
+      this.fileErrorMessage = false;
+    }
   if (input.files && input.files.length > 0) {
     this.selectedFile = input.files[0];
     this.fileName = this.selectedFile.name;

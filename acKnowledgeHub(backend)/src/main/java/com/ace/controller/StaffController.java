@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,6 +53,7 @@ public class StaffController {
     private final PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler;
     private final UserNotedAnnouncementService userNotedAnnouncementService;
     private final AnnouncementService announcementService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -59,7 +61,7 @@ public class StaffController {
     @Value("${default.photo.path}")
     private String DEFAULT_PHOTO_PATH;
 
-    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService,TokenBlacklistService tokenBlacklistService) {
+    public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService, TokenBlacklistService tokenBlacklistService, PasswordEncoder passwordEncoder) {
         this.staffService = staffService;
         this.mapper = mapper;
         this.companyService = companyService;
@@ -69,6 +71,7 @@ public class StaffController {
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.userNotedAnnouncementService = userNotedAnnouncementService;
         this.announcementService = announcementService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/sys/list")
@@ -155,7 +158,17 @@ public class StaffController {
         }
         Staff staff = staffService.findById(staffId);
         Position position2 = positionService.findByName("Human Resource(Main)");
-        staff.setPosition(position2);
+        Position forAddPositionToStaff = new Position();
+        if(position2 == null){
+            Position position = new Position();
+            position.setName("Human Resource(Main)");
+            forAddPositionToStaff = positionService.addPosition(position);
+        }
+        if(position2 != null){
+            staff.setPosition(position2);
+        }else{
+            staff.setPosition(forAddPositionToStaff);
+        }
         staffService.save(staff);
         return staffService.getHRStaffList();
 
@@ -263,45 +276,6 @@ public class StaffController {
     }
 
     //Mapping to get announcement by staff id desc
-    @GetMapping("/all/staff-announcements")
-    public ResponseEntity<?> getMyAnnouncements(HttpServletRequest request) {
-        String token = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        if (token != null) {
-            try {
-                Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
-
-                String staffId = claims.getSubject(); // Extract staff ID from JWT
-
-                if (tokenBlacklistService.isTokenBlacklisted(token)) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is blacklisted. Please log in again.");
-                }
-
-                Staff staff = staffService.findByStaffId(staffId);
-                if (staff != null) {
-                    List<AnnouncementListDTO> announcements = staffService.getAnnouncementsForStaff(staff.getId());
-                    return ResponseEntity.ok(announcements);
-                } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found.");
-                }
-            } catch (JwtException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");
-    }
-
-    //update profile photo
     @PostMapping("/all/profile/upload-photo")
     public ResponseEntity<?> uploadProfilePhoto(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         String token = null;
@@ -358,6 +332,45 @@ public class StaffController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");
     }
 
+    @GetMapping("/all/staff-announcements")
+    public ResponseEntity<?> getMyAnnouncements(HttpServletRequest request) {
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token != null) {
+            try {
+                Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
+
+                String staffId = claims.getSubject(); // Extract staff ID from JWT
+
+                if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is blacklisted. Please log in again.");
+                }
+
+                Staff staff = staffService.findByStaffId(staffId);
+                if (staff != null) {
+                    List<AnnouncementListDTO> announcements = staffService.getAnnouncementsForStaff(staff.getId());
+                    return ResponseEntity.ok(announcements);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found.");
+                }
+            } catch (JwtException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");
+    }
+    //update profile photo
+
     @GetMapping("/noted")
     public ResponseEntity<String> makeNotedAnnouncement(@RequestParam Integer userId, @RequestParam Integer announcementId) {
         // Noted User
@@ -400,6 +413,25 @@ public class StaffController {
             return ResponseEntity.status(401).body(result); // 401 Unauthorized for incorrect password
         }
     }
+
+    @PostMapping("/check_old_password")
+    public ResponseEntity<Boolean> checkOldPassword(@RequestBody String staffId) {
+        try {
+            Staff staff = staffService.findByStaffId(staffId);
+            if (staff == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false); // Staff not found
+            }
+
+            // Compare the input password with the stored hashed password
+            boolean matches = passwordEncoder.matches("acknowledgeHub", staff.getPassword());
+            return ResponseEntity.ok(matches);
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(false); // Internal server error
+        }
+    }
+
 
 
 

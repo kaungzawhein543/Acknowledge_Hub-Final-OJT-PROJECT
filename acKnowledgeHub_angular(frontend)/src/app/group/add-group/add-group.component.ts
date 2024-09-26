@@ -72,7 +72,7 @@ export class AddGroupComponent {
       }
     });
     this.staffService.getStaffList().pipe(
-      map((data: any[]) => 
+      map((data: any[]) =>
         data.map(staff => ({
           ...staff,
           photoPath: staff.photoPath ? `http://localhost:8080${staff.photoPath}?${Date.now()}` : ''
@@ -80,6 +80,8 @@ export class AddGroupComponent {
       )
     ).subscribe({
       next: (data) => {
+
+        console.log(data);
         this.staffList = data;
         console.log(this.staffList); // Debugging line to check the transformed data
         this.showStaff(1);
@@ -104,7 +106,6 @@ export class AddGroupComponent {
     }
     this.showConfirmBox = !this.showConfirmBox;
     this.filterStaffListAfterSelect = [...this.selectedStaff]; // Initialize filtered list
-    console.log(this.selectedStaff);
   }
 
   filterDepartment(): void {

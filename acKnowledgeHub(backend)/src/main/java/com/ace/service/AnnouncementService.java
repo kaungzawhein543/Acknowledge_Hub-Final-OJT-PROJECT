@@ -2,6 +2,8 @@ package com.ace.service;
 
 import com.ace.dto.*;
 import com.ace.entity.Announcement;
+import com.ace.entity.Group;
+import com.ace.entity.Staff;
 import com.ace.repository.AnnouncementRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -122,6 +124,10 @@ public class AnnouncementService {
         return announcement_repo.getPendingAnnouncement();
     }
 
+    public void publishAnnouncement(Integer id){
+        announcement_repo.publishAnnouncement(id);
+    }
+
     public List<AnnouncementVersionDTO> getAnnouncementVersion(Integer id){
         String baseFileName = "%" + "Announce" + id + "/%";
         return announcement_repo.getAllVersions(baseFileName);
@@ -170,6 +176,12 @@ public class AnnouncementService {
     public void cancelPendingAnnouncement(Integer id ){
         announcement_repo.cancelPendingAnnouncement(id);
     }
-
+//
+//    public List<Staff> findStaffByAnnouncementId(Integer announcementId) {
+//        return announcement_repo.findStaffByAnnouncementId(announcementId);
+//    }
+//    public List<Group> findGroupsByAnnouncementId(Integer announcementId) {
+//        return announcement_repo.findGroupsByAnnouncementId(announcementId);
+//    }
 
 }

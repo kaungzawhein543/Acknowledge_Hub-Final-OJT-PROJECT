@@ -11,6 +11,7 @@ import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
 import { Position } from '../../models/Position';
 import { ToastService } from '../../services/toast.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -57,6 +58,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   createStaffId !: number;
   filteredGroups: Group[] = [];
   fileErrorMessage !: boolean;
+  fileErrorText : string = '';
   ErrorMessage !: boolean;
   formSubmitted: boolean = false;
 
@@ -70,6 +72,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
   searchGroup: string = '';
+  creatingAnnouncement : boolean = false;
 
   constructor(
     private groupService: GroupService,
@@ -77,7 +80,8 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     private staffService: StaffService,
     public announcementService: AnnouncementService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router : Router
 
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
@@ -149,21 +153,36 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
 
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) return;
-
+  
     this.isLoading = true;
-
+    var loggedInStaffId = 0;
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        loggedInStaffId = data.user.id;
+      }
+    ); // Replace with actual way to get logged-in staff ID
+  
     this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content.map((staff: { position: Position; }) => ({
-            ...staff,
-            position: staff.position.name // Extract only the name
-          }));
-          this.staffs = [...this.staffs, ...processedStaffs];
-          this.page++;
-          this.hasMore = this.page < response.data.page.totalPages;
-          this.staffs.forEach(staff => {
+          // Assuming you have a service or method to get the logged-in user's ID
+          
+          // Process the staffs and filter out the logged-in staff
+          const processedStaffs = response.data.content
+            .filter((staff: { id: number }) => {
+              return staff.id !== loggedInStaffId; // Filter out logged-in staff
+            })
+            .map((staff: { position: Position; }) => ({
+              ...staff,
+              position: staff.position.name // Extract only the name of the position
+            }));
+            
+            this.staffs = [...this.staffs, ...processedStaffs];
+            this.page++;
+            this.hasMore = this.page < response.data.page.totalPages;
+            
+            this.staffs.forEach(staff => {
             staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
           });
         } else {
@@ -176,6 +195,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       }
     );
   }
+  
 
 
   onScroll(event: Event): void {
@@ -189,6 +209,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    this.creatingAnnouncement = true;
     const formData = new FormData();
     const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
     const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
@@ -236,6 +257,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     if (this.selectedFile) {
       formData.append('files', this.selectedFile);
     } else {
+      this.fileErrorText = "You need to choose a file!";
       this.fileErrorMessage = true;
       return;
     }
@@ -243,7 +265,10 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-        console.log(response);
+        setInterval(() => {
+          this.creatingAnnouncement = false;
+          this.router.navigate(["/acknowledgeHub/announcement/list"]);
+        }, 2000);
         this.showSuccessToast();
       },
       error => {
@@ -301,7 +326,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
       }
-      console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
     } else {
       console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
@@ -316,8 +340,35 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     this.descriptionError = false;
   }
 
-  onFileChange(event: Event): void {
+  onFileChange(event: any): void {
     const input = event.target as HTMLInputElement;
+    const maxSize = 2 * 1024 * 1024;
+  
+    const allowedFormats = [
+      'application/msword',                    // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/vnd.ms-excel',              // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/pdf',                       // .pdf
+      'application/zip',                       // .zip
+      'application/x-rar-compressed'           // .rar
+    ];
+
+    // Check file format (MIME type)
+    if (!allowedFormats.includes(event.target.files[0].type)) {
+      this.fileErrorText='Invalid file format. Only Word, Excel, PDF, ZIP, and RAR files are allowed.';
+      this.fileErrorMessage = true;
+      return;
+    }
+
+    const file: File = event.target.files[0];
+    if (file.size > maxSize) {
+      this.fileErrorText = 'File size exceeds 2MB';
+      this.fileErrorMessage = true;
+      return;
+    }else{
+      this.fileErrorMessage = false;
+    }
 
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
@@ -329,6 +380,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.fileName = '';
       this.fileSelected = false;
     }
+
   }
 
   onInputChange(event: Event): void {
@@ -396,23 +448,27 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
 
     // Set the minimum datetime to 2 minutes before the current date and time
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-    console.log('MinDateTime set to:', this.minDateTime);
   }
   
   onDateChange() {
     if (this.scheduleDate) {
-      const selectedDate = new Date(this.scheduleDate);
-      const now = new Date();
-  
-      if (selectedDate < now) {
-        this.dateError = 'The schedule date should be later than current time!'; 
+      const selectedDate = new Date(this.scheduleDate); // Convert the input to a Date object
+      const now = new Date(); // Get the current time
+      
+      // Add 3 minutes to the current time
+      const minDate = new Date(now.getTime() + 3 * 60 * 1000); // Current time + 3 minutes
+      
+      // Compare the schedule date with the current time + 3 minutes
+      if (selectedDate < minDate) {
+        this.dateError = 'The schedule date should be at least 3 minutes later than the current time!'; 
       } else {
-        this.dateError = ""; 
+        this.dateError = ""; // No error
       }
     } else {
-      this.dateError = ""; 
+      this.dateError = ""; // Reset error if no date is selected
     }
   }
+  
   
 
 

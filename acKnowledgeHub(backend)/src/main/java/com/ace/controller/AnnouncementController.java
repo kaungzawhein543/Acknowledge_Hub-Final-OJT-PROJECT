@@ -4,11 +4,17 @@ import com.ace.dto.*;
 import com.ace.entity.*;
 import com.ace.repository.StaffRepository;
 import com.ace.service.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,6 +56,10 @@ public class AnnouncementController {
     private final UserNotedAnnouncementService userNotedAnnouncementService;
     private final PositionService positionService;
 
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+
     public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, GroupService groupService, NotificationService notificationService, UserNotedAnnouncementService userNotedAnnouncementService, PositionService positionService) {
         this.announcement_service = announcement_service;
         this.cloudinaryService = cloudinaryService;
@@ -66,7 +76,7 @@ public class AnnouncementController {
         this.positionService = positionService;
     }
 
-    @GetMapping("/all/latest-version-by-id/{id}")
+    @GetMapping("/HRM/latest-version-by-id/{id}")
     public ResponseEntity<AnnouncementUpdateDTO> getLatestAnnouncementById(@PathVariable int id) {
         Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
         String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
@@ -112,8 +122,34 @@ public class AnnouncementController {
             @RequestPart(name = "userIds", required = false) List<Integer> userIds,
             @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
             @RequestPart(name = "files", required = false) List<MultipartFile> files,
-            @RequestParam(name = "createUserId") Integer createUserId) {
+            @RequestParam(name = "createUserId") Integer createUserId,
+            HttpServletRequest httpRequest) {
         try {
+            String token = null;
+            String staffId = "";
+            Cookie[] cookies = httpRequest.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("jwt".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+            if (token != null) {
+                try {
+                    // Parse and validate JWT
+                    Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
+
+                    // Retrieve staff ID
+                     staffId = claims.getSubject();
+                    Staff user = staffService.findByStaffId(staffId);
+
+                } catch (JwtException e) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Announcement());
+                }
+            }
+
             // Find Create Staff From Announcement DTO
             Staff user = staffService.findById(createUserId);
             Announcement announcement = mapper.map(request, Announcement.class);
@@ -121,6 +157,7 @@ public class AnnouncementController {
             List<Group> groupsForAnnounce = new ArrayList<>();
             List<Staff> staffForAnnounce = new ArrayList<>();
 
+            String finalStaffId = staffId;
             //Announce People
             if (request.getGroupStatus() == 1) {
                 groupsForAnnounce = groupService.findGroupsByIds(groupIds);
@@ -128,10 +165,22 @@ public class AnnouncementController {
                 for (Group group : groupsForAnnounce) {
                     group.getStaff().size(); // Force initialization
                 }
+                groupsForAnnounce = groupService.findGroupsByIds(groupIds);
+                // Initialize staff list before async operation
+                for (Group group : groupsForAnnounce) {
+                    group.getStaff().size(); // Force initialization
+                    // Remove logged-in staff from group members
+                    group.setStaff(group.getStaff().stream()
+                            .filter(staff -> !staff.getCompanyStaffId().equals(finalStaffId))
+                            .collect(Collectors.toList()));
+                }
                 announcement.setGroup(groupsForAnnounce);
                 staffForAnnounce = null;
             } else {
                 staffForAnnounce = staffService.findStaffsByIds(userIds);
+                staffForAnnounce = staffForAnnounce.stream()
+                        .filter(staff -> !staff.getCompanyStaffId().equals(finalStaffId))
+                        .collect(Collectors.toList());
                 announcement.setStaff(staffForAnnounce);
                 groupsForAnnounce = null;
             }
@@ -289,6 +338,9 @@ public class AnnouncementController {
     @GetMapping("/all/getPublishedAnnouncements")
     public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
         List<AnnouncementListDTO> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
+        for(AnnouncementListDTO titleAnouncement : publishedAnnouncements){
+            System.out.println(titleAnouncement.getTitle());
+        }
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
@@ -447,7 +499,7 @@ public class AnnouncementController {
     }
 
 
-    @GetMapping("/HRM/versions/{id}")
+    @GetMapping("/sys/versions/{id}")
     public List<AnnouncementVersionDTO> getAnnouncementVersion(@PathVariable Integer id) {
         List<AnnouncementVersionDTO> list = announcement_service.getAnnouncementVersion(id);
         return list;
@@ -462,11 +514,53 @@ public class AnnouncementController {
     public ResponseEntity<Boolean> approveRequestAnnouncement(@PathVariable("id") Integer id) {
         try {
             Optional<Announcement> announcement = announcement_service.getAnnouncementById(id);
+            LocalDateTime now = LocalDateTime.now();
+            List<Group> announceGroup = new ArrayList<>();
+            List<Staff> announceStaff = new ArrayList<>();
+
+            if(announcement.isPresent()){
+                emailService.sendAnnouncementApprovalNotification(announcement.get().getCreateStaff().getEmail(),announcement.get().getTitle());
+            }
+
             String url =  "/acknowledgeHub/announcement/detail/"+Base64.getEncoder().encodeToString(id.toString().getBytes());
             String description = "Human Resource Approved Your Announcement!";
             Notification notification = blogService.createNotification(announcement.get(),  announcement.get().getCreateStaff(), description,url);
             notificationService.sendNotification(blogService.convertToDTO(notification));
             announcement_service.approvedRequestAnnouncement(id);
+
+            // Check if the scheduled date of the announcement is in the past
+            if (announcement.get().getScheduleAt().isBefore(now)) {
+                announcement_service.publishAnnouncement(announcement.get().getId());
+                if(announcement.get().getGroupStatus() == 1){
+                     announceGroup = groupService.findGroupByAnnouncementId(id);
+                }else{
+                    announceStaff = staffService.findStaffByAnnouncementId(id);
+                }
+                try {
+                    byte updateStatus  = 0;
+                    MultipartFile file = cloudinaryService.getFileAsMultipart(announcement.get().getFile());
+                    Optional<Announcement> announcementForFileNameCheck = announcement_service.getAnnouncementById(announcement.get().getId());
+                    Pattern pattern = Pattern.compile("_V(\\d+)");
+                    Matcher matcher = pattern.matcher(announcementForFileNameCheck.get().getFile());
+                    if(matcher.find()){
+                        Integer versionNumber = Integer.valueOf(matcher.group(1));
+                        if(versionNumber > 1){
+                            updateStatus = 1;
+                            System.out.println("it come here");
+                        }
+                    }
+                    blogService.sendTelegramAndEmail(announceStaff, announceGroup, file, id, announcement.get().getGroupStatus(),updateStatus);
+                } catch (IOException e) {
+                    System.out.println(e);
+                }
+                // If the scheduled date is before the current time, return false (indicating it can't be approved)
+                return ResponseEntity.ok(false);
+            }
+            // Check if the scheduled date of the announcement is in the future
+            else if (announcement.get().getScheduleAt().isAfter(now)) {
+                // If the scheduled date is after the current time, return false (indicating it can't be approved)
+                return ResponseEntity.ok(false);
+            }
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -474,9 +568,13 @@ public class AnnouncementController {
     }
 
     @GetMapping("/HRM/reject/{id}")
-    public ResponseEntity<Boolean> rejectRequestAnnouncement(@PathVariable("id") Integer id) {
+    public ResponseEntity<Boolean> rejectRequestAnnouncement(@PathVariable("id") Integer id,@RequestBody String reason) {
         try {
-            announcement_service.rejectRequestAnnouncement(id);
+             announcement_service.rejectRequestAnnouncement(id);
+             Optional<Announcement> announcement = announcement_service.getAnnouncementById(id);
+            if(announcement.isPresent()){
+                emailService.sendAnnouncementRejectionNotification(announcement.get().getCreateStaff().getEmail(),announcement.get().getTitle(),reason);
+            }
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

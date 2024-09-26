@@ -73,9 +73,11 @@ export class ListAnnouncementComponent {
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
         })); this.filteredAnnouncements = data;
+        console.log(this.filteredAnnouncements)
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
+        console.log('Announcements length:', this.announcements.length);
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -155,42 +157,64 @@ export class ListAnnouncementComponent {
   }
 
   generatePDF(announcements: any[], filename: string) {
-    // Exclude 'note' and 'detail' columns from the report
-    const visibleColumns = this.columns
-      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
-
+    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  
+    // Title: "ACE" with Dark Blue color and large font size
+    const titleACE = "ACE";
+    const subtitle = "AcknowledgeHub.";
+    const description = "PDF report on Announcements List";
+  
+    // Set font style and size for "ACE"
+    doc.setFontSize(26);
+    doc.setTextColor(0, 51, 102); 
+    doc.setFont("times", "bold");     
+    doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' }); 
 
+    // Subtitle: "AcKnowledgeHub" with smaller font size, placed closer to "ACE"
+    doc.setFontSize(15);
+    doc.setTextColor(0, 51, 102); 
+    doc.setFont("times", "bold");
+    doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' }); 
+
+    // Description: Custom design with different font size and color
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100); // Gray color for the description
+    doc.setFont("helvetica", "italic");
+    doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' });
+  
+    // Draw a line to separate the header from the content
+    doc.setDrawColor(0, 51, 102); // Dark blue line color6+
+    doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45); 
+  
     // Define column headers and data rows
     const headers = visibleColumns.map(col => col.header);
     const rows = announcements.map(announcement =>
       visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], announcement) || '')
     );
-
+  
     // Calculate column widths based on content length or set manually
     const columnWidths = visibleColumns.map(col => {
-      return col.field === 'description' ? 60 : 30; // Adjust widths as needed
+      return col.field === 'description' ? 60 : 30; 
     });
-
+  
     // Use autoTable to generate the table in PDF
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 20,
+      startY: 50, 
       margin: { top: 20 },
-      styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
+      styles: { fontSize: 10, cellPadding: 4 }, 
       headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
       columnStyles: {
-        0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
-        1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+        0: { cellWidth: columnWidths[0] }, 
+        1: { cellWidth: columnWidths[1] }, 
       },
-      tableWidth: 'auto', // Auto width adjustment for table
+      tableWidth: 'auto', 
     });
-
-    // Save the PDF file
+  
     doc.save(filename);
   }
-
 
   generateExcel(announcements: listAnnouncement[], fileName: string) {
     // Exclude 'note' and 'detail' columns from the report

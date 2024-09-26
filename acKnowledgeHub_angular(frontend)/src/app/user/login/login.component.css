@@ -299,3 +299,7 @@ div>.logo {
   text-align: center;
   margin-bottom: 20px;
 }
+
+.not-allowed {
+  cursor: not-allowed;
+}

@@ -52,7 +52,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 }
             }
         }
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
@@ -74,7 +73,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 username = claims.getSubject();
                 String role = claims.get("role", String.class); // Extract role
                 String position = claims.get("position", String.class); // Extract position if stored in JWT
-
                 if (username != null) {
                     var userDetails = staffService.loadUserByUsername(username);
 

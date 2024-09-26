@@ -140,7 +140,8 @@ export class MychartComponent implements AfterViewInit {
   
     const labels = this.filteredData.map(item => {
       const date = new Date(item.created_at + 'T00:00:00');
-      return `${item.title} (${date.toLocaleDateString()})`;
+      const title = item.title.substring(0, 5) + (item.title.length > 10 ? '...' : ''); // truncate to 10 characters
+      return `${title} (${date.toLocaleDateString()})`
     });
   
     // Predefined colors for bars and lines

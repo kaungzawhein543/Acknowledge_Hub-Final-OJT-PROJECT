@@ -85,4 +85,5 @@ export class AppComponent implements OnInit {
     this.isSidebarOpen = !this.isSidebarOpen;
     this.sidebarService.toggle();
   }
+  
 }

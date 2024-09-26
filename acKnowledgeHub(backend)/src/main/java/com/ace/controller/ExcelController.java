@@ -18,12 +18,16 @@ public class ExcelController {
     }
 
     @PostMapping("/sys/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    public String uploadFile(@RequestParam("file") MultipartFile file,@RequestParam("override") Integer override) throws IOException {
         if (file.isEmpty()) {
             return "Please select a file to upload.";
         }
         try{
-            excelService.processExcelFile(file);
+            if(override == 1){
+                excelService.processExcelFile(file,true);
+            }else{
+                excelService.processExcelFile(file,false);
+            }
         }catch (Exception e){
             System.out.println(e.toString());
         }

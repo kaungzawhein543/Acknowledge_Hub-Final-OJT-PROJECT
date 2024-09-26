@@ -49,15 +49,14 @@
         <label class="p-3.5 cursor-pointer absolute inset-0 flex items-center justify-center">
           <i class="fas fa-upload pe-2"></i> Upload Announcement File
           <input type="file" id="announcementFile" name="announcementFile" class="hidden"
-            (change)="onFileChange($event)">
+            (change)="onFileChange($event)"  accept=".doc,.docx,.xls,.xlsx,.pdf,.zip,.rar">
         </label>
       </div>
       <span class="file-selected ms-4 p-2" *ngIf="fileSelected">
         <i class="fas fa-check-circle text-green-500"></i>
         {{ fileName }}
       </span>
-      <span *ngIf="fileErrorMessage" class="text-red-600">You need to choose a file!</span>
-
+      <span *ngIf="fileErrorMessage" class="text-red-600">{{fileErrorText}}</span>
       <!-- Radio Buttons -->
       <div class="bg-white p-4 rounded-lg shadow-md flex-1 mt-2">
         <fieldset>
@@ -186,6 +185,8 @@
       <div class="mt-2">
         <button
           type="submit" (click)="onCreate()"
+          [disabled]="creatingAnnouncement"
+          [ngClass]="{'cursor-not-allowed':creatingAnnouncement}"
           class="w-1/4 float-end py-3 bg-blue-900 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Create

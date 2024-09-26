@@ -31,13 +31,58 @@ public class EmailService {
     }
 
     @Async
-    public void sendOTPEmail(String toEmail, String subject, String messageBody) {
-        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setFrom("kzheindev789@gmail.com");
-        message.setTo(toEmail);
-        message.setSubject(subject);
-        message.setText(messageBody);
-        javaMailSender.send(message);
+    public void sendOTPEmail(String toEmail, String otpCode) {
+        // Construct the HTML message body
+        String messageBody = "<!DOCTYPE html>" +
+                "<html lang=\"en\">" +
+                "<head>" +
+                "<meta charset=\"UTF-8\">" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
+                "<title>OTP Verification</title>" +
+                "<style>" +
+                "body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
+                "table { max-width: 600px; margin: 40px auto; padding: 0; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #dddddd; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); }" +
+                "thead { background-color: #1a4a80; }" +
+                "th { padding: 20px; color: white; }" +
+                "h1 { font-size: 28px; margin: 0; text-align: center; }" +
+                "td { padding: 30px; color: #333333; text-align: center; }" +
+                "h2 { font-size: 22px; margin-bottom: 15px; }" +
+                "p { font-size: 16px; line-height: 1.5; color: #555555; margin: 10px 0; }" +
+                ".footer { background-color: #f9f9f9; text-align: center; padding: 20px; font-size: 12px; color: #888888; border-top: 1px solid #dddddd; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<table>" +
+                "<thead>" +
+                "<tr><th><h1>Your OTP Code</h1></th></tr>" +
+                "</thead>" +
+                "<tbody>" +
+                "<tr><td><h2>Hello,</h2>" +
+                "<p>Your one-time password (OTP) is:</p>" +
+                "<h2><strong>" + otpCode + "</strong></h2>" +
+                "<p>Please use this code to complete your verification.</p>" +
+                "<p>Thank you!</p>" +
+                "</td></tr>" +
+                "</tbody>" +
+                "<tfoot>" +
+                "<tr><td class=\"footer\"><p>If you did not request this email, please ignore it.</p><p>© 2024 ACE Data Systems</p></td></tr>" +
+                "</tfoot>" +
+                "</table>" +
+                "</body>" +
+                "</html>";
+
+        // Create a MimeMessage
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true); // true for multipart
+            helper.setTo(toEmail);
+            helper.setSubject("Verification Code");
+            helper.setText(messageBody, true); // true indicates the text is HTML
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            // Handle exceptions (log them or throw a custom exception)
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -251,6 +296,245 @@ public class EmailService {
             System.out.println("Error sending email to: " + recipientEmail);
         }
     }
+
+    public void sendAnnouncementApprovalNotification(String recipientEmail, String announcementTitle) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(recipientEmail);
+            helper.setSubject("Announcement Approval Notification");
+
+            // Enhanced HTML content with updated styling
+            String htmlContent =
+                    "<!DOCTYPE html>" +
+                            "<html lang='en'>" +
+                            "<head>" +
+                            "<meta charset='UTF-8'>" +
+                            "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                            "<title>Announcement Approval Notification</title>" +
+                            "<style>" +
+                            "body {" +
+                            "font-family: Arial, sans-serif;" +
+                            "margin: 0;" +
+                            "padding: 0;" +
+                            "background-color: #f9f9f9;" +
+                            "}" +
+                            "table {" +
+                            "max-width: 600px;" +
+                            "margin: 20px auto;" +
+                            "padding: 0;" +
+                            "background-color: #ffffff;" +
+                            "border-radius: 8px;" +
+                            "overflow: hidden;" +
+                            "border: 1px solid #dddddd;" +
+                            "box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);" +
+                            "}" +
+                            "thead {" +
+                            "background-color: #1a4a80;" + // Original color
+                            "}" +
+                            "th {" +
+                            "padding: 15px;" +
+                            "color: white;" +
+                            "}" +
+                            "h1 {" +
+                            "font-size: 24px;" +
+                            "margin: 0;" +
+                            "text-align: center;" +
+                            "}" +
+                            "td {" +
+                            "padding: 20px;" +
+                            "color: #333333;" +
+                            "text-align: center;" +
+                            "}" +
+                            "h2 {" +
+                            "font-size: 20px;" +
+                            "margin-bottom: 15px;" +
+                            "}" +
+                            "p {" +
+                            "font-size: 16px;" +
+                            "line-height: 1.5;" +
+                            "color: #555555;" +
+                            "margin: 10px 0;" +
+                            "}" +
+                            ".footer {" +
+                            "background-color: #f9f9f9;" +
+                            "text-align: center;" +
+                            "padding: 15px;" +
+                            "font-size: 12px;" +
+                            "color: #888888;" +
+                            "border-top: 1px solid #dddddd;" +
+                            "}" +
+                            ".highlight {" +
+                            "background-color: #e0f7fa;" + // Original highlight color
+                            "padding: 10px;" +
+                            "border-radius: 5px;" +
+                            "margin-bottom: 20px;" +
+                            "border: 1px solid #b2ebf2;" +
+                            "}" +
+                            "</style>" +
+                            "</head>" +
+                            "<body>" +
+                            "<table>" +
+                            "<thead>" +
+                            "<tr>" +
+                            "<th>" +
+                            "<h1>Announcement Approved!</h1>" +
+                            "</th>" +
+                            "</tr>" +
+                            "</thead>" +
+                            "<tbody>" +
+                            "<tr>" +
+                            "<td>" +
+                            "<h2>Congratulations!</h2>" +
+                            "<p>Your announcement titled <strong>" + announcementTitle + "</strong> has been approved.</p>" +
+                            "<p>Thank you for your contribution!</p>" +
+                            "</td>" +
+                            "</tr>" +
+                            "</tbody>" +
+                            "<tfoot>" +
+                            "<tr>" +
+                            "<td class='footer'>" +
+                            "<p>If you have any questions, please contact HR at hr@example.com</p>" +
+                            "<p>© 2024 All rights reserved by ACE Data Systems.</p>" +
+                            "</td>" +
+                            "</tr>" +
+                            "</tfoot>" +
+                            "</table>" +
+                            "</body>" +
+                            "</html>";
+
+            helper.setText(htmlContent, true);
+
+            // Send the email
+            javaMailSender.send(message);
+            System.out.println("Email sent successfully to: " + recipientEmail);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Error sending email to: " + recipientEmail);
+        }
+    }
+
+    public void sendAnnouncementRejectionNotification(String recipientEmail, String announcementTitle, String rejectionReason) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(recipientEmail);
+            helper.setSubject("Announcement Rejection Notification");
+
+            // Enhanced HTML content with updated styling
+            String htmlContent =
+                    "<!DOCTYPE html>" +
+                            "<html lang='en'>" +
+                            "<head>" +
+                            "<meta charset='UTF-8'>" +
+                            "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                            "<title>Announcement Rejection Notification</title>" +
+                            "<style>" +
+                            "body {" +
+                            "font-family: Arial, sans-serif;" +
+                            "margin: 0;" +
+                            "padding: 0;" +
+                            "background-color: #f9f9f9;" +
+                            "}" +
+                            "table {" +
+                            "max-width: 600px;" +
+                            "margin: 20px auto;" +
+                            "padding: 0;" +
+                            "background-color: #ffffff;" +
+                            "border-radius: 8px;" +
+                            "overflow: hidden;" +
+                            "border: 1px solid #dddddd;" +
+                            "box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);" +
+                            "}" +
+                            "thead {" +
+                            "background-color: #dc3545;" + // Red header for rejection
+                            "}" +
+                            "th {" +
+                            "padding: 15px;" +
+                            "color: white;" +
+                            "}" +
+                            "h1 {" +
+                            "font-size: 24px;" +
+                            "margin: 0;" +
+                            "text-align: center;" +
+                            "}" +
+                            "td {" +
+                            "padding: 20px;" +
+                            "color: #333333;" +
+                            "text-align: center;" +
+                            "}" +
+                            "h2 {" +
+                            "font-size: 20px;" +
+                            "margin-bottom: 15px;" +
+                            "}" +
+                            "p {" +
+                            "font-size: 16px;" +
+                            "line-height: 1.5;" +
+                            "color: #555555;" +
+                            "margin: 10px 0;" +
+                            "}" +
+                            ".footer {" +
+                            "background-color: #f9f9f9;" +
+                            "text-align: center;" +
+                            "padding: 15px;" +
+                            "font-size: 12px;" +
+                            "color: #888888;" +
+                            "border-top: 1px solid #dddddd;" +
+                            "}" +
+                            ".highlight {" +
+                            "background-color: #f8d7da;" + // Light red highlight for rejection reason
+                            "padding: 10px;" +
+                            "border-radius: 5px;" +
+                            "margin-bottom: 20px;" +
+                            "border: 1px solid #f5c6cb;" +
+                            "}" +
+                            "</style>" +
+                            "</head>" +
+                            "<body>" +
+                            "<table>" +
+                            "<thead>" +
+                            "<tr>" +
+                            "<th>" +
+                            "<h1>Announcement Rejected</h1>" +
+                            "</th>" +
+                            "</tr>" +
+                            "</thead>" +
+                            "<tbody>" +
+                            "<tr>" +
+                            "<td>" +
+                            "<h2>We're Sorry!</h2>" +
+                            "<p>Your announcement titled <strong>" + announcementTitle + "</strong> has been rejected.</p>" +
+                            "<div class='highlight'>" +
+                            "<p><strong>Reason for Rejection:</strong></p>" +
+                            "<p>" + rejectionReason + "</p>" +
+                            "</div>" +
+                            "<p>If you have any questions or need clarification, please feel free to reach out.</p>" +
+                            "</td>" +
+                            "</tr>" +
+                            "</tbody>" +
+                            "<tfoot>" +
+                            "<tr>" +
+                            "<td class='footer'>" +
+                            "<p>If you have any questions, please contact HR at hr@example.com</p>" +
+                            "<p>© 2024 All rights reserved by ACE Data Systems.</p>" +
+                            "</td>" +
+                            "</tr>" +
+                            "</tfoot>" +
+                            "</table>" +
+                            "</body>" +
+                            "</html>";
+
+            helper.setText(htmlContent, true);
+
+            // Send the email
+            javaMailSender.send(message);
+            System.out.println("Email sent successfully to: " + recipientEmail);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Error sending email to: " + recipientEmail);
+        }
+    }
+
 
 
 }

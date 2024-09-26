@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
   countdown: number = 0;
   failedAttempts: number = 0;
   formattedCountdown: string = '';
+  loginButtonStatus : boolean = true;
   constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
@@ -33,6 +34,7 @@ export class LoginComponent implements OnInit {
 
       if (remainingTime > 0) {
         this.isLocked = true;
+        this.loginButtonStatus = false;
         this.countdown = Math.floor(remainingTime / 1000);  // Calculate remaining seconds
         this.updateFormattedCountdown();
 
@@ -47,6 +49,8 @@ export class LoginComponent implements OnInit {
             localStorage.removeItem('lockedData');  // Clear lock data when countdown finishes
           }
         }, 1000);
+      }else{
+        this.loginButtonStatus = true;
       }
     }
   }
@@ -75,7 +79,6 @@ export class LoginComponent implements OnInit {
         if (body?.includes(':')) {
           const [staffId, message] = body.split(':');
           if (message.toString() === 'Please change your password') {
-            console.log("hi")
             this.router.navigate(['acknowledgeHub/change-password/', staffId]);
           }
         } else {
@@ -91,12 +94,14 @@ export class LoginComponent implements OnInit {
       },
       error => {
         this.errorMessage = error.error;
-        // setTimeout(() => {
-        //   this.errorMessage = '';
-        // }, 5000);
         this.failedAttempts++;
+        setTimeout(() => {
+          this.errorMessage = "";
+       }, 2000);
+      
 
         if (this.failedAttempts >= 5) {
+          this.loginButtonStatus = false;
           this.isLocked = true;
           this.countdown = 120;  // Set countdown to 120 seconds (2 minutes)
           const lockEndTime = new Date().getTime() + this.countdown * 1000;  // Store lock end time
@@ -108,10 +113,16 @@ export class LoginComponent implements OnInit {
           const intervalId = setInterval(() => {
             this.countdown--;
             this.updateFormattedCountdown();
-
+            if(this.countdown === 118){
+              this.errorMessage = '';
+            }
+            console.log(this.countdown)
             if (this.countdown <= 0) {
               clearInterval(intervalId);
               this.isLocked = false;
+              if(this.countdown === 0){
+                this.loginButtonStatus = true;
+              }
               this.failedAttempts = 0;
               localStorage.removeItem('lockedData');
             }
@@ -120,6 +131,7 @@ export class LoginComponent implements OnInit {
       }
     );
   }
+  
 
   showToolTip(event: Event): void {
     const checkbox = event.target as HTMLInputElement;

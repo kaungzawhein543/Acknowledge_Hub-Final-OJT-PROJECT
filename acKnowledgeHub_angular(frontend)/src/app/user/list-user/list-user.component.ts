@@ -9,6 +9,8 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import { AuthService } from '../../services/auth.service';
+import { MatButtonModule } from '@angular/material/button';
+
 
 @Component({
   selector: 'app-list-user',

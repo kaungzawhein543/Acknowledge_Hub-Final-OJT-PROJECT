@@ -51,7 +51,8 @@
         <label for="staffId">
           <i class="fa fa-user"></i>
         </label>
-        <input type="text" id="staffId" name="staffId" [(ngModel)]="staffId" #staffIdInput="ngModel" required
+        <input type="text" id="staffId"           [ngClass]="{'not-allowed': !loginButtonStatus}"
+        name="staffId" [(ngModel)]="staffId" #staffIdInput="ngModel" required [disabled]="!loginButtonStatus"
           placeholder="Staff Id" />
 
       </div>
@@ -64,15 +65,26 @@
         <label for="password">
           <i class="fa fa-lock"></i>
         </label>
-        <div class="relative">
-          <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" required
-            placeholder="Password" [(ngModel)]="password" #passwordInput="ngModel" />
-          <button type="button" (click)="togglePasswordVisibility()"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center">
+        <div class="relative w-full max-w-full ">
+          <input 
+          [type]="showPassword ? 'text' : 'password'"
+          id="password"
+          name="password"
+          required
+          placeholder="Password"
+          class="w-full"
+          [(ngModel)]="password"
+          #passwordInput="ngModel"
+          [disabled]="!loginButtonStatus"
+          [ngClass]="{'not-allowed': !loginButtonStatus}"
+        >
+          <button type="button" (click)="togglePasswordVisibility()" [ngClass]="{'not-allowed': !loginButtonStatus}" [disabled]="!loginButtonStatus"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center w-fit">
             <i *ngIf="showPassword" class="fa-regular fa-eye "></i>
             <i *ngIf="!showPassword" class="fa-regular fa-eye-slash"></i>
           </button>
         </div>
+         
 
       </div>
       <div *ngIf="showError && !errorMessage && passwordInput.invalid" class="input-error">
@@ -84,7 +96,7 @@
         <label class="remember-me relative">
           <input type="checkbox" (change)="showToolTip($event)" /> Remember Me
         </label>
-        <button type="submit" class="login-button">Log In</button>
+        <button type="submit" class="login-button" [disabled]="!loginButtonStatus" [ngClass]="{'not-allowed': !loginButtonStatus}" >Log In</button>
       </div>
       <div *ngIf="isLocked" style="justify-content: center; font-size: 14px; color: red;">
         Too many failed. Please wait for {{ formattedCountdown }}.

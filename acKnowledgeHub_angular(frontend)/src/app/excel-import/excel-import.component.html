@@ -81,12 +81,14 @@
       <button 
         class="px-3 py-1 bg-gray-300 text-gray-700 rounded" 
         [disabled]="currentPage === 1" 
+        [ngClass]="{'cursor-not-allowed': currentPage === 1}"
         (click)="changePage(currentPage - 1)">
         Previous
       </button>
       <button 
         class="px-3 py-1 bg-gray-300 text-gray-700 rounded" 
         [disabled]="(currentPage * itemsPerPage) >= staffs.length" 
+        [ngClass]="{'cursor-not-allowed' : (currentPage * itemsPerPage) >= staffs.length}" 
         (click)="changePage(currentPage + 1)">
         Next
       </button>

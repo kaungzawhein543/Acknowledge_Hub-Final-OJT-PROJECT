@@ -9,6 +9,8 @@ import com.ace.repository.AnnouncementRepository;
 import com.ace.repository.GroupRepository;
 import com.ace.repository.NotificationRepository;
 import com.ace.repository.StaffRepository;
+import nl.martijndwars.webpush.PushService;
+import nl.martijndwars.webpush.Subscription;
 import org.hibernate.Hibernate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class NotificationService {
     private final StaffService staffService;
     private final GroupService groupService;
 
+
     public NotificationService(NotificationRepository notificationRepository, AnnouncementRepository announcementRepository, StaffRepository staffRepository, GroupRepository groupRepository, SimpMessagingTemplate messagingTemplate, StaffService staffService, GroupService groupService) {
         this.notificationRepository = notificationRepository;
         this.announcementRepository = announcementRepository;
@@ -37,6 +40,7 @@ public class NotificationService {
         this.messagingTemplate = messagingTemplate;
         this.staffService = staffService;
         this.groupService = groupService;
+
     }
 
 
@@ -138,4 +142,7 @@ public class NotificationService {
         notificationRepository.updateChecked(notificationId);
         return getNotificationsByStaffId(staffId);
     }
+
+
+
 }

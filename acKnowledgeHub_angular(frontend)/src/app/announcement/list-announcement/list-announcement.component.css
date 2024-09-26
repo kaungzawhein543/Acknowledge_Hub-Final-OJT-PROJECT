@@ -90,3 +90,13 @@ p.data-grid-options {
   text-align: left;
   /* Adjust alignment if needed */
 }
+.title-column {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: clip;
+}
+.description-column{
+  width: 180px;
+  max-width: 200px;
+  text-overflow: clip;
+}

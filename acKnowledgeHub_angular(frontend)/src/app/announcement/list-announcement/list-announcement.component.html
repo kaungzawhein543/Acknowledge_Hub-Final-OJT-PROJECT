@@ -63,9 +63,7 @@
         </div>
       </mat-menu>
     </div>
-
   </div>
-
 
   <!-- Table with Pagination -->
   <div class="mat-elevation-z8">
@@ -74,48 +72,52 @@
       <ng-container *ngFor="let col of columns">
         <ng-container *ngIf="columnVisibility[col.field]">
           <ng-container [matColumnDef]="col.field">
-            <th mat-header-cell *matHeaderCellDef class="header-center">
+            <!-- Column Header -->
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'title-column': col.field === 'title','description-column': col.field === 'description'}"   [ngStyle]="col.field === 'title' ? {'width': '300px'} : {}" style="text-align: left !important;">
               {{ col.header }}
             </th>
-            <td mat-cell *matCellDef="let announcement" class="data-right">
+              
+            <!-- Column Data -->
+            <td mat-cell *matCellDef="let announcement" [ngClass]="{'title-column': col.field === 'title','description-column': col.field === 'description'}" class="data-right">
               <ng-container [ngSwitch]="col.field">
+                <!-- Note Column -->
                 <ng-container *ngSwitchCase="'note'">
-                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title,announcement.file)"
-                    style="margin-left: 20%;">
+                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title,announcement.file)">
                     Noted
                   </button>
-                  <button mat-button style="color: rgb(215, 133, 133);"
-                    (click)="onUnNotedButtonClick(announcement.id , announcement.groupStatus,announcement.title, announcement.file)">
+                  <button mat-button style="color: rgb(215, 133, 133);" (click)="onUnNotedButtonClick(announcement.id , announcement.groupStatus,announcement.title, announcement.file)">
                     UnNoted
                   </button>
                 </ng-container>
-
+    
+                <!-- ScheduleAt Column -->
                 <ng-container *ngSwitchCase="'scheduleAt'">
                   <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm' }}</span>
                 </ng-container>
+    
+                <!-- Detail Button Column -->
                 <ng-container *ngSwitchCase="'detail'">
-                  <button mat-button (click)="onDetailButtonClick(announcement.id)" style="margin-left: 20%;">
+                  <button mat-button (click)="onDetailButtonClick(announcement.id)">
                     View
                   </button>
                 </ng-container>
+    
+                <!-- Title Column with Versioning -->
                 <ng-container *ngSwitchCase="'title'">
                   <span *ngIf="getVersionNumber(announcement.file) && getVersionNumber(announcement.file)! > 1">
                     {{announcement.title}} <span>-V{{ getVersionNumber(announcement.file) }}</span>
                   </span>
-                  <span *ngIf="getVersionNumber(announcement.file) && getVersionNumber(announcement.file)! == 1">
+                  <span *ngIf="!getVersionNumber(announcement.file) && getVersionNumber(announcement.file) !== 1">
                     {{announcement.title}}
                   </span>
                 </ng-container>
-
+    
                 <!-- Truncate Description -->
                 <ng-container *ngSwitchCase="'description'">
-                  {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}
+                  {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '...' }}
                 </ng-container>
-                <!-- Format Schedule -->
-                <ng-container *ngSwitchCase="'schedule'">
-                  {{ (getNestedProperty(announcement, col.field) | date:'HH:mm:ss') }}
-                </ng-container>
-                <!-- Default Handling -->
+    
+                <!-- Default Handling for Other Columns -->
                 <ng-container *ngSwitchDefault>
                   {{ getNestedProperty(announcement, col.field) || 'N/A' }}
                 </ng-container>
@@ -124,7 +126,8 @@
           </ng-container>
         </ng-container>
       </ng-container>
-
+    
+      <!-- Header and Row Definitions -->
       <tr mat-header-row *matHeaderRowDef="selectedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: selectedColumns;"></tr>
     </table>
