@@ -4,7 +4,6 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ResponseEmail } from '../../models/response-email';
 import { StaffService } from '../../services/staff.service';
-import * as bcrypt from 'bcryptjs';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 
 
@@ -31,8 +30,8 @@ export class OtpRequestComponent {
   responseEmail!: ResponseEmail;
   loading: boolean = false;
   status: boolean = false;
-  error : string = '';
-  constructor(private service: AuthService, private router: Router,private staffService :StaffService) { }
+  error: string = '';
+  constructor(private service: AuthService, private router: Router, private staffService: StaffService) { }
 
   onSubmit(form: NgForm): void {
     this.staffId = this.staffId.trim();
@@ -40,7 +39,7 @@ export class OtpRequestComponent {
       if (form.valid) {
         this.checkOldPassword(this.staffId);
         this.loading = true;
-       
+
         this.service.getOTP(this.staffId).subscribe({
           next: (data) => {
             console.log(data)
@@ -83,7 +82,7 @@ export class OtpRequestComponent {
             this.router.navigate(["/acknowledgeHub/login"]);
           }, 2000);
           return;
-        } 
+        }
       },
       error => {
         console.error('Error checking old password:', error);

@@ -46,7 +46,7 @@ export class ListUserComponent {
   inactiveChecked = false;
   loginRole !: string;
   isFilterDropdownOpen = false;
-  idnumbertoInactive : number = 0;
+  idnumbertoInactive: number = 0;
   isReportDropdownOpen = false;
   @ViewChild('staff') staff!: MatSelectionList;
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
@@ -76,12 +76,19 @@ export class ListUserComponent {
     this.fetchStaffs();
     this.authService.getUserInfo().subscribe({
       next: (data) => {
+        this.setColumnsBasedOnRole();
         this.loginRole = data.user.role;
+
       }
     })
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
-
+  setColumnsBasedOnRole() {
+    if (this.loginRole !== 'ADMIN') {
+      this.columns = this.columns.filter(col => col.field !== 'status');
+    }
+    this.selectedColumns = this.columns.map(col => col.field);
+  }
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
   }
@@ -265,7 +272,7 @@ export class ListUserComponent {
       error: (e) => console.log(e)
     })
   }
-  openInactiveModal(id : number) {
+  openInactiveModal(id: number) {
     this.idnumbertoInactive = id;
     this.modal.open();
   }

@@ -83,8 +83,7 @@
                                     <ng-container *ngSwitchCase="'status'">
                                         <span *ngIf="user.companyStaffId != 'ADMIN001'">
                                             <span *ngIf="user.status ==='inactive'">
-                                                <button mat-button (click)="onActiveButtonClick(user.id)"
-                                                   >
+                                                <button mat-button (click)="onActiveButtonClick(user.id)">
                                                     Activate
                                                 </button></span>
                                             <span *ngIf="user.status ==='active'">
@@ -122,8 +121,5 @@
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div>
 
-    <app-confirmation-modal 
-    #confirmationModal
-    [message]="'Are you sure you want to remove this memeber?'" 
-    (confirmed)="inActiveButtonClick(this.idnumbertoInactive)"
-  ></app-confirmation-modal>
+    <app-confirmation-modal #confirmationModal [message]="'Are you sure you want to remove this memeber?'"
+        (confirmed)="inActiveButtonClick(this.idnumbertoInactive)"></app-confirmation-modal>
