@@ -68,7 +68,7 @@ export class ListGroupComponent {
 
   loadGroups(): void {
     this.groupService.getAllGroups().subscribe(
-      groups => this.groups = groups,
+      groups => this.groups = groups.reverse(),
       error => this.handleError(error)
     );
   }
@@ -82,7 +82,6 @@ export class ListGroupComponent {
       staff.department.name.toLowerCase().includes(term) ||
       staff.company.name.toLowerCase().includes(term)
     );
-
   }
 
   deleteGroup(id: number): void {

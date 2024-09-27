@@ -10,11 +10,25 @@ import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcementVersion } from '../../models/announcement-version';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-not-noted-announcement',
   templateUrl: './not-noted-announcement.component.html',
-  styleUrl: './not-noted-announcement.component.css'
+  styleUrl: './not-noted-announcement.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class NotNotedAnnouncementComponent {
 

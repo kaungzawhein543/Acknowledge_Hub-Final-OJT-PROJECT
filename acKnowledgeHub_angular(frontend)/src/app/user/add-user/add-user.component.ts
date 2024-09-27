@@ -66,7 +66,7 @@ export class AddUserComponent implements OnInit {
     }
 
   ngOnInit(): void {
-    this.departmentService.getAllDepartments().subscribe({
+    this.departmentService.getDepartmentListByCompanyId(1).subscribe({
       next: (data) => {
         this.departments = data;
         if(this.departments.length >0){

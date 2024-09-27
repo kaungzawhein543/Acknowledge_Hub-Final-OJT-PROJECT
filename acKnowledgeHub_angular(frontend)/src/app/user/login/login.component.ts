@@ -74,7 +74,7 @@ export class LoginComponent implements OnInit {
         if (body?.includes(':')) {
           const [staffId, message] = body.split(':');
           if (message.toString() === 'Please change your password') {
-            this.router.navigate(['acknowledgeHub/change-password/', staffId]);
+            this.router.navigate(['acknowledgeHub/change-password/', btoa(staffId)]);
           }
         } else {
           this.authService.getUser().subscribe(user => {

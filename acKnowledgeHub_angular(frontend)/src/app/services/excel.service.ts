@@ -10,10 +10,13 @@ export class ExcelServiceService {
 
   constructor(private http: HttpClient) { }
 
-  uploadExcelFile(file: File): Observable<any> {
+  uploadExcelFile(file: File,override : number): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-  
-return this.http.post(`${this.apiUrl}/sys/upload`, formData, { responseType: 'text', withCredentials: true });
+    if(override === 1){
+      return this.http.post(`${this.apiUrl}/sys/upload?override=1`, formData, { responseType: 'text', withCredentials: true });
+    }else{
+      return this.http.post(`${this.apiUrl}/sys/upload?override=0`, formData, { responseType: 'text', withCredentials: true });
+    }
   }
 }

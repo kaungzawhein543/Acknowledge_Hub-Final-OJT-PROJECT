@@ -164,6 +164,7 @@ private loadAnnouncementData(decodedId: string): void {
           console.log(`Announcement create user id ${this.currentUserId}`);
           this.replyPermission = this.currentUserId === announcement.createdStaffId;
           this.notedPermission = this.accessStaffs.includes(this.currentUserId);
+          console.log(this.notedPermission);
         }),
         switchMap((announcement: any) => {
           if (!this.isAdmin && !this.isHumanResourceMain &&  this.currentUserId !== this.createdStaff && !this.accessStaffs.includes(this.currentUserId)) {

@@ -76,6 +76,7 @@ export class ListUserComponent {
     this.fetchStaffs();
     this.authService.getUserInfo().subscribe({
       next: (data) => {
+        this.setColumnsBasedOnRole();
         this.loginRole = data.user.role;
       }
     })
@@ -188,7 +189,12 @@ export class ListUserComponent {
     // Save the PDF file
     doc.save(filename);
   }
-
+  setColumnsBasedOnRole() {
+    if (this.loginRole !== 'ADMIN') {
+      this.columns = this.columns.filter(col => col.field !== 'status');
+    }
+    this.selectedColumns = this.columns.map(col => col.field);
+  }
 
   generateExcel(announcements: staffList[], fileName: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'status');

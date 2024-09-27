@@ -20,6 +20,7 @@ export class ChangepasswordComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.staffId = params.get('staffId') || '';
+      this.staffId = atob(this.staffId);
     });
   }
 
@@ -39,6 +40,7 @@ export class ChangepasswordComponent implements OnInit {
       this.errorMessage = "New Password can't same with Old Password!";
       return;
     }
+    
     this.authService.changePassword(this.staffId, this.oldPassword, this.newPassword).subscribe(
       response => {
         this.successMessage = response;

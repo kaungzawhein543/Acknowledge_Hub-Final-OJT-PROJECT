@@ -12,6 +12,7 @@ import saveAs from 'file-saver';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 import { AuthService } from '../../services/auth.service';
 import { StaffProfileDTO } from '../../models/staff';
+import { ToastService } from '../../services/toast.service';
 
 
 @Component({
@@ -68,7 +69,8 @@ export class PendingAnnouncementComponent implements OnInit {
     private authService :AuthService,
     private announcementService: AnnouncementService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService : ToastService
   ) { }
 
   ngOnInit() {
@@ -252,6 +254,7 @@ export class PendingAnnouncementComponent implements OnInit {
     this.announcementService.cancelPendingAnnouncement(id).subscribe({
       next: (data: string) => {
         this.ngOnInit();
+        this.showCancelSuccessToast();
       },
       error: (e) => console.log(e)
     })
@@ -279,5 +282,8 @@ export class PendingAnnouncementComponent implements OnInit {
       this.columns = this.columns.filter(col => col.field !== 'action');
     }
     this.selectedColumns = this.columns.map(col => col.field);
+  }
+  showCancelSuccessToast() {
+    this.toastService.showToast('Add Group  successful!', 'success');
   }
 }

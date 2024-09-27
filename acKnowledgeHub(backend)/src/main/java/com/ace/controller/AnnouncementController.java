@@ -370,7 +370,7 @@ public class AnnouncementController {
         if(!notedAnnouncement.isPresent()){
             userNotedAnnouncementService.save(staffNotedAnnouncement);
         }
-            String frontendUrl = "http://localhost:4200/noted";
+            String frontendUrl = "http://localhost:4200/acknowledgeHub/noted";
             response.setHeader("Location", frontendUrl);
             return new ResponseEntity<>(HttpStatus.FOUND);
     }

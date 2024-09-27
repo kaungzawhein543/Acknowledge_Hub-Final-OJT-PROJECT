@@ -155,7 +155,7 @@
          <label class="flex items-center cursor-pointer w-full">
            <input type="checkbox" [value]="group.id" [checked]="group.selected" (change)="onGroupChange($event)"
              class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-           <span class="ml-3 text-gray-700 flex-1">
+           <span class="ml-3  flex-1">
              {{ group.name }}
            </span>
          </label>
@@ -187,7 +187,7 @@
         <input type="checkbox" [value]="staff.staffId" [checked]="staff.selected"
           (change)="onStaffChange($event)"
           class="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-        <span class="ml-3 text-gray-700 flex-1">
+        <span class="ml-3  flex-1">
           <div>
             {{ staff.name }} ({{ staff.position }})
           </div>

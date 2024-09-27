@@ -84,7 +84,7 @@
         <div *ngIf="isloading" class="loading qube-title"></div>
         <!-- Noted Section -->
         <div *ngIf="!isloading && publishedOrNot">
-          <div class="p-2 border border-gray-200" *ngIf="this.currentUserId !== this.createdStaff || !isAdmin && notedPermission">
+          <div class="p-2 border border-gray-200" *ngIf="this.currentUserId !== this.createdStaff  && notedPermission">
             <span *ngIf="noted">
               <i class="fas fa-check-to-slot"></i> You Already Noted This Announcement!
             </span>

@@ -12,6 +12,7 @@ import { ToastService } from '../../services/toast.service';
 import { map } from 'rxjs';
 import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -64,7 +65,7 @@ export class AddGroupComponent {
   loadingDepartments = true;
   loadingStaff = true;
 
-  constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService) { }
+  constructor(private companyService: CompanyService, private departmentService: DepartmentService, private staffService: StaffService, private groupService: GroupService, private toastService: ToastService,private router: Router) { }
 
   ngOnInit(): void {
     this.filterStaffListAfterSelect = [...this.selectedStaff];
@@ -247,8 +248,8 @@ export class AddGroupComponent {
     } else {
       this.groupService.createGroup(selectedStaffIds, this.groupName).subscribe(
         data => {
-          console.log(data);
           this.showSuccessToast();
+          this.router.navigate(["/acknowledgeHub/group/list"])
         },
         (error: Error) => {
           console.log(error);

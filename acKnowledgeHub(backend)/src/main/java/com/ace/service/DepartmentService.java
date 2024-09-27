@@ -39,8 +39,9 @@ public class DepartmentService {
     public Department saveDepartment(Department department) {
         Group group = groupRepository.findByName(department.getName());
         if(group == null){
+           // System.out.println("here is comapy name in service"+department.getCompany().getName());
             Group group1 = new Group();
-            group1.setName(department.getName());
+            group1.setName(department.getName()+"("+department.getCompany().getName()+")");
             groupRepository.save(group1);
         }
         return departmentRepository.save(department);

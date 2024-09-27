@@ -156,6 +156,7 @@ public class AnnouncementService {
     public void rejectRequestAnnouncement(Integer id){
         announcement_repo.rejectRequestAnnouncement(id);
     }
+
     //Method to get the staffnotedAnnoucement
     public List<AnnouncementStaffCountDTO> getAnnouncementStaffCounts() {
         return announcement_repo.findAnnouncementStaffCounts();

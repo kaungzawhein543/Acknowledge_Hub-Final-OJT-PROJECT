@@ -93,8 +93,8 @@ public class EmailService {
             mimeMessageHelper.setTo(toEmail);
             mimeMessageHelper.setSubject(subject);
 
-            String downloadUrl = "http://localhost:8080/api/v1/announcement/download?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
-            String backendApiUrl = "http://localhost:8080/api/v1/announcement/note?announcementId=" + announcementId + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
+            String downloadUrl = "http://localhost:8080/api/v1/announcement/all/download?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
+            String backendApiUrl = "http://localhost:8080/api/v1/announcement/all/note?announcementId=" + announcementId + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
             String htmlContent = "<html>"
                     + "<body style='font-family: Arial, sans-serif; color: #333; background-color: #ffffff; padding: 20px; margin: 0;'>"
                     + "<div style='text-align: center;'>"

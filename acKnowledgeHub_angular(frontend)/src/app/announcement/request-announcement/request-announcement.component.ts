@@ -11,6 +11,7 @@ import { Group } from '../../models/Group';
 import { Staff } from '../../models/staff';
 import { announcement } from '../../models/announcement';
 import { Position } from '../../models/Position';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-request-announcement',
@@ -78,7 +79,8 @@ export class RequestAnnouncementComponent {
     private staffService: StaffService,
     public announcementService: AnnouncementService,
     private authService: AuthService,
-    private cdr : ChangeDetectorRef
+    private cdr : ChangeDetectorRef,
+    private toastService : ToastService
   ) { }
 
   ngOnInit(): void {
@@ -276,7 +278,7 @@ export class RequestAnnouncementComponent {
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-
+        this.showSuccessToast();
       },
       error => {
         console.error(error);
@@ -468,7 +470,9 @@ export class RequestAnnouncementComponent {
       this.dateError = ""; // Reset error if no date is selected
     }
   }
-  
+  showSuccessToast() {
+    this.toastService.showToast(' Announcement requested successful!', 'success');
+  }
   onCreate(){
     this.formSubmitted = true;  
   }

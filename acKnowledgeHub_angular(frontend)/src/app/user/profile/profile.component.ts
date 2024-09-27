@@ -184,6 +184,6 @@ export class ProfileComponent implements OnInit {
     this.toastService.showToast('Change Password successful!', 'success');
   }
   showProfileUploadSuccessToast(){
-    this.toastService.showToast('Change Profile profile successful!', 'success');
+    this.toastService.showToast('Change Profile photo successful!', 'success');
   }
 }

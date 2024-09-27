@@ -1,15 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ExcelServiceService } from '../services/excel.service';
 import * as XLSX from 'xlsx';
 import { ConfirmationModalComponent } from '../confirmation-modal/confirmation-modal.component';
 import { ToastService } from '../services/toast.service';
+import { ActivatedRoute, Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-excel-import',
   templateUrl: './excel-import.component.html',
   styleUrls: ['./excel-import.component.css']
 })
-export class ExcelImportComponent {
+export class ExcelImportComponent implements OnInit{
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
   file: File | null = null;
   fileError: string | null = null;
@@ -20,9 +22,26 @@ export class ExcelImportComponent {
   currentPage = 1;
   itemsPerPage = 5;  // Number of staff to display per page
   searchTerm: string = '';
+  isUpdateAndAdd: boolean = false;
 
-  constructor(private excelImportService: ExcelServiceService, private toastService: ToastService) { }
+  constructor(private excelImportService: ExcelServiceService, private toastService: ToastService,private route: ActivatedRoute,private router: Router) { }
+  
 
+   ngOnInit(): void {
+    // Using snapshot to check for the initial parameters
+    const excel = this.route.snapshot.queryParamMap.get('excel');
+    const add = this.route.snapshot.queryParamMap.get('add');
+
+    // Assign true to isUpdateAndAdd if both conditions are met
+    if (excel === 'update' && add === 'true') {
+      this.isUpdateAndAdd = true;
+    }
+    console.log(this.isUpdateAndAdd)
+
+    // You can now use this.isUpdateAndAdd in your logic or template
+    console.log('Is Update and Add true?', this.isUpdateAndAdd);
+  }
+  
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -155,14 +174,27 @@ export class ExcelImportComponent {
 
   onSubmit(): void {
     if (this.file) {
-      this.excelImportService.uploadExcelFile(this.file).subscribe(
-        () => {
-          this.showSuccessToast();
-        },
-        error => {
-          this.handleError(error);
-        }
-      );
+      if(this.isUpdateAndAdd){
+        this.excelImportService.uploadExcelFile(this.file,1).subscribe(
+          () => {
+            this.showSuccessToast();
+            this.router.navigate(["/acknowledgeHub/users/list"])
+          },
+          error => {
+            this.handleError(error);
+          }
+        );
+      }else{
+        this.excelImportService.uploadExcelFile(this.file,0).subscribe(
+          () => {
+            this.showSuccessToast();
+            this.router.navigate(["/acknowledgeHub/users/list"])
+          },
+          error => {
+            this.handleError(error);
+          }
+        );
+      }
     }
   }
 
@@ -204,7 +236,7 @@ export class ExcelImportComponent {
   }
 
   showSuccessToast() {
-    this.toastService.showToast('Add Group successful!', 'success');
+    this.toastService.showToast('Add Users successful!', 'success');
   }
 
   showErrorToast() {

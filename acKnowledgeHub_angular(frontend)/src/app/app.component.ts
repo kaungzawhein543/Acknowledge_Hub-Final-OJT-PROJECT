@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
         this.isOtpInput = this.router.url === '/acknowledgeHub/otp-input';
         this.isChangePasswordPage = this.router.url.includes('change-password');
         this.isAddPassword = this.router.url.includes('add-password');
-        this.isNotedSuccessfullPage = /^\/noted\?announcementId=\d+$/.test(this.router.url);
+        this.isNotedSuccessfullPage = /^\/acknowledgeHub\/noted/.test(this.router.url);
         this.is404Page = this.router.url.includes('404');
       });
       this.screenWidth = window.innerWidth ?? 0;

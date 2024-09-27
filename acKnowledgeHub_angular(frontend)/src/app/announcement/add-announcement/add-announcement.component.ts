@@ -31,6 +31,7 @@ import { Router } from '@angular/router';
     ]),
   ],
 })
+
 export class AddAnnouncementComponent implements OnInit, OnDestroy {
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
   private audio: HTMLAudioElement;
@@ -278,12 +279,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
           this.creatingAnnouncement = false;
-          if(this.announcement.scheduleAt){
-            this.router.navigate(["/acknowledgeHub/announcement/pending-announcement"]);
-          }else{
-            this.router.navigate(["/acknowledgeHub/announcement/list"]);
-          }
-        this.showSuccessToast();
+           this.showSuccessToast();
       },
       error => {
         console.error(error);
