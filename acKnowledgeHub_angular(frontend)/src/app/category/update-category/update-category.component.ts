@@ -58,9 +58,10 @@ export class UpdateCategoryComponent implements OnInit {
 
   // Function to handle form submission and updating the category
   saveCategory(): void {
+    this.category.name = this.category.name.trim();
+    this.category.description = this.category.description.trim();
     this.categoryService.update(this.id, this.category).subscribe({
       next: (updatedCategory) => {
-        console.log('Category updated successfully:', updatedCategory);
         this.showSuccessToast(); // Only show toast when update is successful
         this.router.navigate(['/acknowledgeHub/list-category']); // Redirect to the category list after update
       },

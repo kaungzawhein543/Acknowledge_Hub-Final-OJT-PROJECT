@@ -35,6 +35,7 @@ export class AddDepartmentComponent implements OnInit {
     name: '',
     company: {} as Company
   };
+  conflictError : string = "";
   companies!: Company[];
   constructor(private departmentService: DepartmentService, 
     private companyService: CompanyService,
@@ -81,7 +82,7 @@ export class AddDepartmentComponent implements OnInit {
             },
             error: (errorResponse: HttpErrorResponse) => {
               if (errorResponse.status === 409) {
-                console.log('Department already exists.');
+                this.conflictError = errorResponse.error;
               } else {
                 console.log('An error occurred:', errorResponse.message);
               }
@@ -90,6 +91,9 @@ export class AddDepartmentComponent implements OnInit {
         }
       }
     }
+  }
+  departmentIntput():void{
+    this.conflictError = '';
   }
 
 }

@@ -129,7 +129,8 @@ export class ProfileComponent implements OnInit {
         response => {
           console.log('Photo uploaded successfully', response);
           this.ngOnInit();  
-          this.closeModal(); 
+          this.closeModal();
+          this.showProfileUploadSuccessToast() 
         },
         error => {
           console.error('Error uploading photo', error);
@@ -181,5 +182,8 @@ export class ProfileComponent implements OnInit {
 
   showSuccessToast() {
     this.toastService.showToast('Change Password successful!', 'success');
+  }
+  showProfileUploadSuccessToast(){
+    this.toastService.showToast('Change Profile profile successful!', 'success');
   }
 }

@@ -74,7 +74,7 @@ export class ListGroupComponent {
   }
 
   filterStaffAfterSelect(): void {
-    const term = this.staffSearchTermConfirm.toLowerCase();
+    const term = this.staffSearchTermConfirm.toLowerCase().trim();
     this.filterStaffListAfterSelect = this.selectedGroup.staff.filter(staff =>
       staff.name.toLowerCase().includes(term) ||
       staff.position.name.toLowerCase().includes(term) ||

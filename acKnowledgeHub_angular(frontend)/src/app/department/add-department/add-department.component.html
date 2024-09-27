@@ -26,13 +26,14 @@
             </div>
             <div class="mb-6"> <!-- Added margin-bottom for spacing -->
                 <label for="department" class="block text-gray-700 font-semibold mb-2">DepartmentName</label>
-                <input type="text" id="department" name="department" [(ngModel)]="department.name" required
+                <input type="text" id="department" name="department" [(ngModel)]="department.name" required (input)="departmentIntput()" autocomplete="off"
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
                 <span *ngIf="departmentForm.submitted && departmentForm.controls['department'].errors">
                     <small style="color: red;" *ngIf="departmentForm.controls['department'].errors?.['required']">
                         <i class="fa-solid fa-circle-exclamation"></i>Department Name is required
                     </small>
                 </span>
+                <small *ngIf="conflictError" class="text-red-600"><i class="fa-solid fa-circle-exclamation"></i> {{conflictError}}</small>
             </div>
             </div>
 

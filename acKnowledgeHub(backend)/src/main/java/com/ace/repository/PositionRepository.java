@@ -1,6 +1,7 @@
 package com.ace.repository;
 
 
+import com.ace.entity.Company;
 import com.ace.entity.Position;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,9 @@ public interface PositionRepository extends JpaRepository<Position,Integer> {
             "JOIN Department d ON s.department.id = d.id " +
             "WHERE d.id = :departmentId")
     List<Position> findByDepartmentId(@Param("departmentId") Integer departmentId);
+
+    @Query("SELECT p FROM Position p ORDER BY p.name ASC")
+    List<Position> findAllPositionsOrderByName();
 
     @Query("select p from Position p where p.name= ?1")
     Position findByHRName(String name);

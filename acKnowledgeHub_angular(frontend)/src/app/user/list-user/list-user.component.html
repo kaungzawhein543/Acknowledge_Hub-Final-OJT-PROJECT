@@ -84,14 +84,16 @@
                                         <span *ngIf="user.companyStaffId != 'ADMIN001'">
                                             <span *ngIf="user.status ==='inactive'">
                                                 <button mat-button (click)="onActiveButtonClick(user.id)"
-                                                    style="margin-left: 20%;">
+                                                   >
                                                     Activate
                                                 </button></span>
                                             <span *ngIf="user.status ==='active'">
-                                                <button mat-button style="color: rgb(215, 133, 133); margin-left: 20%;"
-                                                    (click)="inActiveButtonClick(user.id)">
+                                                <button mat-button style="color: rgb(215, 133, 133); "
+                                                    (click)="openInactiveModal(user.id)">
                                                     Inactivate
-                                                </button></span></span>
+                                                </button>
+                                            </span>
+                                        </span>
                                     </ng-container>
                                 </span>
                                 <!-- Truncate Description -->
@@ -119,3 +121,9 @@
         <!-- Paginator -->
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div>
+
+    <app-confirmation-modal 
+    #confirmationModal
+    [message]="'Are you sure you want to remove this memeber?'" 
+    (confirmed)="inActiveButtonClick(this.idnumbertoInactive)"
+  ></app-confirmation-modal>

@@ -20,7 +20,7 @@
           <!-- Start Date Container -->
           <div class="flex flex-col">
             <label for="startDate" style="font-size: 14px;">Start Date</label>
-            <input type="date" id="startDate" class="border p-2 rounded w-40" [max]="endDateTime || todayDate"
+            <input type="date" id="startDate" class="border p-2 rounded w-40" [max]="todayDate"
               [value]="startDateTime" (change)="onStartDateChange($event)" />
           </div>
 
@@ -104,13 +104,17 @@
     
                 <!-- Title Column with Versioning -->
                 <ng-container *ngSwitchCase="'title'">
+                  <!-- This span is shown if the version exists and is greater than 1 -->
                   <span *ngIf="getVersionNumber(announcement.file) && getVersionNumber(announcement.file)! > 1">
                     {{announcement.title}} <span>-V{{ getVersionNumber(announcement.file) }}</span>
                   </span>
-                  <span *ngIf="!getVersionNumber(announcement.file) && getVersionNumber(announcement.file) !== 1">
+                  
+                  <!-- This span is shown if there is no version or if the version is 1 -->
+                  <span *ngIf="getVersionNumber(announcement.file) === 1 || getVersionNumber(announcement.file) === null">
                     {{announcement.title}}
                   </span>
                 </ng-container>
+                
     
                 <!-- Truncate Description -->
                 <ng-container *ngSwitchCase="'description'">
@@ -131,7 +135,9 @@
       <tr mat-header-row *matHeaderRowDef="selectedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: selectedColumns;"></tr>
     </table>
-
+    <div *ngIf="announcements.length == 0" class="text-center p-5 text-muted">
+        No Data Avalible!
+    </div>
     <!-- Paginator -->
     <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
   </div>

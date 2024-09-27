@@ -66,7 +66,15 @@ export class ListAnnouncementComponent {
   ) { }
 
   ngOnInit() {
-    this.todayDate = new Date().toISOString().split('T')[0];
+    const today = new Date();
+  today.setDate(today.getDate() + 1);  // Increment the date by 1 to get tomorrow's date
+
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Yangon' };
+
+  const myanmarDate = today.toLocaleDateString('en-CA', options);  // YYYY-MM-DD format
+  this.todayDate = myanmarDate; 
+
+    console.log(this.todayDate)
     this.fetchAnnouncements();
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
@@ -86,7 +94,8 @@ export class ListAnnouncementComponent {
         this.announcements = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredAnnouncements = data;
+        })); 
+        this.filteredAnnouncements = data;
         console.log(this.filteredAnnouncements)
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
@@ -108,7 +117,7 @@ export class ListAnnouncementComponent {
   }
 
   onSearchChange() {
-    const query = this.searchQuery.toLowerCase();
+    const query = this.searchQuery.toLowerCase().trim();
     this.filteredAnnouncements = this.announcements.filter(a => {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
@@ -147,6 +156,7 @@ export class ListAnnouncementComponent {
     this.validateDateRange();
     this.filterAnnouncements();
   }
+
 
   validateDateRange() {
     if (this.startDateTime && this.endDateTime && this.startDateTime > this.endDateTime) {
@@ -251,19 +261,32 @@ export class ListAnnouncementComponent {
   }
 
   filterAnnouncements() {
+    // First filter by active/inactive status
     this.filteredAnnouncements = this.announcements.filter(a => {
       const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
       const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
-    }).filter(a => {
-      if (this.startDateTime && this.endDateTime) {
-        const scheduleAt = new Date(a.scheduleAt);
-        return scheduleAt >= new Date(this.startDateTime) && scheduleAt <= new Date(this.endDateTime);
-      }
-      return true;
     });
+  
+    // Then filter by date range, considering Myanmar time
+    if (this.startDateTime && this.endDateTime) {
+      // Create date objects in local Myanmar time (GMT+0630)
+      const startDate = new Date(this.startDateTime + 'T00:00:00+06:30'); // start of the day in Myanmar time
+      const endDate = new Date(this.endDateTime + 'T23:59:59+06:30'); // end of the day in Myanmar time
+  
+      this.filteredAnnouncements = this.filteredAnnouncements.filter(a => {
+        const scheduleAt = new Date(a.scheduleAt);
+        console.log('Schedule At:', scheduleAt);
+        console.log('Start Date:', startDate);
+        console.log('End Date:', endDate);
+        return scheduleAt >= startDate && scheduleAt <= endDate;
+      });
+    }
+  
+    // Update the data source
     this.dataSource.data = this.filteredAnnouncements;
   }
+  
 
   getNestedProperty(obj: any, path: string): any {
     if (!obj || !path) return null;

@@ -86,8 +86,15 @@ public class StaffController {
 
     @PostMapping("/sys/add")
     public ResponseEntity<String> addStaff(@RequestBody StaffRequestDTO staffRequestDTO) {
-
         try {
+            Staff existStaffId = staffService.getStaffByStaffId(staffRequestDTO.getCompanyStaffId());
+            if(existStaffId != null){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("StaffId is already exist!");
+            }
+            Staff existEmail = staffService.findByEmail(staffRequestDTO.getEmail());
+            if(existEmail != null){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already exist!");
+            }
             Staff staff = new Staff();
             Company company = companyService.getCompanyById(staffRequestDTO.getCompanyId());
             staff.setCompany(company);
@@ -103,10 +110,10 @@ public class StaffController {
             staffService.addStaff(staff);
             return ResponseEntity.ok("Adding is successful.");
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding staff: " + e.getMessage());
         }
     }
-
     @GetMapping("/sys/group-staff")
     public List<StaffGroupDTO> getStaffListByDepartmentId() {
         List<StaffGroupDTO> staffList = staffService.getStaffListForGroup();
@@ -454,5 +461,12 @@ public class StaffController {
             return ResponseEntity.internalServerError().body("Inactivate staff is fail.");
         }
     }
+
+    @GetMapping("/allSys/list-by-announcement/{id}")
+    public List<StaffResponseDTO> getStaffByAnnouncementById(@PathVariable("id")Integer id){
+        return staffService.getStaffListByAnnouncementId(id);
+    }
+
+
 }
 

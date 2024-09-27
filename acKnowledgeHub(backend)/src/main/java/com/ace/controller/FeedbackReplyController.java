@@ -91,9 +91,7 @@ public class FeedbackReplyController {
 
     @MessageMapping("/typing")
     public void handleTypingStatus(@Payload TypingStatusMessage typingStatus) {
-        // Broadcast typing status to all clients
-        System.out.println(typingStatus.getStaffId()+"He is typing");
-        System.out.println(typingStatus.isTyping());
+
         simpMessagingTemplate.convertAndSend("/topic/typing", typingStatus);
     }
 

@@ -58,9 +58,11 @@ export class ListDepartmentsComponent {
       return acc;
     }, {} as { [key: string]: Department[] });
 
-    this.groupedDepartments = Object.keys(grouped).map(companyName => ({
+    this.groupedDepartments = Object.keys(grouped)
+    .sort((a, b) => a.localeCompare(b)) // Sort companies by name
+    .map(companyName => ({
       companyName,
-      departments: grouped[companyName]
+      departments: grouped[companyName].sort((a, b) => a.name.localeCompare(b.name)) // Sort departments within company
     }));
   }
 }

@@ -217,16 +217,37 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
-    if (trimmedTitle === '' && trimmedDescription === '') {
+    this.fileErrorText = "You need to choose a file!";
+    if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
       this.titleError = true;
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedDescription === '' && !this.selectedFile) {
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    }
+    else if (trimmedDescription === '') {
       this.descriptionError = true;
       return;
     } else if (trimmedTitle === '') {
       this.titleError = true;
       return;
-    } else if (trimmedDescription === '') {
-      this.descriptionError = true;
+    } else if (!this.selectedFile) {
+      this.fileErrorMessage = true;
       return;
+    } else {
+      // If all checks are passed, append the file
+      formData.append('files', this.selectedFile);
     }
     // Create the announcement object
     const announcement = {
@@ -253,22 +274,15 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       formData.append('groupIds', new Blob([JSON.stringify(groupIds)], { type: 'application/json' }));
     }
 
-    // Append the selected file if any
-    if (this.selectedFile) {
-      formData.append('files', this.selectedFile);
-    } else {
-      this.fileErrorText = "You need to choose a file!";
-      this.fileErrorMessage = true;
-      return;
-    }
-
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-        setInterval(() => {
           this.creatingAnnouncement = false;
-          this.router.navigate(["/acknowledgeHub/announcement/list"]);
-        }, 2000);
+          if(this.announcement.scheduleAt){
+            this.router.navigate(["/acknowledgeHub/announcement/pending-announcement"]);
+          }else{
+            this.router.navigate(["/acknowledgeHub/announcement/list"]);
+          }
         this.showSuccessToast();
       },
       error => {

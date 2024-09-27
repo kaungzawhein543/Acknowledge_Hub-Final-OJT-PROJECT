@@ -52,7 +52,8 @@ public class SecurityConfig {
                                 "/api/v1/feedback/HRM/**", "/api/v1/staff/HRM/**","/api/v1/group/HRM/**").hasAuthority("Human Resource(Main)")
 
                         // for both Human Resource(Main) and HR
-                        .requestMatchers("/api/v1/staff/allHR/**").access(hrMainAndHrAuthorizationManager())
+                        .requestMatchers("/api/v1/staff/allHR/**","/api/v1/announcement/allHR/**").access(hrMainAndHrAuthorizationManager())
+
 
                         // Non-admin, non-HR access Human Resource(Main)
                         .requestMatchers("/api/v1/announcement/STF/**", "/api/v1/category/STF/**",

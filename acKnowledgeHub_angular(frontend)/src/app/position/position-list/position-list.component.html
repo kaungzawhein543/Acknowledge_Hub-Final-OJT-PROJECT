@@ -1,30 +1,33 @@
-<div class="container">
-    <div class="flex justify-center">
-        <div class="w-full lg:w-4/4">
-            <div class=" text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
-                <h3 class="text-lg font-semibold">
-                    Position List</h3>
-
-            </div>
-            <div class="bg-white p-6 rounded-b shadow-md">
-                <table class="min-w-full table-auto">
-                    <thead>
-                        <tr class="bg-gray-200 text-gray-700">
-                            <th class="px-4 py-2 text-left">#</th>
-                            <th class="px-4 py-2 text-left">Position</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngIf="positions.length === 0">
-                            <td colspan="5" class="text-center text-gray-500 py-4">There is no data available.</td>
-                        </tr>
-                        <tr *ngFor="let position of positions; let i = index" class="border-b">
-                            <td class="px-4 py-2">{{ i + 1 }}</td>
-                            <td class="px-4 py-2">{{ position.name }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="container mx-auto " @cardAnimation>
+    <div class="card flex justify-center">
+      <div class="bg-white shadow-xl rounded-lg overflow-hidden w-full lg:w-4/4">
+        <!-- Header Section -->
+        <div class=" text-white p-5 rounded-t-lg flex justify-between items-center" style="background-color: #1b4980;">
+            <h3 class="card text-xl font-semibold tracking-wide">Position List</h3>
         </div>
+        <div class="card bg-white p-6 rounded-b-lg">
+          <table class="min-w-full table-auto border-collapse">
+              <thead>
+                  <tr class="bg-blue-100 text-blue-900">
+                <th class="px-6 py-3 text-left text-sm font-bold">No.</th>
+                <th class="px-6 py-3 text-left text-sm font-bold">Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Display message when there are no positions -->
+              <tr *ngIf="positions.length === 0">
+                <td colspan="2" class="text-center text-gray-500 py-4">There is no data available.</td>
+              </tr>
+  
+              <!-- Iterate over positions when there is data -->
+              <tr *ngFor="let position of positions; let i = index"  class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-300 ease-in-out">
+                <td class="px-6 py-4 text-sm text-gray-700">{{ i + 1 }}</td>
+                <td class="px-6 py-4 text-sm text-gray-700">{{ position.name }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+  

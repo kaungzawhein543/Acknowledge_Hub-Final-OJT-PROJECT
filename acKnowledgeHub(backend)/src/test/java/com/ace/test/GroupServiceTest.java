@@ -11,10 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -57,7 +54,7 @@ public class GroupServiceTest {
 
 	@Test
 	void findGroupsByIdsTest() {
-		List<Integer> groupIds = Arrays.asList(1, 2);
+		Set<Integer> groupIds = Set.of(1,2);
 		Group group1 = new Group();
 		group1.setId(1);
 		group1.setName("Group one ");

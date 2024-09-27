@@ -21,7 +21,7 @@ public class DepartmentService {
     }
 
     public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+        return departmentRepository.findAllDepartmentsOrderByName();
     }
     public List<Department> getDepartmentsByCompanyId(Integer companyId) {
         return departmentRepository.findByCompanyId(companyId);
@@ -45,6 +45,7 @@ public class DepartmentService {
         }
         return departmentRepository.save(department);
     }
+
 
     public Department updateDepartment(int id, Department updatedDepartment) {
         Optional<Department> existingDepartment = departmentRepository.findById(id);

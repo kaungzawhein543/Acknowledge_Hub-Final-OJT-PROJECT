@@ -11,6 +11,8 @@ import saveAs from 'file-saver';
 import { AuthService } from '../../services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { MatSelectionList } from '@angular/material/list';
+import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 
 
 @Component({
@@ -44,8 +46,10 @@ export class ListUserComponent {
   inactiveChecked = false;
   loginRole !: string;
   isFilterDropdownOpen = false;
+  idnumbertoInactive : number = 0;
   isReportDropdownOpen = false;
-
+  @ViewChild('staff') staff!: MatSelectionList;
+  @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'companyStaffId', header: 'Staff Id' },
@@ -110,7 +114,7 @@ export class ListUserComponent {
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
   }
   onSearchChange() {
-    const query = this.searchQuery.toLowerCase();
+    const query = this.searchQuery.toLowerCase().trim();
     this.filteredStaffs = this.announcements.filter(a => {
       const fieldsToSearch = [
         a.companyStaffId?.toLowerCase() || '',
@@ -260,5 +264,9 @@ export class ListUserComponent {
       },
       error: (e) => console.log(e)
     })
+  }
+  openInactiveModal(id : number) {
+    this.idnumbertoInactive = id;
+    this.modal.open();
   }
 }

@@ -103,4 +103,9 @@ public class GroupController {
     public void reactivateGroup(@PathVariable int groupId) {
         groupService.reactivateGroup(groupId);
     }
+
+    @GetMapping("/sys/list-by-announcement/{id}")
+    public List<GroupResponseDTO> getGroupListByAnnouncementId(@PathVariable("id")Integer id){
+        return groupService.getGroupListByAnnouncementId(id);
+    }
 }

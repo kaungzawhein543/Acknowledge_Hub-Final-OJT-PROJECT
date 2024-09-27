@@ -71,7 +71,7 @@
         <mat-selection-list #staff (selectionChange)="toggleSelection($event)">
           <mat-list-option *ngFor="let staff of filteredStaffList" [value]="staff" [selected]="isSelected(staff)" [ngClass]="{'bg-[#1b4980] text-white': isSelected(staff), '': !isSelected(staff)}">
             <div class="py-2 px-4 rounded-lg transition ease-in-out duration-200">
-              {{ staff.name }} ({{ staff.position }})
+              {{ staff.name }} ({{ staff.position.name }})
             </div>
           </mat-list-option>
         </mat-selection-list>
@@ -126,7 +126,7 @@
           <img [src]="staff.photoPath" alt="Profile Picture" class="w-12 h-12 rounded-full">
         </td>
         <td class="p-3">{{ staff.name }}</td>
-        <td class="p-3">{{ staff.position }}</td>
+        <td class="p-3">{{ staff.position.name }}</td>
         <td class="p-3">{{ staff.company.name }}</td>
         <td class="p-3">{{ staff.department.name }}</td>
         <td class="p-3">

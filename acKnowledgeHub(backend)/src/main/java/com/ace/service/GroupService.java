@@ -31,7 +31,7 @@ public class GroupService {
         return groupRepository.findAll();
     }
 
-    public List<Group> findGroupsByIds(List<Integer> ids) {
+    public List<Group> findGroupsByIds(Set<Integer> ids) {
         return groupRepository.findGroupsByIds(ids);
     }
 
@@ -128,5 +128,9 @@ public class GroupService {
         Hibernate.initialize(group.getStaff());
 
         return group.getStaff();
+    }
+
+    public List<GroupResponseDTO> getGroupListByAnnouncementId(Integer id){
+        return groupRepository.getGroupsByAnnouncementId(id);
     }
 }

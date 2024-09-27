@@ -11,13 +11,14 @@
                 <label for="position"class="block text-gray-700 font-semibold mb-2">Position Name</label>
 
 
-            <input type="text" id="name" name="name" [(ngModel)]="position.name" required
+            <input type="text" id="name" name="name" [(ngModel)]="position.name" required (input)="addPositionInput()" autocomplete="off"
                 class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
             <span *ngIf="positionForm.submitted && positionForm.controls['name'].errors">
                 <small style="color: red;" *ngIf="positionForm.controls['name'].errors?.['required']">
                     <i class="fa-solid fa-circle-exclamation"></i>Position name is required
                 </small>
             </span>
+            <small *ngIf="conflictError" class="text-red-600"><i class="fa-solid fa-circle-exclamation"></i> {{conflictError}}</small>
         </div>
 
         <div class="card flex space-x-4">

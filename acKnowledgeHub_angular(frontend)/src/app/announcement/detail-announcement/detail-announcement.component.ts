@@ -11,6 +11,9 @@ import { StaffService } from '../../services/staff.service';
 import { forkJoin, map, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
 import { Category } from '../../models/category';
 import { WebSocketService } from '../../services/web-socket.service';
+import { GroupService } from '../../services/group.service';
+import { Group } from '../../models/Group';
+import { staffList } from '../../models/staff';
 
 @Component({
   selector: 'app-detail-announcement',
@@ -70,6 +73,10 @@ export class DetailAnnouncementComponent {
  step: number = 10;
  showUpArrow = false;
   showScrollTopButton: boolean = false; 
+  staffsByAnnouncement: staffList[] = [];
+  groupsByAnnouncement: Group[] = [];
+  showConfirmBox: boolean = false;
+  showGroupConfirmBox: boolean = false;
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
@@ -85,7 +92,8 @@ export class DetailAnnouncementComponent {
    private router : Router,
    private staffService : StaffService,
    private elRef: ElementRef,
-   private webSocketService: WebSocketService
+   private webSocketService: WebSocketService,
+   private groupService :GroupService
  ) {}
 
  ngOnInit(): void {
@@ -152,6 +160,8 @@ private loadAnnouncementData(decodedId: string): void {
           }
           this.createdStaff = announcement.createdStaffId;
           this.accessStaffs = announcement.groupStatus === 1 ? announcement.staffInGroups : announcement.staff;
+          console.log(`Current user id ${this.currentUserId}`)
+          console.log(`Announcement create user id ${this.currentUserId}`);
           this.replyPermission = this.currentUserId === announcement.createdStaffId;
           this.notedPermission = this.accessStaffs.includes(this.currentUserId);
         }),
@@ -175,6 +185,7 @@ private loadAnnouncementData(decodedId: string): void {
             this.notNoted = true;
             console.log(`unNoted is ${this.notNoted}`);
           }
+          console.log(feedbackData)
           this.notedCount = notedStaff.length;
           this.unNotedCount = unNotedStaff.length;
           this.questionList = feedbackData.map((feedback: any) => ({
@@ -369,6 +380,33 @@ notedAnnouncement(userId: number,announcementId : number){
     if (this.typingSubscription) {
       this.typingSubscription.unsubscribe();
     }
+  }
+  showStaffs(id: number): void {
+    this.staffService.getStaffsByAnnouncementId(id).subscribe({
+      next: (data) => {
+        this.staffsByAnnouncement = data;
+      },
+      error: (e) => console.log(e)
+    })
+    this.showConfirmBox = !this.showConfirmBox;
+  }
+
+  showGroups(id: number) {
+    this.groupService.getGroupsByAnnouncementId(id).subscribe({
+      next: (data) => {
+        this.groupsByAnnouncement = data;
+      },
+      error: (e) => console.log(e)
+    })
+    this.showGroupConfirmBox = !this.showGroupConfirmBox;
+  }
+
+  showSelectedStaff(): void {
+    this.showConfirmBox = !this.showConfirmBox;
+  }
+
+  showSelectedGroup(): void {
+    this.showGroupConfirmBox = !this.showGroupConfirmBox;
   }
 }
 

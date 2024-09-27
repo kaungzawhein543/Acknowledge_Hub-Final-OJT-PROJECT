@@ -15,7 +15,7 @@ export class PositionService {
     return this.http.get<Position[]>(`${this.baseUrl}/sys/list`,{ withCredentials: true});
   }
 
-  addPosition(position: Position): Observable<any> {
-    return this.http.post(`${this.baseUrl}/sys/addPosition`, position,{ withCredentials: true});
+  addPosition(position: Position): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/sys/addPosition`, position,{ withCredentials: true,responseType : 'text'as 'json'});
   }
 }

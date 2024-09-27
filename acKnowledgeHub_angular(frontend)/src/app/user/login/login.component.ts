@@ -60,19 +60,14 @@ export class LoginComponent implements OnInit {
 
     if (!this.staffId && !this.password) {
       this.errorMessage = 'Please fill in all required fields.';
-
       return;
     }
     this.errorMessage = '';
-
     if (form.invalid) {
-
       return;
     }
-
+    this.staffId = this.staffId.trim();
     const trimmedPassword = this.password.trim();
-
-
     this.authService.login(this.staffId, trimmedPassword, this.rememberMe).subscribe(
       response => {
         const body = response.body;
@@ -103,7 +98,7 @@ export class LoginComponent implements OnInit {
         if (this.failedAttempts >= 5) {
           this.loginButtonStatus = false;
           this.isLocked = true;
-          this.countdown = 120;  // Set countdown to 120 seconds (2 minutes)
+          this.countdown = 30;  // Set countdown to 120 seconds (2 minutes)
           const lockEndTime = new Date().getTime() + this.countdown * 1000;  // Store lock end time
 
           localStorage.setItem('lockedData', JSON.stringify({ lockEndTime }));
@@ -119,6 +114,7 @@ export class LoginComponent implements OnInit {
             console.log(this.countdown)
             if (this.countdown <= 0) {
               clearInterval(intervalId);
+              console.log(this.countdown)
               this.isLocked = false;
               if(this.countdown === 0){
                 this.loginButtonStatus = true;

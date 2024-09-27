@@ -31,8 +31,10 @@ export class AddCompanyComponent {
     id: 0,
     name: ''
   };
+  conflictError : string = '';
   constructor(private companyService: CompanyService, private toastService: ToastService,    private router: Router,
   ) { }
+
   onSubmit(form: NgForm) {
     this.company.name = this.company.name.trim();
     if (this.company.name != '') {
@@ -41,11 +43,10 @@ export class AddCompanyComponent {
           next: (data: string) => {
             this.toastService.showToast("Company Add Successfully",'success');
             this.router.navigate(['/acknowledgeHub/company/list']);
-            console.log(data);
           },
           error: (errorResponse: HttpErrorResponse) => {
             if (errorResponse.status === 409) {
-              console.log('Company already exists.');
+              this.conflictError = errorResponse.error;
             } else {
               console.log('An error occurred:', errorResponse.message);
             }
@@ -53,7 +54,9 @@ export class AddCompanyComponent {
         })
       }
     }
-
+  }
+  companyIntput():void{
+    this.conflictError = '';
   }
   showSuccessToast() {
     this.toastService.showToast('Company Created successful!', 'success');

@@ -12,6 +12,11 @@
     <div class="card flex justify-between mb-4">
 
         <div class="flex gap-4">
+             <!-- Date Filters -->
+             <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate" [value]="startDateTime"
+             (change)="onStartDateChange($event)" />
+            <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
+                    [value]="endDateTime" (change)="onEndDateChange($event)" />
             <!-- Checkbox Filters -->
             <div class="relative inline-block text-left">
                 <select [(ngModel)]="selectedVersionId" (ngModelChange)="onVersionChange($event)"
@@ -96,7 +101,9 @@
             <tr mat-header-row *matHeaderRowDef="selectedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: selectedColumns;"></tr>
         </table>
-
+        <div *ngIf="staffs.length == 0" class="text-center p-5 text-muted">
+            No Data Avalible!
+        </div>
         <!-- Paginator -->
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div>

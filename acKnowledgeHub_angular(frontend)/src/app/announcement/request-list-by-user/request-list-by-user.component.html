@@ -1,6 +1,6 @@
-<div class="container bg-white mx-auto p-4">
+<div class="container bg-white mx-auto p-4 " @cardAnimation>
     <!-- Header Section -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="card flex justify-between items-center mb-8">
         <span class="text-5xl font-semibold" style="font-size: 30px;">My Requested Announcement List</span>
         <!-- Search Input on the Right Side -->
         <input type="text" class="border p-2 rounded w-1/3 md:w-1/4" placeholder="Search..." [(ngModel)]="searchQuery"
@@ -9,7 +9,7 @@
 
 
     <!-- Search and Filters Section -->
-    <div class="flex justify-between mb-4">
+    <div class="card flex justify-between mb-4">
 
         <div class="flex gap-4">
             <!-- Date Filters -->
@@ -22,7 +22,7 @@
 
         <div>
             <!-- Report Button -->
-            <div class="relative">
+            <div class="card relative">
                 <button class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700"
                     (click)="toggleReportDropdown()">
                     Generate Report <i class="fa-solid fa-caret-down"></i>
@@ -54,7 +54,7 @@
 
 
     <!-- Table with Pagination -->
-    <div class="mat-elevation-z8">
+    <div class="card mat-elevation-z8">
         <table mat-table [dataSource]="dataSource" class="min-w-full">
             <!-- Define Columns -->
             <ng-container *ngFor="let col of columns">
@@ -69,6 +69,9 @@
                                     <button mat-button (click)="onDetailButtonClick(announcement.id)">
                                         View
                                     </button>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'scheduleAt'">
+                                    <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
                                 </ng-container>
                                 <!-- For Request Staff Column -->
                                 <ng-container *ngSwitchCase="'createStaff'">

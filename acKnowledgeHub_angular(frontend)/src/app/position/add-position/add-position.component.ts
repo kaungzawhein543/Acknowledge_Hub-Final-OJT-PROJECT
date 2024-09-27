@@ -5,6 +5,7 @@ import { PositionService } from '../../services/position.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -25,7 +26,7 @@ import { trigger, style, transition, animate, query, stagger } from '@angular/an
   ],
 })
 export class AddPositionComponent {
-
+  conflictError: string = '';
   position: Position = {
     id: 0,
     name: ''
@@ -45,9 +46,19 @@ export class AddPositionComponent {
           next: (data) => {
             this.showSuccessToast();
             this.router.navigate(['/acknowledgeHub/position/list']); 
-          }, error: (e) => console.log(e)
+          }, error: (errorResponse: HttpErrorResponse) => {
+            if (errorResponse.status === 409) { 
+              this.conflictError = errorResponse.error;
+            } else {
+              console.log('An error occurred:', errorResponse.message);
+            }
+          }
         })
       }
     }
+  }
+
+  addPositionInput():void{
+    this.conflictError = '';
   }
 }

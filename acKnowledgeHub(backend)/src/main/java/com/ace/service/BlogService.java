@@ -15,10 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -118,39 +115,55 @@ public class BlogService {
                    notificationService.sendNotification(convertToDTO(notification));
                }
            } else {
+               Set<Staff> allUniqueStaffs = new HashSet<>(); // Set to store unique staff across all groups
+
                for (Group group : groupsForAnnounce) {
                    if (group != null) {
                        List<Staff> staffFromGroup = group.getStaff(); // Accessing initialized collection
-                       for (Staff AnnounceStaff : staffFromGroup) {
-                           if (AnnounceStaff.getChatId() != null) {
-                               if(!file.isEmpty() && file != null){
-                                   if(AnnounceStaff.getChatId() != null){
-                                       botService.sendFile(AnnounceStaff.getChatId(), file, announcementId,updateStatus);
-                                   }
-                               }else{
-                                   System.out.println("File is null or empty");
-                               }
-                           }
-                           if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
-                               if(updateStatus > 0){
-                                   emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcementId);
-                               }else{
-                                   emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have a Announcement", file, file.getOriginalFilename(),announcementId);
-
-                               }
-                           }
-                           String description;
-                           if(updateStatus > 0){
-                               description = announcementForNoti.getCreateStaff().getName()+" Updated "+announcementForNoti.getTitle()+" Announcement!Check It Out!";
-                           }else{
-                               description = announcementForNoti.getCreateStaff().getName()+" Created New Announcement!Check It Out!";
-                           }
-                           String url =  "/acknowledgeHub/announcement/detail/"+Base64.getEncoder().encodeToString(announcementForNoti.getId().toString().getBytes());
-                           Notification notification = createNotification(announcementForNoti, AnnounceStaff, description,url);
-                           notificationService.sendNotification(convertToDTO(notification));
-                       }
+                       allUniqueStaffs.addAll(staffFromGroup); // Add all staff from this group to the set
                    }
                }
+
+// Now process each unique staff member
+               for (Staff announceStaff : allUniqueStaffs) {
+                   System.out.println(announceStaff.getName());
+                   System.out.println("This is from blog service");
+
+                   // Check for Chat ID and file sending logic
+                   if (announceStaff.getChatId() != null) {
+                       if (!file.isEmpty() && file != null) {
+                           botService.sendFile(announceStaff.getChatId(), file, announcementId, updateStatus);
+                       } else {
+                           System.out.println("File is null or empty");
+                       }
+                   }
+
+                   // Check for email sending logic
+                   if (announceStaff.getEmail() != null && !announceStaff.getEmail().isEmpty()) {
+                       if (updateStatus > 0) {
+                           emailService.sendFileEmail(announceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(), announcementId);
+                       } else {
+                           emailService.sendFileEmail(announceStaff.getEmail(), "We Have an Announcement", file, file.getOriginalFilename(), announcementId);
+                       }
+                   }
+
+                   // Prepare notification description
+                   String description;
+                   if (updateStatus > 0) {
+                       description = announcementForNoti.getCreateStaff().getName() + " Updated " + announcementForNoti.getTitle() + " Announcement! Check It Out!";
+                   } else {
+                       description = announcementForNoti.getCreateStaff().getName() + " Created New Announcement! Check It Out!";
+                   }
+
+                   // Create notification URL
+                   String url = "/acknowledgeHub/announcement/detail/" + Base64.getEncoder().encodeToString(announcementForNoti.getId().toString().getBytes());
+
+                   // Create and send notification
+                   Notification notification = createNotification(announcementForNoti, announceStaff, description, url);
+                   notificationService.sendNotification(convertToDTO(notification));
+                   System.out.println("Noti sent to " + announceStaff.getName());
+               }
+
            }
        }catch(Exception e){
            System.out.println(e);

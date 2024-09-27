@@ -19,6 +19,12 @@
       <i [ngClass]="icon" class="text-4xl text-gray-400 dark:text-gray-500 w-11 h-11 mb-3.5 mx-auto"></i>
 
       <p class="mb-4 text-gray-500">{{ message }}</p>
+      <div *ngIf="showReasonInput">
+        <input type="text" [(ngModel)]="reason" placeholder="Enter reason about rejecting announcement."
+          class="block w-full p-2 border rounded-lg mb-4" />
+      </div>
+
+
 
       <div class="flex justify-center items-center space-x-4 mt-5">
         <button type="button"
@@ -26,8 +32,7 @@
           (click)="close()">
           No, cancel
         </button>
-        <button type="button"
-          class="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700"
+        <button type="button" class="py-2 px-3 text-sm font-medium text-white rounded-lg" [ngClass]="confirmButtonClass"
           (click)="confirm()">
           Yes, I'm sure
         </button>

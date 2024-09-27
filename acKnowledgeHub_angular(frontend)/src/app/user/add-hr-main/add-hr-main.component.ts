@@ -4,6 +4,7 @@ import { StaffService } from '../../services/staff.service';
 import { Router } from '@angular/router';
 import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { ToastService } from '../../services/toast.service';
 
 
 @Component({
@@ -27,7 +28,7 @@ export class AddHRMainComponent {
   private staffToBeMainHR: number | null = null;
   staffHRList: staffList[] = [];
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
-  constructor(private staffService: StaffService, private router: Router) { }
+  constructor(private staffService: StaffService, private router: Router,private toastService : ToastService) { }
 
   ngOnInit(): void {
     this.getHRStaffList();
@@ -58,9 +59,13 @@ export class AddHRMainComponent {
   addHRMain(staffId: number) {
     this.staffService.putHRMain(staffId).subscribe({
       next: (data) => {
+        this.showSuccessToast();
         this.staffHRList = data;
       }
     })
+  }
+  showSuccessToast() {
+    this.toastService.showToast('Add Human Resource (MAIN) successful!', 'success');
   }
 
 }

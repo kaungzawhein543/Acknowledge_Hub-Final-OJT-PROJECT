@@ -59,15 +59,23 @@
       </div>
 
       <!-- Description Section -->
-      <div class="text-justify space-y-4" *ngIf="isloading">
-        <div class="loading qube-cat"></div>
-        <div class="loading qube-cat"></div>
-      </div>
-      <div class="text-justify space-y-4" *ngIf="!isloading">
+      <div class="text-justify space-y-4">
         <p class="text-lg tracking-wide text-gray-700">{{ announcement.description }}</p>
-        <div class="flex items-center text-gray-700">
-          <i class="fas fa-file-alt mr-2"></i>
-          <span class="text-base">Attached File: <a class="text-blue-600 underline cursor-pointer" (click)="downloadFile(this.announcement.file)">Download</a></span>
+        <div class="flex justify-between">
+          <div class="flex items-center text-gray-700">
+            <i class="fas fa-file-alt mr-2"></i>
+            <span class="text-base">Attached File: <a class="text-blue-600 underline"
+                (click)="downloadFile(this.announcement.file)">Download</a></span>
+          </div>
+          <div *ngIf="isAdmin ||  isHumanResourceMain || replyPermission">
+            <span *ngIf="announcement.groupStatus == 0">
+              <button (click)="showStaffs(announcement.id)" class="px-2 py-1 bg-green-500 text-white rounded">Show
+                Staffs</button>
+            </span>
+            <span *ngIf="announcement.groupStatus == 1"><button (click)="showGroups(announcement.id)"
+                class="px-2 py-1 bg-green-500 text-white rounded">Show
+                Gorups</button></span>
+          </div>
         </div>
       </div>
 
@@ -145,10 +153,10 @@
           </button>
         </div>
       </form>
-      <div class="bg-gray-200 p-2 rounded-md flex items-center mt-2" *ngIf="isTyping && !isloading && currentUserId != typingUserId && typingAnnouncementId === announcement.id">
+      <div class="bg-gray-200 p-1 rounded-md flex items-center mt-2" *ngIf="isTyping && !isloading && currentUserId != typingUserId && typingAnnouncementId === announcement.id">
         <img src="../../../assets/images/profileTyping.jpg" alt="typing profile" class="rounded-full w-10"  > 
-        <span class="mt-3 ms-3 flex items-center">
-          <span class="ms-2 me-1">Some Users are typing</span>
+        <span class=" ms-3 flex items-center">
+          <span class="">Some Users are typing</span>
           <span class="typing-animation" id="typing-indicator"></span>
         </span>
       </div>
@@ -277,4 +285,70 @@
 </div>
 
 
+</div>
+
+
+
+<div *ngIf="showConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
+  <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
+    <div class="border-b border-gray-400 text-center p-3 ">
+      Staffs that have been announced
+      <i class="fas fa-x float-end cursor-pointer  rounded-full p-1" (click)="showSelectedStaff()"></i>
+    </div>
+
+    <!-- Table for Staff Data -->
+    <div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+      <table class="w-full text-left table-auto border-collapse">
+        <thead>
+          <tr class="border-b border-gray-300 bg-gray-200">
+            <th class="p-3">No.</th>
+
+            <th class="p-3">Name</th>
+            <th class="p-3">Position</th>
+            <th class="p-3">Company</th>
+            <th class="p-3">Department</th>
+          </tr>
+        </thead>
+        <tbody id="staff-table-body">
+          <tr class="border-b border-gray-200" *ngFor="let staff of staffsByAnnouncement; let i = index">
+            <td class="p-3">{{ i + 1 }}</td>
+            <td class="p-3">{{ staff.name }}</td>
+            <td class="p-3">{{ staff.position}}</td>
+            <td class="p-3">{{ staff.department}}</td>
+            <td class="p-3">{{ staff.company }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+
+<div *ngIf="showGroupConfirmBox" class="fixed inset-0 bg-black bg-opacity-25 z-50 flex items-center justify-center">
+  <div class="bg-white w-6/12 h-5/6 p-3 rounded-md relative">
+    <div class="border-b border-gray-400 text-center p-3 ">
+      Gorups that have been announced
+      <i class="fas fa-x float-end cursor-pointer  rounded-full p-1" (click)="showSelectedGroup()"></i>
+    </div>
+
+    <!-- Table for Staff Data -->
+    <div class="h-3/5 bg-gray-100 rounded-md overflow-y-auto absolute inset-x-3 p-3">
+      <table class="w-full text-left table-auto border-collapse">
+        <thead>
+          <tr class="border-b border-gray-300 bg-gray-200">
+            <th class="p-3">No.</th>
+            <th class="p-3">Name</th>
+          </tr>
+        </thead>
+        <tbody id="staff-table-body">
+          <tr class="border-b border-gray-200" *ngFor="let group of groupsByAnnouncement; let i = index">
+            <td class="p-3">{{ i + 1 }}</td>
+            <td class="p-3">{{ group.name }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>

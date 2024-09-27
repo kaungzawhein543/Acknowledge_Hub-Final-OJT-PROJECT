@@ -212,16 +212,36 @@ export class RequestAnnouncementComponent {
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
-    if (trimmedTitle === '' && trimmedDescription === '') {
+    if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
       this.titleError = true;
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedDescription === '' && !this.selectedFile) {
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    }
+    else if (trimmedDescription === '') {
       this.descriptionError = true;
       return;
     } else if (trimmedTitle === '') {
       this.titleError = true;
       return;
-    } else if (trimmedDescription === '') {
-      this.descriptionError = true;
+    } else if (!this.selectedFile) {
+      this.fileErrorMessage = true;
       return;
+    } else {
+      // If all checks are passed, append the file
+      formData.append('files', this.selectedFile);
     }
     // Create the announcement object
     const announcement = {
@@ -432,16 +452,20 @@ export class RequestAnnouncementComponent {
   }
   onDateChange() {
     if (this.scheduleDate) {
-      const selectedDate = new Date(this.scheduleDate);
-      const now = new Date();
-  
-      if (selectedDate < now) {
-        this.dateError = 'The schedule date should be later than current time!'; 
+      const selectedDate = new Date(this.scheduleDate); // Convert the input to a Date object
+      const now = new Date(); // Get the current time
+      
+      // Add 3 minutes to the current time
+      const minDate = new Date(now.getTime() + 3 * 60 * 1000); // Current time + 3 minutes
+      
+      // Compare the schedule date with the current time + 3 minutes
+      if (selectedDate < minDate) {
+        this.dateError = 'The schedule date should be at least 3 minutes later than the current time!'; 
       } else {
-        this.dateError = ""; 
+        this.dateError = ""; // No error
       }
     } else {
-      this.dateError = ""; 
+      this.dateError = ""; // Reset error if no date is selected
     }
   }
   

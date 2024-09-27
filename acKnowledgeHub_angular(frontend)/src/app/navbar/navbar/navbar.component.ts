@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -55,9 +55,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.loadProfile();
     document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
     this.authService.getUserInfo().subscribe(data => {
-      this.staff_id = data.user.id;
+      this.staff_id = data.user.staffIdd;
       this.position = data.position;
       this.name = data.user.name;
+      console.log(data)
     });
 
     this.profileService.profile$.subscribe((profile) => {
@@ -318,23 +319,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }, 1000);  // Every 1 second
     }
   }
-  openSettingsModal() {
-    this.isSettingsModalOpen = true;
-  }
 
-  // Method to close the settings modal
-  closeSettingsModal() {
-    this.isSettingsModalOpen = false;
-  }
-
-  // Method to save settings
-  saveSettings() {
-    // Logic to save the settings goes here
-    console.log('Settings saved:', {
-      notificationPreference: this.notificationPreference,
-      language: this.language,
-    });
-
-    this.closeSettingsModal(); // Close the modal after saving
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isDropdownOpen = false;
+      this.showNotifications = false;
+    }
   }
 }

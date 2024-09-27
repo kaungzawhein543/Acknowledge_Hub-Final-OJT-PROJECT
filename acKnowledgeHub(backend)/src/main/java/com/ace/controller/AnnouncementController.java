@@ -120,7 +120,7 @@ public class AnnouncementController {
     public ResponseEntity<Announcement> createAnnouncement(
             @RequestPart AnnouncementDTO request,
             @RequestPart(name = "userIds", required = false) List<Integer> userIds,
-            @RequestPart(name = "groupIds", required = false) List<Integer> groupIds,
+            @RequestPart(name = "groupIds", required = false) Set<Integer> groupIds,
             @RequestPart(name = "files", required = false) List<MultipartFile> files,
             @RequestParam(name = "createUserId") Integer createUserId,
             HttpServletRequest httpRequest) {
@@ -232,7 +232,7 @@ public class AnnouncementController {
                     }else{ // Announcement က update လုပ်ဖို့မဟုတ်ဘူးဆိုရင်
                         description = savedAnnouncement.getCreateStaff().getName()+" Requested Announcement!Check It Out!";
                     }
-                    Position postion = positionService.findByName("HR_MAIN");
+                    Position postion = positionService.findByName("Human Resource(Main)");
                     List<Staff> HrStaff = staffService.getStaffByPositionId(postion.getId());
                     String url =  "/acknowledgeHub/announcement/request-list";
                     Notification notification = blogService.createNotification(savedAnnouncement, HrStaff.get(0), description,url);
@@ -567,7 +567,7 @@ public class AnnouncementController {
         }
     }
 
-    @GetMapping("/HRM/reject/{id}")
+    @PostMapping("/HRM/reject/{id}")
     public ResponseEntity<Boolean> rejectRequestAnnouncement(@PathVariable("id") Integer id,@RequestBody String reason) {
         try {
              announcement_service.rejectRequestAnnouncement(id);
@@ -581,8 +581,8 @@ public class AnnouncementController {
         }
     }
 
-    @GetMapping("request-list/{id}")
-    public List<AnnouncementListDTO> getAnnouncementListByStaffRequest(@PathVariable("id") Integer staffId){
+    @GetMapping("/allHR/request-list/{staffId}")
+    public List<AnnouncementListDTO> getAnnouncementListByStaffRequest(@PathVariable("staffId") Integer staffId){
         return announcement_service.getAnnouncementListByStaffRequest(staffId);
     }
 
@@ -596,5 +596,14 @@ public class AnnouncementController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @GetMapping("publish-now/{id}")
+    public ResponseEntity<String> postAnnouncementPublishNow(@PathVariable("id")Integer id){
+        try{
+            postSchedulerService.cancelScheduledPost(id);
+            blogService.publishPost(id);
+            return ResponseEntity.ok("Updating announcement post now successfully");
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

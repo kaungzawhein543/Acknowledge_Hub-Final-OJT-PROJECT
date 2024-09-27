@@ -45,7 +45,7 @@ export class PendingAnnouncementComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
-
+  loginRole !: string;
   isaHrMain: boolean = false; // Initialize the isaHrMain variable
   profile: StaffProfileDTO | null = null;
 
@@ -78,7 +78,7 @@ export class PendingAnnouncementComponent implements OnInit {
     this.authService.getProfile().subscribe(
       (data) => {
         this.profile = data;
-        console.log('Profile fetched successfully:', this.profile);
+        this.loginRole = data.role;
 
         // Check if the user position is "Human Resource(Main)"
         if (this.profile.position === "Human Resource(Main)") {
@@ -107,6 +107,7 @@ export class PendingAnnouncementComponent implements OnInit {
         this.filteredAnnouncements = this.announcements;
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
+        console.log(data);
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -262,5 +263,21 @@ export class PendingAnnouncementComponent implements OnInit {
     if (!clickedInsideDropdown) {
       this.isReportDropdownOpen = false;
     }
+  }
+
+  onPublishButtonClick(id: number) {
+    this.announcementService.postPublishNow(id).subscribe({
+      next: (data: string) => {
+        this.fetchAnnouncements();
+      },
+      error: (e) => console.log(e)
+    })
+  }
+
+  setColumnsBasedOnRole() {
+    if (this.loginRole == 'ADMIN') {
+      this.columns = this.columns.filter(col => col.field !== 'action');
+    }
+    this.selectedColumns = this.columns.map(col => col.field);
   }
 }

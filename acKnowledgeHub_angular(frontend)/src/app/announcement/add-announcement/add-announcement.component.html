@@ -69,14 +69,14 @@
                   <ul class="space-y-2">
                     <div *ngIf="selectedGroups.length > 0">
                       <li *ngFor="let group of selectedGroups"
-                        class="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer">
+                        class="flex items-center p-3 hover:bg-gray-100 rounded-lg ">
                         <i class="fa-solid fa-users me-2"></i><span>{{ group.name }}</span>
                       </li>
                     </div>
                     <div *ngIf="selectedStaffs.length > 0">
                       <ul class="list-none p-0 m-0">
                         <li *ngFor="let staff of selectedStaffs"
-                          class="flex items-center p-3 hover:bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
+                          class="flex items-center p-3 hover:bg-gray-100 rounded-lg  overflow-hidden">
                           <i class="fa-solid fa-circle-user me-2"></i><span class="truncate">{{ staff.name }}</span>
                         </li>
                       </ul>

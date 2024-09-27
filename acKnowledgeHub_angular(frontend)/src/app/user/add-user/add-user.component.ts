@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { StaffService } from '../../services/staff.service';
 import { PositionService } from '../../services/position.service';
 import { DepartmentService } from '../../services/department.service';
@@ -13,6 +13,7 @@ import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import e from 'express';
 
 
 @Component({
@@ -46,7 +47,15 @@ export class AddUserComponent implements OnInit {
     departmentId: 0,
     companyId: 0
   }
+  emailFormatError : boolean = false;
+  emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
   roles = Object.values(Role);
+  alreadyExistStaffId : string = '';
+  conflictStaffIdMessage : string = '';
+  alreadyExistStaffEmail : string = '';
+  conflictEmaildMessage : string = '';
+  isDropdownOpen = false;
+  
   constructor(private staffService: StaffService, private positionService: PositionService,
     private departmentService: DepartmentService, private companyService: CompanyService,
     private toastService: ToastService,
@@ -109,21 +118,85 @@ export class AddUserComponent implements OnInit {
   }
 
   onSubmit(form: NgForm): void {
+    
     this.staff.companyStaffId = this.staff.companyStaffId?.trim();
     this.staff.name = this.staff.name?.trim();
-    this.staff.email = this.staff.email?.trim();
-    if (this.staff.companyStaffId != '' && this.staff.name != '' && this.staff.email != '') {
+    this.staff.email = this.staff.email?.trim() || '';
+
+    const isEmailValid = this.emailRegex.test(this.staff.email);
+
+    if (this.staff.companyStaffId != '' && this.staff.name != '' && this.staff.email != '' && isEmailValid) {
       if (form.valid) {
         this.staffService.addStaff(this.staff).subscribe({
           next: (data) => {
             this.toastService.showToast("Staff Add Successfully",'success');
             this.router.navigate(['/acknowledgeHub/users/list']);
           },
-          error: (e) => console.log(e)
+          error: (error: HttpErrorResponse) => {
+            // Handle 409 Conflict error
+            console.log(error)
+            if (error.status === 409) {
+              if(error.error === "StaffId is already exist!"){
+                this.alreadyExistStaffId = this.staff.companyStaffId || '';
+                this.conflictStaffIdMessage = error.error || "Conflict occurred. Please try again.";
+              }else if(error.error === "Email is already exist!"){
+                this.alreadyExistStaffEmail = this.staff.email || '';
+                this.conflictEmaildMessage = error.error || "Conflict occurred. Please try again.";
+              }
+            } else {
+              // Handle other errors
+              this.toastService.showToast("An error occurred. Please try again.", 'error');
+              console.error("Error:", error);
+            }
+          }
         });
       }
+    }else if(!isEmailValid){
+      this.emailFormatError = true;
+    }else{
+      console.log(isEmailValid)
     }
+  }
+  onEmailInput(): void {
+    // Trim the email input to avoid leading/trailing spaces
+    const trimmedEmail = this.staff.email?.trim() || '';
+  
+    // Check if the email is provided and validate its format
+    this.emailFormatError = !this.emailRegex.test(trimmedEmail);
+  
+    if (this.emailFormatError) {
+      // If email format is invalid, clear the conflict message
+      this.conflictEmaildMessage = "";
+    } else {
+      // Only check for conflicts if the email format is valid
+      if (this.alreadyExistStaffEmail?.trim() === trimmedEmail) {
+        this.conflictEmaildMessage = "Email already exists!";
+        console.log('same');
+      } else {
+        this.conflictEmaildMessage = ""; // Clear message if no conflict
+      }
+    }
+  }
+  
+  onStaffIdInput(): void {
+    if (this.alreadyExistStaffId !== '' && this.staff.companyStaffId !== undefined) {
+      // Check if alreadyExistStaffId matches the staff.companyStaffId
+      if(this.alreadyExistStaffId === this.staff.companyStaffId){
+        this.conflictStaffIdMessage = 'StaffId is already exist!';
+      }else{
+        this.conflictStaffIdMessage = '';
+      }
+    }
+  }
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
 
-
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isDropdownOpen = false;
+    }
   }
 }

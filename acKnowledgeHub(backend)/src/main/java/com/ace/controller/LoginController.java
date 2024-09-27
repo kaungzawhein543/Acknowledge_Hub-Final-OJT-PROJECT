@@ -143,7 +143,7 @@ public class LoginController {
                 Staff user = staffService.findByStaffId(staffId);
                 if (user != null) {
                     response.put("isLoggedIn", true);
-                    response.put("user", new LoginUserInfo(user.getId(), user.getName(), user.getCompanyStaffId(), user.getRole(), user.getPosition().getName()));
+                    response.put("user", new LoginUserInfo(user.getId(), user.getCompanyStaffId(), user.getName(), user.getRole(), user.getPosition().getName()));
                     return ResponseEntity.ok(response);
                 }
             } catch (JwtException e) {

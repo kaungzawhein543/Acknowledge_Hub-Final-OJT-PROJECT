@@ -53,7 +53,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "JOIN a.staff s " +
             "LEFT JOIN StaffNotedAnnouncement sn ON sn.staff.id = :staffId AND sn.announcement.id = a.id " +
             "WHERE s.id = :staffId AND sn.id IS NULL")
-    List<AnnouncementResponseListDTO> getNotStaffNoted(@RequestParam("staffId") Integer staffId);
+    List<AnnouncementResponseListDTO> getNotNotedStaff(@RequestParam("staffId") Integer staffId);
 
 
     @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name,  a.category.name) " +
@@ -62,7 +62,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "JOIN g.staff s  " +
             "left JOIN StaffNotedAnnouncement sn ON sn.staff.id = :staffId and sn.announcement.id = a.id " +
             "WHERE s.id = :staffId AND sn.id IS NULL ")
-    List<AnnouncementResponseListDTO> getNotStaffNotedGroup(@RequestParam("staffId") Integer staffId);
+    List<AnnouncementResponseListDTO> getNotNotedStaffGroup(@RequestParam("staffId") Integer staffId);
 
     @Query("SELECT NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name  , a.category.name) " +
             "from Announcement a " +
@@ -114,9 +114,17 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "group by YEAR(a.scheduleAt), MONTH(a.scheduleAt)")
     List<MonthlyCountDTO> countActiveAnnouncementsByMonth();
 
-
     @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId ORDER BY a.created_at DESC")
     List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
+
+    @Query("SELECT a FROM Announcement a " +
+            "JOIN a.group g " +
+            "JOIN g.staff s " +
+            "WHERE s.id = :staffId " +
+            "AND a.groupStatus = 1 " +
+            "ORDER BY a.created_at DESC")
+    List<Announcement> findAnnouncementsByStaffIdInGroups(@Param("staffId") int staffId);
+
 
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
             "FROM Announcement a WHERE a.file LIKE :baseFileName ")

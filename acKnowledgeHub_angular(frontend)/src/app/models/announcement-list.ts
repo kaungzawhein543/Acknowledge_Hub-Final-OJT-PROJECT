@@ -29,8 +29,8 @@ export interface requestAnnouncement {
     title: string;
     description: string;
     category: string;
-    createdAt: Date;
-    scheduleAt: Date;
+    createdAt: Date;    // Ensure this is in a valid date format
+    scheduleAt: Date;  
     createStaff: string;
     staffCompany: string;
     [key: string]: any;

@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Integer> {
@@ -21,7 +22,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     List<Group> findAllGroups();
 
     @Query("SELECT g FROM Group g WHERE g.id IN :ids")
-    List<Group> findGroupsByIds(List<Integer> ids);
+    List<Group> findGroupsByIds(Set<Integer> ids);
 
     @Query("select g from Group g where g.name = ?1")
     Group findByName(String name);
@@ -34,4 +35,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
 
     @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g where g.name LIKE CONCAT('%', :companyName, '%')")
     List<GroupResponseDTO> getGroupsByHR(@Param("companyName") String companyName);
+
+    @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g Join g.announcement a where a.id = ?1")
+    List<GroupResponseDTO> getGroupsByAnnouncementId(Integer id);
 }

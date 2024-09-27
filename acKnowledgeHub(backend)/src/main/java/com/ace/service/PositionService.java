@@ -26,7 +26,7 @@ public class PositionService {
 //    }
 
     public List<Position> getPositionList(){
-        return positionRepository.findAll();
+        return positionRepository.findAllPositionsOrderByName();
     }
 
     public Position addPosition(Position position){

@@ -105,10 +105,13 @@ public class AnnouncementService {
     }
 
     public List<AnnouncementResponseListDTO> getStaffUnNoted(Integer staffId) {
-        List<AnnouncementResponseListDTO> staffAnnouncements = announcement_repo.getNotStaffNoted(staffId);
-        List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getNotStaffNotedGroup(staffId);
+        List<AnnouncementResponseListDTO> staffAnnouncements = announcement_repo.getNotNotedStaff(staffId);
+        List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getNotNotedStaffGroup(staffId);
         List<AnnouncementResponseListDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
         combinedAnnouncements.addAll(groupAnnouncements);
+        for(AnnouncementResponseListDTO announcemenId : combinedAnnouncements){{
+            System.out.println(announcemenId.getId());
+        }}
         return combinedAnnouncements;
     }
 

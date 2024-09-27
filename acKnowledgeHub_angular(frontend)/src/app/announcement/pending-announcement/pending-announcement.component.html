@@ -13,11 +13,6 @@
 
         <div class="flex gap-4">
 
-            <input type="date" class="border p-2 rounded w-40 " [max]="endDateTime || todayDate" [value]="startDateTime"
-                (change)="onStartDateChange($event)" />
-            <input type="date" class="border p-2 rounded w-40" [min]="startDateTime" [max]="todayDate"
-                [value]="endDateTime" (change)="onEndDateChange($event)" />
-
 
         </div>
 
@@ -68,24 +63,19 @@
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
                                 <ng-container *ngSwitchCase="'detail'">
-                                    <button mat-button (click)="onFileButtonClick(announcement.id)"
-                                        style="margin-left: 20%;">
-                                        View
+                                    <button mat-button (click)="onFileButtonClick(announcement.id)">
+                                        View File
                                     </button>
                                 </ng-container>
-                                <ng-container *ngSwitchCase="'cancel'">
-                                    <button mat-button (click)="onCancelButtonClick(announcement.id)"
-                                        style="margin-left: 20%;">
+                                <ng-container *ngSwitchCase="'action'">
+                                    <button mat-button style="color: rgb(15, 159, 73);"
+                                        (click)="onPublishButtonClick(announcement.id)">
+                                        Publish Now
+                                    </button>
+                                    <button mat-button (click)="onCancelButtonClick(announcement.id)" s>
                                         Cancel
                                     </button>
                                 </ng-container>
-                                </ng-container>
-                                <ng-container *ngIf="!isaHrMain" >
-                                    <ng-container *ngSwitchCase="'cancel'" >
-                                       <p>Your don't have permission for this action</p>
-                                    </ng-container>
-                                    </ng-container>
-                                <!-- Truncate Description -->
                                 <ng-container *ngSwitchCase="'description'">
                                     {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}
                                 </ng-container>
@@ -106,7 +96,9 @@
             <tr mat-header-row *matHeaderRowDef="selectedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: selectedColumns;"></tr>
         </table>
-
+        <div *ngIf="filteredAnnouncements.length == 0" class="text-center p-5 text-muted">
+            No Data Avalible!
+        </div>
         <!-- Paginator -->
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div> 

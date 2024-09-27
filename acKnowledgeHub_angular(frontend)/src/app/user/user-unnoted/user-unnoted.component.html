@@ -72,6 +72,9 @@
                                         View
                                     </button>
                                 </ng-container>
+                                <ng-container *ngSwitchCase="'createdAt'">
+                                    <span>{{ announcement.createdAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+                                </ng-container>
                                 <!-- Truncate Description -->
                                 <ng-container *ngSwitchCase="'description'">
                                     {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}

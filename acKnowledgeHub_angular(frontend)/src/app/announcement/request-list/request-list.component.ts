@@ -9,6 +9,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 
 
 @Component({
@@ -41,6 +42,10 @@ export class RequestListComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
+  rejectAnnouncementId !: number;
+  approvedAnnouncementId !: number;
+  @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
+  @ViewChild('confirmationApprovedModal') approvedModal!: ConfirmationModalComponent;
 
   columns = [
     { field: 'autoNumber', header: 'No.' },
@@ -61,7 +66,15 @@ export class RequestListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.todayDate = new Date().toISOString().split('T')[0];
+     const today = new Date();
+  today.setDate(today.getDate() + 1);  // Increment the date by 1 to get tomorrow's date
+
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Yangon' };
+
+  const myanmarDate = today.toLocaleDateString('en-CA', options);  // YYYY-MM-DD format
+  this.todayDate = myanmarDate; 
+
+    console.log(this.todayDate);
     this.fetchAnnouncements();
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
@@ -91,8 +104,8 @@ export class RequestListComponent implements OnInit {
     }
   }
 
-  onApprovedButtonClick(id: number) {
-    this.announcementService.approvedRequestAnnouncement(id).subscribe({
+  onApprovedButtonClick() {
+    this.announcementService.approvedRequestAnnouncement(this.approvedAnnouncementId).subscribe({
       next: (data: boolean) => {
         this.fetchAnnouncements();
       },
@@ -100,8 +113,8 @@ export class RequestListComponent implements OnInit {
     });
   }
 
-  onRejectButtonClick(id: number) {
-    this.announcementService.rejectRequestAnnouncement(id).subscribe({
+  onRejectButtonClick(reason : string) {
+    this.announcementService.rejectRequestAnnouncement(this.rejectAnnouncementId,reason).subscribe({
       next: (data: boolean) => {
         this.fetchAnnouncements();
       },
@@ -124,7 +137,7 @@ export class RequestListComponent implements OnInit {
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
   }
   onSearchChange() {
-    const query = this.searchQuery.toLowerCase();
+    const query = this.searchQuery.toLowerCase().trim();
     this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
@@ -220,13 +233,29 @@ export class RequestListComponent implements OnInit {
   }
 
   filterAnnouncements() {
+    // First filter by active/inactive status
     this.filteredAnnouncements = this.requestAnnouncements.filter(a => {
-      if (this.startDateTime && this.endDateTime) {
-        const createdAt = new Date(a.createdAt);
-        return createdAt >= new Date(this.startDateTime) && createdAt <= new Date(this.endDateTime);
-      }
-      return true;
+      const isActive = this.activeChecked && a['status'].trim().toLowerCase() === 'active';
+      const isInactive = this.inactiveChecked && a['status'].trim().toLowerCase() === 'inactive';
+      return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
     });
+  
+    // Then filter by date range, considering Myanmar time
+    if (this.startDateTime && this.endDateTime) {
+      // Create date objects in local Myanmar time (GMT+0630)
+      const startDate = new Date(this.startDateTime + 'T00:00:00+06:30'); // start of the day in Myanmar time
+      const endDate = new Date(this.endDateTime + 'T23:59:59+06:30'); // end of the day in Myanmar time
+  
+      this.filteredAnnouncements = this.filteredAnnouncements.filter(a => {
+        const scheduleAt = new Date(a.scheduleAt);
+        console.log('Schedule At:', scheduleAt);
+        console.log('Start Date:', startDate);
+        console.log('End Date:', endDate);
+        return scheduleAt >= startDate && scheduleAt <= endDate;
+      });
+    }
+  
+    // Update the data source
     this.dataSource.data = this.filteredAnnouncements;
   }
 
@@ -251,6 +280,22 @@ export class RequestListComponent implements OnInit {
 
   onDetailButtonClick(id: number) {
     this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
+  }
+
+  onModalConfirm(event: { reason: string }) {
+    const reason = event.reason;
+
+    this.onRejectButtonClick(reason);
+  }
+
+  openApprovedCorfirmModal(id: number) {
+    this.approvedAnnouncementId = id;
+    this.approvedModal.open();
+  }
+  openCorfirmModal(id: number) {
+    this.rejectAnnouncementId = id;
+    this.modal.showReasonInput = true;
+    this.modal.open();
   }
 }
 

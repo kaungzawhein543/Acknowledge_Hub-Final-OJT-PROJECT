@@ -201,7 +201,7 @@ private subscribeToTyping(): void {
     this.authService.getUserInfo().subscribe(
       data => {
         const staffId = data.user.id; // Access the staffId from the response
-  
+        
         if (staffId) {
           this.client.publish({
             destination: '/app/typing',

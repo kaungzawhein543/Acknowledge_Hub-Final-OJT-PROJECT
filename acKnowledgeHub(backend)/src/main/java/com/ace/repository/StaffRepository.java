@@ -1,6 +1,7 @@
 package com.ace.repository;
 
 import com.ace.dto.*;
+import com.ace.entity.Announcement;
 import com.ace.entity.Staff;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,7 +78,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     List<Staff> findByPositionId(Integer positionId);
 
-    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , p.name, s.department,s.photoPath,s.company) FROM Staff s JOIN Position p on p.id = s.position.id")
+    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , s.position, s.department,s.photoPath,s.company) FROM Staff s ")
     List<StaffGroupDTO> getStaffListForGroup();
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
@@ -120,5 +121,17 @@ List<Map<String, Object>> countStaffByAnnouncement();
 
     @Query("select s.company.name from Staff s where s.id = ?1")
     String getCompanyNameById(Integer id);
+
+    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+            "from Staff s " +
+            "Join s.announcement a where a.id = ?1  order by s.company.name")
+    List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id);
+
+    //@Query for announcements count by group id
+    @Query("SELECT a FROM Announcement a " +
+            "JOIN a.group g " +
+            "JOIN g.staff s " +
+            "WHERE a.groupStatus = :groupStatus AND s.id = :staffId")
+    List<Announcement> findAnnouncementsByGroupStatusAndStaffId(int groupStatus, int staffId);
 }
 
