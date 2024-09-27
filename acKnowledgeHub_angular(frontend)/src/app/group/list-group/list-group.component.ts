@@ -11,7 +11,7 @@ import { StaffGroup } from '../../models/staff-group';
 })
 export class ListGroupComponent {
   groups: Group[] = [];
-  showConfirmBox : boolean = false;
+  showConfirmBox: boolean = false;
   errorMessage: string | null = null;
   selectedGroup: Group = {
     id: 0,
@@ -21,26 +21,26 @@ export class ListGroupComponent {
     staff: [],              // Empty array for staff
     selected: false         // Default boolean value
   };
-  filterStaffListAfterSelect : StaffGroup[] = [];
-  staffSearchTermConfirm : string = '';
+  filterStaffListAfterSelect: StaffGroup[] = [];
+  staffSearchTermConfirm: string = '';
   selectedStaff: StaffGroup[] = [];
   staffPhotoUrl: string | null = null;
 
-  
-  
-  constructor(private groupService: GroupService, private toastService: ToastService) {}
-  
+
+
+  constructor(private groupService: GroupService, private toastService: ToastService) { }
+
   ngOnInit(): void {
     this.loadGroups();
   }
-  
+
   showStaffs(group: any): void {
     this.selectedGroup = group;
     this.selectedGroup.staff = group.staff.map((staff: StaffGroup) => {
-      this.staffPhotoUrl = "http://localhost:8080" + staff.photoPath + "?"+ Date.now();
+      this.staffPhotoUrl = "http://localhost:8080" + staff.photoPath + "?" + Date.now();
       console.log(staff.photoPath);
       return staff; // Return the modified staff object
-    });    this.filterStaffListAfterSelect = this.selectedGroup.staff;
+    }); this.filterStaffListAfterSelect = this.selectedGroup.staff;
     this.showConfirmBox = !this.showConfirmBox;
   }
 

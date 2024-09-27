@@ -7,6 +7,6 @@ export interface StaffGroup {
     name: string;
     position: Position;
     department: Department;
-    company : Company;
-    photoPath : string;
+    company: Company;
+    photoPath: string;
 }

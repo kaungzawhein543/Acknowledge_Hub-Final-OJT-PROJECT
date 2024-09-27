@@ -70,6 +70,7 @@ export class ListUserComponent {
     }
     this.selectedColumns = this.columns.map(col => col.field);
   }
+
   generateAutoNumber(index: number): string {
     return index.toString(); // Adjust 6 to the desired length
   }

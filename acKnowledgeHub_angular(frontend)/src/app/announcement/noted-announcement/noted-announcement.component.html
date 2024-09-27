@@ -108,7 +108,7 @@
             <tr mat-header-row *matHeaderRowDef="selectedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: selectedColumns;"></tr>
         </table>
-
+        <div *ngIf="staffs.length == 0" style="text-align: center;">No data avaliable</div>
         <!-- Paginator -->
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div>

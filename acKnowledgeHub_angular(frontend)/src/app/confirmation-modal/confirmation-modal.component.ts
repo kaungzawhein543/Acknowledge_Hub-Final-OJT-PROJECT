@@ -14,6 +14,7 @@ export class ConfirmationModalComponent {
   @Input() confirmAction: (() => void) | null = null;
   @Input() icon = 'fa-solid fa-triangle-exclamation';
   @Input() showReasonInput = false;
+  @Input() confirmButtonClass = 'bg-red-600 hover:bg-red-700';
   open(action: (() => void) | null = null) {
     this.isOpen = true;
     this.confirmAction = action;

@@ -20,9 +20,9 @@ import { AnnouncementListDTO } from '../../models/announcement';
 export class UserAnnouncementListComponent {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  announcements: AnnouncementListDTO[] = [];
-  filteredAnnouncements: AnnouncementListDTO[] = [];
-  dataSource = new MatTableDataSource<AnnouncementListDTO>([]);
+  announcements: announcementList[] = [];
+  filteredAnnouncements: announcementList[] = [];
+  dataSource = new MatTableDataSource<announcementList>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
@@ -50,7 +50,7 @@ export class UserAnnouncementListComponent {
   selectedColumns = this.columns.map(col => col.field);
 
   constructor(
-    private staffSesrvice: StaffService,
+    private announcementService: AnnouncementService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -73,7 +73,7 @@ export class UserAnnouncementListComponent {
   }
 
   getStaffAnnouncementList() {
-    this.staffSesrvice.getAnnouncementDESC().subscribe(
+    this.announcementService.userAnnouncement(this.staffId).subscribe(
       (data) => {
         this.announcements = data.map((item, index) => ({
           ...item,
@@ -100,7 +100,7 @@ export class UserAnnouncementListComponent {
         a.description?.toLowerCase() || '',
         a.category?.toLowerCase() || '',
         a.createStaff?.toLowerCase() || '',
-        new Date(a.created_at).toLocaleString().toLowerCase(),
+        new Date(a.createdAt).toLocaleString().toLowerCase(),
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
@@ -177,7 +177,7 @@ export class UserAnnouncementListComponent {
   }
 
 
-  generateExcel(announcements: AnnouncementListDTO[], fileName: string) {
+  generateExcel(announcements: announcementList[], fileName: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const headers = visibleColumns.map(col => col.header);
     const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
@@ -199,11 +199,15 @@ export class UserAnnouncementListComponent {
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
     }).filter(a => {
       if (this.startDateTime && this.endDateTime) {
-        const scheduleAt = new Date(a.created_at);
+        const scheduleAt = new Date(a.createdAt);
         return scheduleAt >= new Date(this.startDateTime) && scheduleAt <= new Date(this.endDateTime);
       }
       return true;
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 

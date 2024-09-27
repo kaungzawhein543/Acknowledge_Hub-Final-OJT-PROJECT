@@ -1,6 +1,6 @@
 
 
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { StaffService } from '../../services/staff.service';
 import { PositionService } from '../../services/position.service';
 import { DepartmentService } from '../../services/department.service';
@@ -34,23 +34,24 @@ export class AddUserComponent implements OnInit {
     departmentId: 0,
     companyId: 0
   }
+  isDropdownOpen = false;
   roles = Object.values(Role);
   constructor(private staffService: StaffService, private positionService: PositionService,
     private departmentService: DepartmentService, private companyService: CompanyService,
     private toastService: ToastService,
     private router: Router,) { }
 
-    showSuccessToast() {
-      this.toastService.showToast('Staff Add Successfully!', 'success');
-    }
+  showSuccessToast() {
+    this.toastService.showToast('Staff Add Successfully!', 'success');
+  }
 
   ngOnInit(): void {
-    this.departmentService.getAllDepartments().subscribe({
+    this.departmentService.getDepartmentListByCompanyId(1).subscribe({
       next: (data) => {
         this.departments = data;
-        if(this.departments.length >0){
+        if (this.departments.length > 0) {
           this.staff.departmentId = this.departments[0].id;
-        }else{
+        } else {
           console.log("There is no dapartments")
         }
       },
@@ -59,7 +60,7 @@ export class AddUserComponent implements OnInit {
     this.companyService.getAllCompany().subscribe({
       next: (data) => {
         this.companies = data;
-        if(this.companies.length >0){
+        if (this.companies.length > 0) {
           this.staff.companyId = this.companies[0].id;
         }
       },
@@ -68,7 +69,7 @@ export class AddUserComponent implements OnInit {
     this.positionService.getAllPosition().subscribe({
       next: (data) => {
         this.positions = data;
-        if(this.positions.length >0){
+        if (this.positions.length > 0) {
           this.staff.positionId = this.positions[0].id;
         }
       },
@@ -81,7 +82,17 @@ export class AddUserComponent implements OnInit {
     }
     this.staff.departmentId = 0; // Reset the department selection
   }
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
 
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isDropdownOpen = false;
+    }
+  }
   getDepartmentsByCompanyId(companyId: number) {
     this.departmentService.getDepartmentListByCompanyId(companyId).subscribe({
       next: (data) => {

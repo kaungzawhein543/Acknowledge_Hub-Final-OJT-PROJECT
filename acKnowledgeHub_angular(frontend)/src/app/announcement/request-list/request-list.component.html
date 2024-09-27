@@ -66,7 +66,7 @@
                         <td mat-cell *matCellDef="let announcement" class="data-right">
                             <ng-container [ngSwitch]="col.field">
                                 <ng-container *ngSwitchCase="'action'">
-                                    <button mat-button (click)="onApprovedButtonClick(announcement.id)">
+                                    <button mat-button (click)="openApprovedCorfirmModal(announcement.id)">
                                         Approve
                                     </button>
                                     <button mat-button style="color: rgb(215, 133, 133);"
@@ -113,5 +113,9 @@
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div>
 
-    <app-confirmation-modal #confirmationModal [message]="'Are you sure you want to remove this memeber?'"
+    <app-confirmation-modal #confirmationModal [message]="'Are you sure you want to remove this announcement?'"
         (confirmed)="onModalConfirm($event)"></app-confirmation-modal>
+
+    <app-confirmation-modal #confirmationApprovedModal [message]="'Are you sure you want to approve this announcement?'"
+        [confirmButtonClass]="'bg-blue-600 hover:bg-blue-700'"
+        (confirmed)="onApprovedButtonClick()"></app-confirmation-modal>

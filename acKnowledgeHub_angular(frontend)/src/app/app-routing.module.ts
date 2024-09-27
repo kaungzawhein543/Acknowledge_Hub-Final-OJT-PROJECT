@@ -105,7 +105,7 @@ const routes: Routes = [
       { path: 'staff-unnoted', component: UserUnnotedComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['Human Resource(Main)'] } },
       { path: 'list-by-staff', component: UserAnnouncementListComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['Human Resource(Main)'] } },
       { path: 'pending-announcement', component: PendingAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] } },
-
+      { path: 'requested-list', component: RequestListByUserComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], positions: ['Human Resource'] } },
     ]
   },
   // { 

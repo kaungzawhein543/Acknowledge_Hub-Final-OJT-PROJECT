@@ -8,6 +8,7 @@ import autoTable from 'jspdf-autotable';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-pending-announcement',
   templateUrl: './pending-announcement.component.html',
@@ -27,7 +28,7 @@ export class PendingAnnouncementComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
-
+  loginRole !: string;
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
@@ -46,12 +47,19 @@ export class PendingAnnouncementComponent implements OnInit {
   constructor(
     private announcementService: AnnouncementService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
     this.fetchAnnouncements();
+    this.authService.getUserInfo().subscribe({
+      next: (data) => {
+        this.loginRole = data.user.role;
+        this.setColumnsBasedOnRole();
+      }
+    })
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
 
@@ -233,5 +241,12 @@ export class PendingAnnouncementComponent implements OnInit {
     if (!clickedInsideDropdown) {
       this.isReportDropdownOpen = false;
     }
+  }
+
+  setColumnsBasedOnRole() {
+    if (this.loginRole == 'ADMIN') {
+      this.columns = this.columns.filter(col => col.field !== 'action');
+    }
+    this.selectedColumns = this.columns.map(col => col.field);
   }
 }

@@ -103,10 +103,10 @@ public class DepartmentServiceTest {
 		department.setName("Banking");
 		when(departmentRepository.findById(departmentId)).thenReturn(Optional.of(department));
 
-		Optional<Department> result = departmentService.findById(departmentId);
+		Department result = departmentService.getDepartmentById(departmentId);
 
-		assertTrue(result.isPresent());
-		assertEquals("Banking", result.get().getName());
+		//assertTrue();
+		assertEquals("Banking", result.getName());
 		verify(departmentRepository).findById(departmentId);
 	}
 

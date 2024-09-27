@@ -77,14 +77,15 @@ export class OtpInputComponent implements OnInit {
       return;  // Add return to stop further validation if the OTP is incomplete
     }
   }
-  
+
   validateOtp(): void {
     this.checkValidation();  // This will prevent further actions if OTP is incomplete
     if (this.validationError) return;  // Exit if there was a validation error
-  
+
     this.OTP = this.otp.join('');  // Combine the OTP array into a single string
     this.service.sendOTP(this.email, this.OTP).subscribe({
       next: (data) => {
+        // console.log(data)
         if (data === 1) {
           this.router.navigate(['/acknowledgeHub/add-password']);
         } else {

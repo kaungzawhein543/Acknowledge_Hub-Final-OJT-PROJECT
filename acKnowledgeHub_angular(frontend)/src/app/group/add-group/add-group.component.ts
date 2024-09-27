@@ -123,6 +123,7 @@ export class AddGroupComponent {
     this.updateSelectAllState();
   }
 
+
   filterStaffAfterSelect(): void {
     const term = this.staffSearchTermConfirm.toLowerCase();
 

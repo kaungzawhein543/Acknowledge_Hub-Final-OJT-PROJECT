@@ -28,8 +28,9 @@ export class RequestListComponent implements OnInit {
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
   rejectAnnouncementId !: number;
+  approvedAnnouncementId !: number;
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
-
+  @ViewChild('confirmationApprovedModal') approvedModal!: ConfirmationModalComponent;
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
@@ -79,8 +80,8 @@ export class RequestListComponent implements OnInit {
     }
   }
 
-  onApprovedButtonClick(id: number) {
-    this.announcementService.approvedRequestAnnouncement(id).subscribe({
+  onApprovedButtonClick() {
+    this.announcementService.approvedRequestAnnouncement(this.approvedAnnouncementId).subscribe({
       next: (data: boolean) => {
         this.fetchAnnouncements();
       },
@@ -249,6 +250,11 @@ export class RequestListComponent implements OnInit {
   onModalConfirm(event: { reason: string }) {
     const reason = event.reason;
     this.onRejectButtonClick();
+  }
+
+  openApprovedCorfirmModal(id: number) {
+    this.approvedAnnouncementId = id;
+    this.approvedModal.open();
   }
 }
 

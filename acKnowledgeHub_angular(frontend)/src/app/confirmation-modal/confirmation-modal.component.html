@@ -32,8 +32,7 @@
           (click)="close()">
           No, cancel
         </button>
-        <button type="button"
-          class="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700"
+        <button type="button" class="py-2 px-3 text-sm font-medium text-white rounded-lg" [ngClass]="confirmButtonClass"
           (click)="confirm()">
           Yes, I'm sure
         </button>
