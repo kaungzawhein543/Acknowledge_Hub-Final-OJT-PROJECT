@@ -12,12 +12,15 @@
                     placeholder="Staff-ID" 
                     class="input-field"
                     (focus)="status = false">
-                <div *ngIf="announcementForm.submitted && announcementForm.controls['staffId'].errors">
+                <div *ngIf="announcementForm.submitted && announcementForm.controls['staffId']?.errors">
                     <small class="error" *ngIf="announcementForm.controls['staffId'].errors?.['required']">
                         Staff-ID is required
                     </small>
                 </div>
-                <small class="error" *ngIf="status">Staff-ID is invalid</small>
+                <!-- Show Error Message -->
+                <div *ngIf="status && errorMessage" class="error-container">
+                    <small class="error">{{ errorMessage }}</small>
+                </div>
                 <!-- Loading Box -->
                 <div *ngIf="loading" class="loading-overlay">
                     <div class="lds-ellipsis">

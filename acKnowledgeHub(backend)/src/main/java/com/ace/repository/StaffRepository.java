@@ -1,6 +1,7 @@
 package com.ace.repository;
 
 import com.ace.dto.*;
+import com.ace.entity.Announcement;
 import com.ace.entity.Staff;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -92,18 +93,26 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 //            "FROM staff_has_announcement sa " +
 //            "GROUP BY sa.announcement_id", nativeQuery = true)
 //    List<Map<String, Object>> countStaffByAnnouncement();
-@Query(value = "SELECT a.id AS announcementId, " +
-        "  CASE " +
-        "    WHEN a.group_status = 0 THEN COUNT(sa.staff_id) " +
-        "    WHEN a.group_status = 1 THEN (SELECT COUNT(sg.staff_id) " +
-        "                                  FROM group_has_announcement ga " +
-        "                                  JOIN staff_has_group sg ON ga.group_id = sg.group_id " +
-        "                                  WHERE ga.announcement_id = a.id) " +
-        "  END AS staffCount " +
-        "FROM announcement a " +
-        "LEFT JOIN staff_has_announcement sa ON a.id = sa.announcement_id " +
-        "GROUP BY a.id", nativeQuery = true)
-List<Map<String, Object>> countStaffByAnnouncement();
+    @Query(value = "SELECT a.id AS announcementId, " +
+            "  CASE " +
+            "    WHEN a.group_status = 0 THEN COUNT(sa.staff_id) " +
+            "    WHEN a.group_status = 1 THEN (SELECT COUNT(sg.staff_id) " +
+            "                                  FROM group_has_announcement ga " +
+            "                                  JOIN staff_has_group sg ON ga.group_id = sg.group_id " +
+            "                                  WHERE ga.announcement_id = a.id) " +
+            "  END AS staffCount " +
+            "FROM announcement a " +
+            "LEFT JOIN staff_has_announcement sa ON a.id = sa.announcement_id " +
+            "GROUP BY a.id", nativeQuery = true)
+    List<Map<String, Object>> countStaffByAnnouncement();
+
+    //@Query for announcements count by group id
+    @Query("SELECT a FROM Announcement a " +
+                "JOIN a.group g " +
+                "JOIN g.staff s " +
+                "WHERE a.groupStatus = :groupStatus AND s.id = :staffId")
+    List<Announcement> findAnnouncementsByGroupStatusAndStaffId(int groupStatus, int staffId);
+
 
 
 
@@ -120,5 +129,6 @@ List<Map<String, Object>> countStaffByAnnouncement();
 
     @Query("select s.company.name from Staff s where s.id = ?1")
     String getCompanyNameById(Integer id);
+
 }
 

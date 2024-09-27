@@ -124,8 +124,8 @@ export class AuthService {
     );
   }
 
-  getOTP(staffId: string): Observable<ResponseEmail> {
-    return this.http.post<ResponseEmail>(`http://localhost:8080/api/v1/email/send-otp?staffId=${staffId}`,  { withCredentials: true })
+  getOTP(staffId: string): Observable<any> { // Change to 'any' to handle multiple types
+    return this.http.post(`http://localhost:8080/api/v1/email/send-otp?staffId=${staffId}`, { withCredentials: true });
   }
 
   sendOTP(email: string, otp: string): Observable<any> {

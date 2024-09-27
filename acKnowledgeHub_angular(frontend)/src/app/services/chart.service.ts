@@ -20,10 +20,12 @@ export class ChartService {
     return this.http.get<AnnouncementStaffCountDTO[]>(`${this.staffUrl}/sys/staff-count-by-announcement`, { withCredentials: true });
   }
   
+  //for user chart 
   getMonthlyAnnouncementCount(): Observable<any> {
     return this.http.get<any>(`${this.staffUrl}/STF/announcements/count`,{ withCredentials: true });
   }
 
+  //for user chart too 
   getAdditionalChartData(): Observable<any> {
     return this.http.get<any>(`${this.staffUrl}/STF/notesCountByMonth`, { withCredentials: true });
   }

@@ -113,6 +113,15 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId ORDER BY a.created_at DESC")
     List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
 
+    @Query("SELECT a FROM Announcement a " +
+            "JOIN a.group g " +
+            "JOIN g.staff s " +
+            "WHERE s.id = :staffId " +
+            "AND a.groupStatus = 1 " +
+            "ORDER BY a.created_at DESC")
+    List<Announcement> findAnnouncementsByStaffIdInGroups(@Param("staffId") int staffId);
+
+
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
             "FROM Announcement a WHERE a.file LIKE :baseFileName ")
     List<AnnouncementVersionDTO> getAllVersions(@Param("baseFileName") String baseFileName);

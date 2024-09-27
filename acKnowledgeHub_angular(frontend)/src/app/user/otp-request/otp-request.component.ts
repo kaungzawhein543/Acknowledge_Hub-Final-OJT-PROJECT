@@ -29,38 +29,42 @@ export class OtpRequestComponent {
   responseEmail!: ResponseEmail;
   loading: boolean = false;
   status: boolean = false;
-  constructor(private service: AuthService, private router: Router) { }
+  errorMessage: string = '';
+
+  constructor(private service: AuthService, private router: Router) {}
 
   onSubmit(form: NgForm): void {
-    this.trimEmail();
+    this.trimStaffId();
     if (form.valid) {
       this.loading = true;
       this.service.getOTP(this.staffId).subscribe({
         next: (data) => {
-          console.log(data)
-          this.responseEmail = data;
-          if (this.responseEmail && this.responseEmail.email && this.responseEmail.expiryTime) {
-            sessionStorage.setItem('email', this.responseEmail.email);
-            sessionStorage.setItem('staffId', this.staffId);
-            const expiryTime = this.responseEmail.expiryTime;
-            sessionStorage.setItem('otpExpiry', new Date(expiryTime).toISOString());
-            this.gotoOTPInput();
+          if (typeof data === 'string') {  // Check if the data is a string
+            if (data.includes('Please change your password')) {
+              this.status = true;
+              this.errorMessage = data;  // Set error message
+            }
           } else {
-            this.status = true;
-            console.error('Response did not contain the required data.');
+            this.responseEmail = data as ResponseEmail;
+            if (this.responseEmail.email && this.responseEmail.expiryTime) {
+              sessionStorage.setItem('email', this.responseEmail.email);
+              sessionStorage.setItem('staffId', this.staffId);
+              const expiryTime = this.responseEmail.expiryTime;
+              sessionStorage.setItem('otpExpiry', new Date(expiryTime).toISOString());
+              this.gotoOTPInput();
+            }
           }
           this.loading = false;
         },
         error: (error) => {
           this.loading = false;
           this.status = true;
-          console.error('Error occurred:', error);
+          this.errorMessage = 'Error occurred: ' + error.message;  // Set error message on error
         }
       });
     }
   }
-
-  trimEmail() {
+  trimStaffId() {
     if (this.staffId) {
       this.staffId = this.staffId.trim();
     }
@@ -68,8 +72,5 @@ export class OtpRequestComponent {
 
   gotoOTPInput() {
     this.router.navigate(['/acknowledgeHub/otp-input']);
-  }
-  gotoback() {
-    this.router.navigate(['/login']);
   }
 }

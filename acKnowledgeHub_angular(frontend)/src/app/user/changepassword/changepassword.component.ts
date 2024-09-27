@@ -35,6 +35,11 @@ export class ChangepasswordComponent implements OnInit {
     if (!this.oldPassword || !this.newPassword) {
       return;
     }
+    // Check if new password is the same as the old password
+    if (this.oldPassword === this.newPassword) {
+      this.errorMessage = 'New password cannot be the same as the Default Password.';
+      return;
+    }
     this.authService.changePassword(this.staffId, this.oldPassword, this.newPassword).subscribe(
       response => {
         this.successMessage = response;

@@ -33,24 +33,39 @@ public class EmailController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping(value = "/send-otp")
-    public EmailResponseDTO verify(@RequestParam("staffId") String staffId) {
-            Staff dto = staffService.findByStaffId(staffId);
-            if (dto != null) {
-                Random random = new Random();
-                int otp = random.nextInt(1000000);
-                String otpNumber = String.format("%06d", otp);
-                String otpAndText = otpNumber + " is your verification code.";
-                emailService.sendOTPEmail(dto.getEmail(), "Verification code", otpAndText);
-                LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
-                EmailService.storeOTP(dto.getEmail(), otpNumber, expiryTime);
-                EmailResponseDTO emailDTO = new EmailResponseDTO();
-                emailDTO.setEmail(dto.getEmail());
-                emailDTO.setExpiryTime(expiryTime);
-                return emailDTO;
-            } else {
-                return null;
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> verify(@RequestParam("staffId") String staffId) {
+        Staff dto = staffService.findByStaffId(staffId);
+
+        if (dto != null) {
+            // Check if the password matches default or admin password
+            if (passwordEncoder.matches("acknowledgeHub", dto.getPassword()) ||
+                    passwordEncoder.matches("adminPassword", dto.getPassword())) {
+                return ResponseEntity.ok(dto.getCompanyStaffId() + ": Please change your password");
             }
+
+            // Generate OTP
+            Random random = new Random();
+            int otp = random.nextInt(1000000);
+            String otpNumber = String.format("%06d", otp);
+            String otpAndText = otpNumber + " is your verification code.";
+
+            // Send OTP via email
+            emailService.sendOTPEmail(dto.getEmail(), "Verification code", otpAndText);
+
+            // Store OTP and its expiry time
+            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(2);
+            emailService.storeOTP(dto.getEmail(), otpNumber, expiryTime);
+
+            // Create email response DTO
+            EmailResponseDTO emailDTO = new EmailResponseDTO();
+            emailDTO.setEmail(dto.getEmail());
+            emailDTO.setExpiryTime(expiryTime);
+
+            return ResponseEntity.ok(emailDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff ID not found");
+        }
     }
 
 

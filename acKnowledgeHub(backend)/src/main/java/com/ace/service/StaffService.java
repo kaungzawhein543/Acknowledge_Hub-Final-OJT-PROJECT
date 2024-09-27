@@ -236,11 +236,23 @@ private final GroupRepository groupRepository;
                 .orElse(new ArrayList<>());
     }
 
-    public Map<String, Long> getMonthlyAnnouncementCount(int staffId) {
-        List<Announcement> announcements = getAnnouncementsByStaffId(staffId);
-        Map<String, Long> monthlyCount = new HashMap<>();
+    public List<Announcement> getAnnouncementsByGroupStatusAndStaffId(int staffId) {
+        return staffRepository.findAnnouncementsByGroupStatusAndStaffId(1, staffId);
+    }
 
-        // Count announcements per month
+
+    public Map<String, Long> getMonthlyAnnouncementCount(int staffId) {
+        // Step 1: Fetch announcements directly assigned to the staff (from staff_has_announcement)
+        List<Announcement> announcements = getAnnouncementsByStaffId(staffId);
+
+        // Step 2: Fetch announcements assigned via groups where group_status = 1
+        List<Announcement> groupAnnouncements = getAnnouncementsByGroupStatusAndStaffId(staffId);
+
+        // Combine both announcement lists
+        announcements.addAll(groupAnnouncements);
+
+        // Step 3: Count announcements per month
+        Map<String, Long> monthlyCount = new HashMap<>();
         for (Announcement announcement : announcements) {
             if (announcement.getScheduleAt() != null) {
                 String monthYear = String.format("%d-%02d",
@@ -249,8 +261,10 @@ private final GroupRepository groupRepository;
                 monthlyCount.put(monthYear, monthlyCount.getOrDefault(monthYear, 0L) + 1);
             }
         }
+
         return monthlyCount;
     }
+
 
     public Map<String, Long> getNotesCountByMonthForStaff(String staffId) {
         // Get the staff member
@@ -291,10 +305,28 @@ private final GroupRepository groupRepository;
     // Method to get announcement by staff id desc
     public List<AnnouncementListDTO> getAnnouncementsForStaff(int staffId) {
         List<Announcement> announcements = announcement_repo.findAnnouncementsByStaffId(staffId);
-        return announcements.stream()
-                .map(a -> new AnnouncementListDTO(a.getId(), a.getTitle(),a.getDescription(), a.getCreateStaff().getName(), a.getCategory().getName(), a.getStatus(),  a.getCreated_at(), a.getScheduleAt(), a.getGroupStatus(), a.getFile()))
+
+        List<Announcement> groupAnnouncements = announcement_repo.findAnnouncementsByStaffIdInGroups(staffId);
+
+        // Combine both lists into a Set to avoid duplicates
+        Set<Announcement> combinedAnnouncements = new HashSet<>(announcements);
+        combinedAnnouncements.addAll(groupAnnouncements);
+
+        return combinedAnnouncements.stream()
+                .map(a -> new AnnouncementListDTO(
+                        a.getId(),
+                        a.getTitle(),
+                        a.getDescription(),
+                        a.getCreateStaff().getName(),
+                        a.getCategory().getName(),
+                        a.getStatus(),
+                        a.getCreated_at(),
+                        a.getScheduleAt(),
+                        a.getGroupStatus(),
+                        a.getFile()))
                 .collect(Collectors.toList());
     }
+
 
     //Method to update profile photo
     public Staff updateStaff(Staff staff) {
