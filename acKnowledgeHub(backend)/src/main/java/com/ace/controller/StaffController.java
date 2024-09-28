@@ -74,7 +74,7 @@ public class StaffController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/sys/list")
+    @GetMapping("/all/list")
     public List<StaffResponseDTO> getStaffList() {
         return staffService.getStaffList();
     }
@@ -84,7 +84,7 @@ public class StaffController {
 //        return staffService.getActiveStaffList();
 //    }
 
-    @PostMapping("/sys/add")
+    @PostMapping("/allHR/add")
     public ResponseEntity<String> addStaff(@RequestBody StaffRequestDTO staffRequestDTO) {
         try {
             Staff existStaffId = staffService.getStaffByStaffId(staffRequestDTO.getCompanyStaffId());

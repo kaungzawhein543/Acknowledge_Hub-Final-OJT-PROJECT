@@ -38,4 +38,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
 
     @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g Join g.announcement a where a.id = ?1")
     List<GroupResponseDTO> getGroupsByAnnouncementId(Integer id);
+
+    @Query("select g from Group g where g.name LIKE CONCAT('%', :companyName, '%')")
+    List<Group> getGroupsByName(@Param("companyName") String companyName);
 }

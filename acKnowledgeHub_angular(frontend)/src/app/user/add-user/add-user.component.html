@@ -7,7 +7,7 @@
            <!-- Dropdown Container -->
            <div class="relative ml-4">
             <!-- Dropdown Toggle Button -->
-            <button type="button"
+            <button type="button" *ngIf="!isHr"
                 class="ms-auto bg-green-600 text-white font-semibold px-4 py-2 rounded text-sm hover:bg-green-700 transition duration-200 flex items-center"
                 (click)="toggleDropdown()">
                 Import Excel
@@ -67,14 +67,14 @@
             <!-- Company -->
             <div class="col-span-1">
                 <label for="companyId" class="block text-gray-700 font-medium mb-2">Company</label>
-                <select id="companyId" name="companyId" [(ngModel)]="staff.companyId" (change)="onCompanyChange()" required
+                <select id="companyId" name="companyId" [(ngModel)]="staff.companyId" (change)="onCompanyChange()" required [disabled]="isHr"
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
                     <option [ngValue]="null" disabled>Select Company</option>
                     <option *ngFor="let company of companies" [ngValue]="company.id">
                         {{company.name}}
                     </option>
                 </select>
-                <small *ngIf="staffForm.submitted && !staff.companyId" class="text-red-600">
+                <small *ngIf="staffForm.submitted && !staff.companyId && !isHr" class="text-red-600">
                     <i class="fa-solid fa-circle-exclamation"></i> Please select a company.
                 </small>
             </div>

@@ -99,6 +99,7 @@ export class DetailAnnouncementComponent {
  ngOnInit(): void {
   this.route.paramMap.subscribe(paramMap => {
     const id = paramMap.get('id');
+    console.log(id);
     if (id) {
       const decodedId = atob(id);
       this.loadAnnouncementData(decodedId);

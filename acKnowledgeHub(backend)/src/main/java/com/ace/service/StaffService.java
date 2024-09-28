@@ -131,6 +131,10 @@ private final GroupRepository groupRepository;
         return staffRepository.findStaffByAnnouncementId(announcementId);
     }
 
+    public Staff findByTelegramUserName(String name) {
+        return staffRepository.findByTelegramUserName(name);
+    }
+
 
     public boolean changePassword(String staffId, String oldPassword, String newPassword) {
         Staff staff = staffRepository.findByCompanyStaffId(staffId);

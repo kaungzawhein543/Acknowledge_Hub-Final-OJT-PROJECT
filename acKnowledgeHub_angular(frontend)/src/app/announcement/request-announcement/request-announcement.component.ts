@@ -62,7 +62,8 @@ export class RequestAnnouncementComponent {
   filteredGroups : Group[] = [];
   fileErrorMessage !: boolean;
   fileErrorText : string = '';
-
+  isHr : boolean = false;
+  currentHrCompany : string = "";
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
@@ -84,15 +85,17 @@ export class RequestAnnouncementComponent {
   ) { }
 
   ngOnInit(): void {
-    this.loadCategories();
-    this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
         this.currentHumanResourceCompany = data.company;
         this.createStaffId = data.user.id;
         this.loadGroups(this.createStaffId);
+        this.currentHrCompany = data.company;
+        console.log(this.currentHrCompany);
       }
     )
+    this.loadCategories();
+    this.loadStaffs();
     this.setMinDateTime();
     this.intervalId = setInterval(() => {
         this.setMinDateTime();
@@ -100,11 +103,16 @@ export class RequestAnnouncementComponent {
   }
 
   loadGroups(HumanResourceId: number) {
-    this.groupService.getGroupsByHR(HumanResourceId).subscribe(
+    this.groupService.getAllCompanyGroups().subscribe(
       (groups: Group[]) => {
+        // Parse groups data
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
-        this.filteredGroups = [...this.groups];
-        console.log('Loaded groups:', this.groups);  // Check if groups are loaded
+  
+        // Filter groups to exclude the one with the current HR company name
+        this.filteredGroups = this.groups.filter(group =>
+          group.name.trim().toLowerCase() !== this.currentHrCompany.trim().toLowerCase()
+        );
+
       },
       error => {
         console.error('Error fetching groups:', error);
@@ -186,15 +194,21 @@ export class RequestAnnouncementComponent {
   filterGroups(): void {
     if (this.searchTerm) {
       this.filteredGroups = this.groups.filter(group =>
-        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+        group.name.toLowerCase() !== this.currentHrCompany.toLowerCase()
       );
     } else {
-      this.filteredGroups = [...this.groups];
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase() !== this.currentHrCompany.toLowerCase()
+      );
     }
+  
+    // Update selected groups
     this.filteredGroups.forEach(group => {
       group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
     });
   }
+  
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;

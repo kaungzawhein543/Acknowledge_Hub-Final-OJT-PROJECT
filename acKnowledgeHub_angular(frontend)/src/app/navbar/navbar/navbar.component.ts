@@ -37,6 +37,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notificationPreference = 'email'; // Default value
   language = 'en';
 
+  showLogoutModal :boolean = false;
+
   constructor(
     private sidebarService: SidebarService, 
     private authService: AuthService, 
@@ -142,6 +144,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   
     return filteredNotifications;
   }
+
+  openLogoutModal(): void {
+    this.showLogoutModal = true;
+  }
+
+  closeLogoutModal(): void {
+    this.showLogoutModal = false;
+  }
+
   setTitle(newTitle: string) {
     this.titleService.setTitle(newTitle);
   }

@@ -33,8 +33,6 @@ import java.util.Optional;
 @Slf4j
 public class MyTelegramBot extends TelegramLongPollingBot {
 
-//    private static final Logger logger = LoggerFactory.getLogger(MyTelegramBot.class);
-
     private final String botToken;
     private final String botUsername;
     private final StaffService staffService;
@@ -59,25 +57,15 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 if (update.getMessage().hasText()) {
                     String messageText = update.getMessage().getText();
                     String chatId = update.getMessage().getChatId().toString();
+                    String username = update.getMessage().getFrom().getUserName();
                     if ("/start".equals(messageText)) {
-                        startRequest(chatId);
-                        Optional<Staff> user = staffService.findByChatId(chatId);
-                        System.out.println(user);
-                        if (!user.isPresent()) {
-                            sendMessage(chatId, "Please provide your email address.");
-                        }
-                    } else if (isValidEmail(messageText)) {
-                        Staff user= staffService.findByEmail(messageText);
+                        Staff user = staffService.findByTelegramUserName(username);
                         if (user == null) {
-                            sendMessage(chatId, "Please provide a valid email address that gives to company.");
-                        } else {
-                            sendMessage(chatId, "Thank you for providing your email address!");
-                            staffService.saveChatId(chatId, messageText);
-                        }
-                    } else if (update.getMessage().hasText()) {
-                        Optional<Staff> user = staffService.findByChatId(chatId);
-                        if (user == null) {
-                            sendMessage(chatId, "Please provide a valid email address.");
+                            sendMessage(chatId, "You are not our companies' staff. So, our bot channel does not belong to you");
+                        }else{
+                            user.setChatId(chatId);
+                            staffService.save(user);
+                            sendMessage(chatId, "Welcome to ACE (AcKnowledge Hub)");
                         }
                     }
                 }
@@ -151,11 +139,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         } catch (IOException e) {
             log.error("Error processing MultipartFile", e);
         }
-
     }
-
-
-
 
     public void sendMessage(String chatId, String text) {
         SendMessage message = new SendMessage();
@@ -167,7 +151,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             log.error("Send Email Request happening  error",new TelegramApiException());
         }
     }
-
 
     private void updateMessageWithDoneButton(String chatId, Integer messageId) throws TelegramApiException {
         EditMessageText editMessage = new EditMessageText();
@@ -183,27 +166,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         inlineKeyboardMarkup.setKeyboard(keyboard);
         editMessage.setReplyMarkup(inlineKeyboardMarkup);
         execute(editMessage);
-    }
-
-    private void startRequest(String chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Welcome to ACE(AcKnowledge Hub)");
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Send Email Request happening  error",new TelegramApiException());
-        }
-    }
-
-
-    private boolean isValidEmail(String email) {
-        return email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
-    }
-
-
-    private void saveChatId(String chatId, String email) {
-        staffService.saveChatId(chatId, email);
     }
 
     @Override

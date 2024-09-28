@@ -76,7 +76,9 @@ public class AnnouncementService {
             return new Announcement();
         }
     }
-
+    public Optional<Announcement> findById(Integer id){
+        return announcement_repo.findById(id);
+    }
     //update file url in data
     public Announcement updateFileUrl(Announcement announcement) {
         Optional<Announcement> announce = announcement_repo.findById(announcement.getId());

@@ -37,6 +37,7 @@ public class GroupService {
 
     public List<GroupResponseDTO> getGroupsByHR(Integer id) {
         String companyName = staffRepository.getCompanyNameById(id);
+        System.out.println(groupRepository.getGroupsByHR(companyName));
         return groupRepository.getGroupsByHR(companyName);
     }
 

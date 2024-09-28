@@ -48,6 +48,9 @@ export class ListUserComponent {
   isFilterDropdownOpen = false;
   idnumbertoInactive : number = 0;
   isReportDropdownOpen = false;
+  isHr : boolean = false;
+  currentHrCompanyId : boolean = false;
+  currentHrCompany : string = "";
   @ViewChild('staff') staff!: MatSelectionList;
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
   columns = [
@@ -72,11 +75,20 @@ export class ListUserComponent {
   ) { }
 
   ngOnInit() {
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        if(data.position === "Human Resource"){
+          this.isHr = data;
+          this.currentHrCompanyId = data.companyId;
+          this.currentHrCompany = data.company;
+        }
+      }
+    )
     this.todayDate = new Date().toISOString().split('T')[0];
     this.fetchStaffs();
     this.authService.getUserInfo().subscribe({
       next: (data) => {
-        this.setColumnsBasedOnRole();
+        this.setColumnsBasedOnRole()
         this.loginRole = data.user.role;
       }
     })
@@ -216,7 +228,15 @@ export class ListUserComponent {
       const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
       const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
-    }).filter(a => {
+    })
+    .filter(a => {
+      // If isHr is true, only include announcements where the companyId matches the current HR company
+      if (this.isHr) {
+        return a.company === this.currentHrCompany;
+      }
+      return true; // If not HR, show all announcements
+    })
+    .filter(a => {
       // if (this.startDateTime && this.endDateTime) {
       //   const scheduleAt = new Date(a.scheduleAt);
       //   return scheduleAt >= new Date(this.startDateTime) && scheduleAt <= new Date(this.endDateTime);

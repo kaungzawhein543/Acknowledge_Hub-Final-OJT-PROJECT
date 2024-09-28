@@ -18,7 +18,7 @@ public class PositionController {
         this.positionService = positionService;
     }
 
-    @GetMapping("/sys/list")
+    @GetMapping("/allHR/list")
     public List<Position> getAllPosition(){
         return positionService.getPositionList();
     }

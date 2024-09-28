@@ -14,47 +14,93 @@
     </li>
   </div>
 
+
   <div *ngIf="!isAdmin && !isMainHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        routerLink="acknowledgeHub/staff-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>Staff Dashboard</span>
+      routerLink="acknowledgeHub/staff-dashboard" routerLinkActive="active text-white hover:active hover:text-white">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Staff Dashboard</span>
       </a>
     </li>
   </div>
-
-  <div *ngIf="!isAdmin && !isMainHr && isHr">
-    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
+  
+  <!--  ================== This is for Staff Dashboard -->
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isHr">
+    <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
+      (click)="toggleMenu('announcementMenu')">
+      <span class="flex items-center space-x-3">
+        <i class="fa-solid fa-bullhorn"></i>
+        <span>Announcements</span>
+      </span>
+      <i class="fa-solid fa-chevron-down"></i>
+    </a>
+    <ul id="announcementMenu" class="space-y-2 pl-8 mt-2 hidden" >
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer"
+        routerLink="acknowledgeHub/announcement/create" routerLinkActive="active text-white hover:active hover:text-white" *ngIf="isHr">
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-plus"></i>
+          <span> Create Announcement</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" *ngIf="isHr"
         routerLink="acknowledgeHub/announcement/request" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fa-solid fa-plus"></i>
-        <span> Request Announcement</span>
-      </a>
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-list"></i>
+          <span>Request Announcement</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" *ngIf="isHr"
+        routerLink="acknowledgeHub/announcement/requested-list"
+        routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fa-solid fa-spinner"></i>
+          <span> My Announcements</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" *ngIf="isHr"
+        routerLink="acknowledgeHub/announcement/list-by-staff"
+        routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fas fa-envelope-open-text"></i>
+          <span> Announcement For You</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" *ngIf="isHr"
+        routerLink="acknowledgeHub/announcement/staff-noted"
+        routerLinkActive="active text-white hover:active hover:text-white">
+        <span class="flex items-center space-x-3">
+          <i class="fa-regular fa-check-circle"></i>
+          <span>Noted Announcement</span>
+        </span>
+      </li>
+      <li class="text-gray-500 p-2 rounded-md hover:bg-gray-300 hover:text-gray-600 cursor-pointer" *ngIf="isHr"
+      routerLink="acknowledgeHub/announcement/staff-unnoted"
+      routerLinkActive="active text-white hover:active hover:text-white">
+      <span class="flex items-center space-x-3">
+        <i class="fa-regular fa-circle-xmark"></i>
+        <span>UnNoted Announcement</span>
+      </span>
     </li>
-  </div>
-  <div *ngIf="!isAdmin && !isMainHr && isHr">
-    <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
-      <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
-        routerLink="acknowledgeHub/announcement/requested-list" routerLinkActive="active text-white hover:active hover:text-white">
-        <i class="fas fa-envelope-open-text"></i>
-        <span> My Announcements</span>
-      </a>
-    </li>
-  </div>
+    </ul>
+  </li>
 
-  <div *ngIf="!isAdmin && !isMainHr">
+<!-- ============================================================================================ -->
+
+
+
+  <div *ngIf="!isAdmin && !isMainHr && !isHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         routerLink="acknowledgeHub/announcement/list-by-staff"
         routerLinkActive="active text-white hover:active hover:text-white">
         <i class="fa-solid fa-list"></i>
-        <span>Announcement List</span>
+        <span>Announcement For You</span>
       </a>
     </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isMainHr">
+  <div *ngIf="!isAdmin && !isMainHr && !isHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         routerLink="acknowledgeHub/announcement/staff-noted"
@@ -65,7 +111,7 @@
     </li>
   </div>
 
-  <div *ngIf="!isAdmin && !isMainHr">
+  <div *ngIf="!isAdmin && !isMainHr && !isHr">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
       <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-200 hover:text-gray-600 rounded-md"
         [routerLink]="'acknowledgeHub/announcement/staff-unnoted'"
@@ -121,6 +167,7 @@
     </ul>
   </li>
 
+
   <!-- Category with Sub-items -->
   <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
@@ -141,9 +188,9 @@
   
   </li>
 
-  <li *ngIf="isAdmin || isMainHr">
+  <!-- <li *ngIf="isMainHr || isHr">
     <span class="text-gray-600 p-3 font-semibold">Additional Links</span>
-  </li>
+  </li> -->
 
   <div *ngIf="isAdmin">
     <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0">
@@ -185,7 +232,7 @@
   </li>
 
   <!-- Department with Sub-items -->
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isMainHr || isHr || isAdmin">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('departmentMenu')">
       <span class="flex items-center space-x-3">
@@ -211,7 +258,7 @@
       </li>
     </ul>
   </li>
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isMainHr || isAdmin">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('positionMenu')">
       <span class="flex items-center space-x-3">
@@ -239,7 +286,7 @@
 
   </li>
 
-  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isAdmin || isMainHr">
+  <li class="bg-white text-gray-500 p-2 rounded-md cursor-pointer mt-0 py-0" *ngIf="isMainHr || isHr || isAdmin">
     <a class="flex items-center space-x-3 py-3 px-5 hover:bg-gray-300 hover:text-gray-600 rounded-md justify-between"
       (click)="toggleMenu('userMenu')">
       <span class="flex items-center space-x-3">
@@ -291,5 +338,6 @@
       </li>
     </ul>
   </li>
+
 
 </ul>

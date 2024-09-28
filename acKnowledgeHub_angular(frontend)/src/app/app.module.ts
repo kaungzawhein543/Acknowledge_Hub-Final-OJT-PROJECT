@@ -77,6 +77,9 @@ import { UserAnnouncementListComponent } from './user/user-announcement-list/use
 import { RequestListByUserComponent } from './announcement/request-list-by-user/request-list-by-user.component';
 import { PositionListComponent } from './position/position-list/position-list.component';
 import { CountdownComponent } from './countdown/countdown.component';
+import { CreateannouncementHrComponent } from './createannouncement-hr/createannouncement-hr.component';
+import { UpdateDepartmentComponent } from './department/update-department/update-department.component';
+import { UpdateCompanyComponent } from './company/update-company/update-company.component';
 
 @NgModule({
   declarations: [
@@ -131,7 +134,10 @@ import { CountdownComponent } from './countdown/countdown.component';
     UserAnnouncementListComponent,
     RequestListByUserComponent,
     PositionListComponent,
-    CountdownComponent
+    CountdownComponent,
+    CreateannouncementHrComponent,
+    UpdateDepartmentComponent,
+    UpdateCompanyComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr

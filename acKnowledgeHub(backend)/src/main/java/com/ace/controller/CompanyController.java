@@ -42,8 +42,13 @@ public class CompanyController {
     }
 
     @PutMapping("/{id}")
-    public Company updateCompany(@PathVariable int id, @RequestBody Company company) {
-        return companyService.updateCompany(id, company);
+    public ResponseEntity<String> updateCompany(@PathVariable int id, @RequestBody String  company) {
+        try {
+            companyService.updateCompany(id, company);
+            return ResponseEntity.ok("Updating company is successful.");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Company already exists.");
+        }
     }
 
     @DeleteMapping("/{id}")

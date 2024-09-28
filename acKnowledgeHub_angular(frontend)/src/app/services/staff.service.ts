@@ -27,7 +27,7 @@ export class StaffService {
   constructor(private http: HttpClient) { }
 
   addStaff(staff: AddStaff): Observable<any> {
-    return this.http.post(`${this.baseURL}/sys/add`, staff,{ withCredentials: true,responseType: 'text'});
+    return this.http.post(`${this.baseURL}/allHR/add`, staff,{ withCredentials: true,responseType: 'text'});
   }
 
   getNotedUserByAnnouncementList(id: number): Observable<NotedUser[]> {
@@ -69,7 +69,7 @@ export class StaffService {
   }
 
   getList(): Observable<staffList[]> {
-    return this.http.get<staffList[]>(`${this.baseURL}/sys/list`,{ withCredentials: true});
+    return this.http.get<staffList[]>(`${this.baseURL}/all/list`,{ withCredentials: true});
   }
 
   getHRList(): Observable<staffList[]> {

@@ -6,6 +6,7 @@ import { ProfileService } from '../../services/profile.service';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 import { ChangePasswordRequest } from '../../models/change-password-request.model';
 import { ToastService } from '../../services/toast.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -44,13 +45,18 @@ export class ProfileComponent implements OnInit {
   changePasswordMessage: string | null = null;
   successMessage:string | null = null;
 
+  showLogoutModal :boolean = false;
+  showChangePasswordConfirmModal: boolean = false;
+
+
 
   constructor(
     private authService: AuthService,
     private staffService: StaffService,
     private toastService: ToastService,
     private cdr: ChangeDetectorRef,
-    private profileService: ProfileService // Inject the service
+    private profileService: ProfileService, // Inject the service
+    private router: Router
 
 
   ) {}
@@ -108,6 +114,35 @@ export class ProfileComponent implements OnInit {
     this.changePasswordMessage = null;
   }
 
+    // Open the confirmation modal
+    confirmChangePassword() {
+      if (!this.oldPassword || !this.newPassword) {
+        // Optionally show a message to the user
+        this.changePasswordMessage = 'Please fill in both fields before proceeding.';
+        return; // Exit if fields are empty
+      }
+      if (this.oldPassword === this.newPassword) {
+        this.changePasswordMessage = 'New password cannot be the same as old password';
+        return;
+      }
+      this.showChangePasswordConfirmModal = true;
+    }
+    
+  
+    // Close the confirmation modal
+    closeChangePasswordConfirmModal() {
+      this.showChangePasswordConfirmModal = false;
+    }
+  
+
+  openLogoutModal(): void {
+    this.showLogoutModal = true;
+  }
+
+  closeLogoutModal(): void {
+    this.showLogoutModal = false;
+  }
+
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -150,10 +185,7 @@ export class ProfileComponent implements OnInit {
 
   // Method to handle password change
   changePassword(): void {
-    if (this.oldPassword === this.newPassword) {
-      this.changePasswordMessage = 'New password cannot be the same as old password';
-      return;
-    }
+
   
     const request: ChangePasswordRequest = {
       staffId: this.profile?.companyStaffId ?? '',
@@ -170,12 +202,15 @@ export class ProfileComponent implements OnInit {
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
+        this.closeChangePasswordConfirmModal(); 
         this.closeChangePasswordModal();
         this.showSuccessToast();
       },
       error => {
         console.error('Error changing password', error);
         this.changePasswordMessage = 'Failed to change password. Please try again.';
+        this.closeChangePasswordConfirmModal(); 
+
       }
     );
   }
@@ -185,5 +220,16 @@ export class ProfileComponent implements OnInit {
   }
   showProfileUploadSuccessToast(){
     this.toastService.showToast('Change Profile photo successful!', 'success');
+  }
+
+  logout(): void {
+    this.authService.logout().subscribe(
+      () => {
+        this.router.navigate(['/acknowledgeHub/login']);
+      },
+      (error) => {
+        console.error('Logout failed', error);
+      }
+    );
   }
 }

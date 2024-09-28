@@ -145,7 +145,7 @@
             </div>
           </div>
           <div class="mt-2  flex space-x-6">
-            <label class="inline-flex items-center">
+            <label class="inline-flex items-center" >
               <input
                 type="radio"
                 name="announceTo"
@@ -156,7 +156,7 @@
               />
               <span class="ml-3 text-gray-700">Groups</span>
             </label>
-            <label class="inline-flex items-center">
+            <label class="inline-flex items-center" *ngIf="checkCreateOrRequest === 'Create Announcement'">
               <input
                 type="radio"
                 name="announceTo"

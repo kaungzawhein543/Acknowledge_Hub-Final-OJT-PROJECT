@@ -129,7 +129,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
             "FROM Announcement a WHERE a.file LIKE :baseFileName ")
     List<AnnouncementVersionDTO> getAllVersions(@Param("baseFileName") String baseFileName);
-//
+
 //    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
 //    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
@@ -155,8 +155,10 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     void rejectRequestAnnouncement(Integer id);
 
     @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.permission, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
-            "from Announcement a where a.isPublished = false and a.createStaff.id = ?1 order by a.scheduleAt DESC")
+            "from Announcement a where  a.createStaff.id = ?1 order by a.scheduleAt DESC")
     List<AnnouncementListDTO> getAnnouncementListByStaffRequest(Integer staffId);
+
+
 
     @Modifying
     @Transactional
@@ -169,4 +171,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 //    // Method to find groups associated with a specific announcement
 //    @Query("SELECT g FROM Announcement a JOIN a.group g WHERE a.id = :announcementId")
 //    List<Group> findGroupsByAnnouncementId(@Param("announcementId") Integer announcementId);
+
+
 }

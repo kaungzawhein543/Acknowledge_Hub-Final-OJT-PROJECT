@@ -4,7 +4,9 @@ import com.ace.dto.ChangePasswordRequest;
 import com.ace.dto.LoginRequest;
 import com.ace.dto.LoginUserInfo;
 import com.ace.dto.ProfileDTO;
+import com.ace.entity.Company;
 import com.ace.entity.Staff;
+import com.ace.service.CompanyService;
 import com.ace.service.StaffService;
 import com.ace.service.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
@@ -34,14 +36,16 @@ public class LoginController {
     private final StaffService staffService;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
+    private final CompanyService companyService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService) {
+    public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService, CompanyService companyService) {
         this.staffService = staffService;
         this.passwordEncoder = passwordEncoder;
         this.tokenBlacklistService = tokenBlacklistService;
+        this.companyService = companyService;
     }
 
     @PostMapping("/login")
@@ -116,7 +120,6 @@ public class LoginController {
                 }
             }
         }
-
         if (token != null) {
             try {
                 // Parse and validate JWT
@@ -130,8 +133,10 @@ public class LoginController {
                 String staffId = claims.getSubject();
                 String position = claims.get("position",String.class);
                 String company = claims.get("company",String.class);
+                Company userCompanyId = companyService.findByName(company);
                 response.put("position",position);
                 response.put("company",company);
+                response.put("companyId",userCompanyId.getId());
 
                 // Check if the token is blacklisted
                 if (tokenBlacklistService.isTokenBlacklisted(token)) {
@@ -158,6 +163,8 @@ public class LoginController {
         response.put("isLoggedIn", false);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();

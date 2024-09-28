@@ -9,6 +9,7 @@ import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -35,13 +36,15 @@ export class AddDepartmentComponent implements OnInit {
     name: '',
     company: {} as Company
   };
+  isHr : boolean = false;
+  currentHrCompany : string = "";
   conflictError : string = "";
   companies!: Company[];
   constructor(private departmentService: DepartmentService, 
     private companyService: CompanyService,
     private toastService: ToastService,
     private router: Router,
-
+    private authService: AuthService
   ) { }
 
   showSuccessToast() {
@@ -49,15 +52,26 @@ export class AddDepartmentComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.companyService.getAllCompany().subscribe({
-      next: (data) => {
-        this.companies = data;
-        if (this.companies.length > 0) {
-          this.department.company = this.companies[0];
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        if(data.position === "Human Resource"){
+          this.isHr = true;
+          this.currentHrCompany = data.company;
+        }else{
+          this.companyService.getAllCompany().subscribe({
+            next: (data) => {
+              this.companies = data;
+      
+              if (this.companies.length > 0) {
+                this.department.company = this.companies[0];
+              }
+            },
+            error: (e) => console.log(e)
+          });
         }
-      },
-      error: (e) => console.log(e)
-    });
+      }
+    )
+    
   }
 
 
@@ -70,25 +84,41 @@ export class AddDepartmentComponent implements OnInit {
   onSubmit(form: NgForm) {
     this.department.name = this.department.name.trim();
     if (this.department.name != '') {
-      if (this.department.company.id == undefined) {
-        this.companyError = true;
-      } else {
-        this.companyError = false;
-        if (form.valid) {
-          this.departmentService.addDepartment(this.department).subscribe({
-            next: (data) => {
-              this.toastService.showToast("Department Add Successfully",'success');
-              this.router.navigate(['/acknowledgeHub/department/list']);
-            },
-            error: (errorResponse: HttpErrorResponse) => {
-              if (errorResponse.status === 409) {
-                this.conflictError = errorResponse.error;
-              } else {
-                console.log('An error occurred:', errorResponse.message);
+      if(!this.isHr){
+        if (this.department.company.id == undefined) {
+          this.companyError = true;
+        } else {
+          this.companyError = false;
+          if (form.valid) {
+            this.departmentService.addDepartment(this.department).subscribe({
+              next: (data) => {
+                this.toastService.showToast("Department Add Successfully",'success');
+                this.router.navigate(['/acknowledgeHub/department/list']);
+              },
+              error: (errorResponse: HttpErrorResponse) => {
+                if (errorResponse.status === 409) {
+                  this.conflictError = errorResponse.error;
+                } else {
+                  console.log('An error occurred:', errorResponse.message);
+                }
               }
-            }
-          })
+            })
+          }
         }
+      }{
+        this.departmentService.addDepartmentHr(this.department.name,this.currentHrCompany).subscribe({
+          next: (data) => {
+            this.toastService.showToast("Department Add Successfully",'success');
+            this.router.navigate(['/acknowledgeHub/department/list']);
+          },
+          error: (errorResponse: HttpErrorResponse) => {
+            if (errorResponse.status === 409) {
+              this.conflictError = errorResponse.error;
+            } else {
+              console.log('An error occurred:', errorResponse.message);
+            }
+          }
+        })
       }
     }
   }

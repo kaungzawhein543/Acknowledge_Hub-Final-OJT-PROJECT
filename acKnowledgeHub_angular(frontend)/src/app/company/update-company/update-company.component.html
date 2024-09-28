@@ -1,0 +1,38 @@
+<div class="container py-10 bg-gray-100 rounded-lg" style="height: 100%;" @cardAnimation>
+    <div class="card flex justify-center  mt-16">
+        <div class="w-full max-w-lg">
+            <div class="bg-white shadow-2xl rounded-lg" style="min-height: 200px;">
+                <div class=" text-white text-center py-4 rounded-t-lg" style="background-color: #1b4980;">
+                    <h2 class="text-2xl font-bold">Add Company</h2>
+                </div>
+                <div class="p-6">
+                    <form #companyForm="ngForm" (ngSubmit)="onSubmit(companyForm)">
+                        <div class="card mb-4">
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">Company Name</label>
+                            <input type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500"
+                                (input)="companyIntput()" id="name" [(ngModel)]="company.name" name="name"
+                                #name="ngModel" required autocomplete="off">
+                            <span class="text-red-500 text-sm mt-1" *ngIf="companyForm.submitted && !name.valid">
+                                Company Name is required
+                            </span>
+                            <span *ngIf="conflictError" class="text-red-600"><i
+                                    class="fa-solid fa-circle-exclamation"></i> {{conflictError}}</span>
+                        </div>
+
+                        <div class="card flex space-x-4">
+                            <!-- Reset Button -->
+                            <button type="reset"
+                                class="w-full bg-gray-300 text-gray-700 font-semibold py-3 rounded hover:bg-gray-400 transition duration-200 flex items-center justify-center">
+                                RESET
+                            </button>
+
+                            <!-- Submit Button -->
+                            <button type="submit"
+                                class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                                ADD
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>

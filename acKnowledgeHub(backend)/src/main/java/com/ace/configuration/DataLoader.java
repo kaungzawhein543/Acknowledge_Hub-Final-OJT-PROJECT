@@ -17,17 +17,19 @@ public class DataLoader {
     private final CompanyRepository companyRepository;
     private final PositionRepository positionRepository;
     private final DepartmentRepository departmentRepository;
+    private final GroupRepository groupRepository;
 
     @Value("${default.photo.path}")
     private String DEFAULT_PHOTO_PATH;
 
-    public DataLoader( StaffRepository staffRepository,
+    public DataLoader(StaffRepository staffRepository,
                       CompanyRepository companyRepository, PositionRepository positionRepository,
-                      DepartmentRepository departmentRepository) {
+                      DepartmentRepository departmentRepository, GroupRepository groupRepository) {
         this.staffRepository = staffRepository;
         this.companyRepository = companyRepository;
         this.positionRepository = positionRepository;
         this.departmentRepository = departmentRepository;
+        this.groupRepository = groupRepository;
     }
 
     @Bean
@@ -75,6 +77,17 @@ public class DataLoader {
                 positionRepository.save(position1);
             }
         };
+    }
+
+    private void createIndependentGroup() {
+        // Check if the group already exists
+        if (groupRepository.findByName("Global Group") == null) {
+            Group newGroup = new Group();
+            newGroup.setName("Global Group"); // Set the name
+            newGroup.setCreatedAt(new Date()); // Set the created_at date
+            newGroup.setStatus("active"); // Set default status to active
+            groupRepository.save(newGroup); // Save the group
+        }
     }
 }
 

@@ -5,6 +5,7 @@ import { CompanyService } from '../../services/company.service';
 import { Router } from '@angular/router';
 import { DepartmentService } from '../../services/department.service';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -28,13 +29,31 @@ export class ListDepartmentsComponent {
   private itemIdToDelete: number | null = null;
   departments: Department[] = [];
   groupedDepartments: { companyName: string, departments: Department[] }[] = [];
-  
+  isHr :boolean = false;
+  currentHrCompany : string = '';
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
 
-  constructor(private departmentService: DepartmentService, private router: Router) { }
+  constructor(private departmentService: DepartmentService, private router: Router,private authService : AuthService) { }
 
   ngOnInit(): void {
-    this.getDepartments();
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        if(data.position === "Human Resource"){
+          this.isHr = true;
+          this.currentHrCompany = data.company;
+          this.departmentService.getDepartmentListByCompanyId(Number(data.companyId)).subscribe(
+            data =>{
+              this.departments = data;
+              console.log(this.departments)
+              console.log('Departments length:', this.departments.length);
+            }
+          )
+        }else{
+          this.isHr = false;
+          this.getDepartments();
+        }
+      }
+    )
   }
 
   private getDepartments(): void {
@@ -64,5 +83,9 @@ export class ListDepartmentsComponent {
       companyName,
       departments: grouped[companyName].sort((a, b) => a.name.localeCompare(b.name)) // Sort departments within company
     }));
+  }
+
+  updateDepartment(id: number) {
+    this.router.navigate(['acknowledgeHub/department/update/', btoa(id.toString())]);
   }
 }

@@ -14,12 +14,28 @@ export class DepartmentService {
   addDepartment(department: Department): Observable<any> {
     return this.http.post(`${this.baseUrl}/sys/createDepartment`, department,{ withCredentials: true, responseType: 'text' as 'json'});
   }
-
+  addDepartmentHr(departmentName: string, companyName: string) :Observable<string>{
+    const departmentData = {
+      name: departmentName,
+      company: companyName
+    };
+    console.log(companyName)
+    return this.http.post<string>(`${this.baseUrl}/allHR/createDepartment/${departmentName}/${companyName}`,null, { withCredentials: true , responseType: 'text' as 'json'});
+  }
+  
+  
   getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}/sys/company/${companyId}`,{ withCredentials: true});
+    return this.http.get<Department[]>(`${this.baseUrl}/all/company/${companyId}`,{ withCredentials: true});
   }
 
   getAllDepartments(): Observable<Department[]> {
     return this.http.get<Department[]>(`${this.baseUrl}/sys/getAllCompany`,{ withCredentials: true});
+  }
+
+  updateDepartment(id: number, department: Department): Observable<string> {
+    return this.http.put<string>(`${this.baseUrl}/all/${id}`, department, { withCredentials: true, responseType: 'text' as 'json' })
+  }
+  getDepartmentById(id: number): Observable<Department> {
+    return this.http.get<Department>(`${this.baseUrl}/sys/${id}`, { withCredentials: true });
   }
 }

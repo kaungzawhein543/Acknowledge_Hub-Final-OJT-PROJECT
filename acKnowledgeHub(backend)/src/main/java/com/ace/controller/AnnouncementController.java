@@ -76,7 +76,7 @@ public class AnnouncementController {
         this.positionService = positionService;
     }
 
-    @GetMapping("/HRM/latest-version-by-id/{id}")
+    @GetMapping("/all/latest-version-by-id/{id}")
     public ResponseEntity<AnnouncementUpdateDTO> getLatestAnnouncementById(@PathVariable int id) {
         Optional<Announcement> getFirstVersionOfAnnouncement = announcement_service.getAnnouncementById(id);
         String[] pathParts = getFirstVersionOfAnnouncement.get().getFile().split("/");
@@ -470,7 +470,7 @@ public class AnnouncementController {
         return announcementList;
     }
 
-    @GetMapping("/STF/staff/{staffId}")
+    @GetMapping("/all/staff/{staffId}")
     public List<AnnouncementResponseListDTO> getStaffAnnouncement(@PathVariable Integer staffId) {
         List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffAnnouncement(staffId);
         return announcementList;
@@ -606,4 +606,44 @@ public class AnnouncementController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/allHR/check_createOrRequest/{announcementId}")
+    public ResponseEntity<String> check_createOrRequest(@PathVariable("announcementId") Integer announcementId) {
+        // Find the announcement by ID
+        List<Staff> announceStaffs = staffService.findStaffByAnnouncementId(announcementId);
+        if(!announceStaffs.isEmpty()){
+            return ResponseEntity.ok("Create Announcement");
+        }
+
+        Optional<Announcement> announcement = announcement_service.findById(announcementId);
+
+        if (announcement.isPresent()) {
+            // Get the staff who created the announcement
+            Staff createdStaff = announcement.get().getCreateStaff();
+
+            if (createdStaff != null) {
+                // Get the company of the staff
+                Company staffCompany = createdStaff.getCompany();
+
+                if (staffCompany != null) {
+                    // Fetch the groups associated with the announcement
+                    List<Group> announceGroups = groupService.findGroupByAnnouncementId(announcementId);
+
+                    // Check if any group's name includes the staff's company name
+                    boolean isCompanyInGroups = announceGroups.stream()
+                            .anyMatch(group -> group.getName().contains(staffCompany.getName()));
+
+                    if (isCompanyInGroups) {
+                        return ResponseEntity.ok("Create Announcement");
+                    } else {
+                        return ResponseEntity.ok("Request Announcement");
+                    }
+                }
+            }
+        }
+
+        // Default response if no staff or company found or invalid announcement
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Announcement or Staff not found");
+    }
+
 }

@@ -115,12 +115,16 @@ List<Map<String, Object>> countStaffByAnnouncement();
             "SUM(CASE WHEN s.status = 'inactive' THEN 1 ELSE 0 END)) " +
             "FROM Staff s")
     StaffSummaryDTO getStaffSummary();
+
     @Query("SELECT s FROM Staff s JOIN s.announcement a WHERE a.id = :announcementId")
     List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
 
 
     @Query("select s.company.name from Staff s where s.id = ?1")
     String getCompanyNameById(Integer id);
+
+    @Query("select s from Staff s where s.telegramName = ?1")
+    Staff findByTelegramUserName(String name);
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
             "from Staff s " +

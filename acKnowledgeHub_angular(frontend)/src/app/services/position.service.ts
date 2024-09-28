@@ -12,7 +12,7 @@ export class PositionService {
   constructor(private http: HttpClient) { }
 
   getAllPosition(): Observable<Position[]> {
-    return this.http.get<Position[]>(`${this.baseUrl}/sys/list`,{ withCredentials: true});
+    return this.http.get<Position[]>(`${this.baseUrl}/allHR/list`,{ withCredentials: true});
   }
 
   addPosition(position: Position): Observable<string> {

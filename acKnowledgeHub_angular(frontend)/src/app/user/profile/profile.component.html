@@ -14,6 +14,8 @@
         <button class="update-photo-button"  (click)="openModal()">Update Photo</button>
         <button class="change-password-button" (click)="openChangePasswordModal()">Change Password</button>
       </div>
+      <button class="logout-button"(click)="openLogoutModal()"> <i class="fas fa-sign-out-alt mr-4"></i>Logout</button> <!-- Add logout button -->
+
     </div>
   </div>
 
@@ -84,7 +86,7 @@
 
  <!-- Change Password Modal -->
  <div class="card change-password-modal" *ngIf="showChangePasswordModal">
-  <div class="modal-content">
+  <div class="card modal-content">
     <span class="close-button" (click)="closeChangePasswordModal()">&times;</span>
     
     <h3 class="text-4xl font-semibold medium text-gray-800 text-center mb-6" style="color: #1b4980;">Change Password</h3>
@@ -96,7 +98,7 @@
       {{ successMessage }}
     </div>
     <br>
-    <form (ngSubmit)="changePassword()">
+    <form (ngSubmit)="confirmChangePassword()">
       <input type="password" id="oldPassword" [(ngModel)]="oldPassword" name="oldPassword" placeholder="Old Password" required />
       <input type="password" id="newPassword" [(ngModel)]="newPassword" name="newPassword" placeholder="New Password" required />
 
@@ -104,6 +106,29 @@
       
     </form>
     
+  </div>
+</div>
+
+<!-- Change Password Confirm Modal -->
+<div class="logout-modal" *ngIf="showChangePasswordConfirmModal">
+  <div class="modal-content">
+    <span class="close-button" (click)="closeChangePasswordConfirmModal()">&times;</span>
+    <h3>Confirm Change Password</h3>
+    <p>Are you sure you want to change your password?</p>
+    <button class="confirm-button" (click)="changePassword()">Yes</button>
+    <button class="cancel-button" (click)="closeChangePasswordConfirmModal()">No</button>
+  </div>
+</div>
+
+<!-- Logout Confirm Modal -->
+<div class="logout-modal" *ngIf="showLogoutModal">
+  <div class="modal-content">
+    <span class="close-button" (click)="closeLogoutModal()">&times;</span>
+    <h3><i class="fas fa-exclamation-triangle"></i>
+      Confirm Logout</h3>
+    <p>Are you sure you want to logout?</p>
+    <button class="confirm-button" (click)="logout()">Yes</button>
+    <button class="cancel-button" (click)="closeLogoutModal()">No</button>
   </div>
 </div>
 </div>

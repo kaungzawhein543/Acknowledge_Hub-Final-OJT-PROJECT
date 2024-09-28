@@ -70,7 +70,6 @@ export class RequestListByUserComponent {
         this.fetchAnnouncements(this.loginStaffId);
       }
     })
-
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
 
@@ -240,6 +239,6 @@ export class RequestListByUserComponent {
   }
 
   onDetailButtonClick(id: number) {
-    this.router.navigate(['/acknowledgeHub/announcement/detail/' + id]);
+    this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
   }
 }

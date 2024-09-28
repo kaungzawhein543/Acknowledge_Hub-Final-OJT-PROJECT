@@ -48,6 +48,8 @@ export class ListCompaniesComponent implements OnInit {
         error: (e) => console.error(e)
       });
   }
-
+  updateCompany(id: number) {
+    this.router.navigate(['acknowledgeHub/company/update/', btoa(id.toString())]);
+  }
 
 }

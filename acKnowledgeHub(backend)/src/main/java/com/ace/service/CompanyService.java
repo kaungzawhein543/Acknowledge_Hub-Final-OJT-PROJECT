@@ -4,6 +4,7 @@ import com.ace.entity.Group;
 import com.ace.repository.CompanyRepository;
 import com.ace.entity.Company;
 import com.ace.repository.GroupRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,12 +44,23 @@ public class CompanyService {
 
         return companyRepository.save(company);
     }
-
-    public Company updateCompany(int id, Company updatedCompany) {
+    @Transactional
+    public Company updateCompany(int id, String updatedCompany) {
         Optional<Company> existingCompany = companyRepository.findById(id);
+        System.out.println(existingCompany);
+        String companyName = existingCompany.get().getName();
+        List<Group> groupList = groupRepository.getGroupsByName(companyName);
+        System.out.println(groupList);
+        for (Group group : groupList) {
+            String currentGroupName = group.getName();
+            String updatedGroupName = currentGroupName.replace(companyName, updatedCompany);
+            group.setName(updatedGroupName);
+            groupRepository.save(group);
+        }
+
         if (existingCompany.isPresent()) {
             Company company = existingCompany.get();
-            company.setName(updatedCompany.getName());
+            company.setName(updatedCompany);
             return companyRepository.save(company);
         } else {
             throw new RuntimeException("Company not found");

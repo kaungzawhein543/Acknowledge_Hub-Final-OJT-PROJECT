@@ -1,23 +1,22 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 
-import { Group } from '../../models/Group';
-import { Staff } from '../../models/staff';
-import { GroupService } from '../../services/group.service';
-import { CategoryService } from '../../services/category.service';
-import { StaffService } from '../../services/staff.service';
-import { AnnouncementService } from '../../services/announcement.service';
-import { announcement } from '../../models/announcement';
-import { AuthService } from '../../services/auth.service';
-import { Position } from '../../models/Position';
-import { ToastService } from '../../services/toast.service';
-import { Router } from '@angular/router';
-
+import { AddAnnouncementComponent } from '../announcement/add-announcement/add-announcement.component';
+import { AnnouncementService } from '../services/announcement.service';
+import { GroupService } from '../services/group.service';
+import { CategoryService } from '../services/category.service';
+import { StaffService } from '../services/staff.service';
+import { AuthService } from '../services/auth.service';
+import { Group } from '../models/Group';
+import { Staff } from '../models/staff';
+import { announcement } from '../models/announcement';
+import { Position } from '../models/Position';
+import { ToastService } from '../services/toast.service';
 
 @Component({
-  selector: 'app-add-announcement',
-  templateUrl: './add-announcement.component.html',
-  styleUrls: ['./add-announcement.component.css'],
+  selector: 'app-createannouncement-hr',
+  templateUrl: './createannouncement-hr.component.html',
+  styleUrl: './createannouncement-hr.component.css',
   animations: [
     trigger('cardAnimation', [
       transition(':enter', [
@@ -31,10 +30,10 @@ import { Router } from '@angular/router';
     ]),
   ],
 })
+export class CreateannouncementHrComponent {
 
-export class AddAnnouncementComponent implements OnInit, OnDestroy {
   @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
-  private audio: HTMLAudioElement;
+
   groups: Group[] = [];
   staffs: Staff[] = [];
   selectedOption: string = 'group'; // Default to group
@@ -43,8 +42,8 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
-  minDateTime: string = '';
-  dateError: string = '';
+  minDateTime: string ='';
+  dateError : string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -57,90 +56,67 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
-  filteredGroups: Group[] = [];
-  fileErrorMessage !: boolean;
-  fileErrorText : string = '';
-  ErrorMessage !: boolean;
-  formSubmitted: boolean = false;
-
+  currentHumanResourceCompany !: string;
   updateInterval: any;
   intervalId: any;
-  titleError: boolean = false;
-  descriptionError: boolean = false;
+  filteredGroups : Group[] = [];
+  fileErrorMessage !: boolean;
+  fileErrorText : string = '';
+
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
-  searchGroup: string = '';
-  creatingAnnouncement : boolean = false;
+  selectAllStaffs : boolean = false;
+  titleError: boolean = false;
+  descriptionError: boolean = false;
+  formSubmitted: boolean = false;
   isHr : boolean = false;
-  
+  currentHrCompany : string = "";
   constructor(
     private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
     private authService: AuthService,
-    private toastService: ToastService,
-    private router : Router
-
-  ) {
-    this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
-    this.audio.load();
-  }
-
-   showSuccessToast() {
-    this.toastService.showToast(' Announcement created successful!', 'success');
-  }
-  showErrorToast() {
-    this.toastService.showToast('An error occurred!', 'error');
-  }
+    private cdr : ChangeDetectorRef,
+    private toastService : ToastService
+  ) { }
 
   ngOnInit(): void {
-    this.loadGroups();
-    this.loadCategories();
-    this.loadStaffs();
     this.authService.getUserInfo().subscribe(
       data => {
+        this.currentHumanResourceCompany = data.company;
         this.createStaffId = data.user.id;
-        this.isHr = data.position === "Human Resource";
+        this.loadGroups();
+        this.loadCategories();
+        this.loadStaffs();
+        this.setMinDateTime();
+        this.intervalId = setInterval(() => {
+            this.setMinDateTime();
+          }, 60000);
       }
     )
-
-    this.setMinDateTime();
-    this.intervalId = setInterval(() => {
-      this.setMinDateTime();
-    }, 60000);
   }
-
-  onCreate() {
-    // this.showSuccessToast();
-     this.formSubmitted = true;  
-  }
-
-  playNotificationSound() {
-    this.audio.play().catch(error => {
-      console.error('Error playing sound:', error);
-    });
-  }
-
   loadGroups() {
-    this.groupService.getAllGroups().subscribe(
+    this.groupService.getGroupsByHR(this.createStaffId).subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        console.log(groups)
+        // Filter groups to only show those that include the current HR company name if isHr is true
+          this.groups = this.groups.filter(group => group.name.includes(this.currentHumanResourceCompany || "ALL"));
+        
+        // Initialize filteredGroups (which may not be needed if you only use groups)
         this.filteredGroups = [...this.groups];
+        console.log(this.filteredGroups)
       },
       error => {
         console.error('Error fetching groups:', error);
       }
     );
   }
-  ngOnDestroy() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-  }
+  
 
   loadCategories() {
     this.categoryService.getAll().subscribe(
@@ -155,8 +131,9 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   }
 
   loadStaffs(): void {
-    if (this.isLoading || !this.hasMore) return;
-  
+    if (this.isLoading || !this.hasMore) {
+      return;
+    }
     this.isLoading = true;
     var loggedInStaffId = 0;
     this.authService.getUserInfo().subscribe(
@@ -164,31 +141,37 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
         loggedInStaffId = data.user.id;
       }
     ); // Replace with actual way to get logged-in staff ID
-  
-    this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
+    const query = this.searchTerm.trim();
+    this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
         this.isLoading = false;
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          // Assuming you have a service or method to get the logged-in user's ID
-          
-          // Process the staffs and filter out the logged-in staff
           const processedStaffs = response.data.content
+            .filter((staff: { company?: { name?: string }; }) => {
+              const companyName = staff.company?.name;
+              const matchesCompany = companyName === this.currentHumanResourceCompany;
+              return matchesCompany;
+            })
             .filter((staff: { id: number }) => {
+              console.log(`Checking staff with ID ${staff.id}`); // Log each staff's ID
               return staff.id !== loggedInStaffId; // Filter out logged-in staff
             })
-            .map((staff: { position: Position; }) => ({
-              ...staff,
-              position: staff.position.name // Extract only the name of the position
-            }));
-            
-            this.staffs = [...this.staffs, ...processedStaffs];
-            this.page++;
-            this.hasMore = this.page < response.data.page.totalPages;
-            
-            this.staffs.forEach(staff => {
+            .map((staff: { position: Position; }) => {
+              return {
+                ...staff,
+                position:  staff.position.name
+              };
+            });
+
+          this.staffs = [...this.staffs, ...processedStaffs];
+          this.page++;
+          this.hasMore = this.page < response.data.page.totalPages;
+          this.staffs.forEach(staff => {
             staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
           });
+          console.log(this.staffs)
         } else {
+          console.log('No valid content found.');
           this.hasMore = false;
         }
       },
@@ -198,8 +181,25 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       }
     );
   }
-  
 
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
+  }
+
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
@@ -212,7 +212,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    this.creatingAnnouncement = true;
     const formData = new FormData();
     const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
     const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
@@ -220,7 +219,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
-    this.fileErrorText = "You need to choose a file!";
     if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
       this.titleError = true;
       this.descriptionError = true;
@@ -258,8 +256,8 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
-      category: this.selectedCategory,
-      forRequest: 0
+      category : this.selectedCategory,
+      forRequest : 1
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -277,17 +275,23 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       formData.append('groupIds', new Blob([JSON.stringify(groupIds)], { type: 'application/json' }));
     }
 
+    // Append the selected file if any
+    if (this.selectedFile) {
+      formData.append('files', this.selectedFile);
+    }
+
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-          this.creatingAnnouncement = false;
-           this.showSuccessToast();
+        this.showSuccessToast();
       },
       error => {
         console.error(error);
       }
     );
   }
+
+
 
   onOptionChange(option: string): void {
     this.selectedOption = option;
@@ -296,8 +300,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
-      this.searchTerm = '';
-      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -328,6 +330,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
+
     const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
     if (selectedStaff) {
@@ -343,14 +346,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     }
   }
 
-  clearTitleError(): void {
-    this.titleError = false;
-  }
-
-  // Clear the description error on focus or input
-  clearDescriptionError(): void {
-    this.descriptionError = false;
-  }
 
   onFileChange(event: any): void {
     const input = event.target as HTMLInputElement;
@@ -386,34 +381,28 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.selectedFile = input.files[0];
       this.fileName = this.selectedFile.name;
       this.fileSelected = true;
-      this.fileErrorMessage = false;
     } else {
       this.selectedFile = null;
       this.fileName = '';
       this.fileSelected = false;
     }
-
   }
 
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-    if (!this.searchTerm) {
-      this.searchTerm = '';
-    }
-    this.filterStaffs();
-  }
 
-  groupInputChange(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    this.searchTerm = inputElement.value.trim();
-    this.filterGroups();
+    if (this.searchTerm) {
+      this.filterStaffs();
+    }else{
+      this.resetStaffList();
+    }
   }
 
   filterStaffs(): void {
     this.page = 0; // Reset pagination
     this.hasMore = true;
-    this.staffs = []; // Clear current staff list
+    this.staffs = [];
     this.loadStaffs(); // Reload staff with the search term
   }
 
@@ -432,36 +421,42 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.selectedOptionsBox = false;
     }
   }
-
-  filterGroups(): void {
-    if (this.searchTerm) {
-      this.filteredGroups = this.groups.filter(group =>
-        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredGroups = [...this.groups];
-    }
-    this.filteredGroups.forEach(group => {
-      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
-    });
-  }
-
+  
   setMinDateTime(): void {
     const now = new Date();
-
+  
     // Adjust the time to 2 minutes before the current time
     now.setMinutes(now.getMinutes() - 2);
-
+  
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
     const day = now.getDate().toString().padStart(2, '0');
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
-
+  
     // Set the minimum datetime to 2 minutes before the current date and time
     this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    console.log('MinDateTime set to:', this.minDateTime);
   }
-  
+
+  onSelectAllStaffs(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.selectAllStaffs = target.checked;
+
+    this.staffs.forEach(staff => {
+      staff.selected = this.selectAllStaffs;
+
+      const mockEvent = {
+        target: {
+          value: staff.staffId,
+          checked: this.selectAllStaffs
+        }
+      };
+
+      this.onStaffChange(mockEvent as any); // Casting to 'any' to bypass TypeScript checks
+    });
+    this.cdr.detectChanges();
+  }
   onDateChange() {
     if (this.scheduleDate) {
       const selectedDate = new Date(this.scheduleDate); // Convert the input to a Date object
@@ -480,9 +475,10 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       this.dateError = ""; // Reset error if no date is selected
     }
   }
-  
-  
-
-
-
+  showSuccessToast() {
+    this.toastService.showToast(' Announcement requested successful!', 'success');
+  }
+  onCreate(){
+    this.formSubmitted = true;  
+  }
 }

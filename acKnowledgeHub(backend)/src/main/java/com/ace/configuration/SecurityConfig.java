@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Publicly accessible endpoints
                         .requestMatchers("/auth/**", "/api/v1/announcement/all/**", "/api/v1/category/all/**",
-                                "/api/v1/feedback/all/**", "/api/v1/feedback-reply/all/**", "/api/v1/email/**").permitAll()
+                                "/api/v1/feedback/all/**", "/api/v1/feedback-reply/all/**", "/api/v1/email/**","/api/v1/group/all/**","/api/v1/company/all/**").permitAll()
 
                         // Secured endpoints for admins and HR
                         .requestMatchers("/api/v1/announcement/sys/**", "/api/v1/category/sys/**",
@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/api/v1/feedback/HRM/**", "/api/v1/staff/HRM/**","/api/v1/group/HRM/**").hasAuthority("Human Resource(Main)")
 
                         // for both Human Resource(Main) and HR
-                        .requestMatchers("/api/v1/staff/allHR/**","/api/v1/announcement/allHR/**").access(hrMainAndHrAuthorizationManager())
+                        .requestMatchers("/api/v1/staff/allHR/**","/api/v1/announcement/allHR/**","/api/v1/department/allHR/**").access(hrMainAndHrAuthorizationManager())
 
 
                         // Non-admin, non-HR access Human Resource(Main)

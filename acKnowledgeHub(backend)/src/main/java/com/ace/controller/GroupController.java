@@ -3,8 +3,10 @@ package com.ace.controller;
 import com.ace.dto.GroupDTO;
 import com.ace.dto.GroupResponseDTO;
 import com.ace.dto.StaffDTO;
+import com.ace.entity.Company;
 import com.ace.entity.Group;
 import com.ace.entity.Staff;
+import com.ace.service.CompanyService;
 import com.ace.service.GroupService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +24,14 @@ public class GroupController {
 
     private final GroupService groupService;
     private final ModelMapper mapper;
-
-    public GroupController(GroupService groupService, ModelMapper mapper) {
+    private final CompanyService companyService;
+    public GroupController(GroupService groupService, ModelMapper mapper, CompanyService companyService) {
         this.groupService = groupService;
         this.mapper = mapper;
+        this.companyService = companyService;
     }
 
-    @GetMapping("/sys/getAllGroup")
+    @GetMapping("/all/getAllGroup")
     public ResponseEntity<List<GroupDTO>> getAllGroups() {
         List<Group> groups = groupService.getAllGroups();
 
@@ -108,4 +111,47 @@ public class GroupController {
     public List<GroupResponseDTO> getGroupListByAnnouncementId(@PathVariable("id")Integer id){
         return groupService.getGroupListByAnnouncementId(id);
     }
+
+    @GetMapping("/all/getAllCompanyGroup")
+    public ResponseEntity<List<GroupDTO>> getAllCompanyGroup() {
+        // Fetch all companies from the CompanyService
+        List<Company> companies = companyService.getAllCompanies();
+
+        // Get a list of trimmed company names for filtering
+        List<String> companyNames = companies.stream()
+                .map(company -> company.getName().trim()) // Trim each company name
+                .collect(Collectors.toList());
+
+        // Fetch all groups from the GroupService
+        List<Group> groups = groupService.getAllGroups();
+
+        // Map each Group entity to a GroupDTO, including the "ALL STAFFS" group
+        List<GroupDTO> groupDTOs = groups.stream()
+                .filter(group ->
+                        companyNames.contains(group.getName().trim()) ||
+                                "ALL STAFFS".equalsIgnoreCase(group.getName().trim()) // Include "ALL STAFFS" group
+                )
+                .map(group -> {
+                    // Extract staff names from Group entity
+                    List<StaffDTO> staffs = group.getStaff().stream()
+                            .map(staff -> mapper.map(staff, StaffDTO.class)) // Map each Staff entity to StaffDTO
+                            .collect(Collectors.toList());
+
+                    // Create a GroupDTO with the extracted staff names
+                    return new GroupDTO(
+                            group.getId(),
+                            group.getName(),
+                            group.getStatus(),
+                            group.getCreatedAt(),
+                            staffs
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // Return the list of GroupDTOs in the response
+        return ResponseEntity.ok().body(groupDTOs);
+    }
+
+
+
 }

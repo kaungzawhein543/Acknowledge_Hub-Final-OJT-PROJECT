@@ -28,7 +28,9 @@ public class ExcelService {
     private final GroupRepository groupRepository;
     private final EmailService emailService;
 
-    public ExcelService(StaffRepository staffRepository, PositionRepository positionRepository, CompanyRepository companyRepository, DepartmentRepository departmentRepository, GroupRepository groupRepository, EmailService emailService) {
+    public ExcelService(StaffRepository staffRepository, PositionRepository positionRepository,
+                        CompanyRepository companyRepository, DepartmentRepository departmentRepository,
+                        GroupRepository groupRepository, EmailService emailService) {
         this.staffRepository = staffRepository;
         this.positionRepository = positionRepository;
         this.companyRepository = companyRepository;
@@ -56,88 +58,103 @@ public class ExcelService {
                 String positionName = dataFormatter.formatCellValue(row.getCell(3));
                 String departmentName = dataFormatter.formatCellValue(row.getCell(4));
                 String companyName = dataFormatter.formatCellValue(row.getCell(5));
+                String telegramName = dataFormatter.formatCellValue(row.getCell(6));
 
-                if (staffId == null || staffId.isEmpty()) {
-                    continue; // Skip rows without a staff ID
-                }
+                if (staffId == null || staffId.isEmpty()) continue; // Skip rows without a staff ID
                 importedStaffIds.add(staffId);
 
-                // Choose between overriding existing staff or adding only new staff
-                if (overrideExisting) {
-                    overrideAddStaffs(staffId, staffName, staffEmail, positionName, companyName, departmentName);
-                } else {
-                    addOnlyStaffs(staffId, staffName, staffEmail, positionName, companyName, departmentName, emailsToSend);
+                Staff staff = createOrUpdateStaff(staffId, staffName, staffEmail, positionName, companyName, departmentName,telegramName);
+
+                addStaffToGroups(staff, companyName, departmentName);
+
+                if (!overrideExisting && staffRepository.findByCompanyStaffId(staffId) == null) {
+                    // If staff is new, send email
+                    if (staffEmail != null && !staffEmail.trim().isEmpty()) {
+                        emailsToSend.add(staffEmail.trim());
+                    }
                 }
             }
 
-            // Send emails in the background
-            sendEmailsAsync(emailsToSend); // Don't wait for this to finish
-
-            // If overriding existing staff, update their status without waiting
+            sendEmailsAsync(emailsToSend); // Send emails asynchronously
             if (overrideExisting) {
-                updateStaffStatusAsync(importedStaffIds); // Also don't wait for this to finish
+                updateStaffStatusAsync(importedStaffIds); // Update staff status asynchronously
             }
 
-            // Return immediately after adding/updating staff
             return "Staff added/updated successfully.";
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Error processing file.";
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error processing file", e);
+            return "Error processing file.";
         }
     }
 
-
-    private void overrideAddStaffs(String staffId, String staffName, String staffEmail, String positionName, String companyName, String departmentName) {
-        // Your existing logic for adding/updating staff...
-        Company company = companyRepository.findByName(companyName).stream().findFirst()
-                .orElseGet(() -> {
-                    Company newCompany = new Company();
-                    newCompany.setName(companyName);
-                    return companyRepository.save(newCompany);
-                });
-
-        Department department = departmentRepository.findByNameAndCompany(departmentName, companyName);
-        if (department == null) {
-            department = new Department();
-            department.setName(departmentName);
-            department.setCompany(company);
-            department = departmentRepository.save(department);
-        }
-
-        Position position = positionRepository.findByName(positionName).stream().findFirst()
-                .orElseGet(() -> {
-                    Position newPosition = new Position();
-                    newPosition.setName(positionName);
-                    return positionRepository.save(newPosition);
-                });
+    private Staff createOrUpdateStaff(String staffId, String staffName, String staffEmail,
+                                      String positionName, String companyName, String departmentName,String telegramName) {
+        Company company = findOrCreateCompany(companyName);
+        Department department = findOrCreateDepartment(departmentName, company);
+        Position position = findOrCreatePosition(positionName);
 
         Staff staff = staffRepository.findByCompanyStaffId(staffId);
         if (staff == null) {
             staff = new Staff();
             staff.setCompanyStaffId(staffId);
         }
-
         staff.setName(staffName);
         staff.setCompany(company);
         staff.setDepartment(department);
         staff.setPosition(position);
         staff.setEmail(staffEmail);
         staff.setPhotoPath(defaultPath);
-
-        staffRepository.save(staff);
+        staff.setTelegramName(telegramName);
+        return staffRepository.save(staff);
     }
 
-    private void addOnlyStaffs(String staffId, String staffName, String staffEmail, String positionName, String companyName, String departmentName, Set<String> emailsToSend) {
-        Staff existingStaff = staffRepository.findByCompanyStaffId(staffId);
-        if (existingStaff == null) {
-            overrideAddStaffs(staffId, staffName, staffEmail, positionName, companyName, departmentName);
-            if (staffEmail != null && !staffEmail.trim().isEmpty()) {
-                emailsToSend.add(staffEmail.trim());
-            }
+    private Company findOrCreateCompany(String companyName) {
+        return companyRepository.findByName(companyName).stream().findFirst()
+                .orElseGet(() -> {
+                    Company newCompany = new Company();
+                    newCompany.setName(companyName);
+                    return companyRepository.save(newCompany);
+                });
+    }
+
+    private Department findOrCreateDepartment(String departmentName, Company company) {
+        Department department = departmentRepository.findByNameAndCompany(departmentName, company.getName());
+        if (department == null) {
+            department = new Department();
+            department.setName(departmentName);
+            department.setCompany(company);
+            return departmentRepository.save(department);
+        }
+        return department;
+    }
+
+    private Position findOrCreatePosition(String positionName) {
+        return positionRepository.findByName(positionName).stream().findFirst()
+                .orElseGet(() -> {
+                    Position newPosition = new Position();
+                    newPosition.setName(positionName);
+                    return positionRepository.save(newPosition);
+                });
+    }
+
+    @Async
+    private void addStaffToGroups(Staff staff, String companyName, String departmentName) {
+        addToGroup(staff, companyName);
+        addToGroup(staff, departmentName + " (" + companyName + ")");
+        addToGroup(staff, "Global Group");
+    }
+
+    @Async
+    private void addToGroup(Staff staff, String groupName) {
+        Group group = groupRepository.findByName(groupName);
+        if (group == null) {
+            group = new Group();
+            group.setName(groupName);
+            group.setStaff(new ArrayList<>(Collections.singletonList(staff)));
+            groupRepository.save(group);
+        } else if (groupRepository.hasStaffInGroup(staff, group) == 0) {
+            group.getStaff().add(staff);
+            groupRepository.save(group);
         }
     }
 
@@ -145,7 +162,9 @@ public class ExcelService {
     public CompletableFuture<Void> updateStaffStatusAsync(Set<String> importedStaffIds) {
         return CompletableFuture.runAsync(() -> {
             staffRepository.findAll().forEach(staff -> {
-                if (staff.getCompanyStaffId().equals("ADMIN001")) {
+
+                if (staff.getCompanyStaffId().equals("ADMIN001") || staff.getPosition().equals("Human Resource(Main)")) {
+                    // Always keep ADMIN001 active
                     staff.setStatus("active");
                 } else {
                     if (!importedStaffIds.contains(staff.getCompanyStaffId())) {

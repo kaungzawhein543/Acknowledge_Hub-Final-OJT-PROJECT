@@ -52,7 +52,7 @@ export class AnnouncementService {
 
   //Get Announcement
   getLatestAnnouncementById(id: number): Observable<updateAnnouncement> {
-    return this.http.get(`${this.BaseUrl}/HRM/latest-version-by-id/${id}`, {  withCredentials: true,responseType: 'text' }).pipe(
+    return this.http.get(`${this.BaseUrl}/all/latest-version-by-id/${id}`, {  withCredentials: true,responseType: 'text' }).pipe(
       map(response => {
         try {
           return JSON.parse(response) as updateAnnouncement; // Parse JSON response
@@ -90,7 +90,7 @@ export class AnnouncementService {
   }
 
   userAnnouncement(staffId: number): Observable<announcementList[]> {
-    return this.http.get<announcementList[]>(`${this.BaseUrl}/STF/staff/${staffId}`,{ withCredentials: true});
+    return this.http.get<announcementList[]>(`${this.BaseUrl}/all/staff/${staffId}`,{ withCredentials: true});
   }
 
   pendingAnnouncementBySchedule(): Observable<announcementList[]> {
@@ -178,5 +178,12 @@ export class AnnouncementService {
 
   postPublishNow(id: number): Observable<any> {
     return this.http.get(`${this.BaseUrl}/publish-now/${id}`, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  checkCreateOrRequest(announcementId: number): Observable<string> {
+    return this.http.get<string>(`${this.BaseUrl}/allHR/check_createOrRequest/${announcementId}`,{ withCredentials: true, responseType: 'text' as 'json' })
+      .pipe(
+        catchError(this.handleError) // Handle any errors
+      );
   }
 }

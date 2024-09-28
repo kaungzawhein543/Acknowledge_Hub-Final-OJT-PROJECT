@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 import e from 'express';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -55,10 +56,14 @@ export class AddUserComponent implements OnInit {
   alreadyExistStaffEmail : string = '';
   conflictEmaildMessage : string = '';
   isDropdownOpen = false;
+  isHr : boolean = false;
+  currentHrcompany  : string = '';
+  currrrtHrcompanyId : number = 0;
   
   constructor(private staffService: StaffService, private positionService: PositionService,
     private departmentService: DepartmentService, private companyService: CompanyService,
     private toastService: ToastService,
+    private authService : AuthService,
     private router: Router,) { }
 
     showSuccessToast() {
@@ -66,26 +71,52 @@ export class AddUserComponent implements OnInit {
     }
 
   ngOnInit(): void {
-    this.departmentService.getDepartmentListByCompanyId(1).subscribe({
-      next: (data) => {
-        this.departments = data;
-        if(this.departments.length >0){
-          this.staff.departmentId = this.departments[0].id;
-        }else{
-          console.log("There is no dapartments")
-        }
-      },
-      error: (e) => console.log(e)
-    });
-    this.companyService.getAllCompany().subscribe({
-      next: (data) => {
-        this.companies = data;
-        if(this.companies.length >0){
-          this.staff.companyId = this.companies[0].id;
-        }
-      },
-      error: (e) => console.log(e)
-    });
+    this.authService.getUserInfo().subscribe(
+      data =>{
+          if(data.position === "Human Resource"){
+            this.isHr = true;
+            this.currrrtHrcompanyId = data.companyId;
+            this.currentHrcompany = data.company;
+            this.companies[0] = new Company(this.currentHrcompany);
+            if(this.companies.length >0){
+              this.staff.companyId = this.companies[0].id;
+            }
+            this.departmentService.getDepartmentListByCompanyId(this.currrrtHrcompanyId).subscribe({
+              next: (data) => {
+                this.departments = data;
+                if(this.departments.length >0){
+                  this.staff.departmentId = this.departments[0].id;
+                }else{
+                  console.log("There is no dapartments")
+                }
+              },
+              error: (e) => console.log(e)
+            });
+          }else {
+                this.isHr = false;
+                this.departmentService.getDepartmentListByCompanyId(1).subscribe({
+                  next: (data) => {
+                    this.departments = data;
+                    if(this.departments.length >0){
+                      this.staff.departmentId = this.departments[0].id;
+                    }else{
+                      console.log("There is no dapartments")
+                    }
+                  },
+                  error: (e) => console.log(e)
+                });
+                this.companyService.getAllCompany().subscribe({
+                  next: (data) => {
+                    this.companies = data;
+                    if(this.companies.length >0){
+                      this.staff.companyId = this.companies[0].id;
+                    }
+                  },
+                  error: (e) => console.log(e)
+                });
+            }
+      }
+    )
     this.positionService.getAllPosition().subscribe({
       next: (data) => {
         this.positions = data;
@@ -118,7 +149,12 @@ export class AddUserComponent implements OnInit {
   }
 
   onSubmit(form: NgForm): void {
-    
+    if(this.isHr){
+      this.companies[0] = new Company(this.currentHrcompany);
+      if(this.companies.length >0){
+        this.staff.companyId = this.companies[0].id;
+      }
+    }
     this.staff.companyStaffId = this.staff.companyStaffId?.trim();
     this.staff.name = this.staff.name?.trim();
     this.staff.email = this.staff.email?.trim() || '';
@@ -129,13 +165,25 @@ export class AddUserComponent implements OnInit {
       if (form.valid) {
         this.staffService.addStaff(this.staff).subscribe({
           next: (data) => {
+            if(this.isHr){
+              this.companies[0] = new Company(this.currentHrcompany);
+              if(this.companies.length >0){
+                this.staff.companyId = this.companies[0].id;
+              }
+            }
             this.toastService.showToast("Staff Add Successfully",'success');
             this.router.navigate(['/acknowledgeHub/users/list']);
           },
           error: (error: HttpErrorResponse) => {
             // Handle 409 Conflict error
-            console.log(error)
             if (error.status === 409) {
+              if(this.isHr){
+                this.companies[0] = new Company(this.currentHrcompany);
+                if(this.companies.length >0){
+                  this.staff.companyId = this.companies[0].id;
+                }
+                console.log(`error ${this.currrrtHrcompanyId}`)
+              }
               if(error.error === "StaffId is already exist!"){
                 this.alreadyExistStaffId = this.staff.companyStaffId || '';
                 this.conflictStaffIdMessage = error.error || "Conflict occurred. Please try again.";
@@ -144,6 +192,13 @@ export class AddUserComponent implements OnInit {
                 this.conflictEmaildMessage = error.error || "Conflict occurred. Please try again.";
               }
             } else {
+                if(this.isHr){
+                    this.companies[0] = new Company(this.currentHrcompany);
+                    if(this.companies.length >0){
+                      this.staff.companyId = this.companies[0].id;
+                    }
+                    console.log(`error ${this.currrrtHrcompanyId}`)
+                }
               // Handle other errors
               this.toastService.showToast("An error occurred. Please try again.", 'error');
               console.error("Error:", error);

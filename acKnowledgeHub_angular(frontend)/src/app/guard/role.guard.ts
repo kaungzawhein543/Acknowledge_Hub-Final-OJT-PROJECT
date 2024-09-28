@@ -55,7 +55,11 @@ export class RoleGuard implements CanActivate {
             hasPosition = true;
           } else if (userInfo.user.role === 'USER') {
             // USER can only access if they have the HR_MAIN position
-            hasPosition = userInfo.position === 'Human Resource(Main)';
+            if(userInfo.position === 'Human Resource(Main)'){
+              hasPosition = userInfo.position === 'Human Resource(Main)';
+            }else{
+              hasPosition = userInfo.position === 'Human Resource';
+            }
           }
         } else if (requiredPositions.length > 0) {
           // Check if ADMIN role is present in required roles

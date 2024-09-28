@@ -8,7 +8,7 @@
           <div class="p-6">
         <form #departmentForm="ngForm" (ngSubmit)="onSubmit(departmentForm)">
             <div class="card">
-            <div class="mb-4">
+            <div class="mb-4" *ngIf="!isHr">
                 <label for="name" class="block text-gray-700 font-semibold mb-2">Company Name</label>
                 <select id="company" name="company" [(ngModel)]="department.company"
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]"

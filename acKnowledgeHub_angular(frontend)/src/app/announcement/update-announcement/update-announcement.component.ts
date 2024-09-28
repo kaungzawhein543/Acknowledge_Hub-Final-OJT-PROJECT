@@ -50,7 +50,8 @@ export class UpdateAnnouncementComponent implements OnInit{
   titleError: boolean = false;
   descriptionError: boolean = false;
   formSubmitted: boolean = false;
-  
+  checkCreateOrRequest : string = "";
+  currentHumanResourceCompany : string = "";
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
@@ -58,7 +59,7 @@ export class UpdateAnnouncementComponent implements OnInit{
   searchTerm: string = ''; // Search term for filtering
   announcementId : string  ='';
   intervalId: any;
-
+  idOfAnnouncement : number = 0;
   constructor(
     private groupService: GroupService, 
     private categoryService: CategoryService,
@@ -69,11 +70,24 @@ export class UpdateAnnouncementComponent implements OnInit{
   ) {}
   
   ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+        if (idParam) {
+      this.idOfAnnouncement = Number(atob(idParam));
+    }
+    this.announcementService.checkCreateOrRequest(this.idOfAnnouncement).subscribe(
+      data =>{
+        console.log(data);
+        if(data === "Create Announcement"){
+          this.checkCreateOrRequest = "Create Announcement";
+        }else{
+          this.checkCreateOrRequest = "Request Announcement";
+        }
+      }
+    )
     if(this.announcementId.length == 0){
       this.announcementId += this.route.snapshot.paramMap.get('id');
-      console.log(this.announcementId)
       this.announcementId = atob(this.announcementId);
-      console.log(this.announcementId)
+      
     }
     this.loadGroups();
     this.loadCategories();
@@ -84,10 +98,10 @@ export class UpdateAnnouncementComponent implements OnInit{
       }, 60000);
     this.authService.getUserInfo().subscribe(
       data => {
+        this.currentHumanResourceCompany = data.company;
         this.createStaffId = data.user.id;
         this.announcementService.getLatestAnnouncementById(Number(this.announcementId)).subscribe(
           data =>{
-            console.log(data);
             this.announcementService.getAnnouncementVersion(this.announcementId).subscribe(
               versions =>{
                 this.announcementVersions = versions;
@@ -146,6 +160,14 @@ export class UpdateAnnouncementComponent implements OnInit{
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        if(this.checkCreateOrRequest === "Create Announcement"){
+          this.groups = this.groups.filter(group => group.name.includes(this.currentHumanResourceCompany));
+          this.filteredGroups = [...this.groups];
+        }else if(this.checkCreateOrRequest === "Request Announcement"){
+          this.filteredGroups = this.groups.filter(group =>
+            group.name.trim().toLowerCase() !== this.currentHumanResourceCompany.trim().toLowerCase()
+          );
+        }
         this.filteredGroups = [...this.groups];
       },
       error => {
@@ -167,29 +189,37 @@ export class UpdateAnnouncementComponent implements OnInit{
   }
 
   loadStaffs(): void {
-    if (this.isLoading || !this.hasMore) return;
-  
+    if (this.isLoading || !this.hasMore) {
+      return;
+    }
     this.isLoading = true;
     var loggedInStaffId = 0;
     this.authService.getUserInfo().subscribe(
       data =>{
         loggedInStaffId = data.user.id;
       }
-    );
-    this.staffService.getStaffs(this.page,this.pageSize,this.searchTerm).subscribe(
+    ); // Replace with actual way to get logged-in staff ID
+    const query = this.searchTerm.trim();
+    this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
       response => {
         this.isLoading = false;
-        
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
           const processedStaffs = response.data.content
-          .filter((staff: { id: number }) => {
-            console.log(`Checking staff with ID ${staff.id}`); // Log each staff's ID
-            return staff.id !== loggedInStaffId; // Filter out logged-in staff
-          })
-          .map((staff: { position: Position; }) => ({
-            ...staff,
-            position: staff.position.name  // Extract only the name
-          }));
+            .filter((staff: { company?: { name?: string }; }) => {
+              const companyName = staff.company?.name;
+              const matchesCompany = companyName === this.currentHumanResourceCompany;
+              return matchesCompany;
+            })
+            .filter((staff: { id: number }) => {
+              console.log(`Checking staff with ID ${staff.id}`); // Log each staff's ID
+              return staff.id !== loggedInStaffId; // Filter out logged-in staff
+            })
+            .map((staff: { position: Position; }) => {
+              return {
+                ...staff,
+                position:  staff.position.name
+              };
+            });
 
           this.staffs = [...this.staffs, ...processedStaffs];
           this.page++;
@@ -197,7 +227,9 @@ export class UpdateAnnouncementComponent implements OnInit{
           this.staffs.forEach(staff => {
             staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
           });
+          console.log(this.staffs)
         } else {
+          console.log('No valid content found.');
           this.hasMore = false;
         }
       },
@@ -437,13 +469,32 @@ onFileChange(event: any): void {
   }
 
   filterGroups(): void {
-    if (this.searchTerm) {
-      this.filteredGroups = this.groups.filter(group =>
-        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredGroups = [...this.groups];
+    if(this.checkCreateOrRequest === "Request Announcement"){
+      if (this.searchTerm) {
+        this.filteredGroups = this.groups.filter(group =>
+          group.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+          group.name.toLowerCase() !== this.currentHumanResourceCompany.toLowerCase()
+        );
+      } else {
+        this.filteredGroups = this.groups.filter(group =>
+          group.name.toLowerCase() !== this.currentHumanResourceCompany.toLowerCase()
+        );
+      }
+    }else{
+      if (this.searchTerm) {
+        // Filter by search term and ensure group name includes currentHumanResourceCompany
+        this.filteredGroups = this.groups.filter(group =>
+          group.name.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
+          group.name.toLowerCase().includes(this.currentHumanResourceCompany.toLowerCase())
+        );
+      } else {
+        // Show all groups that include currentHumanResourceCompany
+        this.filteredGroups = this.groups.filter(group =>
+          group.name.toLowerCase().includes(this.currentHumanResourceCompany.toLowerCase())
+        );
+      }
     }
+    
     this.filteredGroups.forEach(group => {
       group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
     });

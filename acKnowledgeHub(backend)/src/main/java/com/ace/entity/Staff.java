@@ -50,6 +50,8 @@ public class Staff implements UserDetails {
     private Role role = Role.USER;
     @Column(name = "photo_path")  // Field to store the file path
     private String photoPath;
+    @Column(name = "telegram_name")
+    private String telegramName;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "position_id")
     private Position position;
