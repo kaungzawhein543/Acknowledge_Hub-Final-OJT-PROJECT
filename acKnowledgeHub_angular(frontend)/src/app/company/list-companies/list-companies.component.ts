@@ -49,5 +49,7 @@ export class ListCompaniesComponent implements OnInit {
       });
   }
 
-
+  updateCompany(id: number) {
+    this.router.navigate(['acknowledgeHub/company/update/', btoa(id.toString())]);
+  }
 }

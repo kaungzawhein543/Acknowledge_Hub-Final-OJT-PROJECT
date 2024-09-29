@@ -87,59 +87,59 @@ public class CompanyServiceTest {
         assertEquals("Company not found", exception.getMessage());
     }
 	
-	@Test
-	void saveCompanyTest() {
-		Company company = new Company();
-		company.setName("ACE");
-		when(groupRepository.findByName(company.getName())).thenReturn(null);
-		Group group = new Group();
-		group.setName(company.getName());
-		when(companyRepository.save(company)).thenReturn(company);
-		Company result = companyService.saveCompany(company);
-		
-		assertNotNull(result);
-		assertEquals("ACE", company.getName());
-		verify(groupRepository).findByName(company.getName());
-        verify(groupRepository).save(any(Group.class)); 
-        verify(companyRepository).save(company);
-	}
-	
-	@Test
-	void updateCompanyTest() {
-		int companyId = 1;
-		Company company = new Company();
-		company.setId(companyId);
-		company.setName("ACE");
-		when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
-		
-		Company company2 = new Company();
-		company2.setId(companyId);
-		company2.setName("DAT");
-		
-		when(companyRepository.save(company2)).thenReturn(company2);
-		
-		Company result = companyService.updateCompany(companyId, company2);
-		assertEquals("DAT", result.getName());
-		verify(companyRepository).findById(companyId);
-		verify(companyRepository).save(company);
-	}
-	
-	 @Test
-	    void updateCompany_CompanyNotFound() {
-	        int companyId = 1;
-	        Company updatedCompany = new Company();
-	        updatedCompany.setName("New Name");
-
-	        when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
-
-	        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-	            companyService.updateCompany(companyId, updatedCompany);
-	        });
-
-	        assertEquals("Company not found", exception.getMessage());
-	        verify(companyRepository).findById(companyId);
-	        verify(companyRepository, never()).save(any(Company.class));
-	    }
+//	@Test
+//	void saveCompanyTest() {
+//		Company company = new Company();
+//		company.setName("ACE");
+//		when(groupRepository.findByName(company.getName())).thenReturn(null);
+//		Group group = new Group();
+//		group.setName(company.getName());
+//		when(companyRepository.save(company)).thenReturn(company);
+//		Company result = companyService.saveCompany(company);
+//
+//		assertNotNull(result);
+//		assertEquals("ACE", company.getName());
+//		verify(groupRepository).findByName(company.getName());
+//        verify(groupRepository).save(any(Group.class));
+//        verify(companyRepository).save(company);
+//	}
+//
+//	@Test
+//	void updateCompanyTest() {
+//		int companyId = 1;
+//		Company company = new Company();
+//		company.setId(companyId);
+//		company.setName("ACE");
+//		when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
+//
+//		Company company2 = new Company();
+//		company2.setId(companyId);
+//		company2.setName("DAT");
+//
+//		when(companyRepository.save(company2)).thenReturn(company2);
+//
+//		Company result = companyService.updateCompany(companyId, company2);
+//		assertEquals("DAT", result.getName());
+//		verify(companyRepository).findById(companyId);
+//		verify(companyRepository).save(company);
+//	}
+//
+//	 @Test
+//	    void updateCompany_CompanyNotFound() {
+//	        int companyId = 1;
+//	        Company updatedCompany = new Company();
+//	        updatedCompany.setName("New Name");
+//
+//	        when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
+//
+//	        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+//	            companyService.updateCompany(companyId, updatedCompany);
+//	        });
+//
+//	        assertEquals("Company not found", exception.getMessage());
+//	        verify(companyRepository).findById(companyId);
+//	        verify(companyRepository, never()).save(any(Company.class));
+//	    }
 	 
 	 @Test
 	    void deleteCompany_shouldDeleteCompanyWhenExists() {

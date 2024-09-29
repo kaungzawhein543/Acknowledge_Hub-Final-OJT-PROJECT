@@ -6,6 +6,7 @@ import com.ace.entity.Company;
 import com.ace.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class CompanyService {
 
     public Company saveCompany(Company company) {
         Group group = groupRepository.findByName(company.getName());
-        if(group == null){
+        if (group == null) {
             Group group1 = new Group();
             group1.setName(company.getName());
             groupRepository.save(group1);
@@ -44,11 +45,23 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
-    public Company updateCompany(int id, Company updatedCompany) {
+    @Transactional
+    public Company updateCompany(int id, String updatedCompany) {
         Optional<Company> existingCompany = companyRepository.findById(id);
+        System.out.println(existingCompany);
+        String companyName = existingCompany.get().getName();
+        List<Group> groupList = groupRepository.getGroupsByName(companyName);
+        System.out.println(groupList);
+        for (Group group : groupList) {
+            String currentGroupName = group.getName();
+            String updatedGroupName = currentGroupName.replace(companyName, updatedCompany);
+            group.setName(updatedGroupName);
+            groupRepository.save(group);
+        }
+
         if (existingCompany.isPresent()) {
             Company company = existingCompany.get();
-            company.setName(updatedCompany.getName());
+            company.setName(updatedCompany);
             return companyRepository.save(company);
         } else {
             throw new RuntimeException("Company not found");
@@ -63,7 +76,7 @@ public class CompanyService {
         }
     }
 
-    public Company findByName(String name){
+    public Company findByName(String name) {
         return companyRepository.getCompanyByName(name);
     }
 

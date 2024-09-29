@@ -16,6 +16,14 @@ export class CompanyService {
   }
 
   getAllCompany(): Observable<Company[]> {
-    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company/sys`,{ withCredentials: true});
+    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company/sys`, { withCredentials: true });
+  }
+
+  getCompanyById(id: number): Observable<Company> {
+    return this.http.get<Company>(`${this.baseUrl}/${id}`, { withCredentials: true });
+  }
+
+  updateCompany(id: number, company: string): Observable<String> {
+    return this.http.put<String>(`${this.baseUrl}/${id}`, company, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

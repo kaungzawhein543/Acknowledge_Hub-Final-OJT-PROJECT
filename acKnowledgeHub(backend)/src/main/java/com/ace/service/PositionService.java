@@ -37,4 +37,13 @@ public class PositionService {
         return positionRepository.findByHRName(name);
     }
 
+    public void updatePosition(Integer id, Position position){
+         Optional<Position> existingPosition = positionRepository.findById(id);
+         if(existingPosition.isPresent()){
+             existingPosition.get().setName(position.getName());
+
+         }
+    }
+
+
 }

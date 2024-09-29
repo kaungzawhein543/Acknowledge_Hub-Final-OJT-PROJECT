@@ -5,9 +5,11 @@ import com.ace.dto.GroupResponseDTO;
 import com.ace.entity.Group;
 import com.ace.entity.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -36,6 +38,10 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g where g.name LIKE CONCAT('%', :companyName, '%')")
     List<GroupResponseDTO> getGroupsByHR(@Param("companyName") String companyName);
 
+    @Query("select g from Group g where g.name LIKE CONCAT('%', :companyName, '%')")
+    List<Group> getGroupsByName(@Param("companyName") String companyName);
+
     @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g Join g.announcement a where a.id = ?1")
     List<GroupResponseDTO> getGroupsByAnnouncementId(Integer id);
+    
 }

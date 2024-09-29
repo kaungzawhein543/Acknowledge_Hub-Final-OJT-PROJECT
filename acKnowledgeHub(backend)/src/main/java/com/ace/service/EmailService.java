@@ -145,6 +145,7 @@ public class EmailService {
         return 0;
     }
 
+
     public void sendTelegramChannelInvitation(String recipientEmail) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();

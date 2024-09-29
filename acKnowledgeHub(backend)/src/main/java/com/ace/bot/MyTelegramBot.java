@@ -16,6 +16,8 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageCaption;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -32,8 +34,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class MyTelegramBot extends TelegramLongPollingBot {
-
-//    private static final Logger logger = LoggerFactory.getLogger(MyTelegramBot.class);
 
     private final String botToken;
     private final String botUsername;
@@ -59,25 +59,17 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 if (update.getMessage().hasText()) {
                     String messageText = update.getMessage().getText();
                     String chatId = update.getMessage().getChatId().toString();
+                    String username = update.getMessage().getFrom().getUserName();
                     if ("/start".equals(messageText)) {
-                        startRequest(chatId);
-                        Optional<Staff> user = staffService.findByChatId(chatId);
-                        System.out.println(user);
-                        if (!user.isPresent()) {
-                            sendMessage(chatId, "Please provide your email address.");
-                        }
-                    } else if (isValidEmail(messageText)) {
-                        Staff user= staffService.findByEmail(messageText);
-                        if (user == null) {
-                            sendMessage(chatId, "Please provide a valid email address that gives to company.");
+                        List<Staff> users = staffService.findByTelegramUserName(username);
+                        if (users == null||users.isEmpty()) {
+                            sendMessage(chatId, "You are not our companies' staff. So, our bot channel does not belong to you");
                         } else {
-                            sendMessage(chatId, "Thank you for providing your email address!");
-                            staffService.saveChatId(chatId, messageText);
-                        }
-                    } else if (update.getMessage().hasText()) {
-                        Optional<Staff> user = staffService.findByChatId(chatId);
-                        if (user == null) {
-                            sendMessage(chatId, "Please provide a valid email address.");
+                            for (Staff user : users) {
+                                user.setChatId(chatId);
+                                staffService.save(user); // Save each updated user
+                            }
+                            sendMessage(chatId, "Welcome to ACE (AcKnowledge Hub)");
                         }
                     }
                 }
@@ -90,19 +82,29 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 String[] callbackParts = callbackData.split(":");
                 String action = callbackParts[0];
                 String fileId = callbackParts.length > 1 ? callbackParts[1] : null;
+
+                // Handle button action
                 if ("button".equals(action)) {
+                    // Update message with noted button
                     updateMessageWithDoneButton(chatId, messageId);
+
+                    // Handle the business logic for noting the announcement
                     StaffNotedAnnouncement staffNotedAnnouncement = new StaffNotedAnnouncement();
                     Optional<Announcement> announcement = announcementService.getAnnouncementById(Integer.parseInt(fileId));
                     staffNotedAnnouncement.setAnnouncement(announcement.get());
                     Optional<Staff> user = staffService.findByChatId(chatId);
                     staffNotedAnnouncement.setStaff(user.get());
-                    Optional<StaffNotedAnnouncement> notedAnnouncement =  userNotedAnnouncementService.checkNotedOrNot(user.get(),announcement.get());
-                    if(!notedAnnouncement.isPresent()){
+
+                    Optional<StaffNotedAnnouncement> notedAnnouncement = userNotedAnnouncementService.checkNotedOrNot(user.get(), announcement.get());
+                    if (!notedAnnouncement.isPresent()) {
                         userNotedAnnouncementService.save(staffNotedAnnouncement);
                     }
+
+                    // Send the answer to the callback query (to confirm action)
                     AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
                     answerCallbackQuery.setCallbackQueryId(callbackQuery.getId());
+                    answerCallbackQuery.setText("Your action has been noted.");
+                    answerCallbackQuery.setShowAlert(false); // Show an alert if necessary
                     execute(answerCallbackQuery);
                 }
             }
@@ -111,51 +113,41 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendPdf(String chatId, MultipartFile multipartFile,Integer announcementId, byte updateStatus) {
+    public void sendPdf(String chatId, MultipartFile multipartFile, Announcement announcement, byte updateStatus) {
         try {
-            // Send the PDF document
+            // Prepare the document
             InputFile inputFile = new InputFile(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
             SendDocument document = new SendDocument();
             document.setChatId(chatId);
             document.setDocument(inputFile);
-            try {
-                execute(document);
-            } catch (TelegramApiException e) {
-                log.error("Error sending PDF file", e);
-            }
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            if(updateStatus > 0){
-                message.setText("Here is a updated version for you.\nIf you receive message , you can do noted");
-            }else{
-                message.setText("If you receive message , you can do noted");
-            }
-            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-            // Create button with callback data indicating true
+            // Set the caption to include title and description
+            String caption;
+            if (updateStatus > 0) {
+                caption = "\nHere is an updated version for you\n\n*" + announcement.getTitle() + "*\n\n"+ announcement.getDescription();
+            } else {
+                caption = "\n*" + announcement.getTitle() + "*\n\n" + announcement.getDescription();
+            }
+            document.setCaption(caption);
+            document.setParseMode("Markdown");  // Enables Markdown formatting in the caption
+
+            // Add inline keyboard (button) directly to the document message
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText("Note");
-            button.setCallbackData("button:"+announcementId);
-
-            // Create keyboard row and set it to keyboard
+            button.setCallbackData("button:" + announcement.getId());
             List<InlineKeyboardButton> row = Arrays.asList(button);
             List<List<InlineKeyboardButton>> keyboard = Arrays.asList(row);
             inlineKeyboardMarkup.setKeyboard(keyboard);
-            // Set keyboard to message
-            message.setReplyMarkup(inlineKeyboardMarkup);
-            try {
-                execute(message);
-            } catch (TelegramApiException e) {
-                log.error("Error sending message", e);
-            }
-        } catch (IOException e) {
-            log.error("Error processing MultipartFile", e);
+            document.setReplyMarkup(inlineKeyboardMarkup);
+
+            // Send the document with caption and inline button
+            execute(document);
+
+        } catch (TelegramApiException | IOException e) {
+            log.error("Error sending PDF file with caption", e);
         }
-
     }
-
-
-
 
     public void sendMessage(String chatId, String text) {
         SendMessage message = new SendMessage();
@@ -168,42 +160,28 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         }
     }
 
-
     private void updateMessageWithDoneButton(String chatId, Integer messageId) throws TelegramApiException {
-        EditMessageText editMessage = new EditMessageText();
-        editMessage.setChatId(chatId);
-        editMessage.setMessageId(messageId);
-        editMessage.setText("You have noted");
+        // Instead of changing the caption or text, we are only going to update the buttons (keyboard)
+        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+        editMessageReplyMarkup.setChatId(chatId);
+        editMessageReplyMarkup.setMessageId(messageId);
+
+        // Create a new button that shows "✅Noted"
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText("✅Noted");
-        button.setCallbackData("button:done");
+        button.setCallbackData("button:done"); // This callback prevents further actions
+
+        // Update the inline keyboard with the new button
         List<InlineKeyboardButton> row = Arrays.asList(button);
         List<List<InlineKeyboardButton>> keyboard = Arrays.asList(row);
         inlineKeyboardMarkup.setKeyboard(keyboard);
-        editMessage.setReplyMarkup(inlineKeyboardMarkup);
-        execute(editMessage);
-    }
 
-    private void startRequest(String chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Welcome to ACE(AcKnowledge Hub)");
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Send Email Request happening  error",new TelegramApiException());
-        }
-    }
+        // Set the new keyboard (buttons) without changing the original message text
+        editMessageReplyMarkup.setReplyMarkup(inlineKeyboardMarkup);
 
-
-    private boolean isValidEmail(String email) {
-        return email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
-    }
-
-
-    private void saveChatId(String chatId, String email) {
-        staffService.saveChatId(chatId, email);
+        // Execute the edit for the reply markup only
+        execute(editMessageReplyMarkup);
     }
 
     @Override

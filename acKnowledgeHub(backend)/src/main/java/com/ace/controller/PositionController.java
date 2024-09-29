@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/position")
@@ -33,4 +34,20 @@ public class PositionController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Position already exists.");
         }
     }
+    @GetMapping("/all/{id}")
+    public Optional<Position> getPositionById(@PathVariable("id")Integer id){
+        return positionService.findById(id);
+    }
+
+    @PutMapping("/all/{id}")
+    public ResponseEntity<String> updatePosition(@PathVariable("id")Integer id, @RequestBody Position position){
+        Position existingPosition = positionService.findByName(position.getName());
+        if (existingPosition == null) {
+            positionService.updatePosition(id,position);
+            return ResponseEntity.ok("Updating position is successful.");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Position already exists.");
+        }
+    }
+
 }

@@ -45,6 +45,8 @@ public class Staff implements UserDetails {
     private String status = "active";
     @Column(name = "chat_id")
     private String chatId;
+    @Column(name = "telegram_name")
+    private String telegramName;
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role = Role.USER;

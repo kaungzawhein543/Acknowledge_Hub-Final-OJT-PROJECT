@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,7 +37,8 @@ public class StaffService implements UserDetailsService {
     private final AnnouncementRepository announcement_repo;
     private final NotedRepository notedRepository;
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
-private final GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+    private final EmailService emailService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -44,11 +46,12 @@ private final GroupRepository groupRepository;
 
 
 
-    public StaffService(StaffRepository staffRepository,AnnouncementRepository announcement_repo,NotedRepository notedRepository, GroupRepository groupRepository) {
+    public StaffService(StaffRepository staffRepository, AnnouncementRepository announcement_repo, NotedRepository notedRepository, GroupRepository groupRepository, EmailService emailService) {
         this.staffRepository = staffRepository;
         this.announcement_repo = announcement_repo;
         this.notedRepository = notedRepository;
         this.groupRepository = groupRepository;
+        this.emailService = emailService;
     }
 
 
@@ -178,6 +181,10 @@ private final GroupRepository groupRepository;
         return staffRepository.findByChatId(chatId);
     }
 
+    public List<Staff> findByTelegramUserName(String name) {
+        return staffRepository.findByTelegramUserName(name);
+    }
+
     public void saveChatId(String chatId, String email) {
         Staff user = staffRepository.findByEmail(email);
         user.setChatId(chatId);
@@ -205,6 +212,12 @@ private final GroupRepository groupRepository;
             departmentGroup.getStaff().add(staff);
             groupRepository.save(departmentGroup);
         }
+        Group globalGroup = groupRepository.findByName("Global Group");
+        if(globalGroup != null){
+            globalGroup.getStaff().add(staff);
+            groupRepository.save(globalGroup);
+        }
+        emailService.sendTelegramChannelInvitation(staff.getEmail());
     }
 
     public List<StaffResponseDTO> getStaffList() {

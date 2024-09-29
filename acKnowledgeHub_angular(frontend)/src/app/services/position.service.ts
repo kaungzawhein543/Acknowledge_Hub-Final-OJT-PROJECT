@@ -12,10 +12,18 @@ export class PositionService {
   constructor(private http: HttpClient) { }
 
   getAllPosition(): Observable<Position[]> {
-    return this.http.get<Position[]>(`${this.baseUrl}/sys/list`,{ withCredentials: true});
+    return this.http.get<Position[]>(`${this.baseUrl}/sys/list`, { withCredentials: true });
   }
 
   addPosition(position: Position): Observable<string> {
-    return this.http.post<string>(`${this.baseUrl}/sys/addPosition`, position,{ withCredentials: true,responseType : 'text'as 'json'});
+    return this.http.post<string>(`${this.baseUrl}/sys/addPosition`, position, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+
+  getPositionById(id: number): Observable<Position> {
+    return this.http.get<Position>(`${this.baseUrl}/all/${id}`);
+  }
+
+  updatePosition(id: number, position: Position): Observable<string> {
+    return this.http.put<string>(`${this.baseUrl}/all/${id}`, position, { withCredentials: true, responseType: 'text' as 'json' });
   }
 }

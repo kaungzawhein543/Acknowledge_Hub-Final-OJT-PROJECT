@@ -44,5 +44,24 @@ public class DepartmentController {
         }
     }
 
+    @PutMapping("/sys/{id}")
+    public ResponseEntity<String> updateDepartment(@PathVariable("id") Integer id, @RequestBody Department department) {
+        try {
+            Department existingDepartment = departmentService.getDepartmentByLowerName(department.getName(), department.getCompany().getId());
+
+            if (existingDepartment == null) {
+                departmentService.updateDepartment(id, department);
+
+                return ResponseEntity.ok("Updating department is successful.");
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Department already exists");
+            }
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred due to a null value.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
+    }
+
 
 }

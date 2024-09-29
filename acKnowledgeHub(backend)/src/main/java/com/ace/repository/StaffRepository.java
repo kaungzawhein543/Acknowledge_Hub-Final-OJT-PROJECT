@@ -33,7 +33,10 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("select s from Staff s where s.position.name = ?1")
     Staff findByPosition(String position);
 
-    public Optional<Staff> findByChatId(String id);
+    public Optional<Staff> findByChatId(String name);
+
+    @Query("select s from Staff s where s.telegramName = ?1")
+    List<Staff> findByTelegramUserName(String name);
 
     @Query("select s.chatId from Staff s")
     public List<String> findAllChatIds();

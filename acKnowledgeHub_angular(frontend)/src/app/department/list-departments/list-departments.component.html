@@ -1,46 +1,51 @@
 <div class="container flex justify-center" @cardAnimation>
-    <div class="card bg-white shadow-md rounded-lg overflow-hidden w-full lg:w-4/4" >
-        <div class="text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
-            <h3 class="card text-xl font-semibold text-center">Department List</h3>
-      </div>
-  
-      <div class="card p-6">
-        <table class="min-w-full table-auto">
-          <thead>
-            <tr class="bg-blue-100 text-blue-900">
-              <th class="px-6 py-3 text-left text-sm font-bold">No.</th>
-              <th class="px-6 py-3 text-left text-sm font-bold">Department</th>
-              <th class="px-6 py-3 text-left text-sm font-bold">Company</th>
+  <div class="card bg-white shadow-md rounded-lg overflow-hidden w-full lg:w-4/4">
+    <div class="text-white p-4 rounded-t flex justify-between items-center" style="background-color: #1b4980;">
+      <h3 class="card text-xl font-semibold text-center">Department List</h3>
+    </div>
+
+    <div class="card p-6">
+      <table class="min-w-full table-auto">
+        <thead>
+          <tr class="bg-blue-100 text-blue-900">
+            <th class="px-6 py-3 text-left text-sm font-bold">No.</th>
+            <th class="px-6 py-3 text-left text-sm font-bold">Department</th>
+            <th class="px-6 py-3 text-left text-sm font-bold">Company</th>
+            <th class="px-6 py-3 text-left text-sm font-bold">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Display message when no data is available -->
+          <tr *ngIf="!groupedDepartments || groupedDepartments.length === 0">
+            <td colspan="3" class="text-center text-gray-500 py-4">No departments available.</td>
+          </tr>
+
+          <!-- Loop through each company group -->
+          <ng-container *ngFor="let group of groupedDepartments">
+            <!-- Company name row -->
+            <tr class="bg-gray-100 border-t-2 border-blue-800">
+              <td colspan="3" class="text-lg font-bold px-4 py-2" style="color: #1b4980;">
+                {{ group.companyName }}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            <!-- Display message when no data is available -->
-            <tr *ngIf="!groupedDepartments || groupedDepartments.length === 0">
-              <td colspan="3" class="text-center text-gray-500 py-4">No departments available.</td>
+
+            <!-- Department rows for each company -->
+            <tr *ngFor="let department of group.departments; let i = index"
+              class="border-b border-gray-200 hover:bg-blue-100 transition-colors duration-300 ease-in-out">
+              <td class="px-4 py-3">{{ i + 1 }}</td>
+              <td class="px-4 py-3">{{ department.name }}</td>
+              <td class="px-4 py-3">{{ department.company.name }}</td>
+              <td class="px-6 py-4 text-sm text-gray-700">
+                <button class="bg-blue-800 hover:bg-blue-800 text-white py-1 px-2 rounded"
+                  (click)="updateDepartment(department.id)"><i class="fas fa-edit"></i></button>
+              </td>
             </tr>
-  
-            <!-- Loop through each company group -->
-            <ng-container *ngFor="let group of groupedDepartments">
-              <!-- Company name row -->
-              <tr class="bg-gray-100 border-t-2 border-blue-800">
-                <td colspan="3" class="text-lg font-bold px-4 py-2" style="color: #1b4980;">
-                    {{ group.companyName }}
-                </td>
-              </tr>
-  
-              <!-- Department rows for each company -->
-              <tr *ngFor="let department of group.departments; let i = index" class="border-b border-gray-200 hover:bg-blue-100 transition-colors duration-300 ease-in-out">
-                <td class="px-4 py-3">{{ i + 1 }}</td>
-                <td class="px-4 py-3">{{ department.name }}</td>
-                <td class="px-4 py-3">{{ department.company.name }}</td>
-              </tr>
-            </ng-container>
-          </tbody>
-        </table>
-        <div *ngIf="departments.length == 0" class="text-center p-5 text-muted">
-            No Data Avalible!
-        </div>
+          </ng-container>
+        </tbody>
+      </table>
+      <div *ngIf="departments.length == 0" class="text-center p-5 text-muted">
+        No Data Avalible!
       </div>
     </div>
   </div>
-  
+</div>

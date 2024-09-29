@@ -12,14 +12,22 @@ export class DepartmentService {
   constructor(private http: HttpClient) { }
 
   addDepartment(department: Department): Observable<any> {
-    return this.http.post(`${this.baseUrl}/sys/createDepartment`, department,{ withCredentials: true, responseType: 'text' as 'json'});
+    return this.http.post(`${this.baseUrl}/sys/createDepartment`, department, { withCredentials: true, responseType: 'text' as 'json' });
   }
 
   getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}/sys/company/${companyId}`,{ withCredentials: true});
+    return this.http.get<Department[]>(`${this.baseUrl}/sys/company/${companyId}`, { withCredentials: true });
   }
 
   getAllDepartments(): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}/sys/getAllCompany`,{ withCredentials: true});
+    return this.http.get<Department[]>(`${this.baseUrl}/sys/getAllCompany`, { withCredentials: true });
+  }
+
+  getDepartmentById(id: number): Observable<Department> {
+    return this.http.get<Department>(`${this.baseUrl}/sys/${id}`, { withCredentials: true });
+  }
+
+  updateDepartment(id: number, department: Department): Observable<string> {
+    return this.http.put<string>(`${this.baseUrl}/sys/${id}`, department, { withCredentials: true, responseType: 'text' as 'json' })
   }
 }

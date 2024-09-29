@@ -20,9 +20,9 @@
 //
 //    @PostMapping("/send")
 //    public String sendMessage(@RequestParam("chatId") String chatId,@RequestParam("file") MultipartFile file,
-//                              @RequestParam("announcementId") Integer announcementId) {
+//                              @RequestParam("announcementId") Integer announcementId, @RequestParam("updateStatus")byte updateStatus) {
 //        try {
-//            botService.sendFile(chatId,file,announcementId);
+//            botService.sendFile(chatId,file,announcementId, updateStatus);
 //            return "Message sent successfully";
 //        } catch (Exception e) {
 //            e.printStackTrace();

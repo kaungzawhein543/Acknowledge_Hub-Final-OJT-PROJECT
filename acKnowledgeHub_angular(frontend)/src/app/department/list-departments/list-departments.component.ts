@@ -28,7 +28,7 @@ export class ListDepartmentsComponent {
   private itemIdToDelete: number | null = null;
   departments: Department[] = [];
   groupedDepartments: { companyName: string, departments: Department[] }[] = [];
-  
+
   @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
 
   constructor(private departmentService: DepartmentService, private router: Router) { }
@@ -59,10 +59,14 @@ export class ListDepartmentsComponent {
     }, {} as { [key: string]: Department[] });
 
     this.groupedDepartments = Object.keys(grouped)
-    .sort((a, b) => a.localeCompare(b)) // Sort companies by name
-    .map(companyName => ({
-      companyName,
-      departments: grouped[companyName].sort((a, b) => a.name.localeCompare(b.name)) // Sort departments within company
-    }));
+      .sort((a, b) => a.localeCompare(b)) // Sort companies by name
+      .map(companyName => ({
+        companyName,
+        departments: grouped[companyName].sort((a, b) => a.name.localeCompare(b.name)) // Sort departments within company
+      }));
+  }
+
+  updateDepartment(id: number) {
+    this.router.navigate(['acknowledgeHub/department/update/', btoa(id.toString())]);
   }
 }

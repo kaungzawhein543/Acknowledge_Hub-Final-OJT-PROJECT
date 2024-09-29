@@ -42,4 +42,8 @@ export class PositionListComponent {
         error: (e) => console.error(e)
       });
   }
+
+  updatePosition(id: number) {
+    this.router.navigate(['acknowledgeHub/position/update/', btoa(id.toString())])
+  }
 }

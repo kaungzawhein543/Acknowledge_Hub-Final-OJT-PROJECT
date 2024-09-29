@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Publicly accessible endpoints
                         .requestMatchers("/auth/**", "/api/v1/announcement/all/**", "/api/v1/category/all/**",
-                                "/api/v1/feedback/all/**", "/api/v1/feedback-reply/all/**", "/api/v1/email/**").permitAll()
+                                "/api/v1/feedback/all/**", "/api/v1/feedback-reply/all/**", "/api/v1/email/**","/api/v1/bot/**","/api/v1/position/all/**").permitAll()
 
                         // Secured endpoints for admins and HR
                         .requestMatchers("/api/v1/announcement/sys/**", "/api/v1/category/sys/**",

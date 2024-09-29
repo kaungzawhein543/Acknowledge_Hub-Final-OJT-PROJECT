@@ -2,10 +2,11 @@
     <div class="card flex justify-center">
         <div class="bg-white shadow-xl rounded-lg overflow-hidden w-full lg:w-4/4">
             <!-- Header Section -->
-            <div class=" text-white p-5 rounded-t-lg flex justify-between items-center" style="background-color: #1b4980;">
+            <div class=" text-white p-5 rounded-t-lg flex justify-between items-center"
+                style="background-color: #1b4980;">
                 <h3 class="text-xl font-semibold tracking-wide">Company List</h3>
             </div>
-            
+
             <!-- Table Section -->
             <div class="bg-white p-6 rounded-b-lg">
                 <table class="min-w-full table-auto border-collapse">
@@ -13,6 +14,7 @@
                         <tr class="bg-blue-100 text-blue-900">
                             <th class="px-6 py-3 text-left text-sm font-bold">No.</th>
                             <th class="px-6 py-3 text-left text-sm font-bold">Name</th>
+                            <th class="px-6 py-3 text-left text-sm font-bold">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -21,10 +23,14 @@
                             <td colspan="2" class="text-center text-gray-500 py-6">There is no data available.</td>
                         </tr>
                         <!-- Company rows with alternating color -->
-                        <tr *ngFor="let company of companies; let i = index" 
+                        <tr *ngFor="let company of companies; let i = index"
                             class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-300 ease-in-out">
                             <td class="px-6 py-4 text-sm text-gray-700">{{ i + 1 }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ company.name }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">
+                                <button class="bg-blue-800 hover:bg-blue-800 text-white py-1 px-2 rounded"
+                                    (click)="updateCompany(company.id)"><i class="fas fa-edit"></i></button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

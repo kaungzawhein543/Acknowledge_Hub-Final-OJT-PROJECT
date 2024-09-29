@@ -217,7 +217,7 @@ public class AnnouncementController {
             if (request.getScheduleAt() != null) {  //schedule ဟုတ်မဟုတ်စစ်တယ် (null မဟုတ်ခဲ့ဘူးဆိုရင်)
                 if (request.getForRequest() != 1) {         // request ဟုတ်မဟုတ် စစ်တယ် (request ဟုတ်မနေဘူးဆိုရင်)
                     if(request.getScheduleAt().isBefore(LocalDateTime.now()) || announcement.getScheduleAt().isEqual(LocalDateTime.now())){    //schedule ကအခုအချိန်ထက်ကျော်သွားတာဖစ်ဖစ် အခုချိန်နဲ့ညီခဲ့မယ်ဆိုရင် တစ်ခါတည်းpublish ဖစ်အောင်လုပ်မယ်
-                        blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus(),updateStatus);
+                        blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement,updateStatus);
                         savedAnnouncement.setPublished(true);
                         announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
                     }else{  //schedule က အခုအချိန်ထက်နောက်မကျတဲ့အပြင်အခုအချိန်နဲ့လည်းမညီခဲ့ဘူးဆိုရင်
@@ -240,7 +240,7 @@ public class AnnouncementController {
                 }
             } else { //schedule က null ဖစ်ခဲ့မယ်ဆိုရင်
                 if (request.getForRequest() != 1) { // Announcement က request မဟုတ်ဘူးဆိုရင်
-                    blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement.getId(), request.getGroupStatus(),updateStatus);
+                    blogService.sendTelegramAndEmail(staffForAnnounce, groupsForAnnounce, files.get(0), savedAnnouncement,updateStatus);
                     savedAnnouncement.setPublished(true);
                     announcement_service.updateAnnouncement(savedAnnouncement.getId(), savedAnnouncement);
                 }else{ // Announcement က request ဖစ်နေမယ်ဆိုရင်
@@ -549,7 +549,7 @@ public class AnnouncementController {
                             System.out.println("it come here");
                         }
                     }
-                    blogService.sendTelegramAndEmail(announceStaff, announceGroup, file, id, announcement.get().getGroupStatus(),updateStatus);
+                    blogService.sendTelegramAndEmail(announceStaff, announceGroup, file, announcement.get(),updateStatus);
                 } catch (IOException e) {
                     System.out.println(e);
                 }

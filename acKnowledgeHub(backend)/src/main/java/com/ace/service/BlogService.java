@@ -80,38 +80,38 @@ public class BlogService {
                     System.out.println("it come here");
                 }
             }
-            sendTelegramAndEmail(announcement.getStaff(), announcement.getGroup(), file, announcement.getId(), announcement.getGroupStatus(),updateStatus);
+            sendTelegramAndEmail(announcement.getStaff(), announcement.getGroup(), file, announcement,updateStatus);
         } catch (IOException e) {
             System.out.println(e);
         }
     }
 
-    public void sendTelegramAndEmail(List<Staff> staffForAnnounce, List<Group> groupsForAnnounce, MultipartFile file, Integer announcementId, byte groupStatus,byte updateStatus){
+    public void sendTelegramAndEmail(List<Staff> staffForAnnounce, List<Group> groupsForAnnounce, MultipartFile file, Announcement announcement, byte updateStatus){
        try{
            int count = 1;
-           Announcement announcementForNoti = announcementService.getAnnouncementById(announcementId).orElseThrow();
-           if (groupStatus != 1) {
+           Announcement announcementForNoti = announcementService.getAnnouncementById(announcement.getId()).orElseThrow();
+           if (announcement.getGroupStatus() != 1) {
                for (Staff AnnounceStaff : staffForAnnounce) {
                    if (AnnounceStaff != null) {
                        if(AnnounceStaff.getChatId() != null){
-                           botService.sendFile(AnnounceStaff.getChatId(), file, announcementId,updateStatus);
+                           botService.sendFile(AnnounceStaff.getChatId(), file, announcement,updateStatus);
                        }
                    }
                    if (AnnounceStaff.getEmail() != null && !AnnounceStaff.getEmail().isEmpty()) {
                     if(updateStatus > 0){
-                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcementId);
+                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(),announcement.getId());
                     }else{
-                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have A New Announcement", file, file.getOriginalFilename(),announcementId);
+                        emailService.sendFileEmail(AnnounceStaff.getEmail(), "We Have A New Announcement", file, file.getOriginalFilename(),announcement.getId());
                     }
                    }
-                   String description;
+                   String description2;
                    if(updateStatus > 0){
-                       description = announcementForNoti.getCreateStaff().getName()+" Updated "+announcementForNoti.getTitle()+" Announcement!Check It Out!";
+                       description2 = announcementForNoti.getCreateStaff().getName()+" Updated "+announcementForNoti.getTitle()+" Announcement!Check It Out!";
                    }else{
-                       description = announcementForNoti.getCreateStaff().getName()+" Created New Announcement!Check It Out!";
+                       description2= announcementForNoti.getCreateStaff().getName()+" Created New Announcement!Check It Out!";
                    }
                    String url =  "/acknowledgeHub/announcement/detail/"+Base64.getEncoder().encodeToString(announcementForNoti.getId().toString().getBytes());
-                   Notification notification = createNotification(announcementForNoti, AnnounceStaff, description,url);
+                   Notification notification = createNotification(announcementForNoti, AnnounceStaff, description2,url);
                    notificationService.sendNotification(convertToDTO(notification));
                }
            } else {
@@ -132,7 +132,7 @@ public class BlogService {
                    // Check for Chat ID and file sending logic
                    if (announceStaff.getChatId() != null) {
                        if (!file.isEmpty() && file != null) {
-                           botService.sendFile(announceStaff.getChatId(), file, announcementId, updateStatus);
+                           botService.sendFile(announceStaff.getChatId(), file, announcement, updateStatus);
                        } else {
                            System.out.println("File is null or empty");
                        }
@@ -141,25 +141,25 @@ public class BlogService {
                    // Check for email sending logic
                    if (announceStaff.getEmail() != null && !announceStaff.getEmail().isEmpty()) {
                        if (updateStatus > 0) {
-                           emailService.sendFileEmail(announceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(), announcementId);
+                           emailService.sendFileEmail(announceStaff.getEmail(), "We Updated Announcement", file, file.getOriginalFilename(), announcement.getId());
                        } else {
-                           emailService.sendFileEmail(announceStaff.getEmail(), "We Have an Announcement", file, file.getOriginalFilename(), announcementId);
+                           emailService.sendFileEmail(announceStaff.getEmail(), "We Have an Announcement", file, file.getOriginalFilename(), announcement.getId());
                        }
                    }
 
                    // Prepare notification description
-                   String description;
+                   String description2;
                    if (updateStatus > 0) {
-                       description = announcementForNoti.getCreateStaff().getName() + " Updated " + announcementForNoti.getTitle() + " Announcement! Check It Out!";
+                       description2 = announcementForNoti.getCreateStaff().getName() + " Updated " + announcementForNoti.getTitle() + " Announcement! Check It Out!";
                    } else {
-                       description = announcementForNoti.getCreateStaff().getName() + " Created New Announcement! Check It Out!";
+                       description2 = announcementForNoti.getCreateStaff().getName() + " Created New Announcement! Check It Out!";
                    }
 
                    // Create notification URL
                    String url = "/acknowledgeHub/announcement/detail/" + Base64.getEncoder().encodeToString(announcementForNoti.getId().toString().getBytes());
 
                    // Create and send notification
-                   Notification notification = createNotification(announcementForNoti, announceStaff, description, url);
+                   Notification notification = createNotification(announcementForNoti, announceStaff, description2, url);
                    notificationService.sendNotification(convertToDTO(notification));
                    System.out.println("Noti sent to " + announceStaff.getName());
                }
