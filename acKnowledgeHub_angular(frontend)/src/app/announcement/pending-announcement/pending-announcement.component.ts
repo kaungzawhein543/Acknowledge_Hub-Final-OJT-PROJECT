@@ -13,6 +13,9 @@ import { trigger, style, transition, animate, query, stagger } from '@angular/an
 import { AuthService } from '../../services/auth.service';
 import { StaffProfileDTO } from '../../models/staff';
 import { ToastService } from '../../services/toast.service';
+import { MatSelectionList } from '@angular/material/list';
+import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
+import { StaffGroup } from '../../models/staff-group';
 
 
 @Component({
@@ -34,6 +37,9 @@ import { ToastService } from '../../services/toast.service';
 })
 export class PendingAnnouncementComponent implements OnInit {
  @ViewChild(MatPaginator) paginator!: MatPaginator;
+ @ViewChild('staff') staff!: MatSelectionList;
+ @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
+ @ViewChild('publishionModel') publishModal!: ConfirmationModalComponent;
 
   announcements: announcementList[] = [];
   filteredAnnouncements: announcementList[] = [];
@@ -49,6 +55,8 @@ export class PendingAnnouncementComponent implements OnInit {
   loginRole !: string;
   isaHrMain: boolean = false; // Initialize the isaHrMain variable
   profile: StaffProfileDTO | null = null;
+  announcementIdForCancel: number =0;
+  announcementIdForPublish: number = 0;
 
 
   columns = [
@@ -57,7 +65,7 @@ export class PendingAnnouncementComponent implements OnInit {
     { field: 'description', header: 'Description' },
     { field: 'category', header: 'Category' },
     { field: 'createStaff', header: 'Create/Request Staff' },
-    { field: 'createdAt', header: 'Create At' },
+    { field: 'createdAt', header: 'Scheduled At' },
     { field: 'detail', header: 'View' },
     { field: 'cancel', header: 'Action' }
   ];
@@ -130,13 +138,17 @@ export class PendingAnnouncementComponent implements OnInit {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.file?.toLowerCase() || '',
+       // a.file?.toLowerCase() || '',
         a.createStaff?.toLowerCase() || '',
         a.category?.toLowerCase() || '',
         new Date(a.createdAt).toLocaleString().toLowerCase(),
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 
@@ -271,6 +283,7 @@ export class PendingAnnouncementComponent implements OnInit {
   onPublishButtonClick(id: number) {
     this.announcementService.postPublishNow(id).subscribe({
       next: (data: string) => {
+        this.showPubliSuccessToast();
         this.fetchAnnouncements();
       },
       error: (e) => console.log(e)
@@ -284,6 +297,17 @@ export class PendingAnnouncementComponent implements OnInit {
     this.selectedColumns = this.columns.map(col => col.field);
   }
   showCancelSuccessToast() {
-    this.toastService.showToast('Add Group  successful!', 'success');
+    this.toastService.showToast('Cancel Announcement  successful!', 'success');
+  }
+  showPubliSuccessToast() {
+    this.toastService.showToast('PUblich Announcement  successful!', 'success');
+  }
+  openDeleteModal(id : number) {
+    this.announcementIdForCancel = id;
+    this.modal.open();
+  }
+  openPublishNowMode(id:number){
+    this.announcementIdForPublish = id;
+    this.publishModal.open();
   }
 }

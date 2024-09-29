@@ -52,6 +52,6 @@ export class GroupService {
   //   return this.http.get<Department[]>(`${this.apiUrl}/departments/${companyId}`);
   // }
   getGroupsByAnnouncementId(id: number): Observable<Group[]> {
-    return this.http.get<Group[]>(`${this.baseURL}/sys/list-by-announcement/${id}`, { withCredentials: true });
+    return this.http.get<Group[]>(`${this.baseURL}/all/list-by-announcement/${id}`, { withCredentials: true });
   }
 }

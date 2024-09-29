@@ -77,6 +77,12 @@
                                         View
                                     </button>
                                 </ng-container>
+                                <ng-container *ngSwitchCase="'createdAt'">
+                                    <span>{{ announcement.createdAt | date: 'yyyy-MM-dd' }}</span>
+                                  </ng-container>
+                                  <ng-container *ngSwitchCase="'scheduleAt'">
+                                    <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+                                  </ng-container>
                                 <!-- For Request Staff Column -->
                                 <ng-container *ngSwitchCase="'createStaff'">
                                     {{ getRequestStaff(announcement) }}
@@ -87,9 +93,7 @@
                                     {{ (getNestedProperty(announcement, col.field) | slice:0:30) + '...' }}
                                 </ng-container>
                                 <!-- Format Schedule -->
-                                <ng-container *ngSwitchCase="'schedule'">
-                                    {{ (getNestedProperty(announcement, col.field) | date:'HH:mm:ss') }}
-                                </ng-container>
+                               
                                 <!-- Default Handling -->
                                 <ng-container *ngSwitchDefault>
                                     {{ getNestedProperty(announcement, col.field) || 'N/A' }}

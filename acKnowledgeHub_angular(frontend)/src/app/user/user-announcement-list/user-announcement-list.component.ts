@@ -56,7 +56,7 @@ export class UserAnnouncementListComponent {
     { field: 'description', header: 'Description' },
     { field: 'category', header: 'Category' },
     { field: 'createStaff', header: 'Create/Request Staff' },
-    { field: 'createdAt', header: 'Created At' },
+    { field: 'createdAt', header: 'Announced at' },
     { field: 'detail', header: 'View' },
   ];
 
@@ -118,6 +118,10 @@ export class UserAnnouncementListComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 

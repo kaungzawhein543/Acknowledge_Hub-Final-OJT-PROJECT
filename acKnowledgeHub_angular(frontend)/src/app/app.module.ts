@@ -80,6 +80,7 @@ import { CountdownComponent } from './countdown/countdown.component';
 import { CreateannouncementHrComponent } from './createannouncement-hr/createannouncement-hr.component';
 import { UpdateDepartmentComponent } from './department/update-department/update-department.component';
 import { UpdateCompanyComponent } from './company/update-company/update-company.component';
+import { UpdatePositionComponent } from './position/update-position/update-position.component';
 
 @NgModule({
   declarations: [
@@ -137,7 +138,8 @@ import { UpdateCompanyComponent } from './company/update-company/update-company.
     CountdownComponent,
     CreateannouncementHrComponent,
     UpdateDepartmentComponent,
-    UpdateCompanyComponent
+    UpdateCompanyComponent,
+    UpdatePositionComponent
   ],
   imports: [
     BrowserAnimationsModule, // required for toastr
@@ -167,7 +169,7 @@ import { UpdateCompanyComponent } from './company/update-company/update-company.
     MatPaginatorModule,
     BrowserAnimationsModule,
     BrowserModule,
-    CommonModule,
+    CommonModule
   ],
   providers: [
     provideClientHydration(),

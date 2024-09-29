@@ -43,7 +43,7 @@
           
         <div class="text-center lg:text-left mt-3 lg:mt-0" *ngIf="!isloading">
           <span class="text-lg font-medium text-gray-800 me-2">Category: {{announcement.category.name}}</span>
-          <button *ngIf="this.currentUserId === this.createdStaff" class="bg-white border-2 border-blue-300 hover:bg-blue-600 hover:text-white text-blue-500 py-2 px-3 rounded-md" (click)="goEditPage(this.announcement.id)">
+          <button *ngIf="this.currentUserId === this.createdStaff && this.publishedOrNot" class="bg-white border-2 border-blue-300 hover:bg-blue-600 hover:text-white text-blue-500 py-2 px-3 rounded-md" (click)="goEditPage(this.announcement.id)">
             <i class="fas fa-edit icon"></i>
             <span class="edit-text">Edit</span>
           </button>

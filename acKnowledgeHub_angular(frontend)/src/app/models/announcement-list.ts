@@ -19,6 +19,7 @@ export interface listAnnouncement {
     created_at: Date;
     scheduleAt: Date;
     groupStatus: number;
+    published : boolean;
     file: string;
     [key: string]: any;
 }

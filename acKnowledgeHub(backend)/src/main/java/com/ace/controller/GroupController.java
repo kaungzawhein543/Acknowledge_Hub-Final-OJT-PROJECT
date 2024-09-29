@@ -107,7 +107,7 @@ public class GroupController {
         groupService.reactivateGroup(groupId);
     }
 
-    @GetMapping("/sys/list-by-announcement/{id}")
+    @GetMapping("/all/list-by-announcement/{id}")
     public List<GroupResponseDTO> getGroupListByAnnouncementId(@PathVariable("id")Integer id){
         return groupService.getGroupListByAnnouncementId(id);
     }
@@ -129,7 +129,7 @@ public class GroupController {
         List<GroupDTO> groupDTOs = groups.stream()
                 .filter(group ->
                         companyNames.contains(group.getName().trim()) ||
-                                "ALL STAFFS".equalsIgnoreCase(group.getName().trim()) // Include "ALL STAFFS" group
+                                "Global Group".equalsIgnoreCase(group.getName().trim()) // Include "ALL STAFFS" group
                 )
                 .map(group -> {
                     // Extract staff names from Group entity

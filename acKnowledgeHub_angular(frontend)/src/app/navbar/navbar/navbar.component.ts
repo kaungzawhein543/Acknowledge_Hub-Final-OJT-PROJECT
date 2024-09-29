@@ -15,7 +15,7 @@ import { Title } from '@angular/platform-browser';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit,OnDestroy {
 
   notifications: Notification[] = [];
   showNotifications: boolean = false;
@@ -196,6 +196,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.titleService.setTitle(this.originalTitle);
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);  // Clear the interval on component destroy

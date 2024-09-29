@@ -161,6 +161,10 @@ export class NotedAnnouncementComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredStaffs = this.filteredStaffs.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredStaffs;
   }
 

@@ -45,6 +45,7 @@ import { PositionListComponent } from './position/position-list/position-list.co
 import { CreateannouncementHrComponent } from './createannouncement-hr/createannouncement-hr.component';
 import { UpdateCompanyComponent } from './company/update-company/update-company.component';
 import { UpdateDepartmentComponent } from './department/update-department/update-department.component';
+import { UpdatePositionComponent } from './position/update-position/update-position.component';
 
 const routes: Routes = [
   { path: 'acknowledgeHub/login', component: LoginComponent },
@@ -85,7 +86,8 @@ const routes: Routes = [
     path: 'acknowledgeHub/position', canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] }, children: [
       { path: '', redirectTo: '/acknowledgeHub/404', pathMatch: 'full' },
       { path: 'add', component: AddPositionComponent },
-      { path: 'list', component: PositionListComponent }
+      { path: 'list', component: PositionListComponent },
+      { path: 'update/:id', component: UpdatePositionComponent }
     ]
   },
   {
@@ -106,8 +108,8 @@ const routes: Routes = [
       { path: 'add', component: AddAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)','Human Resource'] } },
       { path: 'request-list', component: RequestListComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)'] } },
       { path: 'update/:id', component: UpdateAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN', 'USER'], positions: ['Human Resource(Main)','Human Resource'] } },
-      { path: 'notNoted-announceemnt/:id/:status/:name/:file', component: NotNotedAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN','USER'] ,positions:['Human Resource(Main)'] } },
-      { path: 'noted-announcement/:id/:name/:file', component: NotedAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN','USER'] ,positions:['Human Resource(Main)'] } },
+      { path: 'notNoted-announceemnt/:id/:status/:name/:file', component: NotNotedAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN','USER'] ,positions:['Human Resource(Main)','Human Resource'] } },
+      { path: 'noted-announcement/:id/:name/:file', component: NotedAnnouncementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ADMIN','USER'] ,positions:['Human Resource(Main)','Human Resource'] } },
       { path: 'staff-noted', component: UserNotedComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'] } },
       { path: 'staff-unnoted', component: UserUnnotedComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['Human Resource(Main)'] } },
       { path: 'list-by-staff', component: UserAnnouncementListComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['USER'], excludedRoles: ['ADMIN'], excludedPositions: ['Human Resource(Main)'] } },

@@ -52,10 +52,10 @@
 
 
             <!-- Loop through each company group -->
-            <ng-container *ngFor="let group of groupedDepartments">
+            <ng-container *ngFor="let group of groupedDepartments" class="w-full">
               <!-- Company name row -->
-              <tr class="bg-gray-100 border-t-2 border-blue-800">
-                <td colspan="3" class="text-lg font-bold px-4 py-2" style="color: #1b4980;">
+              <tr class="bg-gray-100 border-t-2 border-blue-800 w-full">
+                <td colspan="4" class="text-lg font-bold px-4 py-2 w-full" style="color: #1b4980;">
                   {{ group.companyName }}
                 </td>
               </tr>

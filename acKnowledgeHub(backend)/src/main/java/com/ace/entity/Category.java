@@ -21,7 +21,7 @@ public class Category {
     private int id;
     @Column(name = "name",nullable = true)
     private String name;
-    @Column(name = "description",nullable = true)
+    @Column(name = "description", columnDefinition = "TEXT",nullable = true)
     private String description;
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")

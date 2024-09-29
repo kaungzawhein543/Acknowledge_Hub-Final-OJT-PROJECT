@@ -124,18 +124,22 @@ List<Map<String, Object>> countStaffByAnnouncement();
     String getCompanyNameById(Integer id);
 
     @Query("select s from Staff s where s.telegramName = ?1")
-    Staff findByTelegramUserName(String name);
+    List<Staff> findByTelegramUserName(String name);
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
             "from Staff s " +
             "Join s.announcement a where a.id = ?1  order by s.company.name")
     List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id);
 
-    //@Query for announcements count by group id
     @Query("SELECT a FROM Announcement a " +
             "JOIN a.group g " +
             "JOIN g.staff s " +
-            "WHERE a.groupStatus = :groupStatus AND s.id = :staffId")
+            "WHERE a.groupStatus = :groupStatus AND s.id = :staffId AND a.isPublished = true")
     List<Announcement> findAnnouncementsByGroupStatusAndStaffId(int groupStatus, int staffId);
+
+    @Query("SELECT a FROM Announcement a " +
+            "JOIN a.staff s " +
+            "WHERE s.id = :staffId AND a.isPublished = true")
+    List<Announcement> findPublishedAnnouncementsByStaffId(@Param("staffId") int staffId);
 }
 

@@ -79,12 +79,9 @@ public class StaffController {
         return staffService.getStaffList();
     }
 
-//    @GetMapping("/active-list")
-//    public List<ActiveStaffResponseDTO> getActiveStaffList() {
-//        return staffService.getActiveStaffList();
-//    }
 
-    @PostMapping("/allHR/add")
+
+    @PostMapping("/all/add")
     public ResponseEntity<String> addStaff(@RequestBody StaffRequestDTO staffRequestDTO) {
         try {
             Staff existStaffId = staffService.getStaffByStaffId(staffRequestDTO.getCompanyStaffId());

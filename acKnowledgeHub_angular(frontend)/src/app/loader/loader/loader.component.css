@@ -20,10 +20,6 @@
   transition: color 0.5s ease-out;
 }
 
-/* BEGIN CSS */
-body {
-  background: #ffffff; /* White background */
-}
 
 @keyframes rotate-loading {
   0% {
@@ -51,8 +47,8 @@ body {
 
 .loading-container {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 140px;
+  height: 140px;
   margin: 40px auto;
 }
 

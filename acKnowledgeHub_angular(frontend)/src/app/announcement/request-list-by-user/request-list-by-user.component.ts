@@ -50,6 +50,7 @@ export class RequestListByUserComponent {
     { field: 'created_at', header: 'Created At' },
     { field: 'scheduleAt', header: 'Schedule At' },
     { field: 'status', header: 'Status' },
+    { field: 'published', header: 'Noted/UnNoted' },
     { field: 'detail', header: 'Detail' },
   ];
 
@@ -76,13 +77,15 @@ export class RequestListByUserComponent {
   fetchAnnouncements(id: number) {
     this.announcementService.getAnnouncementListByStaffRequest(id).subscribe({
       next: (data) => {
-        console.log("here is user request by " + data)
+        console.log(data)
         this.requestAnnouncements = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
         }));
         this.filteredAnnouncements = this.requestAnnouncements;
         this.dataSource.data = this.filteredAnnouncements;
+        console.log("Hi")
+        console.log(this.dataSource.data);
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
       },
@@ -125,6 +128,10 @@ export class RequestListByUserComponent {
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 
@@ -240,5 +247,19 @@ export class RequestListByUserComponent {
 
   onDetailButtonClick(id: number) {
     this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
+  }
+  onNotedButtonClick(id: number, name: string, file: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedFile = btoa(file);
+    this.router.navigate(['/acknowledgeHub/announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
+  }
+
+  onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedStatus = btoa(groupStatus.toString());
+    const encodedFile = btoa(file);
+    this.router.navigate(['/acknowledgeHub/announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
   }
 }

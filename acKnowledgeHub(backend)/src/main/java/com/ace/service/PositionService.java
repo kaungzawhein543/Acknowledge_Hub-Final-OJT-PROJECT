@@ -21,10 +21,6 @@ public class PositionService {
         return positionRepository.findById(id);
     }
 
-//    public List<Position> getPositionsByDepartmentId(Integer departmentId) {
-//        return positionRepository.findByDepartmentId(departmentId);
-//    }
-
     public List<Position> getPositionList(){
         return positionRepository.findAllPositionsOrderByName();
     }
@@ -37,4 +33,11 @@ public class PositionService {
         return positionRepository.findByHRName(name);
     }
 
+    public void updatePosition(Integer id, Position position){
+        Optional<Position> existingPosition = positionRepository.findById(id);
+        if(existingPosition.isPresent()){
+            existingPosition.get().setName(position.getName());
+            positionRepository.save(existingPosition.get());
+        }
+    }
 }

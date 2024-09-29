@@ -73,6 +73,9 @@
                                 <ng-container *ngSwitchCase="'scheduleAt'">
                                     <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
                                 </ng-container>
+                                <ng-container *ngSwitchCase="'created_at'">
+                                    <span>{{ announcement.created_at | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+                                </ng-container>
                                 <!-- For Request Staff Column -->
                                 <ng-container *ngSwitchCase="'createStaff'">
                                     {{ getRequestStaff(announcement) }}
@@ -86,10 +89,24 @@
                                 <ng-container *ngSwitchCase="'schedule'">
                                     {{ (getNestedProperty(announcement, col.field) | date:'HH:mm:ss') }}
                                 </ng-container>
+                                <ng-container *ngSwitchCase="'published'" >
+                                    <div *ngIf="!getNestedProperty(announcement, col.field); else buttonsTemplate" style="text-align: center;">
+                                        N/A
+                                    </div>
+                                    <ng-template #buttonsTemplate>
+                                        <button mat-button (click)="onNotedButtonClick(announcement.id, announcement.title, announcement.file)">
+                                            Noted
+                                        </button>
+                                        <button mat-button style="color: rgb(215, 133, 133);" (click)="onUnNotedButtonClick(announcement.id, announcement.groupStatus, announcement.title, announcement.file)">
+                                            UnNoted
+                                        </button>
+                                    </ng-template>
+                                </ng-container>
                                 <!-- Default Handling -->
                                 <ng-container *ngSwitchDefault>
                                     {{ getNestedProperty(announcement, col.field) || 'N/A' }}
                                 </ng-container>
+                                
                             </ng-container>
                         </td>
                     </ng-container>

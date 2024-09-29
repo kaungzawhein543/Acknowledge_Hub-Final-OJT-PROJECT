@@ -52,7 +52,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "FROM Announcement a " +
             "JOIN a.staff s " +
             "LEFT JOIN StaffNotedAnnouncement sn ON sn.staff.id = :staffId AND sn.announcement.id = a.id " +
-            "WHERE s.id = :staffId AND sn.id IS NULL")
+            "WHERE s.id = :staffId AND sn.id IS NULL AND a.isPublished = true")
     List<AnnouncementResponseListDTO> getNotNotedStaff(@RequestParam("staffId") Integer staffId);
 
 
@@ -61,20 +61,20 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "join a.group g "+
             "JOIN g.staff s  " +
             "left JOIN StaffNotedAnnouncement sn ON sn.staff.id = :staffId and sn.announcement.id = a.id " +
-            "WHERE s.id = :staffId AND sn.id IS NULL ")
+            "WHERE s.id = :staffId AND sn.id IS NULL AND a.isPublished = true ")
     List<AnnouncementResponseListDTO> getNotNotedStaffGroup(@RequestParam("staffId") Integer staffId);
 
     @Query("SELECT NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name  , a.category.name) " +
             "from Announcement a " +
             "JOIN a.staff s " +
-            "WHERE s.id = :staffId")
+            "WHERE s.id = :staffId AND a.isPublished = true ")
     List<AnnouncementResponseListDTO> getStaffAnnouncement(@Param("staffId") Integer staffId);
 
     @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name  , a.category.name) " +
             "from Announcement a " +
             "JOIN a.group g " +
             "join g.staff s "+
-            "WHERE s.id = :staffId")
+            "WHERE s.id = :staffId AND a.isPublished = true ")
     List<AnnouncementResponseListDTO> getStaffAnnouncementGroup(@Param("staffId") Integer staffId);
 
 
@@ -114,14 +114,14 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "group by YEAR(a.scheduleAt), MONTH(a.scheduleAt)")
     List<MonthlyCountDTO> countActiveAnnouncementsByMonth();
 
-    @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId ORDER BY a.created_at DESC")
+    @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId AND a.isPublished = true ORDER BY a.created_at DESC")
     List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
 
     @Query("SELECT a FROM Announcement a " +
             "JOIN a.group g " +
             "JOIN g.staff s " +
             "WHERE s.id = :staffId " +
-            "AND a.groupStatus = 1 " +
+            "AND a.groupStatus = 1 AND a.isPublished = true " +
             "ORDER BY a.created_at DESC")
     List<Announcement> findAnnouncementsByStaffIdInGroups(@Param("staffId") int staffId);
 
@@ -154,9 +154,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
     void rejectRequestAnnouncement(Integer id);
 
-    @Query("select new com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.permission, a.created_at, a.scheduleAt, a.groupStatus ,a.file) " +
+    @Query("select new com.ace.dto.AnnouncementListForHrDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.permission, a.created_at, a.scheduleAt, a.groupStatus,a.isPublished ,a.file) " +
             "from Announcement a where  a.createStaff.id = ?1 order by a.scheduleAt DESC")
-    List<AnnouncementListDTO> getAnnouncementListByStaffRequest(Integer staffId);
+    List<AnnouncementListForHrDTO> getAnnouncementListByStaffRequest(Integer staffId);
 
 
 

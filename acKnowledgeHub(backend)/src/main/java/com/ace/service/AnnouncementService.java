@@ -175,7 +175,7 @@ public class AnnouncementService {
         return announcement_repo.countActiveAnnouncementsByMonth();
     }
 
-    public List<AnnouncementListDTO> getAnnouncementListByStaffRequest(Integer staffId){
+    public List<AnnouncementListForHrDTO> getAnnouncementListByStaffRequest(Integer staffId){
         return announcement_repo.getAnnouncementListByStaffRequest(staffId);
     }
 

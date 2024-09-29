@@ -83,7 +83,7 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     public announcementService: AnnouncementService,
     private authService: AuthService,
     private toastService: ToastService,
-    private router : Router
+    private router : Router,
 
   ) {
     this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
@@ -129,6 +129,11 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.groups.sort((a, b) => {
+          if (a.name === 'Global Group') return -1; // Move "Global Group" up
+          if (b.name === 'Global Group') return 1;  // Keep other groups below
+          return 0; // No change for other groups
+        });
         this.filteredGroups = [...this.groups];
       },
       error => {
@@ -212,7 +217,6 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    this.creatingAnnouncement = true;
     const formData = new FormData();
     const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
     const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
@@ -261,27 +265,28 @@ export class AddAnnouncementComponent implements OnInit, OnDestroy {
       category: this.selectedCategory,
       forRequest: 0
     };
-
+    
     // Append the announcement DTO as a JSON string with appropriate MIME type
     formData.append('request', new Blob([JSON.stringify(announcement)], { type: 'application/json' }));
-
+    
     // Append user IDs if any
     if (this.selectedStaffs && this.selectedStaffs.length) {
       const userIds = this.selectedStaffs.map(staff => staff.id);
       formData.append('userIds', new Blob([JSON.stringify(userIds)], { type: 'application/json' }));
     }
-
+    
     // Append group IDs if any
     if (this.selectedGroups && this.selectedGroups.length) {
       const groupIds = this.selectedGroups.map(group => group.id);
       formData.append('groupIds', new Blob([JSON.stringify(groupIds)], { type: 'application/json' }));
     }
-
+    this.creatingAnnouncement = true;
+    
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-          this.creatingAnnouncement = false;
-           this.showSuccessToast();
+        this.creatingAnnouncement = false;
+        this.showSuccessToast();
       },
       error => {
         console.error(error);

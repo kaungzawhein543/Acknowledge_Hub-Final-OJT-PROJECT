@@ -4,6 +4,7 @@ import com.ace.entity.Category;
 import com.ace.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,23 +23,22 @@ public class CategoryController {
         this.service = service;
     }
 
-    @PostMapping(value = "/sys/save")
-    public ResponseEntity<String> save(
-            @RequestParam(value = "name") String name,
-            @RequestParam(value = "description") String description) throws IOException {
-        Category existingCategory= service.findByLowerName(name);
-        if(existingCategory == null){
+    @PostMapping(value = "/all/save", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<String> save(@RequestParam("name") String name, @RequestParam("description") String description) throws IOException {
+        Category existingCategory = service.findByLowerName(name);
+        System.out.println(description.length());
+        if (existingCategory == null) {
             Category category = new Category();
             category.setName(name);
             category.setDescription(description);
             category.setCreatedAt(LocalDate.now());
             service.save(category);
             return ResponseEntity.ok("Adding category is successful.");
-        }else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category is already exist.");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category already exists.");
         }
-
     }
+
 
 
 

@@ -89,7 +89,7 @@ export class RequestAnnouncementComponent {
       data => {
         this.currentHumanResourceCompany = data.company;
         this.createStaffId = data.user.id;
-        this.loadGroups(this.createStaffId);
+        this.loadGroups();
         this.currentHrCompany = data.company;
         console.log(this.currentHrCompany);
       }
@@ -102,12 +102,16 @@ export class RequestAnnouncementComponent {
       }, 60000);
   }
 
-  loadGroups(HumanResourceId: number) {
+  loadGroups() {
     this.groupService.getAllCompanyGroups().subscribe(
       (groups: Group[]) => {
         // Parse groups data
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
-  
+        this.groups.sort((a, b) => {
+          if (a.name === 'Global Group') return -1; // Move "Global Group" up
+          if (b.name === 'Global Group') return 1;  // Keep other groups below
+          return 0; // No change for other groups
+        });
         // Filter groups to exclude the one with the current HR company name
         this.filteredGroups = this.groups.filter(group =>
           group.name.trim().toLowerCase() !== this.currentHrCompany.trim().toLowerCase()

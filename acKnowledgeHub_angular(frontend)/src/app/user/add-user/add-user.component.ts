@@ -77,6 +77,7 @@ export class AddUserComponent implements OnInit {
             this.isHr = true;
             this.currrrtHrcompanyId = data.companyId;
             this.currentHrcompany = data.company;
+            console.log(this.currrrtHrcompanyId)
             this.companies[0] = new Company(this.currentHrcompany);
             if(this.companies.length >0){
               this.staff.companyId = this.companies[0].id;
@@ -152,7 +153,8 @@ export class AddUserComponent implements OnInit {
     if(this.isHr){
       this.companies[0] = new Company(this.currentHrcompany);
       if(this.companies.length >0){
-        this.staff.companyId = this.companies[0].id;
+        this.staff.companyId = this.currrrtHrcompanyId;
+        console.log(this.staff.companyId);
       }
     }
     this.staff.companyStaffId = this.staff.companyStaffId?.trim();
@@ -168,6 +170,7 @@ export class AddUserComponent implements OnInit {
             if(this.isHr){
               this.companies[0] = new Company(this.currentHrcompany);
               if(this.companies.length >0){
+                console.log("2"+this.staff.companyId);
                 this.staff.companyId = this.companies[0].id;
               }
             }
@@ -195,6 +198,7 @@ export class AddUserComponent implements OnInit {
                 if(this.isHr){
                     this.companies[0] = new Company(this.currentHrcompany);
                     if(this.companies.length >0){
+                      console.log("3"+this.staff.companyId);
                       this.staff.companyId = this.companies[0].id;
                     }
                     console.log(`error ${this.currrrtHrcompanyId}`)

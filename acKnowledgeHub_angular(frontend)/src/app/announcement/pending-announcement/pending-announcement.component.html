@@ -69,13 +69,16 @@
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'cancel'">
                                     <button mat-button style="color: rgb(15, 159, 73);"
-                                        (click)="onPublishButtonClick(announcement.id)">
+                                        (click)="openPublishNowMode(announcement.id)">
                                         Publish Now
                                     </button>
-                                    <button mat-button (click)="onCancelButtonClick(announcement.id)" s>
+                                    <button mat-button (click)="openDeleteModal(announcement.id)" s>
                                         Cancel
                                     </button>
                                 </ng-container>
+                                <ng-container *ngSwitchCase="'createdAt'">
+                                    <span>{{ announcement.createdAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+                                  </ng-container>
                                 <ng-container *ngSwitchCase="'description'">
                                     {{ (getNestedProperty(announcement, col.field) | slice:0:20) + '.........' }}
                                 </ng-container>
@@ -102,3 +105,18 @@
         <!-- Paginator -->
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
     </div> 
+
+      
+  <app-confirmation-modal 
+  #confirmationModal 
+  [message]="'Are you sure you want to cancel the scheduled announcement? This action will remove it from your lists, and it will no longer be visible'" 
+  (confirmed)="onCancelButtonClick(this.announcementIdForCancel)"
+  [confirmButtonClass]="'bg-yellow-400 hover:bg-yellow-500'"
+></app-confirmation-modal>
+
+<app-confirmation-modal 
+#publishionModel
+[message]="'Are you sure you want to publish this announcement now? Once published, it will be visible to all intended recipients.'" 
+(confirmed)="onPublishButtonClick(this.announcementIdForPublish)"
+[confirmButtonClass]="'bg-blue-600 hover:bg-blue-700'"
+></app-confirmation-modal>

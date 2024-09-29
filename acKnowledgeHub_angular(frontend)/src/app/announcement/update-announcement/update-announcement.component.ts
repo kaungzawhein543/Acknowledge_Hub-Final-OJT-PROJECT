@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Category } from '../../models/category';
 import { toArray } from 'rxjs';
 import { Position } from '../../models/Position';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-update-announcement',
@@ -51,6 +52,7 @@ export class UpdateAnnouncementComponent implements OnInit{
   descriptionError: boolean = false;
   formSubmitted: boolean = false;
   checkCreateOrRequest : string = "";
+  isHr : boolean = false;
   currentHumanResourceCompany : string = "";
   private page = 0;
   private pageSize = 20;
@@ -60,13 +62,17 @@ export class UpdateAnnouncementComponent implements OnInit{
   announcementId : string  ='';
   intervalId: any;
   idOfAnnouncement : number = 0;
+  isMainHr : boolean = false;
+
+
   constructor(
     private groupService: GroupService, 
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
     private authService : AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService : ToastService
   ) {}
   
   ngOnInit(): void {
@@ -74,16 +80,6 @@ export class UpdateAnnouncementComponent implements OnInit{
         if (idParam) {
       this.idOfAnnouncement = Number(atob(idParam));
     }
-    this.announcementService.checkCreateOrRequest(this.idOfAnnouncement).subscribe(
-      data =>{
-        console.log(data);
-        if(data === "Create Announcement"){
-          this.checkCreateOrRequest = "Create Announcement";
-        }else{
-          this.checkCreateOrRequest = "Request Announcement";
-        }
-      }
-    )
     if(this.announcementId.length == 0){
       this.announcementId += this.route.snapshot.paramMap.get('id');
       this.announcementId = atob(this.announcementId);
@@ -98,7 +94,23 @@ export class UpdateAnnouncementComponent implements OnInit{
       }, 60000);
     this.authService.getUserInfo().subscribe(
       data => {
-        this.currentHumanResourceCompany = data.company;
+        if(data.position === "Human Resource"){
+          this.currentHumanResourceCompany = data.company;
+          this.isHr =true;
+        }else if(data.position === "Human Resource(Main)"){
+          this.isMainHr = true;
+        }
+      if(this.isHr){
+        this.announcementService.checkCreateOrRequest(this.idOfAnnouncement).subscribe(
+          data =>{
+            if(data === "Create Announcement"){
+              this.checkCreateOrRequest = "Create Announcement";
+            }else{
+              this.checkCreateOrRequest = "Request Announcement";
+            }
+          }
+        )
+      }
         this.createStaffId = data.user.id;
         this.announcementService.getLatestAnnouncementById(Number(this.announcementId)).subscribe(
           data =>{
@@ -129,8 +141,6 @@ export class UpdateAnnouncementComponent implements OnInit{
                   matchedGroup.selected = true;
                 }
               });
-              
-              
               this.onOptionChange('group')
             }else{
               this.optionStaffOfGroup = "Staffs";
@@ -160,13 +170,24 @@ export class UpdateAnnouncementComponent implements OnInit{
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
-        if(this.checkCreateOrRequest === "Create Announcement"){
-          this.groups = this.groups.filter(group => group.name.includes(this.currentHumanResourceCompany));
-          this.filteredGroups = [...this.groups];
-        }else if(this.checkCreateOrRequest === "Request Announcement"){
-          this.filteredGroups = this.groups.filter(group =>
-            group.name.trim().toLowerCase() !== this.currentHumanResourceCompany.trim().toLowerCase()
-          );
+        if(this.isHr){
+          if(this.checkCreateOrRequest === "Create Announcement"){
+            this.groups = this.groups.filter(group => group.name.includes(this.currentHumanResourceCompany));
+            this.filteredGroups = [...this.groups];
+          }else if(this.checkCreateOrRequest === "Request Announcement"){
+            this.filteredGroups = this.groups.filter(group =>
+              group.name.trim().toLowerCase() !== this.currentHumanResourceCompany.trim().toLowerCase()
+            );
+          }
+        }else {
+          this.groups.sort((a, b) => {
+            if (a.name === 'Global Group') return -1; // Move "Global Group" up
+            if (b.name === 'Global Group') return 1;  // Keep other groups below
+            return 0; // No change for other groups
+          });
+            this.filteredGroups = this.groups.filter(group =>
+              group.name.trim().toLowerCase() !== this.currentHumanResourceCompany.trim().toLowerCase()
+            );
         }
         this.filteredGroups = [...this.groups];
       },
@@ -197,7 +218,7 @@ export class UpdateAnnouncementComponent implements OnInit{
     this.authService.getUserInfo().subscribe(
       data =>{
         loggedInStaffId = data.user.id;
-      }
+      } 
     ); // Replace with actual way to get logged-in staff ID
     const query = this.searchTerm.trim();
     this.staffService.getStaffs(this.page, this.pageSize, query).subscribe(
@@ -207,11 +228,14 @@ export class UpdateAnnouncementComponent implements OnInit{
           const processedStaffs = response.data.content
             .filter((staff: { company?: { name?: string }; }) => {
               const companyName = staff.company?.name;
-              const matchesCompany = companyName === this.currentHumanResourceCompany;
-              return matchesCompany;
+              if(this.isHr){
+                const matchesCompany = companyName === this.currentHumanResourceCompany;
+                return matchesCompany;
+              }else{
+                return companyName;
+              }
             })
             .filter((staff: { id: number }) => {
-              console.log(`Checking staff with ID ${staff.id}`); // Log each staff's ID
               return staff.id !== loggedInStaffId; // Filter out logged-in staff
             })
             .map((staff: { position: Position; }) => {
@@ -303,7 +327,7 @@ export class UpdateAnnouncementComponent implements OnInit{
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData,this.createStaffId).subscribe(
       response => {
-        console.log(response);
+        this.showSuccessToast();
       },
       error => {
         console.error(error);
@@ -531,4 +555,7 @@ onFileChange(event: any): void {
     }
   }
 
+  showSuccessToast() {
+    this.toastService.showToast(' Announcement Updated successful!', 'success');
+  }
 }

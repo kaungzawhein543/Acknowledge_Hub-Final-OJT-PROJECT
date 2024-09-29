@@ -1,6 +1,7 @@
 package com.ace.service;
 
 import com.ace.bot.MyTelegramBot;
+import com.ace.entity.Announcement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -17,7 +18,7 @@ public class BotService {
     }
 
     @Async("taskExecutor")
-    public void sendFile(String chatId,MultipartFile file,Integer announcementId,byte updateStatus) {
-        myTelegramBot.sendPdf(chatId, file,announcementId,updateStatus);
+    public void sendFile(String chatId, MultipartFile file, Announcement announcement, byte updateStatus) {
+        myTelegramBot.sendPdf(chatId, file,announcement,updateStatus);
     }
 }

@@ -35,6 +35,8 @@ public class StaffService implements UserDetailsService {
     private final StaffRepository staffRepository;
     private final AnnouncementRepository announcement_repo;
     private final NotedRepository notedRepository;
+    private final EmailService emailService;
+
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 private final GroupRepository groupRepository;
     @Autowired
@@ -44,10 +46,11 @@ private final GroupRepository groupRepository;
 
 
 
-    public StaffService(StaffRepository staffRepository,AnnouncementRepository announcement_repo,NotedRepository notedRepository, GroupRepository groupRepository) {
+    public StaffService(StaffRepository staffRepository, AnnouncementRepository announcement_repo, NotedRepository notedRepository, EmailService emailService, GroupRepository groupRepository) {
         this.staffRepository = staffRepository;
         this.announcement_repo = announcement_repo;
         this.notedRepository = notedRepository;
+        this.emailService = emailService;
         this.groupRepository = groupRepository;
     }
 
@@ -68,6 +71,7 @@ private final GroupRepository groupRepository;
 
         // Map each Staff entity to StaffGroupDTO
         List<StaffDTO> staffDtos = outputStaff.getContent().stream()
+                .filter(staff -> !staff.getCompanyStaffId().equals("ADMIN001"))
                 .map(staff -> modelMapper.map(staff, StaffDTO.class))
                 .collect(Collectors.toList());
 
@@ -82,6 +86,7 @@ private final GroupRepository groupRepository;
 
         // Map each Staff entity to StaffGroupDTO
         List<StaffDTO> staffDtos = outputStaff.getContent().stream()
+                .filter(staff -> !staff.getCompanyStaffId().equals("ADMIN001"))
                 .map(staff -> modelMapper.map(staff, StaffDTO.class))
                 .collect(Collectors.toList());
 
@@ -131,7 +136,7 @@ private final GroupRepository groupRepository;
         return staffRepository.findStaffByAnnouncementId(announcementId);
     }
 
-    public Staff findByTelegramUserName(String name) {
+    public List<Staff> findByTelegramUserName(String name) {
         return staffRepository.findByTelegramUserName(name);
     }
 
@@ -209,6 +214,7 @@ private final GroupRepository groupRepository;
             departmentGroup.getStaff().add(staff);
             groupRepository.save(departmentGroup);
         }
+        emailService.sendTelegramChannelInvitation(staff.getEmail());
     }
 
     public List<StaffResponseDTO> getStaffList() {
@@ -235,9 +241,7 @@ private final GroupRepository groupRepository;
     }
 
     public List<Announcement> getAnnouncementsByStaffId(int staffId) {
-        return staffRepository.findById(staffId)
-                .map(Staff::getAnnouncement)
-                .orElse(new ArrayList<>());
+        return staffRepository.findPublishedAnnouncementsByStaffId(staffId);
     }
 
     public List<Announcement> getAnnouncementsByGroupStatusAndStaffId(int staffId) {

@@ -51,7 +51,7 @@ export class ListAnnouncementComponent {
     { field: 'description', header: 'Description' },
     { field: 'createStaff', header: 'Create/Request Staff' },
     //{ field: 'file', header: 'Versions' },
-    { field: 'scheduleAt', header: 'Created At' },
+    { field: 'scheduleAt', header: 'Announced At' },
     { field: 'note', header: 'Noted/UnNoted' },
     { field: 'detail', header: 'Details' },
   ];
@@ -67,7 +67,7 @@ export class ListAnnouncementComponent {
 
   ngOnInit() {
     const today = new Date();
-  today.setDate(today.getDate() + 1);  // Increment the date by 1 to get tomorrow's date
+  today.setDate(today.getDate());  // Increment the date by 1 to get tomorrow's date
 
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Yangon' };
 
@@ -122,13 +122,16 @@ export class ListAnnouncementComponent {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.category?.toLowerCase() || '',
         a.createStaff?.toLowerCase() || '',
-        new Date(a.created_at).toLocaleString().toLowerCase(),
+        //new Date(a.created_at).toLocaleString().toLowerCase(),
         new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 

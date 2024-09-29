@@ -12,14 +12,20 @@ export class CategoryService {
   constructor(private http: HttpClient) { }
 
   add(category: Category): Observable<Category> {
-    const params = new HttpParams()
+    const body = new HttpParams()
         .set('name', category.name)
-        .set('description', category.description)
-    return this.http.post<Category>(`${this.baseUrl}/sys/save`, null, { params, withCredentials: true })
-      .pipe(
+        .set('description', category.description);
+    
+    return this.http.post<Category>(`${this.baseUrl}/all/save`, body.toString(), {
+        headers: new HttpHeaders({
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }),
+        withCredentials: true
+    }).pipe(
         catchError(this.handlerError<Category>('Save Category'))
-      );
-  }
+    );
+}
+
   update(id: number, category: Category): Observable<Category> {
     const params = new HttpParams()
         .set('name', category.name)

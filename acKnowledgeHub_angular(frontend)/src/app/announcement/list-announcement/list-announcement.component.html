@@ -71,9 +71,9 @@
       <!-- Define Columns -->
       <ng-container *ngFor="let col of columns">
         <ng-container *ngIf="columnVisibility[col.field]">
-          <ng-container [matColumnDef]="col.field">
+          <ng-container [matColumnDef]="col.field" class="header-center">
             <!-- Column Header -->
-            <th mat-header-cell *matHeaderCellDef [ngClass]="{'title-column': col.field === 'title','description-column': col.field === 'description'}"   [ngStyle]="col.field === 'title' ? {'width': '300px'} : {}" style="text-align: left !important;">
+            <th mat-header-cell *matHeaderCellDef [ngClass]="{'title-column': col.field === 'title','description-column': col.field === 'description'}" >
               {{ col.header }}
             </th>
               
@@ -81,8 +81,8 @@
             <td mat-cell *matCellDef="let announcement" [ngClass]="{'title-column': col.field === 'title','description-column': col.field === 'description'}" class="data-right">
               <ng-container [ngSwitch]="col.field">
                 <!-- Note Column -->
-                <ng-container *ngSwitchCase="'note'">
-                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title,announcement.file)">
+                <ng-container *ngSwitchCase="'note'" >
+                  <button mat-button (click)="onNotedButtonClick(announcement.id,announcement.title,announcement.file)" stryle="margin-right:20%">
                     Noted
                   </button>
                   <button mat-button style="color: rgb(215, 133, 133);" (click)="onUnNotedButtonClick(announcement.id , announcement.groupStatus,announcement.title, announcement.file)">
@@ -92,7 +92,7 @@
     
                 <!-- ScheduleAt Column -->
                 <ng-container *ngSwitchCase="'scheduleAt'">
-                  <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+                  <span>{{ announcement.scheduleAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
                 </ng-container>
     
                 <!-- Detail Button Column -->

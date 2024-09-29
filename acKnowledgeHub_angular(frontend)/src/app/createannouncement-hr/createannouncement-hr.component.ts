@@ -257,7 +257,7 @@ export class CreateannouncementHrComponent {
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
       category : this.selectedCategory,
-      forRequest : 1
+      forRequest : 0
     };
 
     // Append the announcement DTO as a JSON string with appropriate MIME type
@@ -476,7 +476,7 @@ export class CreateannouncementHrComponent {
     }
   }
   showSuccessToast() {
-    this.toastService.showToast(' Announcement requested successful!', 'success');
+    this.toastService.showToast(' Announcement created successful!', 'success');
   }
   onCreate(){
     this.formSubmitted = true;  
