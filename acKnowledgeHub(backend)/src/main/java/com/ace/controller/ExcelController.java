@@ -17,7 +17,7 @@ public class ExcelController {
         this.excelService = excelService;
     }
 
-    @PostMapping("/sys/upload")
+    @PostMapping("/allSys/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file,@RequestParam("override") Integer override) throws IOException {
         if (file.isEmpty()) {
             return "Please select a file to upload.";

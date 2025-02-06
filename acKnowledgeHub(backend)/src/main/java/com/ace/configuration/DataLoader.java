@@ -35,12 +35,12 @@ public class DataLoader {
     @Bean
     public CommandLineRunner loadData() {
         return args -> {
-            if (staffRepository.findByEmail("admin@example.com") == null) {
+            if (staffRepository.findByEmail("admin@gmail.com") == null) {
 
                 Company company = companyRepository.findByName("Default Company").stream().findFirst()
                         .orElseGet(() -> {
                             Company newCompany = new Company();
-                            newCompany.setName("ACE PLUS");
+                            newCompany.setName("ACE Data Systems Ltd. (ACE)");
                             return companyRepository.save(newCompany);
                         });
 
@@ -62,7 +62,7 @@ public class DataLoader {
                 Staff adminStaff = new Staff();
                 adminStaff.setName("Admin");
                 adminStaff.setCompanyStaffId("ADMIN001");
-                adminStaff.setEmail("admin@example.com");
+                adminStaff.setEmail("admin@gmail.com");
                 adminStaff.setCreatedAt(new Date());
                 adminStaff.setStatus("active");
                 adminStaff.setCompany(company);
@@ -73,7 +73,7 @@ public class DataLoader {
                 staffRepository.save(adminStaff);
 
                 Position position1 = new Position();
-                position1.setName("Human Resource(Main)");
+                position1.setName("Human Resource");
                 positionRepository.save(position1);
             }
         };

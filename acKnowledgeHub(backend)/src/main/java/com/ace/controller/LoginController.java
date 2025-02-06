@@ -38,7 +38,7 @@ public class LoginController {
     private final TokenBlacklistService tokenBlacklistService;
     private final CompanyService companyService;
 
-    @Value("${jwt.secret}")
+        @Value("${jwt.secret}")
     private String jwtSecret;
 
     public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService, CompanyService companyService) {

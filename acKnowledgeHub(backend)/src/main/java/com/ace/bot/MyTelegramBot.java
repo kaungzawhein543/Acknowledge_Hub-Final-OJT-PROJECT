@@ -60,6 +60,8 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                     String messageText = update.getMessage().getText();
                     String chatId = update.getMessage().getChatId().toString();
                     String username = update.getMessage().getFrom().getUserName();
+                    System.out.println(username);
+                    System.out.println(update.getMessage());
                     if ("/start".equals(messageText)) {
                         List<Staff> users = staffService.findByTelegramUserName(username);
                         if (users == null||users.isEmpty()) {

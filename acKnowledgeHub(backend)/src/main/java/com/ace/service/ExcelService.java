@@ -50,8 +50,13 @@ public class ExcelService {
             Sheet sheet = workbook.getSheetAt(0);
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // Skip header row
+                if (!overrideExisting && staffRepository.findByCompanyStaffId(dataFormatter.formatCellValue(row.getCell(0))) == null) {
+                    if (dataFormatter.formatCellValue(row.getCell(2)) != null && !dataFormatter.formatCellValue(row.getCell(2)).trim().isEmpty()) {
+                        emailsToSend.add(dataFormatter.formatCellValue(row.getCell(2)).trim());
+                    }
+                }
 
+                if (row.getRowNum() == 0) continue; // Skip header row
                 String staffId = dataFormatter.formatCellValue(row.getCell(0));
                 String staffName = dataFormatter.formatCellValue(row.getCell(1));
                 String staffEmail = dataFormatter.formatCellValue(row.getCell(2));
@@ -67,14 +72,7 @@ public class ExcelService {
 
                 addStaffToGroups(staff, companyName, departmentName);
 
-                if (!overrideExisting && staffRepository.findByCompanyStaffId(staffId) == null) {
-                    // If staff is new, send email
-                    if (staffEmail != null && !staffEmail.trim().isEmpty()) {
-                        emailsToSend.add(staffEmail.trim());
-                    }
-                }
             }
-
             sendEmailsAsync(emailsToSend); // Send emails asynchronously
             if (overrideExisting) {
                 updateStaffStatusAsync(importedStaffIds); // Update staff status asynchronously

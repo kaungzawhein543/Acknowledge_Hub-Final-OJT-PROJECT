@@ -465,15 +465,15 @@ public class AnnouncementController {
     }
 
     @GetMapping("/STF/staff-unnoted/{staffId}")
-    public List<AnnouncementResponseListDTO> getStaffUnNotedList(@PathVariable Integer staffId) {
+    public Set<AnnouncementResponseListDTO> getStaffUnNotedList(@PathVariable Integer staffId) {
         List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffUnNoted(staffId);
-        return announcementList;
+        return new HashSet<>(announcementList);
     }
 
     @GetMapping("/all/staff/{staffId}")
-    public List<AnnouncementResponseListDTO> getStaffAnnouncement(@PathVariable Integer staffId) {
+    public Set<AnnouncementResponseListDTO> getStaffAnnouncement(@PathVariable Integer staffId) {
         List<AnnouncementResponseListDTO> announcementList = announcement_service.getStaffAnnouncement(staffId);
-        return announcementList;
+        return new HashSet<>(announcementList);
     }
 
     @GetMapping("/sys/pending-list")
