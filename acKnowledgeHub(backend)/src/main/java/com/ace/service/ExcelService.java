@@ -182,10 +182,8 @@ public class ExcelService {
             for (String email : emailsToSend) {
                 try {
                     emailService.sendTelegramChannelInvitation(email);
-                    System.out.println("Email sent successfully to: " + email);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("Error sending email to: " + email);
                 }
             }
         });

@@ -79,10 +79,8 @@ public class DepartmentController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Department already exists");
             }
         } catch (NullPointerException e) {
-            System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred due to a null value.");
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }

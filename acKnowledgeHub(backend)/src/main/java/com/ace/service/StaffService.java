@@ -342,11 +342,9 @@ private final GroupRepository groupRepository;
 
     //Method to change Pw in profile
     public String changeOldPassword(ChangePasswordRequest request) {
-        System.out.println("Searching for staff with ID: " + request.getStaffId());
         Staff staff = staffRepository.findByCompanyStaffId(request.getStaffId());
 
         if (staff != null) {
-            System.out.println("Staff found: " + staff.getName());
             if (!passwordEncoder.matches(request.getOldPassword(), staff.getPassword())) {
                 return "Old password is incorrect";
             }

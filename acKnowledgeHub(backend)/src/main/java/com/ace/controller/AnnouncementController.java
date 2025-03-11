@@ -338,16 +338,12 @@ public class AnnouncementController {
     @GetMapping("/all/getPublishedAnnouncements")
     public ResponseEntity<List<AnnouncementListDTO>> getPublishedAnnouncements() {
         List<AnnouncementListDTO> publishedAnnouncements = announcement_service.getPublishedAnnouncements();
-        for(AnnouncementListDTO titleAnouncement : publishedAnnouncements){
-            System.out.println(titleAnouncement.getTitle());
-        }
         return ResponseEntity.ok(publishedAnnouncements);
     }
 
 
     @GetMapping("/all/announcement-versions/{announcementId}")
     public List<String> getAnnouncementVersions(@PathVariable("announcementId") Integer announcementId) {
-        System.out.println("They are"+announcement_service.getAllVersionsByFilePattern(announcementId));
         return announcement_service.getAllVersionsByFilePattern(announcementId);
     }
 
@@ -389,7 +385,6 @@ public class AnnouncementController {
 
             return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (IOException | InterruptedException e) {
-            System.out.println(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -544,14 +539,10 @@ public class AnnouncementController {
                     Matcher matcher = pattern.matcher(announcementForFileNameCheck.get().getFile());
                     if(matcher.find()){
                         Integer versionNumber = Integer.valueOf(matcher.group(1));
-                        if(versionNumber > 1){
-                            updateStatus = 1;
-                            System.out.println("it come here");
-                        }
                     }
                     blogService.sendTelegramAndEmail(announceStaff, announceGroup, file,announcement.get(), announcement.get().getGroupStatus(),updateStatus);
                 } catch (IOException e) {
-                    System.out.println(e);
+                    log.info("Error occur when approve the announcement!{}",e.getMessage());
                 }
                 // If the scheduled date is before the current time, return false (indicating it can't be approved)
                 return ResponseEntity.ok(false);

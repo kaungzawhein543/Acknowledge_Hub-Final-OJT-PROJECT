@@ -56,8 +56,6 @@ public class EmailController {
 
     @PostMapping(value = "/verify-otp")
     public int verifyOtp(@RequestBody OTPEmailDTO dto) {
-//        System.out.println("email " + dto.getEmail());
-//        System.out.println("otp : " + dto.getOtp());
         int isValid = EmailService.verifyOTP(dto.getEmail(), dto.getOtp());
         if (isValid == 1) {
             return 1;

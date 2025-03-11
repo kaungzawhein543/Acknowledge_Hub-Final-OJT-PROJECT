@@ -9,6 +9,7 @@ import com.ace.repository.AnnouncementRepository;
 import com.ace.repository.GroupRepository;
 import com.ace.repository.NotificationRepository;
 import com.ace.repository.StaffRepository;
+import lombok.extern.slf4j.Slf4j;
 import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
 import org.hibernate.Hibernate;
@@ -22,6 +23,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final AnnouncementRepository announcementRepository;
@@ -49,7 +51,7 @@ public class NotificationService {
             notificationRepository.save(notification);
 
         } catch (Exception e) {
-            System.out.println("Data was not added to the database: " + e.getMessage());
+            log.info("Failed to save notification{}", e.getMessage());
         }
     }
 

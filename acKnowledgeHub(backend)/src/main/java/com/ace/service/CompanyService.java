@@ -47,10 +47,8 @@ public class CompanyService {
     @Transactional
     public Company updateCompany(int id, String updatedCompany) {
         Optional<Company> existingCompany = companyRepository.findById(id);
-        System.out.println(existingCompany);
         String companyName = existingCompany.get().getName();
         List<Group> groupList = groupRepository.getGroupsByName(companyName);
-        System.out.println(groupList);
         for (Group group : groupList) {
             String currentGroupName = group.getName();
             String updatedGroupName = currentGroupName.replace(companyName, updatedCompany);

@@ -107,7 +107,6 @@ public class StaffController {
             staffService.addStaff(staff);
             return ResponseEntity.ok("Adding is successful.");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding staff: " + e.getMessage());
         }
     }
@@ -257,7 +256,6 @@ public class StaffController {
                 // Wrap the result
                 Map<String, Object> result = new HashMap<>();
                 result.put("monthlyCount", notesCountByMonth);
-                System.out.println("Notes Count by Month: " + notesCountByMonth);  // Debugging line
 
                 return ResponseEntity.ok(result);
             } catch (JwtException e) {

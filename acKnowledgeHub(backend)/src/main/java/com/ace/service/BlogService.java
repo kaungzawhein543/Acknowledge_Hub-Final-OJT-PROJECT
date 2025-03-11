@@ -77,12 +77,11 @@ public class BlogService {
                 Integer versionNumber = Integer.valueOf(matcher.group(1));
                 if(versionNumber > 1){
                     updateStatus = 1;
-                    System.out.println("it come here");
                 }
             }
             sendTelegramAndEmail(announcement.getStaff(), announcement.getGroup(), file, announcement, announcement.getGroupStatus(),updateStatus);
         } catch (IOException e) {
-            System.out.println(e);
+            log.info("failed to publish post{}", e.getMessage());
         }
     }
 
@@ -126,15 +125,12 @@ public class BlogService {
 
 // Now process each unique staff member
                for (Staff announceStaff : allUniqueStaffs) {
-                   System.out.println(announceStaff.getName());
-                   System.out.println("This is from blog service");
-
                    // Check for Chat ID and file sending logic
                    if (announceStaff.getChatId() != null) {
                        if (!file.isEmpty() && file != null) {
                            botService.sendFile(announceStaff.getChatId(), file, announcement, updateStatus);
                        } else {
-                           System.out.println("File is null or empty");
+                           log.info("file is null or empty while send telegram and email");
                        }
                    }
 
@@ -161,12 +157,11 @@ public class BlogService {
                    // Create and send notification
                    Notification notification = createNotification(announcementForNoti, announceStaff, description, url);
                    notificationService.sendNotification(convertToDTO(notification));
-                   System.out.println("Noti sent to " + announceStaff.getName());
                }
 
            }
        }catch(Exception e){
-           System.out.println(e);
+           log.info("Error occur while send telegram and email");
        }
     }
 
@@ -181,7 +176,7 @@ public class BlogService {
             notificationService.saveNotification(notification);
             return notification;
         }catch (Exception e){
-            System.out.println(e);
+            log.info("Error occur when createNotification{}",e.getMessage());
         }
         return new Notification();
     }
@@ -206,7 +201,7 @@ public class BlogService {
                    status
            );
        }catch(Exception e){
-           System.out.println(e);
+           log.info("Error occur when converting the dto in blog service!");
        }
        return new NotificationDTO();
     }

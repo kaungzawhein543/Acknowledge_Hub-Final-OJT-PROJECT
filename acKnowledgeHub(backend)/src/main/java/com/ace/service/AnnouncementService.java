@@ -70,7 +70,6 @@ public class AnnouncementService {
             newAnnouncement.setCategory(announcementDetails.getCategory());
             newAnnouncement.setCreateStaff(announcementDetails.getCreateStaff());
             Announcement announcement = announcement_repo.save(newAnnouncement);
-            System.out.println(id);
             return announcement;
         }else{
             return new Announcement();
@@ -111,9 +110,6 @@ public class AnnouncementService {
         List<AnnouncementResponseListDTO> groupAnnouncements = announcement_repo.getNotNotedStaffGroup(staffId);
         List<AnnouncementResponseListDTO> combinedAnnouncements = new ArrayList<>(staffAnnouncements);
         combinedAnnouncements.addAll(groupAnnouncements);
-        for(AnnouncementResponseListDTO announcemenId : combinedAnnouncements){{
-            System.out.println(announcemenId.getId());
-        }}
         return combinedAnnouncements;
     }
 

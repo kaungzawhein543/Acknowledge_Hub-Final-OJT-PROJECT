@@ -26,7 +26,6 @@ public class CategoryController {
     @PostMapping(value = "/all/save", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<String> save(@RequestParam("name") String name, @RequestParam("description") String description) throws IOException {
         Category existingCategory = service.findByLowerName(name);
-        System.out.println(description.length());
         if (existingCategory == null) {
             Category category = new Category();
             category.setName(name);

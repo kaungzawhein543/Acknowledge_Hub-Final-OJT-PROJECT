@@ -2,6 +2,7 @@ package com.ace.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
+@Slf4j
 public class EmailService {
     private static final Map<String, OTPDetails> otpStore = new HashMap<>();
 
@@ -290,10 +292,8 @@ public class EmailService {
 
             // Send the email
             javaMailSender.send(message);
-            System.out.println("Email sent successfully to: " + recipientEmail);
         } catch (MessagingException e) {
             e.printStackTrace();
-            System.out.println("Error sending email to: " + recipientEmail);
         }
     }
 
@@ -407,10 +407,9 @@ public class EmailService {
 
             // Send the email
             javaMailSender.send(message);
-            System.out.println("Email sent successfully to: " + recipientEmail);
         } catch (MessagingException e) {
+            log.info("Error occur when sending the email!{}",e.getMessage());
             e.printStackTrace();
-            System.out.println("Error sending email to: " + recipientEmail);
         }
     }
 
@@ -528,10 +527,9 @@ public class EmailService {
 
             // Send the email
             javaMailSender.send(message);
-            System.out.println("Email sent successfully to: " + recipientEmail);
         } catch (MessagingException e) {
             e.printStackTrace();
-            System.out.println("Error sending email to: " + recipientEmail);
+            log.info("Error sending email{}",e.getMessage());
         }
     }
 

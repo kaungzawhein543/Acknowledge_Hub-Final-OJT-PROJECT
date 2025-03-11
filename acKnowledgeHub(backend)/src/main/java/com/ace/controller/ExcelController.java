@@ -1,6 +1,7 @@
 package com.ace.controller;
 
 import com.ace.service.ExcelService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/v1/excel")
 public class ExcelController {
 
@@ -29,7 +31,7 @@ public class ExcelController {
                 excelService.processExcelFile(file,false);
             }
         }catch (Exception e){
-            System.out.println(e.toString());
+            log.info("Failed to upload excel file{}", e.getMessage());
         }
         return "File uploaded successfully!";
     }

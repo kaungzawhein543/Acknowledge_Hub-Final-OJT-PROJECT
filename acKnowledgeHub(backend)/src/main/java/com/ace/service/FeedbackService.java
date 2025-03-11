@@ -61,7 +61,6 @@ public class FeedbackService {
     }
 
     public List<FeedbackResponseListDTO> getFeedbackList(Integer id){
-        System.out.println(feedbackRepository.getAllFeedbackList(id));
         return feedbackRepository.getAllFeedbackList(id);
     }
 }

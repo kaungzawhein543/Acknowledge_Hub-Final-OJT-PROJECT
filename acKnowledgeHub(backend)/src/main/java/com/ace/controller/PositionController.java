@@ -44,11 +44,9 @@ public class PositionController {
     public ResponseEntity<String> updatePosition(@PathVariable("id")Integer id, @RequestBody Position position){
         Position existingPosition = positionService.findByName(position.getName());
         if (existingPosition == null) {
-            System.out.println(existingPosition);
             positionService.updatePosition(id,position);
             return ResponseEntity.ok("Updating position is successful.");
         } else {
-            System.out.println(existingPosition);
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Position already exists.");
         }
     }

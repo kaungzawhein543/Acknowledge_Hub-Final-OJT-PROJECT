@@ -90,7 +90,6 @@ public class FeedbackController {
 
     @GetMapping("/all/report")
     public ResponseEntity<byte[]> generateFeedbackReport(@RequestParam Integer announcementId, @RequestParam String format) {
-        System.out.println("Received request to generate feedback report for announcementId: " + announcementId + " and format: " + format);
         CompletableFuture<byte[]> future = new CompletableFuture<>();
 
         reportService.generateFeedbackReport(announcementId, format, new AsyncCallback<byte[]>() {

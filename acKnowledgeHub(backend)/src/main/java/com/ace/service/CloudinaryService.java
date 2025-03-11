@@ -5,6 +5,7 @@ import com.ace.entity.Staff;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@Slf4j
 public class CloudinaryService {
 
     private static final String[] PREDEFINED_FOLDERS = {"images", "documents", "archives", "spreadsheets"};
@@ -98,7 +100,6 @@ public class CloudinaryService {
                 "resource_type", resourceType
         );
         Map<String, Object> uploadResult = cloudinary.uploader().upload(fileBytes, uploadParams);
-        System.out.println(uploadResult);
         return CompletableFuture.completedFuture(uploadResult);
     }
 
@@ -147,11 +148,12 @@ public class CloudinaryService {
                         }
                     }
                 } catch (NotFound e) {
-                    System.out.println("Path not found: " + prefix);
+                    log.info("Failed to find latest file{}",e.getMessage());
                 } catch (HttpStatusCodeException e) {
                     System.err.println("HTTP Status Code Error: " + e.getStatusCode());
                     System.err.println("Response Body: " + e.getResponseBodyAsString());
                 } catch (Exception e) {
+                    log.info("Failed to find latest file{}",e.getMessage());
 
                 }
             }
@@ -183,10 +185,8 @@ public class CloudinaryService {
         try {
             String fullPublicId = "AcknowledgeHub/" + publicId; // Ensure the folder name is included
             cloudinary.uploader().destroy(fullPublicId, ObjectUtils.emptyMap());
-            System.out.println("Deleted file with publicId: " + fullPublicId);
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error deleting file: " + e.getMessage());
+            log.info("Error while deleting the file in cloud{}",e.getMessage());
         }
     }
 
@@ -211,7 +211,7 @@ public class CloudinaryService {
             // Step 2: Return the secure URL that triggers the download
             return result.get("secure_url").toString();
         } catch (Exception e){
-            System.out.println(e.getMessage());
+            log.info("Error when get urls of announcements{}",e.getMessage());
             return "";
         }
     }
@@ -220,9 +220,6 @@ public class CloudinaryService {
     public Map<String, Object> downloadFile(String publicId) throws IOException, InterruptedException {
         // Generate the URL to download the file (adjusted for raw type, if necessary)
         String url = cloudinary.url().resourceType("raw").generate(publicId);
-        System.out.println("Public ID is: " + publicId);
-        System.out.println("Generated URL is: " + url);
-
         // Create an HTTP client and request
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -232,13 +229,9 @@ public class CloudinaryService {
         // Send the request and get the response
         HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
-        if (response.statusCode() != 200) {
-            System.out.println("Response Body: " + new String(response.body()));
-        }
 
         // Check the response status code
         if (response.statusCode() == 200) {
-            System.out.println(response.statusCode());
             // Extract content type from response headers if available
             String contentType = response.headers().firstValue("Content-Type").orElse("application/octet-stream");
 
@@ -250,7 +243,6 @@ public class CloudinaryService {
             fileData.put("fileBytes", response.body());
             fileData.put("contentType", contentType);
             fileData.put("fileName", publicId + fileExtension);
-            System.out.println(fileExtension);
             return fileData;
         } else {
             throw new IOException("Failed to download file, status code: " + response.statusCode());
