@@ -50,7 +50,7 @@ export class UserNotedComponent implements OnInit {
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createdAt', header: 'Created At' },
+    { field: 'createdAt', header: 'Announced At' },
     { field: 'notedAt', header: 'Noted At' },
     { field: 'createStaff', header: 'Create/Request Staff' },
     { field: 'detail', header: 'View' },
@@ -160,6 +160,32 @@ export class UserNotedComponent implements OnInit {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
+
+    const titleACE = "ACE"; 
+    const subtitle = "Data System.Ltds."; 
+    const description = "Noted Anouncements Report on Pdf"; 
+ 
+    // Set font style and size for "ACE" 
+    doc.setFontSize(26); 
+    doc.setTextColor(0, 51, 102); 
+    doc.setFont("times", "bold"); 
+    doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' }); 
+ 
+    // Subtitle 
+    doc.setFontSize(15); 
+    doc.setFont("times", "bold"); 
+    doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' }); 
+ 
+    // Description 
+    doc.setFontSize(12); 
+    doc.setTextColor(100, 100, 100); 
+    doc.setFont("helvetica", "italic"); 
+    doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' }); 
+ 
+    // Line separation 
+    doc.setDrawColor(0, 51, 102); 
+    doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45);
+
     // Define column headers and data rows
     const headers = visibleColumns.map(col => col.header);
     const rows = announcements.map(announcement =>
@@ -175,7 +201,7 @@ export class UserNotedComponent implements OnInit {
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 20,
+      startY: 40,
       margin: { top: 20 },
       styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
       headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },

@@ -219,6 +219,7 @@ export class CreateannouncementHrComponent {
       this.dateError = 'The schedule date cannot be late than the current date & time.';
       return;
     }
+    this.fileErrorText = "You need to choose a file!";
     if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
       this.titleError = true;
       this.descriptionError = true;

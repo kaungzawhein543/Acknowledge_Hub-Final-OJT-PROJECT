@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Feedback } from '../models/feedback';
@@ -47,4 +47,12 @@ export class FeedbackService {
     return this.http.delete(`${this.baseURL2}/${id},`,{ withCredentials: true});
   }
 
+  generateFeedbackReport(announcementId: number, format: 'pdf' | 'excel'): Observable<Blob> {
+    const params = new HttpParams()
+      .set('announcementId', announcementId.toString())
+      .set('format', format);
+
+    return this.http.get(`${this.baseURL}/all/report`, {
+      params: params,responseType: 'blob',withCredentials: false});
+  }
 }

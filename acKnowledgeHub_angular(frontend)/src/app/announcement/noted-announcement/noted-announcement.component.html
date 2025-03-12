@@ -25,6 +25,9 @@
                         <span *ngIf="getVersionNumber(v.title)">
                             Version {{ getVersionNumber(v.title) }}
                         </span>
+                        <span *ngIf="!getVersionNumber(v.title)">>
+                            Version 1
+                        </span>
                     </option>
                 </select>
 

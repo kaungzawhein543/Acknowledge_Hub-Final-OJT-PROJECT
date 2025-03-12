@@ -188,9 +188,9 @@ export class ListAnnouncementComponent {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   
     // Title: "ACE" with Dark Blue color and large font size
-    const titleACE = "ACE";
-    const subtitle = "AcknowledgeHub.";
-    const description = "PDF report on Announcements List";
+    const titleACE = "ACE"; 
+    const subtitle = "AcknowledgeHub."; 
+    const description = "Announcements Report on Pdf";
   
     // Set font style and size for "ACE"
     doc.setFontSize(26);

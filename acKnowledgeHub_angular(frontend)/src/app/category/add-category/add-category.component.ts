@@ -36,9 +36,6 @@ export class AddCategoryComponent {
     private toastService: ToastService
     ) {}
 
-  ngOnInit(): void {
-    
-  }
 
   saveCategory(): void {
     this.category.name = this.category.name.trim();

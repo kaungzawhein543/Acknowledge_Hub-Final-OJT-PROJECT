@@ -37,7 +37,7 @@ export class ProfileComponent implements OnInit {
   selectedMonthCount: number | null = null; // To store the count for the selected month
   selectedMonth: string | null = null; // Property to store selected month
   monthlyCount: number = 0; // Property to store the count for the selected month
-
+  isFileSelected: boolean = false;
   // Properties for password change
   showChangePasswordModal: boolean = false;
   oldPassword: string = '';
@@ -146,6 +146,7 @@ export class ProfileComponent implements OnInit {
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
+      this.isFileSelected = true;
       this.selectedFile = input.files[0];
 
       // Create a preview for the new photo
@@ -155,6 +156,8 @@ export class ProfileComponent implements OnInit {
         this.cdr.detectChanges(); // Trigger change detection to update the view
       };
       reader.readAsDataURL(this.selectedFile);
+    }else{
+      this.isFileSelected = false;
     }
   }
 

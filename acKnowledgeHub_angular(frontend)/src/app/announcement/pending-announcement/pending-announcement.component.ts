@@ -67,7 +67,7 @@ export class PendingAnnouncementComponent implements OnInit {
     { field: 'createStaff', header: 'Create/Request Staff' },
     { field: 'createdAt', header: 'Scheduled At' },
     { field: 'detail', header: 'View' },
-    { field: 'cancel', header: 'Action' }
+    { field: 'action', header: 'Action' }
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -85,13 +85,15 @@ export class PendingAnnouncementComponent implements OnInit {
     this.todayDate = new Date().toISOString().split('T')[0];
     this.fetchAnnouncements();
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
-    this.authService.getProfile().subscribe(
+    this.authService.getUserInfo().subscribe(
       (data) => {
         this.profile = data;
-        this.loginRole = data.role;
+        this.loginRole = data.user.role;
+        console.log(this.loginRole)
+        this.setColumnsBasedOnRole();
 
         // Check if the user position is "Human Resource(Main)"
-        if (this.profile.position === "Human Resource(Main)") {
+        if (data.position === "Human Resource(Main)") {
           this.isaHrMain = true;
         } else {
           this.isaHrMain = false;
@@ -167,6 +169,31 @@ export class PendingAnnouncementComponent implements OnInit {
 
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
+    const titleACE = "ACE"; 
+      const subtitle = "Data System.Ltds"; 
+      const description = "Pending Anouncements Report on Pdf"; 
+   
+      // Set font style and size for "ACE" 
+      doc.setFontSize(26); 
+      doc.setTextColor(0, 51, 102); 
+      doc.setFont("times", "bold"); 
+      doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' }); 
+   
+      // Subtitle 
+      doc.setFontSize(15); 
+      doc.setFont("times", "bold"); 
+      doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' }); 
+   
+      // Description 
+      doc.setFontSize(12); 
+      doc.setTextColor(100, 100, 100); 
+      doc.setFont("helvetica", "italic"); 
+      doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' }); 
+   
+      // Line separation 
+      doc.setDrawColor(0, 51, 102); 
+      doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45);
+
     // Define column headers and data rows
     const headers = visibleColumns.map(col => col.header);
     const rows = announcements.map(announcement =>
@@ -182,7 +209,7 @@ export class PendingAnnouncementComponent implements OnInit {
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 20,
+      startY: 40,
       margin: { top: 20 },
       styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
       headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
@@ -196,6 +223,7 @@ export class PendingAnnouncementComponent implements OnInit {
     // Save the PDF file
     doc.save(filename);
   }
+  
 
 
   generateExcel(announcements: announcementList[], fileName: string) {
@@ -310,4 +338,5 @@ export class PendingAnnouncementComponent implements OnInit {
     this.announcementIdForPublish = id;
     this.publishModal.open();
   }
+  
 }

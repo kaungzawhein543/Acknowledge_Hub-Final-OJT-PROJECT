@@ -82,10 +82,10 @@ export class ListUserComponent {
           this.currentHrCompanyId = data.companyId;
           this.currentHrCompany = data.company;
         }
+        this.fetchStaffs();
       }
     )
     this.todayDate = new Date().toISOString().split('T')[0];
-    this.fetchStaffs();
     this.authService.getUserInfo().subscribe({
       next: (data) => {
         this.setColumnsBasedOnRole()
@@ -102,10 +102,20 @@ export class ListUserComponent {
   fetchStaffs() {
     this.staffService.getList().subscribe(
       (data) => {
-        this.announcements = data.map((item, index) => ({
+        const filteredData = data.filter(a => {
+          // If isHr is true, only include announcements where the company matches the current HR company
+          if (this.isHr) {
+            return a.company === this.currentHrCompany;
+          }
+          return true; // If not HR, show all announcements
+        });
+
+        this.announcements = filteredData.map((item, index) => ({
           ...item,
-          autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        }));
+          autoNumber: this.generateAutoNumber(index + 1)
+           // Assign sequential number
+        })
+      );
         this.filteredStaffs = data;
         //  this.dataSource.data = this.filteredStaffs;
         this.dataSource.paginator = this.paginator;
@@ -175,6 +185,31 @@ export class ListUserComponent {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field] && col.field !== 'status');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
+
+    const titleACE = "ACE"; 
+    const subtitle = "Data System.Ltds."; 
+    const description = "Users Report on Pdf"; 
+ 
+    // Set font style and size for "ACE" 
+    doc.setFontSize(26); 
+    doc.setTextColor(0, 51, 102); 
+    doc.setFont("times", "bold"); 
+    doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' }); 
+ 
+    // Subtitle 
+    doc.setFontSize(15); 
+    doc.setFont("times", "bold"); 
+    doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' }); 
+ 
+    // Description 
+    doc.setFontSize(12); 
+    doc.setTextColor(100, 100, 100); 
+    doc.setFont("helvetica", "italic"); 
+    doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' }); 
+ 
+    // Line separation 
+    doc.setDrawColor(0, 51, 102); 
+    doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45);
     // Define column headers and data rows
     const headers = visibleColumns.map(col => col.header);
     const rows = announcements.map(announcement =>
@@ -190,7 +225,7 @@ export class ListUserComponent {
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 20,
+      startY: 40,
       margin: { top: 20 },
       styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
       headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },

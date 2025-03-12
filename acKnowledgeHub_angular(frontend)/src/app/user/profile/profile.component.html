@@ -78,7 +78,11 @@
           <input type="file" accept=".jpg, .jpeg, .png" (change)="onFileChange($event)" />
         </label>
       </div>
-      <button (click)="uploadPhoto()">Upload Photo</button>
+      <button [ngClass]="{'enabled-button': isFileSelected, 'disabled-button': !isFileSelected}"
+        [disabled]="!isFileSelected" [style.backgroundColor]="isFileSelected ? '#0056B3' : 'gray'"
+        [style.color]="'white'" (click)="uploadPhoto()">
+        Upload Photo
+      </button>
     </div>
   </div>
 

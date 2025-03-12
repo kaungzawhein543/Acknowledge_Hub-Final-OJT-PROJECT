@@ -154,7 +154,6 @@ export class AddUserComponent implements OnInit {
       this.companies[0] = new Company(this.currentHrcompany);
       if(this.companies.length >0){
         this.staff.companyId = this.currrrtHrcompanyId;
-        console.log(this.staff.companyId);
       }
     }
     this.staff.companyStaffId = this.staff.companyStaffId?.trim();

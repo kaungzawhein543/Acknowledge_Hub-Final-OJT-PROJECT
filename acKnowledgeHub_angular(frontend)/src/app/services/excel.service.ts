@@ -14,9 +14,9 @@ export class ExcelServiceService {
     const formData: FormData = new FormData();
     formData.append('file', file);
     if(override === 1){
-      return this.http.post(`${this.apiUrl}/sys/upload?override=1`, formData, { responseType: 'text', withCredentials: true });
+      return this.http.post(`${this.apiUrl}/allSys/upload?override=1`, formData, { responseType: 'text', withCredentials: true });
     }else{
-      return this.http.post(`${this.apiUrl}/sys/upload?override=0`, formData, { responseType: 'text', withCredentials: true });
+      return this.http.post(`${this.apiUrl}/allSys/upload?override=0`, formData, { responseType: 'text', withCredentials: true });
     }
   }
 }

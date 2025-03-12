@@ -14,6 +14,11 @@ import { WebSocketService } from '../../services/web-socket.service';
 import { GroupService } from '../../services/group.service';
 import { Group } from '../../models/Group';
 import { staffList } from '../../models/staff';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+import autoTable from 'jspdf-autotable';
+import { saveAs } from 'file-saver';
+
 
 @Component({
   selector: 'app-detail-announcement',
@@ -77,7 +82,8 @@ export class DetailAnnouncementComponent {
   groupsByAnnouncement: Group[] = [];
   showConfirmBox: boolean = false;
   showGroupConfirmBox: boolean = false;
-
+  feedbacks: Feedback[] = [];
+  isHr : boolean = false;
   @HostListener('window:scroll', [])
   onWindowScroll() {
     // Show button if scrolled down 200px or more
@@ -143,8 +149,8 @@ private loadAnnouncementData(decodedId: string): void {
       this.currentUserId = data.user.id;
       this.isAdmin = data.user.role === 'ADMIN';
       this.isHumanResourceMain = data.position === 'Human Resource(Main)'; // Position from the root level
-    
-  
+      this.isHr = data.position === "Human Resource";
+        
       return this.announcementService.getAnnouncementById(Number(decodedId)).pipe(
         tap(announcement => {
           this.announcement = announcement;
@@ -410,5 +416,113 @@ notedAnnouncement(userId: number,announcementId : number){
   showSelectedGroup(): void {
     this.showGroupConfirmBox = !this.showGroupConfirmBox;
   }
+
+  generateReport(type: 'pdf' | 'excel') {
+    // Generate feedback report directly from the service
+    this.feedbackService.generateFeedbackReport(this.announcement.id, type).subscribe({
+      next: (response) => {
+        const blob = new Blob([response], {
+          type: type === 'pdf'
+            ? 'application/pdf'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        // If it's PDF, generate it directly with jsPDF
+        if (type === 'pdf') {
+          this.generatePDF(this.feedbacks, 'feedback_report.pdf'); 
+        } else if (type === 'excel') {
+          this.generateExcel(this.feedbacks, 'feedback_report.xlsx'); 
+        }
+      },
+      error: (error) => {
+        console.error('Error generating report:', error);
+      }
+    });
+
+    // Close the dropdown after generating the report
+    this.isReportDropdownOpen = false;
+  }
+
+  generatePDF(feedbacks: any[], filename: string) {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    // Title: "ACE" with Dark Blue color and large font size
+    const titleACE = "ACE";
+    const subtitle = "Data Systems";
+    const description =  `${this.announcement.title} feedbacks PDF report`;
+
+    // Set font style and size for "ACE"
+    doc.setFontSize(26);
+    doc.setTextColor(0, 51, 102);
+    doc.setFont("times", "bold");
+    doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+
+    // Subtitle
+    doc.setFontSize(15);
+    doc.setFont("times", "bold");
+    doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' });
+
+    // Description
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "italic");
+    doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' });
+
+    // Line separation
+    doc.setDrawColor(0, 51, 102);
+    doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45);
+
+    // Define column headers
+    const headers = ["ID", "Content", "Staff Name", "Created At"];
+    this.questionList.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const rows = this.questionList.map(feedback => [
+      feedback.id,
+      feedback.content || '',
+      feedback.staffName || '',
+      feedback.createdAt || ''
+    ]);
+
+    // Use autoTable to generate the table in PDF
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 50,
+      margin: { top: 20 },
+      styles: { fontSize: 10, cellPadding: 4 },
+      headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
+      tableWidth: 'auto',
+    });
+
+    doc.save(filename);
+  }
+
+  generateExcel(feedbacks: any[], fileName: string) {
+    // Define headers
+    const headers = ["ID", "Content", "Staff Name", "Created At"];
+    this.questionList.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    const data = [headers, ...this.questionList.map(feedback => [
+      feedback.id,
+      feedback.content,
+      feedback.staffName,
+      feedback.createdAt
+    ])];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = { Sheets: { 'Feedback Report': worksheet }, SheetNames: ['Feedback Report'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, fileName);
+  }
+
+  private saveAsExcelFile(buffer: any, fileName: string) {
+    const data = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+    });
+    saveAs(data, fileName);
+  }
+  toggleReportDropdown() {
+    this.isReportDropdownOpen = !this.isReportDropdownOpen;
+  }
+  
 }
 

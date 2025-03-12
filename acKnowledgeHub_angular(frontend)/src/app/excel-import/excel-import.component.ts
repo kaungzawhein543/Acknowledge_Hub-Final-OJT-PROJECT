@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { ConfirmationModalComponent } from '../confirmation-modal/confirmation-modal.component';
 import { ToastService } from '../services/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 
 @Component({
@@ -23,15 +24,23 @@ export class ExcelImportComponent implements OnInit{
   itemsPerPage = 5;  // Number of staff to display per page
   searchTerm: string = '';
   isUpdateAndAdd: boolean = false;
-
-  constructor(private excelImportService: ExcelServiceService, private toastService: ToastService,private route: ActivatedRoute,private router: Router) { }
+  isHr : boolean = false;
+  currentHrCompany : string = "";
+  constructor(private excelImportService: ExcelServiceService, private toastService: ToastService,private route: ActivatedRoute,private router: Router,private authService: AuthService) { }
   
 
    ngOnInit(): void {
-    // Using snapshot to check for the initial parameters
+     this.authService.getUserInfo().subscribe(
+       data =>{
+         this.currentHrCompany = data.company;
+         this.isHr = data.position === "Human Resource"
+       }
+     )
+    
+     // Using snapshot to check for the initial parameters
     const excel = this.route.snapshot.queryParamMap.get('excel');
     const add = this.route.snapshot.queryParamMap.get('add');
-
+    
     // Assign true to isUpdateAndAdd if both conditions are met
     if (excel === 'update' && add === 'true') {
       this.isUpdateAndAdd = true;
@@ -61,6 +70,7 @@ export class ExcelImportComponent implements OnInit{
           const sheetName = workbook.SheetNames[0];
           const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
         
+          
           // Update the mapping to use the correct column headers
           this.staffs = sheetData.map((row: any) => ({
             id: row['Staff ID'],  // Assuming the ID column is present in the Excel file
@@ -70,8 +80,13 @@ export class ExcelImportComponent implements OnInit{
             department: row['Department'],
             company: row['Company']
           }));
-        
-          this.filteredStaffs = [...this.staffs];  // Initialize filtered staff
+            // Apply the filter if the user is HR
+            if (this.isHr) {
+              this.filteredStaffs = this.staffs.filter(a => a.company === this.currentHrCompany);
+            } else {
+              this.filteredStaffs = [...this.staffs];  // If not HR, include all staffs
+            }
+          // this.filteredStaffs = [...this.staffs];  // Initialize filtered staff
           this.fileUploaded = true;
           this.updateCurrentPageStaffs();
         };
@@ -107,7 +122,7 @@ export class ExcelImportComponent implements OnInit{
         
           // Update the mapping to use the correct column headers
           this.staffs = sheetData.map((row: any) => ({
-            id: row['ID'],  // Assuming the ID column is present in the Excel file
+            id: row['Staff ID'],  // Assuming the ID column is present in the Excel file
             name: row['Name'],
             email: row['Email'],
             position: row['Position'],
@@ -149,13 +164,20 @@ export class ExcelImportComponent implements OnInit{
 
   filterStaff(): void {
     const lowerCaseSearchTerm = this.searchTerm.toLowerCase();
-    this.filteredStaffs = this.staffs.filter(staff =>
-      staff.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-      staff.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-      staff.position.toLowerCase().includes(lowerCaseSearchTerm) ||
-      staff.department.toLowerCase().includes(lowerCaseSearchTerm) ||
-      staff.company.toLowerCase().includes(lowerCaseSearchTerm)
-    );
+     // Apply filtering based on whether the user is HR or not
+  this.filteredStaffs = this.staffs.filter(staff => {
+    // If the user is HR, filter only those within the same company
+    if (this.isHr && staff.company !== this.currentHrCompany) {
+      return false;
+    }
+
+    // Perform case-insensitive search across relevant fields
+    return staff.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+           staff.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+           staff.position.toLowerCase().includes(lowerCaseSearchTerm) ||
+           staff.department.toLowerCase().includes(lowerCaseSearchTerm) ||
+           staff.company.toLowerCase().includes(lowerCaseSearchTerm);
+  });
     this.currentPage = 1; // Reset to the first page
     this.updateCurrentPageStaffs();
   }
