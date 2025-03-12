@@ -1,4 +1,4 @@
-package com.ace.configuration;
+package com.ace.configuration.core;
 
 import com.ace.entity.*;
 import com.ace.enums.Role;

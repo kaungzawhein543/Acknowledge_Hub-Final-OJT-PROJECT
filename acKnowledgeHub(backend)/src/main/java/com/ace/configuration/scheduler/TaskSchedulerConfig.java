@@ -1,4 +1,4 @@
-package com.ace.configuration;
+package com.ace.configuration.scheduler;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

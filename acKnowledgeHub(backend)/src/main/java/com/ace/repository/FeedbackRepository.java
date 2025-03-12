@@ -15,8 +15,6 @@ import java.util.List;
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback,Integer> {
 
-
-
     @Query(value = "select f.id, f.content, s.name, rp.content, " +
             "(select s2.name from staff s2 where s2.id = rp.staff_id), " +
             "f.created_at, rp.created_at, s.photo_path, s2.photo_path " +
@@ -29,7 +27,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback,Integer> {
             "ORDER BY f.created_at desc",
             nativeQuery = true)
     List<Object[]> getFeedbackAndReplyByAnnouncement(Integer id);
-
 
     @Query("select new com.ace.dto.FeedbackResponseListDTO(f.id, f.content, f.created_at, s.name, f.announcement.title, f.announcement.id ,s.company.name, s.department.name, s.position.name, s.photoPath) " +
             "from Feedback f " +

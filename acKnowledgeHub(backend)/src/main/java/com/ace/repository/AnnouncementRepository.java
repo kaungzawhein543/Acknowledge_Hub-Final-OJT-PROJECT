@@ -26,7 +26,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     List<AnnouncementListDTO> getAnnouncementList();
 
 
-
     @Modifying
     @Transactional
     @Query("update Announcement a set a.status = 'inactive' where a.id = ?1")
@@ -42,7 +41,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
     List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
-
     @Query("select NEW com.ace.dto.StaffNotedResponseDTO(a.id , a.title , a.description, a.scheduleAt, sn.notedAt, a.createStaff.name) from Announcement a " +
             "JOIN StaffNotedAnnouncement sn ON a.id = sn.announcement.id " +
             "WHERE sn.staff.id = :staffId")
@@ -54,7 +52,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "LEFT JOIN StaffNotedAnnouncement sn ON sn.staff.id = :staffId AND sn.announcement.id = a.id " +
             "WHERE s.id = :staffId AND sn.id IS NULL AND a.isPublished = true")
     List<AnnouncementResponseListDTO> getNotNotedStaff(@RequestParam("staffId") Integer staffId);
-
 
     @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name,  a.category.name) " +
             "from Announcement a " +
@@ -76,7 +73,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "join g.staff s "+
             "WHERE s.id = :staffId AND a.isPublished = true ")
     List<AnnouncementResponseListDTO> getStaffAnnouncementGroup(@Param("staffId") Integer staffId);
-
 
     @Query("select NEW com.ace.dto.AnnouncementResponseListDTO(a.id , a.title , a.description, a.scheduleAt, a.createStaff.name,  a.category.name) " +
             "from Announcement a WHERE a.isPublished = false and a.permission = 'approved'")
@@ -125,7 +121,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "ORDER BY a.created_at DESC")
     List<Announcement> findAnnouncementsByStaffIdInGroups(@Param("staffId") int staffId);
 
-
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
             "FROM Announcement a WHERE a.file LIKE :baseFileName ")
     List<AnnouncementVersionDTO> getAllVersions(@Param("baseFileName") String baseFileName);
@@ -148,7 +143,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("UPDATE Announcement a set a.isPublished = true where a.id = ?1")
     void publishAnnouncement(Integer id);
 
-
     @Modifying
     @Transactional
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
@@ -158,8 +152,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "from Announcement a where  a.createStaff.id = ?1 order by a.scheduleAt DESC")
     List<AnnouncementListForHrDTO> getAnnouncementListByStaffRequest(Integer staffId);
 
-
-
     @Modifying
     @Transactional
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
@@ -167,7 +159,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 
 //    @Query("SELECT s FROM Announcement a JOIN a.staff s WHERE a.id = :announcementId")
 //    List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
-//
+
 //    // Method to find groups associated with a specific announcement
 //    @Query("SELECT g FROM Announcement a JOIN a.group g WHERE a.id = :announcementId")
 //    List<Group> findGroupsByAnnouncementId(@Param("announcementId") Integer announcementId);

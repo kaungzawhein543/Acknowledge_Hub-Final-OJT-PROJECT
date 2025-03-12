@@ -51,7 +51,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "WHERE a.id = :announcementId AND sn.id IS NULL")
     public List<UnNotedResponseDTO> getUnNotedStaffByAnnouncementWithEach(@Param("announcementId") Integer announcementId);
 
-
     @Query("SELECT NEW com.ace.dto.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
             "FROM Staff s " +
             "JOIN s.groups g " +
@@ -74,8 +73,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "LOWER(s.company.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Staff> searchByTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-
-
     List<Staff> findByPositionId(Integer positionId);
 
     @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , s.position, s.department,s.photoPath,s.company) FROM Staff s ")
@@ -89,10 +86,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "from Staff s where s.status = 'active' ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
 
-//    @Query(value = "SELECT sa.announcement_id AS announcementId, COUNT(sa.staff_id) AS staffCount " +
-//            "FROM staff_has_announcement sa " +
-//            "GROUP BY sa.announcement_id", nativeQuery = true)
-//    List<Map<String, Object>> countStaffByAnnouncement();
+
 @Query(value = "SELECT a.id AS announcementId, " +
         "  CASE " +
         "    WHEN a.group_status = 0 THEN COUNT(sa.staff_id) " +
@@ -105,8 +99,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
         "LEFT JOIN staff_has_announcement sa ON a.id = sa.announcement_id " +
         "GROUP BY a.id", nativeQuery = true)
 List<Map<String, Object>> countStaffByAnnouncement();
-
-
 
     //@Query to get staff summary count
     @Query("SELECT new com.ace.dto.StaffSummaryDTO(" +

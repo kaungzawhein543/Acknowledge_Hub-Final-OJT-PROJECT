@@ -1,4 +1,4 @@
-package com.ace.configuration;
+package com.ace.configuration.bot;
 
 import com.ace.bot.MyTelegramBot;
 import com.ace.service.AnnouncementService;
@@ -7,7 +7,6 @@ import com.ace.service.UserNotedAnnouncementService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;

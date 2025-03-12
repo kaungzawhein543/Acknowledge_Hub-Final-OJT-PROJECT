@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface PositionRepository extends JpaRepository<Position,Integer> {
+
     Optional<Position> findByName(String name);
     @Query("SELECT DISTINCT p FROM Position p " +
             "JOIN Staff s ON p.id = s.position.id " +

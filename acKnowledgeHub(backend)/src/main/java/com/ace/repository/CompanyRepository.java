@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company,Integer> {
-    Optional <Company> findByName(String name);
+    Optional<Company> findByName(String name);
 
     @Query("SELECT c FROM Company c ORDER BY c.name ASC")
     List<Company> findAllCompaniesOrderByName();

@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
+
     @Query("SELECT n FROM Notification n WHERE n.staff.id = :staffId")
     List<Notification> findByStaffId(@Param("staffId") int staffId);
 

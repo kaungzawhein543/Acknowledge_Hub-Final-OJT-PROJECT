@@ -1,4 +1,4 @@
-package com.ace.configuration;
+package com.ace.configuration.core;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +14,7 @@ public class AppConfig {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();

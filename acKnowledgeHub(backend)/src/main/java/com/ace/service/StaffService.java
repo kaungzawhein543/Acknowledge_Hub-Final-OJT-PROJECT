@@ -236,6 +236,7 @@ private final GroupRepository groupRepository;
     public Staff getHRMainStaff(String position){
         return staffRepository.findByPosition(position);
     }
+
     public List<Map<String, Object>> getStaffCountByAnnouncement() {
         return staffRepository.countStaffByAnnouncement();
     }

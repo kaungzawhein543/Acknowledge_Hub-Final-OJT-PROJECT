@@ -1,4 +1,4 @@
-package com.ace.configuration;
+package com.ace.configuration.cloud;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

@@ -1,15 +1,12 @@
-package com.ace.configuration;
+package com.ace.configuration.web;
 
 
-import nl.martijndwars.webpush.PushService;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.security.GeneralSecurityException;
 import java.time.Duration;
 
 @Configuration
