@@ -2,29 +2,63 @@ import { Component } from '@angular/core';
 import { Position } from '../../models/Position';
 import { NgForm } from '@angular/forms';
 import { PositionService } from '../../services/position.service';
+import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { HttpErrorResponse } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-add-position',
   templateUrl: './add-position.component.html',
-  styleUrl: './add-position.component.css'
+  styleUrl: './add-position.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AddPositionComponent {
-
+  conflictError: string = '';
   position: Position = {
     id: 0,
     name: ''
   }
+  
+  showSuccessToast() {
+    this.toastService.showToast('Position created successful!', 'success');
+  }
 
-  constructor(private positionService: PositionService) { }
+  constructor(private positionService: PositionService,private router: Router,private toastService: ToastService) { }
 
   onSubmit(form: NgForm) {
-    if (form.valid) {
-      this.positionService.addPosition(this.position).subscribe({
-        next: (data) => {
-          console.log("successful");
-          form.reset();
-        }, error: (e) => console.log(e)
-      })
+    this.position.name = this.position.name.trim();
+    if (this.position.name != '') {
+      if (form.valid) {
+        this.positionService.addPosition(this.position).subscribe({
+          next: (data) => {
+            this.showSuccessToast();
+            this.router.navigate(['/acknowledgeHub/position/list']); 
+          }, error: (errorResponse: HttpErrorResponse) => {
+            if (errorResponse.status === 409) { 
+              this.conflictError = errorResponse.error;
+            } else {
+              console.log('An error occurred:', errorResponse.message);
+            }
+          }
+        })
+      }
     }
+  }
+
+  addPositionInput():void{
+    this.conflictError = '';
   }
 }

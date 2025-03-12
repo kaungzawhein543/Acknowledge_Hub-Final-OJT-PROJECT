@@ -6,14 +6,17 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ExcelServiceService {
-  private apiUrl = 'http://localhost:8080/api';
+  private apiUrl = 'http://localhost:8080/api/v1/excel';
 
   constructor(private http: HttpClient) { }
 
-  uploadExcelFile(file: File): Observable<any> {
+  uploadExcelFile(file: File,override : number): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-  
-return this.http.post(`${this.apiUrl}/upload`, formData, { responseType: 'text', withCredentials: true });
+    if(override === 1){
+      return this.http.post(`${this.apiUrl}/allSys/upload?override=1`, formData, { responseType: 'text', withCredentials: true });
+    }else{
+      return this.http.post(`${this.apiUrl}/allSys/upload?override=0`, formData, { responseType: 'text', withCredentials: true });
+    }
   }
 }

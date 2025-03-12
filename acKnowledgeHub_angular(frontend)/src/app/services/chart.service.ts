@@ -13,19 +13,19 @@ export class ChartService {
   constructor(private http: HttpClient) { }
 
   getAnnouncementStaffCounts(): Observable<AnnouncementStaffCountDTO[]> {
-    return this.http.get<AnnouncementStaffCountDTO[]>(`${this.apiUrl}/staff-counts`,{ withCredentials: true });
+    return this.http.get<AnnouncementStaffCountDTO[]>(`${this.apiUrl}/sys/staff-counts`,{ withCredentials: true });
   }
 
   getStaffCountByAnnouncement(): Observable<AnnouncementStaffCountDTO[]> {
-    return this.http.get<AnnouncementStaffCountDTO[]>(`${this.staffUrl}/staff-count-by-announcement`, { withCredentials: true });
+    return this.http.get<AnnouncementStaffCountDTO[]>(`${this.staffUrl}/sys/staff-count-by-announcement`, { withCredentials: true });
   }
   
   getMonthlyAnnouncementCount(): Observable<any> {
-    return this.http.get<any>(`${this.staffUrl}/announcements/count`,{ withCredentials: true });
+    return this.http.get<any>(`${this.staffUrl}/STF/announcements/count`,{ withCredentials: true });
   }
 
   getAdditionalChartData(): Observable<any> {
-    return this.http.get<any>(`${this.staffUrl}/notesCountByMonth`, { withCredentials: true });
+    return this.http.get<any>(`${this.staffUrl}/STF/notesCountByMonth`, { withCredentials: true });
   }
   
   

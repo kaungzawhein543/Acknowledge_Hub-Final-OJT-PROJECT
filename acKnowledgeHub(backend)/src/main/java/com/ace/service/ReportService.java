@@ -1,5 +1,6 @@
 package com.ace.service;
 
+import com.ace.dto.FeedbackListResponseDTO;
 import com.ace.entity.Announcement;
 //import net.sf.dynamicreports.report.builder.DynamicReports;
 //import net.sf.dynamicreports.report.builder.ReportBuilder;
@@ -7,6 +8,10 @@ import com.ace.entity.Announcement;
 //import net.sf.dynamicreports.report.exception.DRException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,9 +32,11 @@ import static org.springframework.orm.hibernate5.SessionFactoryUtils.getDataSour
 public class ReportService {
 
     private final AnnouncementService announcementService;
+    private final FeedbackService feedbackService;
 
-    public ReportService(AnnouncementService announcementService){
+    public ReportService(AnnouncementService announcementService, FeedbackService feedbackService){
         this.announcementService = announcementService;
+        this.feedbackService = feedbackService;
     }
 
 
@@ -63,6 +70,57 @@ public class ReportService {
         } catch (Exception e) {
             e.printStackTrace();
             callback.onFailure(new RuntimeException("Failed to generate PDF", e));
+        }
+    }
+
+    @Async("taskExecutor")
+    public void generateFeedbackReport(Integer announcementId, String format, AsyncCallback<byte[]> callback) {
+        try {
+            // Load the JasperReport template for feedback
+            InputStream reportStream = getClass().getResourceAsStream("/reports/feedbackReport.jrxml");
+            JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
+
+            // Fetch feedback data for the given announcement ID
+            List<FeedbackListResponseDTO> feedbackList = feedbackService.getFeedbackByAnnouncement(announcementId);
+
+            // Prepare data source for the report
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(feedbackList);
+
+            // Set report parameters
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("REPORT_TITLE", "Report for Announcement ID: " + announcementId);
+
+            // Fill the report with data
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+
+            byte[] outputData;
+            if ("pdf".equalsIgnoreCase(format)) {
+                // Export the report to PDF
+                outputData = JasperExportManager.exportReportToPdf(jasperPrint);
+            } else if ("excel".equalsIgnoreCase(format)) {
+                // Export the report to Excel
+                ByteArrayOutputStream xlsReportStream = new ByteArrayOutputStream();
+                JRXlsxExporter exporter = new JRXlsxExporter();
+                exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(xlsReportStream));
+
+                SimpleXlsxReportConfiguration configuration = new SimpleXlsxReportConfiguration();
+                configuration.setOnePagePerSheet(true);
+                configuration.setDetectCellType(true);
+                exporter.setConfiguration(configuration);
+
+                exporter.exportReport();
+                outputData = xlsReportStream.toByteArray();
+            } else {
+                throw new IllegalArgumentException("Unsupported report format: " + format);
+            }
+
+            // Invoke the callback with the generated data
+            callback.onSuccess(outputData);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.onFailure(new RuntimeException("Failed to generate feedback report", e));
         }
     }
 

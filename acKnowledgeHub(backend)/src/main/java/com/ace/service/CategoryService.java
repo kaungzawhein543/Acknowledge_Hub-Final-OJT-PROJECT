@@ -11,8 +11,11 @@ import java.util.Optional;
 @Service
 public class CategoryService {
 
-    @Autowired
-    private CategoryRepository repository;
+    private final CategoryRepository repository;
+
+    public CategoryService(CategoryRepository repository) {
+        this.repository = repository;
+    }
 
     public Category save(Category category) throws IOException {
         return repository.save(category);
@@ -37,10 +40,6 @@ public class CategoryService {
         return repository.findById(id);
     }
 
-    public void delete(int id){
-        repository.deleteById(id);
-    }
-
     //Delete Category
     public void deleteCategory(Integer id){
         repository.deleteById(id);
@@ -49,6 +48,10 @@ public class CategoryService {
     //SoftDelete Category
     public void deleteSoftly(Integer id){
         repository.softDeleteCategory(id);
+    }
+
+    public Category findByLowerName(String name){
+        return repository.findByLowerName(name);
     }
 
 }

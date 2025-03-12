@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,19 +8,33 @@ import * as XLSX from 'xlsx';
 import saveAs from 'file-saver';
 import autoTable from 'jspdf-autotable';
 import { AnnouncementService } from '../../services/announcement.service';
-import { FormsModule } from '@angular/forms';
+import { listAnnouncement } from '../../models/announcement-list';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-list-announcement',
   templateUrl: './list-announcement.component.html',
-  styleUrl: './list-announcement.component.css'
+  styleUrl: './list-announcement.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class ListAnnouncementComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  announcements: announcement[] = [];
-  filteredAnnouncements: announcement[] = [];
-  dataSource = new MatTableDataSource<announcement>([]);
+  announcements: listAnnouncement[] = [];
+  filteredAnnouncements: listAnnouncement[] = [];
+  dataSource = new MatTableDataSource<listAnnouncement>([]);
   searchQuery: string = '';
   startDateTime: string | null = null;
   endDateTime: string | null = null;
@@ -35,10 +49,11 @@ export class ListAnnouncementComponent {
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createStaff.name', header: 'Create/Request Staff' },
-    { field: 'category.name', header: 'Category' },
-    { field: 'created_at', header: 'Created At' },
-    { field: 'scheduleAt', header: 'Schedule At' },
+    { field: 'createStaff', header: 'Create/Request Staff' },
+    //{ field: 'file', header: 'Versions' },
+    { field: 'scheduleAt', header: 'Announced At' },
+    { field: 'note', header: 'Noted/UnNoted' },
+    { field: 'detail', header: 'Details' },
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
@@ -51,7 +66,15 @@ export class ListAnnouncementComponent {
   ) { }
 
   ngOnInit() {
-    this.todayDate = new Date().toISOString().split('T')[0];
+    const today = new Date();
+  today.setDate(today.getDate());  // Increment the date by 1 to get tomorrow's date
+
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Yangon' };
+
+  const myanmarDate = today.toLocaleDateString('en-CA', options);  // YYYY-MM-DD format
+  this.todayDate = myanmarDate; 
+
+    console.log(this.todayDate)
     this.fetchAnnouncements();
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
   }
@@ -60,16 +83,24 @@ export class ListAnnouncementComponent {
     return index.toString(); // Adjust 6 to the desired length
   }
 
+  getVersionNumber(title: string): number | null {
+    const match = title.match(/V(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
   fetchAnnouncements() {
     this.announcementService.getPublishAnnouncements().subscribe(
       (data) => {
         this.announcements = data.map((item, index) => ({
           ...item,
           autoNumber: this.generateAutoNumber(index + 1) // Assign sequential number
-        })); this.filteredAnnouncements = data;
+        })); 
+        this.filteredAnnouncements = data;
+        console.log(this.filteredAnnouncements)
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
         this.filterAnnouncements();
+        console.log('Announcements length:', this.announcements.length);
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -84,19 +115,23 @@ export class ListAnnouncementComponent {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
     if (this.isFilterDropdownOpen) this.isFilterDropdownOpen = false; // Close filter dropdown if open
   }
+
   onSearchChange() {
-    const query = this.searchQuery.toLowerCase();
+    const query = this.searchQuery.toLowerCase().trim();
     this.filteredAnnouncements = this.announcements.filter(a => {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.category?.name?.toLowerCase() || '',
-        a.createStaff?.name?.toLowerCase() || '',
-        new Date(a.created_at).toLocaleString().toLowerCase(),
+        a.createStaff?.toLowerCase() || '',
+        //new Date(a.created_at).toLocaleString().toLowerCase(),
         new Date(a.scheduleAt).toLocaleString().toLowerCase()
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 
@@ -125,9 +160,18 @@ export class ListAnnouncementComponent {
     this.filterAnnouncements();
   }
 
+
   validateDateRange() {
     if (this.startDateTime && this.endDateTime && this.startDateTime > this.endDateTime) {
       this.startDateTime = null;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
     }
   }
 
@@ -142,68 +186,110 @@ export class ListAnnouncementComponent {
   generatePDF(announcements: any[], filename: string) {
     const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  
+    // Title: "ACE" with Dark Blue color and large font size
+    const titleACE = "ACE"; 
+    const subtitle = "AcknowledgeHub."; 
+    const description = "Announcements Report on Pdf";
+  
+    // Set font style and size for "ACE"
+    doc.setFontSize(26);
+    doc.setTextColor(0, 51, 102); 
+    doc.setFont("times", "bold");     
+    doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' }); 
 
+    // Subtitle: "AcKnowledgeHub" with smaller font size, placed closer to "ACE"
+    doc.setFontSize(15);
+    doc.setTextColor(0, 51, 102); 
+    doc.setFont("times", "bold");
+    doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' }); 
+
+    // Description: Custom design with different font size and color
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100); // Gray color for the description
+    doc.setFont("helvetica", "italic");
+    doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' });
+  
+    // Draw a line to separate the header from the content
+    doc.setDrawColor(0, 51, 102); // Dark blue line color6+
+    doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45); 
+  
     // Define column headers and data rows
     const headers = visibleColumns.map(col => col.header);
     const rows = announcements.map(announcement =>
       visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], announcement) || '')
     );
-
+  
     // Calculate column widths based on content length or set manually
     const columnWidths = visibleColumns.map(col => {
-      return col.field === 'description' ? 60 : 30; // Adjust widths as needed
+      return col.field === 'description' ? 60 : 30; 
     });
-
+  
     // Use autoTable to generate the table in PDF
     autoTable(doc, {
       head: [headers],
       body: rows,
-      startY: 20,
+      startY: 50, 
       margin: { top: 20 },
-      styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
+      styles: { fontSize: 10, cellPadding: 4 }, 
       headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
       columnStyles: {
-        0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
-        1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
-        // Add more column styles as needed
+        0: { cellWidth: columnWidths[0] }, 
+        1: { cellWidth: columnWidths[1] }, 
       },
-      tableWidth: 'auto', // Auto width adjustment for table
+      tableWidth: 'auto', 
     });
-
-    // Save the PDF file
+  
     doc.save(filename);
   }
 
+  generateExcel(announcements: listAnnouncement[], fileName: string) {
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'note' && col.field !== 'detail');
 
-  generateExcel(announcements: announcement[], fileName: string) {
-    const visibleColumns = this.columns.filter(col => this.columnVisibility[col.field]);
     const headers = visibleColumns.map(col => col.header);
-    const data = [headers, ...announcements.map(a => visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || ''))];
+    const data = [headers, ...announcements.map(a =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
+    )];
+
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     this.saveAsExcelFile(excelBuffer, fileName);
   }
-
   private saveAsExcelFile(buffer: any, fileName: string) {
     const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
     saveAs(data, fileName);
   }
 
   filterAnnouncements() {
+    // First filter by active/inactive status
     this.filteredAnnouncements = this.announcements.filter(a => {
       const isActive = this.activeChecked && a.status.trim().toLowerCase() === 'active';
       const isInactive = this.inactiveChecked && a.status.trim().toLowerCase() === 'inactive';
       return (isActive || isInactive || (!this.activeChecked && !this.inactiveChecked));
-    }).filter(a => {
-      if (this.startDateTime && this.endDateTime) {
-        const scheduleAt = new Date(a.scheduleAt);
-        return scheduleAt >= new Date(this.startDateTime) && scheduleAt <= new Date(this.endDateTime);
-      }
-      return true;
     });
+  
+    // Then filter by date range, considering Myanmar time
+    if (this.startDateTime && this.endDateTime) {
+      // Create date objects in local Myanmar time (GMT+0630)
+      const startDate = new Date(this.startDateTime + 'T00:00:00+06:30'); // start of the day in Myanmar time
+      const endDate = new Date(this.endDateTime + 'T23:59:59+06:30'); // end of the day in Myanmar time
+  
+      this.filteredAnnouncements = this.filteredAnnouncements.filter(a => {
+        const scheduleAt = new Date(a.scheduleAt);
+        console.log('Schedule At:', scheduleAt);
+        console.log('Start Date:', startDate);
+        console.log('End Date:', endDate);
+        return scheduleAt >= startDate && scheduleAt <= endDate;
+      });
+    }
+  
+    // Update the data source
     this.dataSource.data = this.filteredAnnouncements;
   }
+  
 
   getNestedProperty(obj: any, path: string): any {
     if (!obj || !path) return null;
@@ -222,5 +308,26 @@ export class ListAnnouncementComponent {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
+  }
+
+  onNotedButtonClick(id: number, name: string, file: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedFile = btoa(file);
+    this.router.navigate(['/acknowledgeHub/announcement/noted-announcement/' + encodedId + '/' + encodedName + '/' + encodedFile]);
+  }
+
+  onUnNotedButtonClick(id: number, groupStatus: number, name: string, file: string) {
+    const encodedId = btoa(id.toString());
+    const encodedName = btoa(name);
+    const encodedStatus = btoa(groupStatus.toString());
+    const encodedFile = btoa(file);
+    this.router.navigate(['/acknowledgeHub/announcement/notNoted-announceemnt/' + encodedId + '/' + encodedStatus + '/' + encodedName + '/' + encodedFile])
+  }
+
+  onDetailButtonClick(id: number) {
+    if(id){
+      this.router.navigate(['/acknowledgeHub/announcement/detail/' + btoa(id.toString())]);
+    }
   }
 }

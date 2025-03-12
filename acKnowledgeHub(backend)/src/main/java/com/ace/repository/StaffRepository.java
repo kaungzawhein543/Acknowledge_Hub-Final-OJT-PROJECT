@@ -1,6 +1,7 @@
 package com.ace.repository;
 
 import com.ace.dto.*;
+import com.ace.entity.Announcement;
 import com.ace.entity.Staff;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,12 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     @Query("SELECT s.chatId FROM Staff s WHERE s.id IN :ids")
     List<String> findStaffsChatIdByIds(List<Integer> ids);
 
+    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+            "from Staff s where s.position.name = 'Human Resource' or s.position.name = 'Human Resource(Main)' order by s.companyStaffId")
+    List<StaffResponseDTO> getHRStaffList();
+
+    @Query("select s from Staff s where s.position.name = ?1")
+    Staff findByPosition(String position);
 
     public Optional<Staff> findByChatId(String id);
 
@@ -43,7 +50,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "LEFT JOIN StaffNotedAnnouncement sn ON s.id = sn.staff.id AND sn.announcement.id = :announcementId "+
             "WHERE a.id = :announcementId AND sn.id IS NULL")
     public List<UnNotedResponseDTO> getUnNotedStaffByAnnouncementWithEach(@Param("announcementId") Integer announcementId);
-
 
     @Query("SELECT NEW com.ace.dto.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
             "FROM Staff s " +
@@ -67,22 +73,65 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "LOWER(s.company.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Staff> searchByTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-
-
     List<Staff> findByPositionId(Integer positionId);
 
-    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , p.name, s.department ) FROM Staff s JOIN Position p on p.id = s.position.id")
+    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , s.position, s.department,s.photoPath,s.company) FROM Staff s ")
     List<StaffGroupDTO> getStaffListForGroup();
 
     @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
-            "from Staff s")
+            "from Staff s order by s.companyStaffId")
     List<StaffResponseDTO> getStaffList();
 
     @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
             "from Staff s where s.status = 'active' ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
-    @Query(value = "SELECT sa.announcement_id AS announcementId, COUNT(sa.staff_id) AS staffCount " +
-            "FROM staff_has_announcement sa " +
-            "GROUP BY sa.announcement_id", nativeQuery = true)
-    List<Map<String, Object>> countStaffByAnnouncement();
+
+
+@Query(value = "SELECT a.id AS announcementId, " +
+        "  CASE " +
+        "    WHEN a.group_status = 0 THEN COUNT(sa.staff_id) " +
+        "    WHEN a.group_status = 1 THEN (SELECT COUNT(sg.staff_id) " +
+        "                                  FROM group_has_announcement ga " +
+        "                                  JOIN staff_has_group sg ON ga.group_id = sg.group_id " +
+        "                                  WHERE ga.announcement_id = a.id) " +
+        "  END AS staffCount " +
+        "FROM announcement a " +
+        "LEFT JOIN staff_has_announcement sa ON a.id = sa.announcement_id " +
+        "GROUP BY a.id", nativeQuery = true)
+List<Map<String, Object>> countStaffByAnnouncement();
+
+    //@Query to get staff summary count
+    @Query("SELECT new com.ace.dto.StaffSummaryDTO(" +
+            "COUNT(s), " +
+            "SUM(CASE WHEN s.status = 'active' THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN s.status = 'inactive' THEN 1 ELSE 0 END)) " +
+            "FROM Staff s")
+    StaffSummaryDTO getStaffSummary();
+
+    @Query("SELECT s FROM Staff s JOIN s.announcement a WHERE a.id = :announcementId")
+    List<Staff> findStaffByAnnouncementId(@Param("announcementId") Integer announcementId);
+
+
+    @Query("select s.company.name from Staff s where s.id = ?1")
+    String getCompanyNameById(Integer id);
+
+    @Query("select s from Staff s where s.telegramName = ?1")
+    List<Staff> findByTelegramUserName(String name);
+
+    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+            "from Staff s " +
+            "Join s.announcement a where a.id = ?1  order by s.company.name")
+    List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id);
+
+    @Query("SELECT a FROM Announcement a " +
+            "JOIN a.group g " +
+            "JOIN g.staff s " +
+            "WHERE a.groupStatus = :groupStatus AND s.id = :staffId AND a.isPublished = true")
+    List<Announcement> findAnnouncementsByGroupStatusAndStaffId(int groupStatus, int staffId);
+
+    @Query("SELECT a FROM Announcement a " +
+            "JOIN a.staff s " +
+            "WHERE s.id = :staffId AND a.isPublished = true")
+    List<Announcement> findPublishedAnnouncementsByStaffId(@Param("staffId") int staffId);
 }
+

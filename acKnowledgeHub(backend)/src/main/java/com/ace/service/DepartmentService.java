@@ -1,27 +1,37 @@
 package com.ace.service;
 
+import com.ace.entity.Group;
 import com.ace.repository.DepartmentRepository;
 import com.ace.entity.Department;
+import com.ace.repository.GroupRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class DepartmentService {
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
+    private final GroupRepository groupRepository;
+
+    public DepartmentService(DepartmentRepository departmentRepository, GroupRepository groupRepository) {
+        this.departmentRepository = departmentRepository;
+        this.groupRepository = groupRepository;
+    }
 
     public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+        return departmentRepository.findAllDepartmentsOrderByName();
     }
     public List<Department> getDepartmentsByCompanyId(Integer companyId) {
         return departmentRepository.findByCompanyId(companyId);
     }
 
-    public Optional<Department> findById(int id){
-        return departmentRepository.findById(id);
+    public Department getDepartmentByLowerName(String name,Integer companyId){
+        return departmentRepository.getDepartmentByLowerName(name,companyId);
     }
 
 
@@ -30,19 +40,40 @@ public class DepartmentService {
     }
 
     public Department saveDepartment(Department department) {
+        Group group = groupRepository.findByName(department.getName());
+        if(group == null){
+            Group group1 = new Group();
+            group1.setName(department.getName()+"("+department.getCompany().getName()+")");
+            groupRepository.save(group1);
+        }
         return departmentRepository.save(department);
     }
 
+
+    @Transactional
     public Department updateDepartment(int id, Department updatedDepartment) {
-        Optional<Department> existingDepartment = departmentRepository.findById(id);
-        if (existingDepartment.isPresent()) {
-            Department department = existingDepartment.get();
-            department.setName(updatedDepartment.getName());
-            department.setCompany(updatedDepartment.getCompany());
-            return departmentRepository.save(department);
-        } else {
+        // Step 1: Retrieve the Department by ID
+        Optional<Department> existingDepartmentOpt = departmentRepository.findById(id);
+
+        if (!existingDepartmentOpt.isPresent()) {
+            log.info("Department with id " + id + " not found.");
             throw new RuntimeException("Department not found");
         }
+        Department existingDepartment = existingDepartmentOpt.get();
+        String currentGroupName = (existingDepartment.getName() + " (" + existingDepartment.getCompany().getName() + ")").trim();
+        Group departmentGroup = groupRepository.findByName(currentGroupName);
+        String updatedGroupName = (updatedDepartment.getName() + " (" + updatedDepartment.getCompany().getName() + ")").trim();
+        if(departmentGroup != null){
+            departmentGroup.setName(updatedGroupName);
+            groupRepository.save(departmentGroup);  // Save the modified group
+        }
+
+        existingDepartment.setName(updatedDepartment.getName());
+        existingDepartment.setCompany(updatedDepartment.getCompany());
+
+        Department savedDepartment = departmentRepository.save(existingDepartment);
+
+        return savedDepartment;
     }
 
     public void deleteDepartment(int id) {
@@ -52,4 +83,6 @@ public class DepartmentService {
             throw new RuntimeException("Department not found");
         }
     }
+
+
 }

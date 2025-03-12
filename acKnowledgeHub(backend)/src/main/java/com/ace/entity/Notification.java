@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.sql.Timestamp;
 
@@ -21,11 +22,15 @@ public class Notification {
     private int id;
     @Column(name = "description",nullable = false)
     private String description;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
     @Column(name = "status")
     private String status = "active";
+    @Column(name = "url")
+    private String url;
+    @Column(name = "checked")
+    private boolean checked;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "staff_id",nullable = false)
     private Staff staff;
@@ -37,7 +42,7 @@ public class Notification {
     @PrePersist
     protected void onCreate() {
         if (this.createdAt == null) {
-            this.createdAt = new java.util.Date();
+            this.createdAt =  LocalDateTime.now();
         }
     }
 }

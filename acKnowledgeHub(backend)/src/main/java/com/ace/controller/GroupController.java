@@ -1,31 +1,58 @@
 package com.ace.controller;
 
 import com.ace.dto.GroupDTO;
+import com.ace.dto.GroupResponseDTO;
+import com.ace.dto.StaffDTO;
+import com.ace.entity.Company;
 import com.ace.entity.Group;
+import com.ace.entity.Staff;
+import com.ace.service.CompanyService;
 import com.ace.service.GroupService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/group")
 public class GroupController {
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private ModelMapper mapper;
 
-    @GetMapping
+    private final GroupService groupService;
+    private final ModelMapper mapper;
+    private final CompanyService companyService;
+    public GroupController(GroupService groupService, ModelMapper mapper, CompanyService companyService) {
+        this.groupService = groupService;
+        this.mapper = mapper;
+        this.companyService = companyService;
+    }
+
+    @GetMapping("/all/getAllGroup")
     public ResponseEntity<List<GroupDTO>> getAllGroups() {
         List<Group> groups = groupService.getAllGroups();
 
         // Map each Group entity to a GroupDTO
         List<GroupDTO> groupDTOs = groups.stream()
-                .map(group -> mapper.map(group, GroupDTO.class))
+                .map(group -> {
+                    // Extract staff names from Group entity
+                    List<StaffDTO> staffs = new ArrayList<>();
+                    for (Staff staff : group.getStaff()) {
+                        staffs.add(mapper.map(staff, StaffDTO.class)); // Corrected here
+                    }
+
+                    // Create a GroupDTO with the extracted staff names
+                    return new GroupDTO(
+                            group.getId(),
+                            group.getName(),
+                            group.getStatus(),
+                            group.getCreatedAt(),
+                            staffs
+                    );
+                })
                 .collect(Collectors.toList());
 
         // Return the list of GroupDTOs in the response
@@ -33,39 +60,98 @@ public class GroupController {
     }
 
 
-    @PostMapping("/create")
-    public String addGroup(
+    @GetMapping("/allHR/HR/{id}")
+    public ResponseEntity<List<GroupResponseDTO>> getGroupsHR(@PathVariable("id") Integer id) {
+        List<GroupResponseDTO> groups = groupService.getGroupsByHR(id);
+        return ResponseEntity.ok().body(groups);
+    }
+
+    @PostMapping("/HRM/create")
+    public ResponseEntity<String> addGroup(
             @RequestParam String name,
             @RequestBody List<Integer> userIds
             ){
-        if (name.isEmpty()){
-            return "Group name is Empty";
-        }
+//        if (name.isEmpty()){
+//            return "Group name is Empty";
+//        }
+        Group existGroup = groupService.findByName(name);
+        if(existGroup == null){
         groupService.createGroup(name,userIds);
-        return "Create Successfully";
+            return  ResponseEntity.ok("Create Successfully");
+        }else {
+            return ResponseEntity.ok("Group name is already exist.");
+        }
     }
-
-    @PutMapping("/update/{groupId}")
-    public void updateGroup(
-            @PathVariable int groupId,
-            @RequestParam String name,
-            @RequestParam List<Integer> userIds
-    ) {
-        groupService.updateGroup(groupId, name, userIds);
-    }
+//
+//    @PutMapping("/update/{groupId}")
+//    public void updateGroup(
+//            @PathVariable int groupId,
+//            @RequestParam String name,
+//            @RequestParam List<Integer> userIds
+//    ) {
+//        groupService.updateGroup(groupId, name, userIds);
+//    }
     @GetMapping("/{groupId}")
     public Group getGroup(@PathVariable int groupId){
         return groupService.getGroupById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Id is not Found"+ groupId));
     }
 
-    @DeleteMapping("/softDelete/{groupId}")
+    @DeleteMapping("/HRM/softDelete/{groupId}")
     public void deleteGroup(@PathVariable int groupId){
         groupService.deactivateGroup(groupId);
     }
 
-    @PutMapping("/activate/{groupId}")
+    @PutMapping("/HRM/activate/{groupId}")
     public void reactivateGroup(@PathVariable int groupId) {
         groupService.reactivateGroup(groupId);
     }
+
+    @GetMapping("/all/list-by-announcement/{id}")
+    public List<GroupResponseDTO> getGroupListByAnnouncementId(@PathVariable("id")Integer id){
+        return groupService.getGroupListByAnnouncementId(id);
+    }
+
+    @GetMapping("/all/getAllCompanyGroup")
+    public ResponseEntity<List<GroupDTO>> getAllCompanyGroup() {
+        // Fetch all companies from the CompanyService
+        List<Company> companies = companyService.getAllCompanies();
+
+        // Get a list of trimmed company names for filtering
+        List<String> companyNames = companies.stream()
+                .map(company -> company.getName().trim()) // Trim each company name
+                .collect(Collectors.toList());
+
+        // Fetch all groups from the GroupService
+        List<Group> groups = groupService.getAllGroups();
+
+        // Map each Group entity to a GroupDTO, including the "ALL STAFFS" group
+        List<GroupDTO> groupDTOs = groups.stream()
+                .filter(group ->
+                        companyNames.contains(group.getName().trim()) ||
+                                "Global Group".equalsIgnoreCase(group.getName().trim()) // Include "ALL STAFFS" group
+                )
+                .map(group -> {
+                    // Extract staff names from Group entity
+                    List<StaffDTO> staffs = group.getStaff().stream()
+                            .map(staff -> mapper.map(staff, StaffDTO.class)) // Map each Staff entity to StaffDTO
+                            .collect(Collectors.toList());
+
+                    // Create a GroupDTO with the extracted staff names
+                    return new GroupDTO(
+                            group.getId(),
+                            group.getName(),
+                            group.getStatus(),
+                            group.getCreatedAt(),
+                            staffs
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // Return the list of GroupDTOs in the response
+        return ResponseEntity.ok().body(groupDTOs);
+    }
+
+
+
 }

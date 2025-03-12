@@ -1,7 +1,20 @@
-<div class="flex items-center justify-center h-screen bg-gray-100">
-    <div class="text-center">
-        <h1 class="text-6xl font-bold text-gray-800">404</h1>
-        <p class="text-lg text-gray-600 mt-4">Page Not Found</p>
-        <a [routerLink]="buttonRoute" class="underline text-blue-400">&#8592; Go to your dashboard</a>
-    </div>
+<div class="flex items-center justify-center h-screen bg-gray-100 text-center">
+  <div class="flex flex-col items-center">
+      <!-- Image -->
+      <img src="../../assets/images/404.png" alt="404 Image" width="1000" height="1000" class="max-w-lg mb-4 ">
+      
+      <!-- Title -->
+      <span class="text-2xl font-semibold text-blue-600 mb-4">404 Not Found</span>
+      
+      <!-- Description -->
+      <p class="text-3xl mb-4">Whoops! That page doesn’t exist.</p>
+
+      <!-- Help text -->
+      <!-- <p class="text-base mb-6">Here are some helpful links instead:</p> -->
+
+      <!-- Links -->
+      <div class="flex space-x-6">
+          <button class="hover:underline" [routerLink]="[this.buttonRoute]">Go to dashboard</button>
+      </div>
+  </div>
 </div>

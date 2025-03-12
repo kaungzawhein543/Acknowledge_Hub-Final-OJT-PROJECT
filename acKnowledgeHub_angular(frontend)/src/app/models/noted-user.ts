@@ -6,5 +6,5 @@ export class NotedUser {
     positionName?: string;
     notedAt?: Date;
     email?: string;
-
+    [key: string]: any;
 }

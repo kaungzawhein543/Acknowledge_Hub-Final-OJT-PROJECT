@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -20,11 +21,15 @@ public class ProfileDTO {
     private String name;
     private String companyStaffId;
     private String email;
+    private String password;
     private String status;
     private Role role;
+    private String photoPath;
     private String position;
     private String department;
     private String company;
     private Date createdAt;
     private String chatId;
+    private Map<String, Long> monthlyCount;
+
 }

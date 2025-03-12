@@ -1,4 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 import { Group } from '../../models/Group';
 import { Staff } from '../../models/staff';
 import { GroupService } from '../../services/group.service';
@@ -7,15 +9,32 @@ import { StaffService } from '../../services/staff.service';
 import { AnnouncementService } from '../../services/announcement.service';
 import { announcement } from '../../models/announcement';
 import { AuthService } from '../../services/auth.service';
+import { Position } from '../../models/Position';
+import { ToastService } from '../../services/toast.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-add-announcement',
   templateUrl: './add-announcement.component.html',
-  styleUrls: ['./add-announcement.component.css']
+  styleUrls: ['./add-announcement.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
-export class AddAnnouncementComponent implements OnInit {
-  @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
 
+export class AddAnnouncementComponent implements OnInit, OnDestroy {
+  @ViewChild('staffContainer') staffContainer!: ElementRef; // Reference to the scrollable container
+  private audio: HTMLAudioElement;
   groups: Group[] = [];
   staffs: Staff[] = [];
   selectedOption: string = 'group'; // Default to group
@@ -24,6 +43,8 @@ export class AddAnnouncementComponent implements OnInit {
   announcementTitle: string = '';
   announcementDescription: string = '';
   scheduleDate: Date | null = null;
+  minDateTime: string = '';
+  dateError: string = '';
   categories: { id: number, name: string, description: string }[] = [];
   selectedCategory: { id: number, name: string, description: string } | null = null;
   fileSelected = false;
@@ -36,21 +57,45 @@ export class AddAnnouncementComponent implements OnInit {
   announcement !: announcement;
   selectedFile: File | null = null;
   createStaffId !: number;
+  filteredGroups: Group[] = [];
+  fileErrorMessage !: boolean;
+  fileErrorText : string = '';
+  ErrorMessage !: boolean;
+  formSubmitted: boolean = false;
 
-
+  updateInterval: any;
+  intervalId: any;
+  titleError: boolean = false;
+  descriptionError: boolean = false;
   private page = 0;
   private pageSize = 20;
   public isLoading = false;
   private hasMore = true;
   searchTerm: string = ''; // Search term for filtering
-
+  searchGroup: string = '';
+  creatingAnnouncement : boolean = false;
+  isHr : boolean = false;
+  
   constructor(
     private groupService: GroupService,
     private categoryService: CategoryService,
     private staffService: StaffService,
     public announcementService: AnnouncementService,
-    private authService: AuthService
-  ) { }
+    private authService: AuthService,
+    private toastService: ToastService,
+    private router : Router,
+
+  ) {
+    this.audio = new Audio('assets/images/sounds/noti-sound.mp3');
+    this.audio.load();
+  }
+
+   showSuccessToast() {
+    this.toastService.showToast(' Announcement created successful!', 'success');
+  }
+  showErrorToast() {
+    this.toastService.showToast('An error occurred!', 'error');
+  }
 
   ngOnInit(): void {
     this.loadGroups();
@@ -59,19 +104,47 @@ export class AddAnnouncementComponent implements OnInit {
     this.authService.getUserInfo().subscribe(
       data => {
         this.createStaffId = data.user.id;
+        this.isHr = data.position === "Human Resource";
       }
     )
+
+    this.setMinDateTime();
+    this.intervalId = setInterval(() => {
+      this.setMinDateTime();
+    }, 60000);
+  }
+
+  onCreate() {
+    // this.showSuccessToast();
+     this.formSubmitted = true;  
+  }
+
+  playNotificationSound() {
+    this.audio.play().catch(error => {
+      console.error('Error playing sound:', error);
+    });
   }
 
   loadGroups() {
     this.groupService.getAllGroups().subscribe(
       (groups: Group[]) => {
         this.groups = Array.isArray(groups) ? groups : JSON.parse(groups);
+        this.groups.sort((a, b) => {
+          if (a.name === 'Global Group') return -1; // Move "Global Group" up
+          if (b.name === 'Global Group') return 1;  // Keep other groups below
+          return 0; // No change for other groups
+        });
+        this.filteredGroups = [...this.groups];
       },
       error => {
         console.error('Error fetching groups:', error);
       }
     );
+  }
+  ngOnDestroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 
   loadCategories() {
@@ -88,21 +161,38 @@ export class AddAnnouncementComponent implements OnInit {
 
   loadStaffs(): void {
     if (this.isLoading || !this.hasMore) return;
-
+  
     this.isLoading = true;
-
+    var loggedInStaffId = 0;
+    this.authService.getUserInfo().subscribe(
+      data =>{
+        loggedInStaffId = data.user.id;
+      }
+    ); // Replace with actual way to get logged-in staff ID
+  
     this.staffService.getStaffs(this.page, this.pageSize, this.searchTerm).subscribe(
       response => {
         this.isLoading = false;
         if (response && response.data && response.data.content && Array.isArray(response.data.content)) {
-          const processedStaffs = response.data.content.map((staff: { position: string; }) => ({
-            ...staff,
-            position: this.extractPositionName(staff.position) // Extract only the name
-          }));
-          console.log(this.staffs)
-          this.staffs = [...this.staffs, ...processedStaffs];
-          this.page++;
-          this.hasMore = this.page < response.data.page.totalPages;
+          // Assuming you have a service or method to get the logged-in user's ID
+          
+          // Process the staffs and filter out the logged-in staff
+          const processedStaffs = response.data.content
+            .filter((staff: { id: number }) => {
+              return staff.id !== loggedInStaffId; // Filter out logged-in staff
+            })
+            .map((staff: { position: Position; }) => ({
+              ...staff,
+              position: staff.position.name // Extract only the name of the position
+            }));
+            
+            this.staffs = [...this.staffs, ...processedStaffs];
+            this.page++;
+            this.hasMore = this.page < response.data.page.totalPages;
+            
+            this.staffs.forEach(staff => {
+            staff.selected = this.selectedStaffs.some(selected => selected.id === staff.id);
+          });
         } else {
           this.hasMore = false;
         }
@@ -113,16 +203,7 @@ export class AddAnnouncementComponent implements OnInit {
       }
     );
   }
-
-
-  extractPositionName(position: string | null): string {
-    if (!position) {
-      return ''; // or handle null/empty string appropriately
-    }
-
-    const match = position.match(/Position\(id=\d+, name=(.+?)\)/);
-    return match ? match[1] : position;
-  }
+  
 
 
   onScroll(event: Event): void {
@@ -137,47 +218,81 @@ export class AddAnnouncementComponent implements OnInit {
 
   onSubmit(): void {
     const formData = new FormData();
-
+    const trimmedTitle = this.announcementTitle ? this.announcementTitle.trim() : '';
+    const trimmedDescription = this.announcementDescription ? this.announcementDescription.trim() : '';
+    if (this.scheduleDate && this.minDateTime && new Date(this.scheduleDate).getTime() < new Date(this.minDateTime).getTime()) {
+      this.dateError = 'The schedule date cannot be late than the current date & time.';
+      return;
+    }
+    this.fileErrorText = "You need to choose a file!";
+    if (trimmedTitle === '' && trimmedDescription === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedTitle === '' && trimmedDescription === '') {
+      this.titleError = true;
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '' && !this.selectedFile) {
+      this.titleError = true;
+      this.fileErrorMessage = true;
+      return;
+    } else if (trimmedDescription === '' && !this.selectedFile) {
+      this.descriptionError = true;
+      this.fileErrorMessage = true;
+      return;
+    }
+    else if (trimmedDescription === '') {
+      this.descriptionError = true;
+      return;
+    } else if (trimmedTitle === '') {
+      this.titleError = true;
+      return;
+    } else if (!this.selectedFile) {
+      this.fileErrorMessage = true;
+      return;
+    } else {
+      // If all checks are passed, append the file
+      formData.append('files', this.selectedFile);
+    }
     // Create the announcement object
     const announcement = {
       title: this.announcementTitle,
       description: this.announcementDescription,
       groupStatus: this.selectedOption === "staff" ? 0 : 1,
       scheduleAt: this.scheduleDate,
+      category: this.selectedCategory,
+      forRequest: 0
     };
-
+    
     // Append the announcement DTO as a JSON string with appropriate MIME type
     formData.append('request', new Blob([JSON.stringify(announcement)], { type: 'application/json' }));
-
+    
     // Append user IDs if any
     if (this.selectedStaffs && this.selectedStaffs.length) {
       const userIds = this.selectedStaffs.map(staff => staff.id);
       formData.append('userIds', new Blob([JSON.stringify(userIds)], { type: 'application/json' }));
     }
-
+    
     // Append group IDs if any
     if (this.selectedGroups && this.selectedGroups.length) {
       const groupIds = this.selectedGroups.map(group => group.id);
       formData.append('groupIds', new Blob([JSON.stringify(groupIds)], { type: 'application/json' }));
     }
-
-    // Append the selected file if any
-    if (this.selectedFile) {
-      formData.append('files', this.selectedFile);
-    }
-
+    this.creatingAnnouncement = true;
+    
     // Call the service to create the announcement
     this.announcementService.createAnnouncement(formData, this.createStaffId).subscribe(
       response => {
-        console.log(response);
+        this.creatingAnnouncement = false;
+        this.showSuccessToast();
       },
       error => {
         console.error(error);
       }
     );
   }
-
-
 
   onOptionChange(option: string): void {
     this.selectedOption = option;
@@ -186,6 +301,8 @@ export class AddAnnouncementComponent implements OnInit {
       this.staffoption = false;
       this.optionStaffOfGroup = "Groups";
       this.selectedStaffs = [];
+      this.searchTerm = '';
+      this.filterGroups();
     } else {
       this.staffoption = true;
       this.groupotion = false;
@@ -197,60 +314,105 @@ export class AddAnnouncementComponent implements OnInit {
   }
 
   onGroupChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target) {
-      const selectedOptions = Array.from(target.selectedOptions);
-      this.selectedGroups = selectedOptions.map(option => {
-        const id = +option.value;
-        return this.groups.find(group => group.id === id)!;
-      });
+    const target = event.target as HTMLInputElement;
+    const selectedGroupId = Number(target.value);
+    const selectedGroup = this.groups.find(group => group.id === selectedGroupId);
+    if (selectedGroup) {
+      if (target.checked) {
+        if (!this.selectedGroups.some(group => group.id === selectedGroupId)) {
+          this.selectedGroups.unshift(selectedGroup);
+        }
+      } else {
+        this.selectedGroups = this.selectedGroups.filter(selected => selected.id !== selectedGroupId);
+      }
+    } else {
+      console.warn(`group with ID ${selectedGroup} not found in the group list.`);
     }
   }
-
 
   onStaffChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const selectedStaffId = target.value; // Get the selected staffId
-    console.log("Selected staff ID:", selectedStaffId); // Log the selected staffId
-
     const selectedStaff = this.staffs.find(staff => staff.staffId === selectedStaffId);
 
     if (selectedStaff) {
       if (target.checked) {
         if (!this.selectedStaffs.some(staff => staff.staffId === selectedStaffId)) {
-          this.selectedStaffs.push(selectedStaff);
+          this.selectedStaffs.unshift(selectedStaff);
         }
       } else {
         this.selectedStaffs = this.selectedStaffs.filter(staff => staff.staffId !== selectedStaffId);
       }
-      console.log("Updated selected staffs:", this.selectedStaffs); // Log the updated selected staff array
     } else {
       console.warn(`Staff with ID ${selectedStaffId} not found in the staff list.`);
     }
   }
 
+  clearTitleError(): void {
+    this.titleError = false;
+  }
 
-  onFileChange(event: Event): void {
+  // Clear the description error on focus or input
+  clearDescriptionError(): void {
+    this.descriptionError = false;
+  }
+
+  onFileChange(event: any): void {
     const input = event.target as HTMLInputElement;
+    const maxSize = 2 * 1024 * 1024;
+  
+    const allowedFormats = [
+      'application/msword',                    // .doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/vnd.ms-excel',              // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/pdf',                       // .pdf
+      'application/zip',                       // .zip
+      'application/x-rar-compressed'           // .rar
+    ];
+
+    // Check file format (MIME type)
+    if (!allowedFormats.includes(event.target.files[0].type)) {
+      this.fileErrorText='Invalid file format. Only Word, Excel, PDF, ZIP, and RAR files are allowed.';
+      this.fileErrorMessage = true;
+      return;
+    }
+
+    const file: File = event.target.files[0];
+    if (file.size > maxSize) {
+      this.fileErrorText = 'File size exceeds 2MB';
+      this.fileErrorMessage = true;
+      return;
+    }else{
+      this.fileErrorMessage = false;
+    }
 
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
       this.fileName = this.selectedFile.name;
       this.fileSelected = true;
+      this.fileErrorMessage = false;
     } else {
       this.selectedFile = null;
       this.fileName = '';
       this.fileSelected = false;
     }
+
   }
 
   onInputChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchTerm = inputElement.value.trim();
-
-    if (this.searchTerm) {
-      this.filterStaffs();
+    if (!this.searchTerm) {
+      this.searchTerm = '';
     }
+    this.filterStaffs();
+  }
+
+  groupInputChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchTerm = inputElement.value.trim();
+    this.filterGroups();
   }
 
   filterStaffs(): void {
@@ -260,6 +422,14 @@ export class AddAnnouncementComponent implements OnInit {
     this.loadStaffs(); // Reload staff with the search term
   }
 
+  resetStaffList(): void {
+    this.page = 0; // Reset pagination
+    this.hasMore = true;
+    this.staffs = []; // Clear current staff list
+    this.searchTerm = ''; // Clear search term
+    this.loadStaffs(); // Load all staff without any filtering
+  }
+
   showSelectedOptionBox(): void {
     if (this.selectedOptionsBox === false) {
       this.selectedOptionsBox = true;
@@ -267,6 +437,56 @@ export class AddAnnouncementComponent implements OnInit {
       this.selectedOptionsBox = false;
     }
   }
+
+  filterGroups(): void {
+    if (this.searchTerm) {
+      this.filteredGroups = this.groups.filter(group =>
+        group.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    } else {
+      this.filteredGroups = [...this.groups];
+    }
+    this.filteredGroups.forEach(group => {
+      group.selected = this.selectedGroups.some(selectedGroup => selectedGroup.id === group.id);
+    });
+  }
+
+  setMinDateTime(): void {
+    const now = new Date();
+
+    // Adjust the time to 2 minutes before the current time
+    now.setMinutes(now.getMinutes() - 2);
+
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+
+    // Set the minimum datetime to 2 minutes before the current date and time
+    this.minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+  
+  onDateChange() {
+    if (this.scheduleDate) {
+      const selectedDate = new Date(this.scheduleDate); // Convert the input to a Date object
+      const now = new Date(); // Get the current time
+      
+      // Add 3 minutes to the current time
+      const minDate = new Date(now.getTime() + 3 * 60 * 1000); // Current time + 3 minutes
+      
+      // Compare the schedule date with the current time + 3 minutes
+      if (selectedDate < minDate) {
+        this.dateError = 'The schedule date should be at least 3 minutes later than the current time!'; 
+      } else {
+        this.dateError = ""; // No error
+      }
+    } else {
+      this.dateError = ""; // Reset error if no date is selected
+    }
+  }
+  
+  
 
 
 

@@ -30,36 +30,38 @@ export class RoleGuard implements CanActivate {
         let isPositionExcluded = excludedPositions.includes(userInfo.position);
 
         // Determine access based on position and route
-        if (currentRoute.includes('/staff-dashboard')) {
-          // Staff-dashboard: Accessible to any role/position except ADMIN and HR_MAIN
-          hasPosition = userInfo.user.role !== 'ADMIN' && userInfo.position !== 'HR_MAIN';
-        } else if (currentRoute.includes('/hr-dashboard')) {
-          // HR-dashboard: Only accessible to HR_MAIN
-          hasPosition = userInfo.position === 'HR_MAIN';
-        } else if (currentRoute.includes('/admin-dashboard')) {
-          // Admin-dashboard: Only accessible to ADMIN
-          hasPosition = userInfo.position === 'ADMIN';
-        } else if (currentRoute.includes('/company')) {
+        if (currentRoute.includes('/acknowledgeHub/staff-dashboard')) {
+          // Staff-dashboard: Accessible to any role/position except ADMIN and Human Resource(Main)
+          hasPosition = userInfo.user.role !== 'ADMIN' && userInfo.position !== 'Human Resource(Main)';
+        } else if (currentRoute.includes('/acknowledgeHub/system-dashboard')) {
+          // HR-dashboard: Accessible to HR_MAIN and ADMIN roles
+          hasPosition = userInfo.position === 'Human Resource(Main)' || userInfo.user.role === 'ADMIN';
+        // } else if (currentRoute.includes('/admin-dashboard')) {
+        //   // Admin-dashboard: Only accessible to ADMIN
+        //   hasPosition = userInfo.position === 'ADMIN';
+        } else if (currentRoute.includes('/acknowledgeHub/company')) {
           // Company route logic
           if (userInfo.user.role === 'ADMIN') {
             // ADMIN can access regardless of position
             hasPosition = true;
           } else if (userInfo.user.role === 'USER') {
             // USER can only access if they have the HR_MAIN position
-            hasPosition = userInfo.position === 'HR_MAIN';
+            hasPosition = userInfo.position === 'Human Resource(Main)';
           }
-        }
-        else if (currentRoute.includes('/department')) {
-          // Company route logic
+        } else if (currentRoute.includes('/acknowledgeHub/department')) {
+          // Department route logic
           if (userInfo.user.role === 'ADMIN') {
             // ADMIN can access regardless of position
             hasPosition = true;
           } else if (userInfo.user.role === 'USER') {
             // USER can only access if they have the HR_MAIN position
-            hasPosition = userInfo.position === 'HR_MAIN';
+            if(userInfo.position === 'Human Resource(Main)'){
+              hasPosition = userInfo.position === 'Human Resource(Main)';
+            }else{
+              hasPosition = userInfo.position === 'Human Resource';
+            }
           }
-        }
-        else if (requiredPositions.length > 0) {
+        } else if (requiredPositions.length > 0) {
           // Check if ADMIN role is present in required roles
           if (requiredRoles.includes('ADMIN') && userInfo.user.role === 'ADMIN') {
             hasPosition = true; // ADMIN can access regardless of position
@@ -78,14 +80,14 @@ export class RoleGuard implements CanActivate {
       map(hasAccess => {
         if (!hasAccess) {
           console.log('Access Denied');
-          this.router.navigate(['/404']); // Redirect to a 404 page or any other appropriate route
+          this.router.navigate(['/acknowledgeHub/404']); // Redirect to a 404 page or any other appropriate route
           return false;
         }
         return true;
       }),
       catchError(error => {
         console.error('Role guard error:', error);
-        this.router.navigate(['/announcement']); // Adjust the redirect URL as needed
+        this.router.navigate(['/acknowledgeHub/announcement']); // Adjust the redirect URL as needed
         return of(false);
       })
     );

@@ -10,8 +10,8 @@ import { ChartService } from '../../services/chart.service';
   styleUrl: './user-chart.component.css'
 })
 export class UserChartComponent implements AfterViewInit {
-  monthlyCount: any = {};  // This will hold the monthly count data
-  newChartData: any = {};  // This will hold the new chart data
+  monthlyCount: any = {}; // This will hold the monthly count data
+  newChartData: any = {}; // This will hold the new chart data
   startDate: string | null = null;
   endDate: string | null = null;
   chartInstance: Chart | null = null; // Keep track of the chart instance
@@ -53,13 +53,13 @@ export class UserChartComponent implements AfterViewInit {
   onStartDateChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.startDate = input.value;
-    this.filterData();  // Trigger filtering and chart update
+    this.filterData(); // Trigger filtering and chart update
   }
 
   onEndDateChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.endDate = input.value;
-    this.filterData();  // Trigger filtering and chart update
+    this.filterData(); // Trigger filtering and chart update
   }
 
   filterData(): void {
@@ -92,9 +92,8 @@ export class UserChartComponent implements AfterViewInit {
     }
     return filteredData;
   }
-
   createCombinedChart(monthlyCountData: any = this.monthlyCount, newChartData: any = this.newChartData): void {
-    // Check if canvas element is rendered
+    // Ensure the canvas element is rendered
     this.cdr.detectChanges();
     const canvas = document.getElementById('combinedChart') as HTMLCanvasElement | null;
   
@@ -109,12 +108,18 @@ export class UserChartComponent implements AfterViewInit {
       return;
     }
   
+    // Sort the keys (months) before using them
+    const sortedKeys = Object.keys(monthlyCountData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  
+    // Map sorted keys to their corresponding data
+    const sortedMonthlyCountData = sortedKeys.map(key => monthlyCountData[key]);
+    const sortedNewChartData = sortedKeys.map(key => newChartData[key]);
+  
     // Destroy the existing chart instance if it exists
     if (this.chartInstance) {
       this.chartInstance.destroy();
     }
   
-    // Predefined color arrays for bars and lines
     const barColors = [
       'rgba(153, 102, 255, 0.2)',
       'rgba(255, 159, 64, 0.2)',
@@ -155,22 +160,21 @@ export class UserChartComponent implements AfterViewInit {
       'rgba(104, 132, 245, 1)'
     ];
   
-    // Ensure color arrays match the number of data points
-    const barBackgroundColors = Object.keys(newChartData).map((_, index) => barColors[index % barColors.length]);
-    const barBorderColorsArray = Object.keys(newChartData).map((_, index) => barBorderColors[index % barBorderColors.length]);
+    const barBackgroundColors = sortedKeys.map((_, index) => barColors[index % barColors.length]);
+    const barBorderColorsArray = sortedKeys.map((_, index) => barBorderColors[index % barBorderColors.length]);
   
-    const lineBackgroundColors = Object.keys(monthlyCountData).map((_, index) => lineColors[index % lineColors.length]);
-    const lineBorderColorsArray = Object.keys(monthlyCountData).map((_, index) => lineBorderColors[index % lineBorderColors.length]);
+    const lineBackgroundColors = sortedKeys.map((_, index) => lineColors[index % lineColors.length]);
+    const lineBorderColorsArray = sortedKeys.map((_, index) => lineBorderColors[index % lineBorderColors.length]);
   
     this.chartInstance = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: Object.keys(monthlyCountData),
+        labels: sortedKeys,  // Use sorted keys for labels
         datasets: [
           {
             label: 'Announcements made this month',
             type: 'line',
-            data: Object.values(monthlyCountData),
+            data: sortedMonthlyCountData,  // Use sorted data
             backgroundColor: lineBackgroundColors,
             borderColor: lineBorderColorsArray,
             borderWidth: 2,
@@ -181,7 +185,7 @@ export class UserChartComponent implements AfterViewInit {
           {
             label: 'The number of noted announcements',
             type: 'bar',
-            data: Object.values(newChartData),
+            data: sortedNewChartData,  // Use sorted data
             backgroundColor: barBackgroundColors,
             borderColor: barBorderColorsArray,
             borderWidth: 1
@@ -203,18 +207,24 @@ export class UserChartComponent implements AfterViewInit {
               text: 'Noted Count'
             },
             beginAtZero: true,
-            min: 0,
-            max: 7
+            ticks: {
+              stepSize: 1  // Set the interval between ticks to 1
+            },
+            suggestedMax: Math.max(
+              Math.max(...Object.values(monthlyCountData).map(Number)),
+              Math.max(...Object.values(newChartData).map(Number))
+            ) + 2 // Add padding above the highest value
           }
         }
       }
     });
   }
   
-
+  
   destroyChart(): void {
     if (this.chartInstance) {
       this.chartInstance.destroy();
+      this.chartInstance = null;
     }
   }
 }

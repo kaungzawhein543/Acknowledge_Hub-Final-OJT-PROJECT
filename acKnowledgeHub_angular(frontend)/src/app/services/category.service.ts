@@ -12,32 +12,38 @@ export class CategoryService {
   constructor(private http: HttpClient) { }
 
   add(category: Category): Observable<Category> {
-    const params = new HttpParams()
+    const body = new HttpParams()
         .set('name', category.name)
-        .set('description', category.description)
-    return this.http.post<Category>(`${this.baseUrl}/save`, null, { params })
-      .pipe(
+        .set('description', category.description);
+    
+    return this.http.post<Category>(`${this.baseUrl}/all/save`, body.toString(), {
+        headers: new HttpHeaders({
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }),
+        withCredentials: true
+    }).pipe(
         catchError(this.handlerError<Category>('Save Category'))
-      );
-  }
+    );
+}
+
   update(id: number, category: Category): Observable<Category> {
     const params = new HttpParams()
         .set('name', category.name)
         .set('description', category.description)
 
-    return this.http.put<Category>(`${this.baseUrl}/update/${id}`, {withCredentials:true}, { params });
+    return this.http.post<Category>(`${this.baseUrl}/sys/update/${id}`,null, {params , withCredentials:true,  responseType: 'text' as 'json'});
 }
 
 
   getById(id: number): Observable<Category> {
-    return this.http.get<Category>(`${this.baseUrl}/category/${id}`,{withCredentials:true});
+    return this.http.get<Category>(`${this.baseUrl}/all/category/${id}`,{withCredentials:true});
   }
 
   getAll(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.baseUrl}/allcategories`, { withCredentials: true });
+    return this.http.get<Category[]>(`${this.baseUrl}/all/allcategories`, { withCredentials: true });
   }
     softDelete(id: number): Observable<void> {
-      return this.http.put<void>(`${this.baseUrl}/softDeleteCategory/${id}`, {});
+      return this.http.put<void>(`${this.baseUrl}/sys/softDeleteCategory/${id}`, { withCredentials: true});
     }
 
 

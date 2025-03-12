@@ -2,6 +2,7 @@ package com.ace.entity;
 
 import com.ace.enums.DefaultPassword;
 import com.ace.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,7 +48,11 @@ public class Staff implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role = Role.USER;
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @Column(name = "photo_path")  // Field to store the file path
+    private String photoPath;
+    @Column(name = "telegram_name")
+    private String telegramName;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "position_id")
     private Position position;
     @ManyToOne(cascade = CascadeType.MERGE)
@@ -56,15 +61,12 @@ public class Staff implements UserDetails {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "department_id")
     private Department department;
-    @ManyToMany(mappedBy = "staff")
+    @ManyToMany(mappedBy = "staff",fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Group> groups;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "staff_has_announcement",
-            joinColumns = @JoinColumn(name = "staff_id"),
-            inverseJoinColumns = @JoinColumn(name = "announcement_id")
-    )
-    private List<Announcement> announcement = new ArrayList<>();
+    @ManyToMany(mappedBy = "staff",fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Announcement> announcement;
 
 
     @PrePersist
@@ -86,8 +88,17 @@ public class Staff implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+
+        if (this.position != null && this.position.getName() != null) {
+            authorities.add(new SimpleGrantedAuthority(this.position.getName()));
+
+        }
+        return authorities;
     }
+
 
 
     @Override
@@ -114,4 +125,8 @@ public class Staff implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Staff{id=" + id + ", name='" + name + "', companyStaffId='" + companyStaffId + "', email='" + email + "', createdAt=" + createdAt + "}";}
 }

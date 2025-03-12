@@ -5,11 +5,25 @@ import { Platform } from '@angular/cdk/platform';
 import { ChartService } from '../../services/chart.service';
 import { Chart, registerables } from 'chart.js';
 import { AnnouncementStaffCountDTO } from '../../models/announcement';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
   selector: 'app-mychart',
   templateUrl: './mychart.component.html',
-  styleUrls: ['./mychart.component.css']
+  styleUrls: ['./mychart.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class MychartComponent implements AfterViewInit {
   announcementData: AnnouncementStaffCountDTO[] = [];
@@ -19,6 +33,8 @@ export class MychartComponent implements AfterViewInit {
   endDate: string | null = null;
   chart: Chart | undefined;
   noData: boolean = false;
+  // showSecondChart: boolean = false; // add this variable
+
 
   constructor(
     private platform: Platform,
@@ -40,6 +56,7 @@ export class MychartComponent implements AfterViewInit {
     return currentDate.toISOString().slice(0, 10); // Format: yyyy-MM-dd
   }
 
+  //for announcement
   fetchAnnouncementData() {
     this.chartService.getAnnouncementStaffCounts().subscribe(data => {
       this.announcementData = data.map(item => ({
@@ -50,6 +67,7 @@ export class MychartComponent implements AfterViewInit {
     });
   }
 
+  //for staff
   fetchAnnouncementByIdData() {
     this.chartService.getStaffCountByAnnouncement().subscribe(data => {
       this.announcementByIdData = data.map(item => ({
@@ -80,9 +98,10 @@ export class MychartComponent implements AfterViewInit {
         return itemDate >= start && itemDate <= end;
       });
     } else {
-      this.filteredData = this.announcementData;
+      this.filteredData = this.announcementData.slice(0,5);
     }
   
+    //.slice(0,2)
     this.noData = !(this.filteredData.length > 0 && this.announcementByIdData.length > 0);
     if (this.noData) {
       if (this.chart) {
@@ -91,10 +110,20 @@ export class MychartComponent implements AfterViewInit {
     } else {
       setTimeout(() => {
         this.createCombinedChart();
+        // this.createSecondChart();
       }, 100); // Delay to ensure DOM updates
     }
   }
 
+
+  // switchChart() {
+  //   this.showSecondChart = !this.showSecondChart;
+  //   if (this.showSecondChart) {
+  //     this.createSecondChart(); // call the method to create the second chart
+  //   } else {
+  //     this.createCombinedChart(); // call the method to create the original chart
+  //   }
+  // }
   
 
   createCombinedChart() {
@@ -125,9 +154,9 @@ export class MychartComponent implements AfterViewInit {
   
     const labels = this.filteredData.map(item => {
       const date = new Date(item.created_at + 'T00:00:00');
-      return `${item.title} (${date.toLocaleDateString()})`;
+      const title = item.title.substring(0, 5) + (item.title.length > 10 ? '...' : ''); // truncate to 10 characters
+      return `${title} (${date.toLocaleDateString()})`
     });
-  
     // Predefined colors for bars and lines
     const barColors = [
       'rgba(255, 99, 132, 0.2)',
@@ -212,7 +241,6 @@ export class MychartComponent implements AfterViewInit {
       }
     });
   }
-  
   
   
 }

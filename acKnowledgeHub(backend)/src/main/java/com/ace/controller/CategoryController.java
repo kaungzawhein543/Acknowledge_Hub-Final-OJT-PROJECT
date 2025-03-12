@@ -4,6 +4,7 @@ import com.ace.entity.Category;
 import com.ace.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,26 +15,33 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/category")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CategoryController {
 
-    @Autowired
-    private CategoryService service;
+    private final CategoryService service;
 
-    @PostMapping(value = "/save")
-    public Category save(
-            @RequestParam(value = "name") String name,
-            @RequestParam(value = "description") String description) throws IOException {
-        Category category = new Category();
-        category.setName(name);
-        category.setDescription(description);
-        category.setCreatedAt(LocalDate.now());
-        return service.save(category);
+    public CategoryController(CategoryService service) {
+        this.service = service;
+    }
+
+    @PostMapping(value = "/all/save", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<String> save(@RequestParam("name") String name, @RequestParam("description") String description) throws IOException {
+        Category existingCategory = service.findByLowerName(name);
+        if (existingCategory == null) {
+            Category category = new Category();
+            category.setName(name);
+            category.setDescription(description);
+            category.setCreatedAt(LocalDate.now());
+            service.save(category);
+            return ResponseEntity.ok("Adding category is successful.");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category already exists.");
+        }
     }
 
 
 
-    @PutMapping(value = "/update/{id}")
+
+    @PostMapping(value = "/sys/update/{id}")
     public Category update(@PathVariable("id") int id,
                            @RequestParam("name") String name,
                            @RequestParam("description") String description) throws IOException {
@@ -44,7 +52,7 @@ public class CategoryController {
         return service.update(id, updated);
     }
 
-    @DeleteMapping("/deleteCategory/{id}")
+    @DeleteMapping("/sys/deleteCategory/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Integer id){
         Optional<Category> resultCategory = service.showById(id);
         if(resultCategory.isPresent()){
@@ -54,7 +62,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete category");
     }
 
-    @PutMapping("/softDeleteCategory/{id}")
+    @PutMapping("/sys/softDeleteCategory/{id}")
     public ResponseEntity<Void> deleteSoftly(@PathVariable Integer id) {
         Optional<Category> resultCategory = service.showById(id);
         if (resultCategory.isPresent()) {
@@ -65,13 +73,13 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/allcategories")
+    @GetMapping("/all/allcategories")
     public ResponseEntity<List<Category>> getAllParentCategory() {
         List<Category> categories = service.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/category/{id}")
+    @GetMapping("/all/category/{id}")
     public ResponseEntity<Category> showById(@PathVariable int id) {
         Optional<Category> category = service.showById(id);
         if (category.isPresent()) {

@@ -4,7 +4,9 @@ import com.ace.dto.ChangePasswordRequest;
 import com.ace.dto.LoginRequest;
 import com.ace.dto.LoginUserInfo;
 import com.ace.dto.ProfileDTO;
+import com.ace.entity.Company;
 import com.ace.entity.Staff;
+import com.ace.service.CompanyService;
 import com.ace.service.StaffService;
 import com.ace.service.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
@@ -31,50 +33,59 @@ import java.util.Map;
 @Slf4j
 public class LoginController {
 
-    @Autowired
-    private StaffService staffService;
+    private final StaffService staffService;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final CompanyService companyService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private TokenBlacklistService tokenBlacklistService;
-
-
-    @Value("${jwt.secret}")
+        @Value("${jwt.secret}")
     private String jwtSecret;
+
+    public LoginController(StaffService staffService, PasswordEncoder passwordEncoder, TokenBlacklistService tokenBlacklistService, CompanyService companyService) {
+        this.staffService = staffService;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenBlacklistService = tokenBlacklistService;
+        this.companyService = companyService;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Staff user = staffService.authenticate(loginRequest.getStaffId(), loginRequest.getPassword());
-        if (user != null) {
-            if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
-                return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
-            } else {
-                String token = Jwts.builder()
-                        .setSubject(user.getCompanyStaffId())
-                        .claim("name", user.getName())
-                        .claim("role", user.getRole())
-                        .claim("position",user.getPosition().getName())
-                        .claim("company",user.getCompany().getName())
-                        .setIssuedAt(new Date())
-                        .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                        .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                        .compact();
-
-                Cookie cookie = new Cookie("jwt", token);
-                cookie.setHttpOnly(true);
-                cookie.setPath("/");
-                cookie.setMaxAge(86400);
-                cookie.setSecure(true);
-                response.addCookie(cookie);
-                return ResponseEntity.ok("Login successful\n" + token);
-            }
+        Staff user = staffService.findByStaffId(loginRequest.getStaffId());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid staff ID");
+        } else if (!user.getStatus().equals("active")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your account is inactive. Please contact the administrator.");
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid staff ID or password");
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
+                    return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
+                } else {
+                    String token = Jwts.builder()
+                            .setSubject(user.getCompanyStaffId())
+                            .claim("name", user.getName())
+                            .claim("role", user.getRole())
+                            .claim("position",user.getPosition().getName())
+                            .claim("company",user.getCompany().getName())
+                            .setIssuedAt(new Date())
+                            .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                            .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                            .compact();
+
+                    Cookie cookie = new Cookie("jwt", token);
+                    cookie.setHttpOnly(true);
+                    cookie.setPath("/");
+                    if(loginRequest.isRememberMe()){
+                        cookie.setMaxAge(86400);
+                    }
+                    cookie.setSecure(true);
+                    response.addCookie(cookie);
+                    return ResponseEntity.ok("Login successful\n" + token);
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+            }
         }
     }
-
 
     @PostMapping("/changePassword")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, HttpServletResponse response) {
@@ -109,7 +120,6 @@ public class LoginController {
                 }
             }
         }
-
         if (token != null) {
             try {
                 // Parse and validate JWT
@@ -123,8 +133,10 @@ public class LoginController {
                 String staffId = claims.getSubject();
                 String position = claims.get("position",String.class);
                 String company = claims.get("company",String.class);
+                Company userCompanyId = companyService.findByName(company);
                 response.put("position",position);
                 response.put("company",company);
+                response.put("companyId",userCompanyId.getId());
 
                 // Check if the token is blacklisted
                 if (tokenBlacklistService.isTokenBlacklisted(token)) {
@@ -136,7 +148,7 @@ public class LoginController {
                 Staff user = staffService.findByStaffId(staffId);
                 if (user != null) {
                     response.put("isLoggedIn", true);
-                    response.put("user", new LoginUserInfo(user.getId(), user.getName(), user.getCompanyStaffId(), user.getRole(), user.getPosition().getName()));
+                    response.put("user", new LoginUserInfo(user.getId(), user.getCompanyStaffId(), user.getName(), user.getRole(), user.getPosition().getName()));
                     return ResponseEntity.ok(response);
                 }
             } catch (JwtException e) {
@@ -151,6 +163,7 @@ public class LoginController {
         response.put("isLoggedIn", false);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -205,19 +218,23 @@ public class LoginController {
                 // Retrieve the staff member by their ID
                 Staff staff = staffService.findByStaffId(staffId);
                 if (staff != null) {
+                    Map<String, Long> monthlyCount = staffService.getMonthlyAnnouncementCount(staff.getId());
                     // Map Staff entity to StaffProfileDTO
                     ProfileDTO profileDTO = new ProfileDTO(
                             staff.getId(),
                             staff.getName(),
                             staff.getCompanyStaffId(),
                             staff.getEmail(),
+                            staff.getPassword(),
                             staff.getStatus(),
                             staff.getRole(),
+                            staff.getPhotoPath(),
                             staff.getPosition().getName(),
                             staff.getDepartment().getName(),
                             staff.getCompany().getName(),
                             staff.getCreatedAt(),
-                            staff.getChatId()
+                            staff.getChatId(),
+                            monthlyCount
                     );
 
                     return ResponseEntity.ok(profileDTO);

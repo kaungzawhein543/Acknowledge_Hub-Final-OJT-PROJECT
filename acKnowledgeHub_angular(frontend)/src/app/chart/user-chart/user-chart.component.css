@@ -59,14 +59,18 @@ input[type="date"] {
 }
 
 .chart-container {
-  width: 100%; /* Make the container full width */
-  position: relative; /* Allow responsive sizing of canvas */
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-
+/* Adjust the height of the chart */
 .myChart {
-  width: 100% !important; /* Force the canvas to take up full width */
-  height: 400px; /* Set a fixed height for the chart */
-  border: 1px solid #ddd; /* Add border for better visual separation */
+  width: 100% !important; /* Keep the canvas full width */
+  height: 100px; /* Reduced height for a smaller chart */
+  border: 1px solid #ddd; /* Border for visual separation */
   border-radius: 8px; /* Rounded corners for canvas */
   background-color: #f9f9f9; /* Light background color for the chart */
 }

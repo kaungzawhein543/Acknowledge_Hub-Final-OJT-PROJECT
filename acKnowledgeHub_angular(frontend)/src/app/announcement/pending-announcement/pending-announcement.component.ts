@@ -1,18 +1,45 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { announcement } from '../../models/announcement';
 import { MatTableDataSource } from '@angular/material/table';
 import { AnnouncementService } from '../../services/announcement.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { announcementList } from '../../models/announcement-list';
+import autoTable from 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+import saveAs from 'file-saver';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { AuthService } from '../../services/auth.service';
+import { StaffProfileDTO } from '../../models/staff';
+import { ToastService } from '../../services/toast.service';
+import { MatSelectionList } from '@angular/material/list';
+import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
+import { StaffGroup } from '../../models/staff-group';
+
 
 @Component({
   selector: 'app-pending-announcement',
   templateUrl: './pending-announcement.component.html',
-  styleUrl: './pending-announcement.component.css'
+  styleUrl: './pending-announcement.component.css',
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(200, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class PendingAnnouncementComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+ @ViewChild(MatPaginator) paginator!: MatPaginator;
+ @ViewChild('staff') staff!: MatSelectionList;
+ @ViewChild('confirmationModal') modal!: ConfirmationModalComponent;
+ @ViewChild('publishionModel') publishModal!: ConfirmationModalComponent;
 
   announcements: announcementList[] = [];
   filteredAnnouncements: announcementList[] = [];
@@ -25,30 +52,57 @@ export class PendingAnnouncementComponent implements OnInit {
   inactiveChecked = false;
   isFilterDropdownOpen = false;
   isReportDropdownOpen = false;
+  loginRole !: string;
+  isaHrMain: boolean = false; // Initialize the isaHrMain variable
+  profile: StaffProfileDTO | null = null;
+  announcementIdForCancel: number =0;
+  announcementIdForPublish: number = 0;
+
 
   columns = [
     { field: 'autoNumber', header: 'No.' },
     { field: 'title', header: 'Title' },
     { field: 'description', header: 'Description' },
-    { field: 'createStaff', header: 'Create/Request Staff' },
-    { field: 'createdAt', header: 'Create At' },
     { field: 'category', header: 'Category' },
-    { field: 'file', header: 'View' },
+    { field: 'createStaff', header: 'Create/Request Staff' },
+    { field: 'createdAt', header: 'Scheduled At' },
+    { field: 'detail', header: 'View' },
+    { field: 'action', header: 'Action' }
   ];
 
   columnVisibility: { [key: string]: boolean } = {};
   selectedColumns = this.columns.map(col => col.field);
 
   constructor(
+    private authService :AuthService,
     private announcementService: AnnouncementService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService : ToastService
   ) { }
 
   ngOnInit() {
     this.todayDate = new Date().toISOString().split('T')[0];
     this.fetchAnnouncements();
     this.columns.forEach(col => (this.columnVisibility[col.field] = true));
+    this.authService.getUserInfo().subscribe(
+      (data) => {
+        this.profile = data;
+        this.loginRole = data.user.role;
+        console.log(this.loginRole)
+        this.setColumnsBasedOnRole();
+
+        // Check if the user position is "Human Resource(Main)"
+        if (data.position === "Human Resource(Main)") {
+          this.isaHrMain = true;
+        } else {
+          this.isaHrMain = false;
+        }
+      },
+      (error) => {
+        console.error('Error fetching profile:', error);
+      }
+    );
   }
 
   generateAutoNumber(index: number): string {
@@ -65,6 +119,7 @@ export class PendingAnnouncementComponent implements OnInit {
         this.filteredAnnouncements = this.announcements;
         this.dataSource.data = this.filteredAnnouncements;
         this.dataSource.paginator = this.paginator;
+        console.log(data);
       },
       (error) => console.error('Error fetching announcements:', error)
     );
@@ -85,23 +140,110 @@ export class PendingAnnouncementComponent implements OnInit {
       const fieldsToSearch = [
         a.title?.toLowerCase() || '',
         a.description?.toLowerCase() || '',
-        a.file?.toLowerCase() || '',
+       // a.file?.toLowerCase() || '',
         a.createStaff?.toLowerCase() || '',
         a.category?.toLowerCase() || '',
         new Date(a.createdAt).toLocaleString().toLowerCase(),
       ];
       return fieldsToSearch.some(field => field.includes(query));
     });
+    this.filteredAnnouncements = this.filteredAnnouncements.map((item, index) => ({
+      ...item,
+      autoNumber: this.generateAutoNumber(index + 1)  // Re-assign sequential number
+    }));
     this.dataSource.data = this.filteredAnnouncements;
   }
 
-  onActiveCheckboxChange(event: any) {
-    this.activeChecked = event.target.checked;
-
+  generateReport(format: 'pdf' | 'excel') {
+    if (format === 'pdf') {
+      this.generatePDF(this.filteredAnnouncements, 'report.pdf');
+    } else if (format === 'excel') {
+      this.generateExcel(this.filteredAnnouncements, 'report.xlsx');
+    }
   }
 
-  onInactiveCheckboxChange(event: any) {
-    this.inactiveChecked = event.target.checked;
+  generatePDF(announcements: any[], filename: string) {
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    const titleACE = "ACE"; 
+      const subtitle = "Data System.Ltds"; 
+      const description = "Pending Anouncements Report on Pdf"; 
+   
+      // Set font style and size for "ACE" 
+      doc.setFontSize(26); 
+      doc.setTextColor(0, 51, 102); 
+      doc.setFont("times", "bold"); 
+      doc.text(titleACE, doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' }); 
+   
+      // Subtitle 
+      doc.setFontSize(15); 
+      doc.setFont("times", "bold"); 
+      doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 26, { align: 'center' }); 
+   
+      // Description 
+      doc.setFontSize(12); 
+      doc.setTextColor(100, 100, 100); 
+      doc.setFont("helvetica", "italic"); 
+      doc.text(description, doc.internal.pageSize.getWidth() / 2, 36, { align: 'center' }); 
+   
+      // Line separation 
+      doc.setDrawColor(0, 51, 102); 
+      doc.line(15, 45, doc.internal.pageSize.getWidth() - 15, 45);
+
+    // Define column headers and data rows
+    const headers = visibleColumns.map(col => col.header);
+    const rows = announcements.map(announcement =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], announcement) || '')
+    );
+
+    // Calculate column widths based on content length or set manually
+    const columnWidths = visibleColumns.map(col => {
+      return col.field === 'description' ? 60 : 30; // Adjust widths as needed
+    });
+
+    // Use autoTable to generate the table in PDF
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 40,
+      margin: { top: 20 },
+      styles: { fontSize: 10, cellPadding: 4 }, // Adjust fontSize and cellPadding
+      headStyles: { fillColor: [79, 129, 189], textColor: [255, 255, 255] },
+      columnStyles: {
+        0: { cellWidth: columnWidths[0] }, // Adjust width for specific columns
+        1: { cellWidth: columnWidths[1] }, // Adjust width for specific columns
+      },
+      tableWidth: 'auto', // Auto width adjustment for table
+    });
+
+    // Save the PDF file
+    doc.save(filename);
+  }
+  
+
+
+  generateExcel(announcements: announcementList[], fileName: string) {
+    // Exclude 'note' and 'detail' columns from the report
+    const visibleColumns = this.columns
+      .filter(col => this.columnVisibility[col.field] && col.field !== 'detail');
+
+    const headers = visibleColumns.map(col => col.header);
+    const data = [headers, ...announcements.map(a =>
+      visibleColumns.map(col => col.field.split('.').reduce((o, k) => o?.[k], a) || '')
+    )];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = { Sheets: { 'Report': worksheet }, SheetNames: ['Report'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, fileName);
+  }
+  private saveAsExcelFile(buffer: any, fileName: string) {
+    const data = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+    saveAs(data, fileName);
   }
 
   onStartDateChange(event: Event) {
@@ -144,13 +286,57 @@ export class PendingAnnouncementComponent implements OnInit {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  onFileButtonClick(file: string) {
-    if (file) {
-      window.open(file, '_blank'); // Open the file in a new tab
-    } else {
-      console.log('No file available for this announcement');
+  onFileButtonClick(id: number) {
+    this.router.navigate(['/acknowledgeHub/announcement/detail/'+btoa(id.toString())]);
+  }
+
+  onCancelButtonClick(id: number) {
+    this.announcementService.cancelPendingAnnouncement(id).subscribe({
+      next: (data: string) => {
+        this.ngOnInit();
+        this.showCancelSuccessToast();
+      },
+      error: (e) => console.log(e)
+    })
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event) {
+    const clickedInsideDropdown = (event.target as HTMLElement).closest('.relative');
+    if (!clickedInsideDropdown) {
+      this.isReportDropdownOpen = false;
     }
   }
 
+  onPublishButtonClick(id: number) {
+    this.announcementService.postPublishNow(id).subscribe({
+      next: (data: string) => {
+        this.showPubliSuccessToast();
+        this.fetchAnnouncements();
+      },
+      error: (e) => console.log(e)
+    })
+  }
 
+  setColumnsBasedOnRole() {
+    if (this.loginRole == 'ADMIN') {
+      this.columns = this.columns.filter(col => col.field !== 'action');
+    }
+    this.selectedColumns = this.columns.map(col => col.field);
+  }
+  showCancelSuccessToast() {
+    this.toastService.showToast('Cancel Announcement  successful!', 'success');
+  }
+  showPubliSuccessToast() {
+    this.toastService.showToast('PUblich Announcement  successful!', 'success');
+  }
+  openDeleteModal(id : number) {
+    this.announcementIdForCancel = id;
+    this.modal.open();
+  }
+  openPublishNowMode(id:number){
+    this.announcementIdForPublish = id;
+    this.publishModal.open();
+  }
+  
 }

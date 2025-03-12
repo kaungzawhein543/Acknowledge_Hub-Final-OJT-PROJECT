@@ -2,29 +2,43 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { interval, Subscription } from 'rxjs';
 import { ResponseEmail } from '../../models/response-email';
+import { Router } from '@angular/router';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+
 
 @Component({
-  selector: 'app-otp-input',
+  selector: 'app-otp',
   templateUrl: './otp-input.component.html',
-  styleUrl: './otp-input.component.css'
+  styleUrls: ['./otp-input.component.css'],
+  animations: [
+    trigger('cardAnimation', [
+      transition(':enter', [
+        query('.card', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(100, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ]),
+      ]),
+    ]),
+  ],
 })
-export class OtpInputComponent implements OnInit{
+export class OtpInputComponent implements OnInit {
   otp: string[] = Array(6).fill('');
   email!: string;
   OTP!: string;
   staffId!: string;
   responseEmail!: ResponseEmail;
   countdown: string = '00:00';
-  validationError: boolean = false;
+  validationError: string = "";
   loading: boolean = false;
   private countdownSubscription!: Subscription;
 
-  constructor(private service: AuthService) { }
+  constructor(private service: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     const sessionEmail = sessionStorage.getItem('email');
     const otpExpiry = sessionStorage.getItem('otpExpiry');
-
     if (sessionEmail != null) {
       this.email = sessionEmail;
     }
@@ -70,24 +84,41 @@ export class OtpInputComponent implements OnInit{
     }
   }
 
+  checkValidation(): void {
+    console.log('OTP values:', this.otp); // Add this to log the current OTP values
+    if (!this.otp || this.otp.some(o => o.trim() === '')) {
+      this.validationError = "Please fill your OTP code.";
+      return;  // Add return to stop further validation if the OTP is incomplete
+    }
+  }
+  
   validateOtp(): void {
-    this.checkValidation();
-    this.OTP = this.otp.join('');
+    this.checkValidation();  // This will prevent further actions if OTP is incomplete
+    if (this.validationError) return;  // Exit if there was a validation error
+  
+    this.OTP = this.otp.join('');  // Combine the OTP array into a single string
     this.service.sendOTP(this.email, this.OTP).subscribe({
       next: (data) => {
         if (data === 1) {
-          console.log("Successful");
+          console.log(data)
+          this.router.navigate(['/acknowledgeHub/add-password']);
         } else {
-          console.log("Fail");
+          this.validationError = "Wrong OTP! Please Try Again!";
+          this.resetOtp();
         }
       },
       error: (e) => console.log(e)
     });
   }
-
-  checkValidation(): void {
-    this.validationError = this.otp.some(o => o.trim() === '');
+  resetOtp(): void {
+    this.otp = ['', '', '', '', '', ''];
+    const firstInput = document.querySelector<HTMLInputElement>('#otp input');
+    if (firstInput) {
+      firstInput.focus();
+    }
+    this.validationError = "";
   }
+
 
   resend(): void {
     this.loading = true;
@@ -98,6 +129,7 @@ export class OtpInputComponent implements OnInit{
     }
     this.service.getOTP(this.staffId).subscribe({
       next: (data) => {
+        console.log("here is in  otp " + data.email)
         this.responseEmail = data;
         if (this.responseEmail && this.responseEmail.email && this.responseEmail.expiryTime) {
           const expiryTime = this.responseEmail.expiryTime;

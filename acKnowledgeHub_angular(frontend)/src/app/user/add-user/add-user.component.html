@@ -1,85 +1,117 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <div class="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
-        <p class="text-3xl font-bold text-gray-800 text-center mb-6">
-            Add Staff
-        </p>
-        <form #staffForm="ngForm" (ngSubmit)="onSubmit(staffForm)" class="space-y-6">
-            <div>
-                <label for="companyStaffId" class="block text-gray-700 font-medium mb-2">
-                    Staff ID
-                </label>
-                <input type="text" id="companyStaffId" name="companyStaffId" [(ngModel)]="staff.companyStaffId" required
+<div class="h-full rounded-md flex items-start pt-20 justify-center bg-gray-100" @cardAnimation>
+    <div class="card w-full max-w-6xl bg-white rounded-lg shadow-lg p-8">
+        <div class="flex justify-between items-center mb-6">
+            <p class="text-3xl font-bold text-gray-800 text-center" style="color: #1b4980;">
+                Add Staff
+            </p>
+           <!-- Dropdown Container -->
+           <div class="relative ml-4">
+            <!-- Dropdown Toggle Button -->
+            <button type="button" 
+                class="ms-auto bg-green-600 text-white font-semibold px-4 py-2 rounded text-sm hover:bg-green-700 transition duration-200 flex items-center"
+                (click)="toggleDropdown()">
+                Import Excel
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Dropdown Content -->
+            <div *ngIf="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white  rounded-lg shadow-lg z-10">
+                <a routerLink="/acknowledgeHub/import-excel" [queryParams]="{ excel: 'update', add: true }"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    UPDATE & ADD
+                </a>
+                <a routerLink="/acknowledgeHub/import-excel"  [queryParams]="{  add: true }"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"> 
+                    ADD
+                </a>
+            </div>
+        </div>
+        </div>
+        <form #staffForm="ngForm" (ngSubmit)="onSubmit(staffForm)"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-1">
+                <label for="companyStaffId" class="block text-gray-700 font-medium mb-2">Staff ID</label>
+                <input type="text" id="companyStaffId" (input)="onStaffIdInput()" name="companyStaffId" [(ngModel)]="staff.companyStaffId" required autocomplete="off"
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <small *ngIf="conflictStaffIdMessage && staff.companyStaffId" class="text-red-600"> <i class="fa-solid fa-circle-exclamation"></i> {{conflictStaffIdMessage}}</small>
+                <small *ngIf="staffForm.submitted && !staff.companyStaffId" class="text-red-600">
+                    <i class="fa-solid fa-circle-exclamation"></i> Staff ID is required.
+                </small>
             </div>
 
-            <div>
-                <label for="name" class="block text-gray-700 font-medium mb-2">
-                    Name
-                </label>
+            <!-- Name -->
+            <div class="col-span-1">
+                <label for="name" class="block text-gray-700 font-medium mb-2">Name</label>
                 <input type="text" id="name" name="name" [(ngModel)]="staff.name" required
-                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <small *ngIf="staffForm.submitted && !staff.name" class="text-red-600">
+                    <i class="fa-solid fa-circle-exclamation"></i> Name is required.
+                </small>
+            </div>
+            
+            <!-- Email --> 
+            <div class="col-span-1">
+                <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+                <input type="email" id="email" name="email" [(ngModel)]="staff.email" required email (input)="onEmailInput()" autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                <small *ngIf="conflictEmaildMessage && staff.email" class="text-red-600"> <i class="fa-solid fa-circle-exclamation"></i> {{conflictEmaildMessage}}</small>
+                <small *ngIf="emailFormatError && staff.email" class="text-red-600"> <i class="fa-solid fa-circle-exclamation"></i> Invalid email format</small>
+                <small *ngIf="staffForm.submitted && !staff.email" class="text-red-600">
+                    <i class="fa-solid fa-circle-exclamation"></i> Valid email is required.
+                </small>
             </div>
 
-            <div>
-                <label for="email" class="block text-gray-700 font-medium mb-2">
-                    Email
-                </label>
-                <input type="text" id="email" name="email" [(ngModel)]="staff.email" required
-                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
-            </div>
-
-            <div>
-                <label for="role" class="block text-gray-700 font-medium mb-2">
-                    Role
-                </label>
-                <select id="role" name="role" [(ngModel)]="staff.role"
-                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
-                    <option *ngFor="let role of roles" [ngValue]="role">{{ role }}</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="companyId" class="block text-gray-700 font-medium mb-2">
-                    Company
-                </label>
-                <select id="companyId" name="companyId" [(ngModel)]="staff.companyId" (change)="onCompanyChange()"
+            <!-- Company -->
+            <div class="col-span-1">
+                <label for="companyId" class="block text-gray-700 font-medium mb-2">Company</label>
+                <select id="companyId" name="companyId" [(ngModel)]="staff.companyId" (change)="onCompanyChange()" required [disabled]="isHr"
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
                     <option [ngValue]="null" disabled>Select Company</option>
                     <option *ngFor="let company of companies" [ngValue]="company.id">
                         {{company.name}}
                     </option>
                 </select>
+                <small *ngIf="staffForm.submitted && !staff.companyId && !isHr" class="text-red-600">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a company.
+                </small>
             </div>
 
-            <div>
-                <label for="departmentId" class="block text-gray-700 font-medium mb-2">
-                    Department
-                </label>
-                <select id="departmentId" name="departmentId" [(ngModel)]="staff.departmentId"
+            <!-- Department -->
+            <div class="col-span-1">
+                <label for="departmentId" class="block text-gray-700 font-medium mb-2">Department</label>
+                <select id="departmentId" name="departmentId" [(ngModel)]="staff.departmentId" required
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
                     <option [ngValue]="null" disabled>Select Department</option>
-                    <option *ngFor="let department of filteredDepartments" [ngValue]="department.id">{{department.name}}
-                    </option>
+                    <option *ngFor="let department of departments" [ngValue]="department.id">{{department.name}}</option>
                 </select>
+                <small *ngIf="staffForm.submitted && !staff.departmentId" class="text-red-600">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a department.
+                </small>
             </div>
 
-            <div>
-                <label for="position" class="block text-gray-700 font-medium mb-2">
-                    Position
-                </label>
-                <select id="position" name="position" [(ngModel)]="staff.positionId"
+            <!-- Position -->
+            <div class="col-span-1">
+                <label for="position" class="block text-gray-700 font-medium mb-2">Position</label>
+                <select id="position" name="position" [(ngModel)]="staff.positionId" required
                     class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
-                    <option [ngValue]="null" disabled>Select position</option>
-                    <option *ngFor="let position of positions" [ngValue]="position.id">{{position.name}}
-                    </option>
+                    <option [ngValue]="null" disabled>Select Position</option>
+                    <option *ngFor="let position of positions" [ngValue]="position.id">{{position.name}}</option>
                 </select>
+                <small *ngIf="staffForm.submitted && !staff.positionId" class="text-red-600">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a position.
+                </small>
             </div>
 
-            <button type="submit"
-                class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
-                ADD
-            </button>
-
+            <!-- Submit Button -->
+            <div class="card col-span-3 flex justify-end items-center">
+                <button type="submit" 
+                    class="w-full md:w-48 bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                    ADD
+                </button>
+            </div>
         </form>
     </div>
 </div>

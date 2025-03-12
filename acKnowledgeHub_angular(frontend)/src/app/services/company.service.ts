@@ -8,14 +8,20 @@ import { Observable } from 'rxjs';
 })
 export class CompanyService {
 
-  private baseUrl = 'http://localhost:8080/api/v1/company';
+  private baseUrl = 'http://localhost:8080/api/v1/company/sys';
   constructor(private http: HttpClient) { }
 
-  addCompany(company: Company): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, company);
+  addCompany(company: Company): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}`, company, { withCredentials: true, responseType: 'text' as 'json' });
   }
 
   getAllCompany(): Observable<Company[]> {
-    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company`);
+    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company/sys`,{ withCredentials: true});
+  }
+  updateCompany(id: number, company: string): Observable<String> {
+    return this.http.put<String>(`${this.baseUrl}/${id}`, company, { withCredentials: true, responseType: 'text' as 'json' });
+  }
+  getCompanyById(id: number): Observable<Company> {
+    return this.http.get<Company>(`${this.baseUrl}/${id}`, { withCredentials: true });
   }
 }

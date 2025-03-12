@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,20 +21,23 @@ import org.springframework.beans.factory.annotation.Value;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
 @Component
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private StaffService staffService;
-
-    @Autowired
-    private TokenBlacklistService tokenBlacklistService;
+    private final StaffService staffService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    public JwtAuthorizationFilter(@Lazy StaffService staffService, TokenBlacklistService tokenBlacklistService) {
+        this.staffService = staffService;
+        this.tokenBlacklistService = tokenBlacklistService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,7 +52,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 }
             }
         }
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
@@ -69,13 +72,25 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 username = claims.getSubject();
                 String role = claims.get("role", String.class); // Extract role
-                if (role != null) {
-                    var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                String position = claims.get("position", String.class); // Extract position if stored in JWT
+                if (username != null) {
                     var userDetails = staffService.loadUserByUsername(username);
 
                     if (userDetails != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        // Create a list of authorities based on both role and position
+                        var authorities = new ArrayList<SimpleGrantedAuthority>();
+                        if (role != null) {
+                            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                        }
+                        if (position != null) {
+                            authorities.add(new SimpleGrantedAuthority(position)); // Add position-based authority
+                        }
+
+                        // Create authentication token
                         var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                        // Set authentication in context
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     }
                 }

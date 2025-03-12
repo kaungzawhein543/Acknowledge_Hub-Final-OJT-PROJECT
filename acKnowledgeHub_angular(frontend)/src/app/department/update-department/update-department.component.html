@@ -1,0 +1,60 @@
+<div class="container py-10 bg-gray-100 rounded-lg" style="height: 100%;" @cardAnimation>
+    <div class="card flex justify-center mt-16">
+        <div class="w-full max-w-lg">
+            <div class="bg-white shadow-2xl rounded-lg" style="min-height: 200px;">
+                <div class=" text-white text-center py-4 rounded-t-lg" style="background-color: #1b4980;">
+                    <h2 class="text-2xl font-bold">Update Department</h2>
+                </div>
+                <div class="p-6">
+                    <form #departmentForm="ngForm" (ngSubmit)="onSubmit(departmentForm)">
+                        <div class="card">
+                            <div class="mb-4">
+                                <label for="name" class="block text-gray-700 font-semibold mb-2">Company Name</label>
+                                <select id="company" name="company" [(ngModel)]="department.company" disabled selected
+                                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]">
+                                    <option [ngValue]="null">Select Company</option>
+                                    <option *ngFor="let company of companies" [ngValue]="company">
+                                        {{ company.name }}
+                                    </option>
+                                </select>
+
+                                <div *ngIf="companyError">
+                                    <small style="color: red;">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Company is required
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="mb-6"> <!-- Added margin-bottom for spacing -->
+                                <label for="department"
+                                    class="block text-gray-700 font-semibold mb-2">DepartmentName</label>
+                                <input type="text" id="department" name="department" [(ngModel)]="department.name"
+                                    required (input)="departmentIntput()" autocomplete="off"
+                                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4980]" />
+                                <span *ngIf="departmentForm.submitted && departmentForm.controls['department'].errors">
+                                    <small style="color: red;"
+                                        *ngIf="departmentForm.controls['department'].errors?.['required']">
+                                        <i class="fa-solid fa-circle-exclamation"></i>Department Name is required
+                                    </small>
+                                </span>
+                                <small *ngIf="conflictError" class="text-red-600"><i
+                                        class="fa-solid fa-circle-exclamation"></i> {{conflictError}}</small>
+                            </div>
+                        </div>
+
+                        <div class="card flex space-x-4">
+                            <!-- Reset Button -->
+                            <button type="reset"
+                                class="w-full bg-gray-300 text-gray-700 font-semibold py-3 rounded hover:bg-gray-400 transition duration-200 flex items-center justify-center">
+                                RESET
+                            </button>
+
+                            <!-- Submit Button -->
+                            <button type="submit"
+                                class="w-full bg-[#1b4980] text-white font-semibold py-3 rounded hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                                ADD
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>

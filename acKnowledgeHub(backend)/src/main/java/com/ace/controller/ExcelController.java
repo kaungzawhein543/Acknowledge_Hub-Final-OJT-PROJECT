@@ -1,6 +1,7 @@
 package com.ace.controller;
 
 import com.ace.service.ExcelService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,18 +9,30 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1/")
+@Slf4j
+@RequestMapping("/api/v1/excel")
 public class ExcelController {
-    @Autowired
-    private ExcelService excelService;
 
-    @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    private final ExcelService excelService;
+
+    public ExcelController(ExcelService excelService) {
+        this.excelService = excelService;
+    }
+
+    @PostMapping("/allSys/upload")
+    public String uploadFile(@RequestParam("file") MultipartFile file,@RequestParam("override") Integer override) throws IOException {
         if (file.isEmpty()) {
             return "Please select a file to upload.";
         }
-
-        excelService.processExcelFile(file);
+        try{
+            if(override == 1){
+                excelService.processExcelFile(file,true);
+            }else{
+                excelService.processExcelFile(file,false);
+            }
+        }catch (Exception e){
+            log.info("Failed to upload excel file{}", e.getMessage());
+        }
         return "File uploaded successfully!";
     }
 }

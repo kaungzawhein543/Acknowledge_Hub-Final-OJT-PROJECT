@@ -1,0 +1,15 @@
+.error {
+    color: red;
+    font-size: 14px;
+  }
+
+  .special-group{
+    font-weight: 600; /* Semi-bold font */
+    color: #2c3e50; /* Darker shade for better readability */
+    background-color: #eaf7f2; /* Light teal background */
+    padding: 6px 10px; /* Padding for better spacing */
+    border: 2px solid #3cb371; /* Medium green border for distinction */
+    border-radius: 5px; /* Slightly rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  }
+  

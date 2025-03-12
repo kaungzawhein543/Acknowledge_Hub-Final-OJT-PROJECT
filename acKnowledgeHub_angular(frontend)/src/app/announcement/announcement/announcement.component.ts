@@ -34,7 +34,6 @@ export class AnnouncementComponent implements OnInit {
       },
       error: (e) => console.log(e)
     });
-
     this.feedbackService.getFeedbackAndReplyByAnnouncement(1).subscribe({
       next: (data) => {
         this.feedbackList = data.map(feedback => ({
@@ -62,7 +61,7 @@ export class AnnouncementComponent implements OnInit {
     const feedbackReply: FeedbackReply = {
       replyText: feedback.replyText!,
       replyBy: this.loginId,
-      feedbackId: feedback.feedbackId
+      feedbackId: feedback.id
     };
     console.log(feedbackReply.replyText)
     this.feedbackService.sendRepliedFeedback(feedbackReply).subscribe({

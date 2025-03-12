@@ -6,5 +6,5 @@ import lombok.Data;
 public class LoginRequest {
     private String staffId;
     private String password;
-
+    private boolean rememberMe;
 }
