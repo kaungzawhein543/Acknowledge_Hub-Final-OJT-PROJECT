@@ -1,6 +1,6 @@
 //package com.ace.controller;
 //
-//import com.ace.dto.TelegramDTO;
+//import com.ace.thirdPartyNotifications.telegrambot.dtos.TelegramDTO;
 //import com.ace.service.BotService;
 //import org.springframework.scheduling.annotation.EnableAsync;
 //import org.springframework.web.bind.annotation.*;

@@ -1,8 +1,8 @@
 package com.ace.controller;
 
-import com.ace.dto.GroupDTO;
-import com.ace.dto.GroupResponseDTO;
-import com.ace.dto.StaffDTO;
+import com.ace.organization.group.dtos.GroupDTO;
+import com.ace.organization.group.dtos.GroupResponseDTO;
+import com.ace.staff.dtos.StaffDTO;
 import com.ace.entity.organization.Company;
 import com.ace.entity.organization.Group;
 import com.ace.entity.organization.Staff;

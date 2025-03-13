@@ -1,8 +1,8 @@
 package com.ace.controller;
 
-import com.ace.dto.FeedBackReplyDTO;
-import com.ace.dto.FeedbackReplyRequestDTO;
-import com.ace.dto.TypingStatusMessage;
+import com.ace.announcements.feedbackAndReply.dtos.FeedBackReplyDTO;
+import com.ace.announcements.feedbackAndReply.dtos.FeedbackReplyRequestDTO;
+import com.ace.announcements.feedbackAndReply.dtos.TypingStatusMessage;
 import com.ace.entity.feedbackAndReply.Feedback;
 import com.ace.entity.feedbackAndReply.FeedbackReply;
 import com.ace.entity.common.Notification;

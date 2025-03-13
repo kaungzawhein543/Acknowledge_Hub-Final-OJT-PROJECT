@@ -1,8 +1,8 @@
 package com.ace.controller;
 
-import com.ace.dto.FeedbackListResponseDTO;
-import com.ace.dto.FeedbackRequestDTO;
-import com.ace.dto.FeedbackResponseListDTO;
+import com.ace.announcements.feedbackAndReply.dtos.FeedbackListResponseDTO;
+import com.ace.announcements.feedbackAndReply.dtos.FeedbackRequestDTO;
+import com.ace.announcements.feedbackAndReply.dtos.FeedbackResponseListDTO;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.entity.feedbackAndReply.Feedback;
 import com.ace.entity.common.Notification;

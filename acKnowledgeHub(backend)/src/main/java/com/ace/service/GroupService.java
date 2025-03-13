@@ -1,6 +1,6 @@
 package com.ace.service;
 
-import com.ace.dto.GroupResponseDTO;
+import com.ace.organization.group.dtos.GroupResponseDTO;
 import com.ace.entity.organization.Staff;
 import com.ace.repository.organization.GroupRepository;
 

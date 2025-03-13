@@ -1,9 +1,9 @@
 package com.ace.controller;
 
-import com.ace.dto.ChangePasswordRequest;
-import com.ace.dto.LoginRequest;
-import com.ace.dto.LoginUserInfo;
-import com.ace.dto.ProfileDTO;
+import com.ace.thirdPartyNotifications.email.dtos.ChangePasswordRequest;
+import com.ace.staff.dtos.LoginRequest;
+import com.ace.staff.dtos.LoginUserInfo;
+import com.ace.staff.dtos.ProfileDTO;
 import com.ace.entity.organization.Company;
 import com.ace.entity.organization.Staff;
 import com.ace.service.CompanyService;

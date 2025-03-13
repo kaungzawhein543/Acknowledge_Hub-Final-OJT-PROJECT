@@ -1,6 +1,6 @@
 package com.ace.service;
 
-import com.ace.bot.MyTelegramBot;
+import com.ace.thirdPartyNotifications.telegrambot.bot.MyTelegramBot;
 import com.ace.entity.Announcement.Announcement;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

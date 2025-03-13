@@ -1,7 +1,7 @@
 package com.ace.entity.Announcement;
 
 
-import com.ace.utility.entity.BaseEntity;
+import com.ace.utility.core.coreEntity.BaseEntity;
 import com.ace.entity.common.Category;
 import com.ace.entity.organization.Group;
 import com.ace.entity.organization.Staff;

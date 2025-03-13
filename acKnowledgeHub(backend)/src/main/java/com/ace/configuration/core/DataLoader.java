@@ -1,7 +1,7 @@
 package com.ace.configuration.core;
 
 import com.ace.entity.organization.*;
-import com.ace.enums.Role;
+import com.ace.utility.enums.Role;
 import com.ace.repository.organization.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;

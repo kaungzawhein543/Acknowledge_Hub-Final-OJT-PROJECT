@@ -1,6 +1,6 @@
 package com.ace.entity.organization;
 
-import com.ace.utility.entity.BaseEntity;
+import com.ace.utility.core.coreEntity.BaseEntity;
 import com.ace.entity.Announcement.Announcement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
 package com.ace.service;
 
-import com.ace.dto.FeedbackListResponseDTO;
+import com.ace.announcements.feedbackAndReply.dtos.FeedbackListResponseDTO;
 import com.ace.entity.Announcement.Announcement;
 //import net.sf.dynamicreports.report.builder.DynamicReports;
 //import net.sf.dynamicreports.report.builder.ReportBuilder;

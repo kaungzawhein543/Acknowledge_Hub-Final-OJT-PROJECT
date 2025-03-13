@@ -1,9 +1,9 @@
 package com.ace.repository.organization;
 
-import com.ace.dto.GroupResponseDTO;
+import com.ace.organization.group.dtos.GroupResponseDTO;
 import com.ace.entity.organization.Group;
 import com.ace.entity.organization.Staff;
-import com.ace.utility.repository.BaseRepository;
+import com.ace.utility.core.coreRepository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,10 +29,10 @@ public interface GroupRepository extends BaseRepository<Group, Integer> {
     @Query("SELECT g FROM Group g JOIN g.announcement a WHERE a.id = :announcementId")
     List<Group> findGroupByAnnouncementId(@Param("announcementId") Integer announcementId);
 
-    @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g where g.name LIKE CONCAT('%', :companyName, '%')")
+    @Query("select new com.ace.organization.group.dtos.GroupResponseDTO(g.id , g.name , g.status) from Group g where g.name LIKE CONCAT('%', :companyName, '%')")
     List<GroupResponseDTO> getGroupsByHR(@Param("companyName") String companyName);
 
-    @Query("select new com.ace.dto.GroupResponseDTO(g.id , g.name , g.status) from Group g Join g.announcement a where a.id = ?1")
+    @Query("select new com.ace.organization.group.dtos.GroupResponseDTO(g.id , g.name , g.status) from Group g Join g.announcement a where a.id = ?1")
     List<GroupResponseDTO> getGroupsByAnnouncementId(Integer id);
 
     @Query("select g from Group g where g.name LIKE CONCAT('%', :companyName, '%')")

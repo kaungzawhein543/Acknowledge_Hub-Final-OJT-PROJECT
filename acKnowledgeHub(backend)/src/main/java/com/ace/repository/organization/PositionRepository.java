@@ -2,7 +2,7 @@ package com.ace.repository.organization;
 
 
 import com.ace.entity.organization.Position;
-import com.ace.utility.repository.BaseRepository;
+import com.ace.utility.core.coreRepository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

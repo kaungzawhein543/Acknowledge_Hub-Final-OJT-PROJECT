@@ -1,9 +1,8 @@
 package com.ace.repository.feedbackAndReply;
 
-import com.ace.dto.FeedbackResponseListDTO;
+import com.ace.announcements.feedbackAndReply.dtos.FeedbackResponseListDTO;
 import com.ace.entity.feedbackAndReply.Feedback;
-import com.ace.utility.repository.BaseRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.core.coreRepository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +24,7 @@ public interface FeedbackRepository extends BaseRepository<Feedback,Integer> {
             nativeQuery = true)
     List<Object[]> getFeedbackAndReplyByAnnouncement(Integer id);
 
-    @Query("select new com.ace.dto.FeedbackResponseListDTO(f.id, f.content, f.createdAt, s.name, f.announcement.title, f.announcement.id ,s.company.name, s.department.name, s.position.name, s.photoPath) " +
+    @Query("select new com.ace.announcements.feedbackAndReply.dtos.FeedbackResponseListDTO(f.id, f.content, f.createdAt, s.name, f.announcement.title, f.announcement.id ,s.company.name, s.department.name, s.position.name, s.photoPath) " +
             "from Feedback f " +
             "Join f.staff s " +
             "where f.announcement.id = ?1")

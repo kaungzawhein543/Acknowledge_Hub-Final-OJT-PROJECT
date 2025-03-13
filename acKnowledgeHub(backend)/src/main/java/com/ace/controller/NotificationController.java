@@ -1,6 +1,6 @@
 package com.ace.controller;
 
-import com.ace.dto.NotificationDTO;
+import com.ace.common.sysNotification.dtos.NotificationDTO;
 import com.ace.security.JwtUtil;
 import com.ace.service.NotificationService;
 import com.ace.service.TokenBlacklistService;

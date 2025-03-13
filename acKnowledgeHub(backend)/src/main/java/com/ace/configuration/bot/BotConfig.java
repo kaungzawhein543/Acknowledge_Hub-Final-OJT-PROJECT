@@ -1,6 +1,6 @@
 package com.ace.configuration.bot;
 
-import com.ace.bot.MyTelegramBot;
+import com.ace.thirdPartyNotifications.telegrambot.bot.MyTelegramBot;
 import com.ace.service.AnnouncementService;
 import com.ace.service.StaffService;
 import com.ace.service.UserNotedAnnouncementService;

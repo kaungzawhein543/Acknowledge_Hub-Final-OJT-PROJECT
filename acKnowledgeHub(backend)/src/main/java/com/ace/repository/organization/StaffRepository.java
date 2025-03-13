@@ -1,9 +1,10 @@
 package com.ace.repository.organization;
 
-import com.ace.dto.*;
+import com.ace.admin.dtos.*;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.entity.organization.Staff;
-import com.ace.utility.repository.BaseRepository;
+import com.ace.staff.dtos.StaffResponseDTO;
+import com.ace.utility.core.coreRepository.BaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -26,7 +27,7 @@ public interface StaffRepository extends BaseRepository<Staff, Integer> {
     @Query("SELECT s.chatId FROM Staff s WHERE s.id IN :ids")
     List<String> findStaffsChatIdByIds(List<Integer> ids);
 
-    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+    @Query("select NEW com.ace.staff.dtos.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
             "from Staff s where s.position.name = 'Human Resource' or s.position.name = 'Human Resource(Main)' order by s.companyStaffId")
     List<StaffResponseDTO> getHRStaffList();
 
@@ -38,20 +39,20 @@ public interface StaffRepository extends BaseRepository<Staff, Integer> {
     @Query("select s.chatId from Staff s")
     public List<String> findAllChatIds();
 
-    @Query("SELECT NEW com.ace.dto.NotedResponseDTO( s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, sn.notedAt, s.email) " +
+    @Query("SELECT NEW com.ace.admin.dtos.NotedResponseDTO( s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, sn.notedAt, s.email) " +
             "FROM Staff s " +
             "JOIN StaffNotedAnnouncement sn ON s.id = sn.staff.id " +
             "WHERE sn.announcement.id = :announcementId")
     List<NotedResponseDTO> getNotedStaffByAnnouncement(@Param("announcementId") Integer announcementId);
 
-    @Query("SELECT NEW com.ace.dto.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
+    @Query("SELECT NEW com.ace.admin.dtos.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
             "FROM Staff s " +
             "JOIN s.announcement a " +
             "LEFT JOIN StaffNotedAnnouncement sn ON s.id = sn.staff.id AND sn.announcement.id = :announcementId "+
             "WHERE a.id = :announcementId AND sn.id IS NULL")
     public List<UnNotedResponseDTO> getUnNotedStaffByAnnouncementWithEach(@Param("announcementId") Integer announcementId);
 
-    @Query("SELECT NEW com.ace.dto.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
+    @Query("SELECT NEW com.ace.admin.dtos.UnNotedResponseDTO(s.companyStaffId, s.name, s.department.name, s.company.name, s.position.name, s.email) " +
             "FROM Staff s " +
             "JOIN s.groups g " +
             "JOIN g.announcement a " +
@@ -75,14 +76,14 @@ public interface StaffRepository extends BaseRepository<Staff, Integer> {
 
     List<Staff> findByPositionId(Integer positionId);
 
-    @Query("SELECT NEW com.ace.dto.StaffGroupDTO(s.id , s.name , s.position, s.department,s.photoPath,s.company) FROM Staff s ")
+    @Query("SELECT NEW com.ace.admin.dtos.StaffGroupDTO(s.id , s.name , s.position, s.department,s.photoPath,s.company) FROM Staff s ")
     List<StaffGroupDTO> getStaffListForGroup();
 
-    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+    @Query("select NEW com.ace.staff.dtos.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
             "from Staff s order by s.companyStaffId")
     List<StaffResponseDTO> getStaffList();
 
-    @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
+    @Query("select NEW com.ace.admin.dtos.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
             "from Staff s where s.status = true ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
 
@@ -101,7 +102,7 @@ public interface StaffRepository extends BaseRepository<Staff, Integer> {
 List<Map<String, Object>> countStaffByAnnouncement();
 
     //@Query to get staff summary count
-    @Query("SELECT new com.ace.dto.StaffSummaryDTO(" +
+    @Query("SELECT new com.ace.admin.dtos.StaffSummaryDTO(" +
             "COUNT(s), " +
             "SUM(CASE WHEN s.status = true THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN s.status = false THEN 1 ELSE 0 END)) " +
@@ -118,7 +119,7 @@ List<Map<String, Object>> countStaffByAnnouncement();
     @Query("select s from Staff s where s.telegramName = ?1")
     List<Staff> findByTelegramUserName(String name);
 
-    @Query("select NEW com.ace.dto.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
+    @Query("select NEW com.ace.staff.dtos.StaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name, s.status ) " +
             "from Staff s " +
             "Join s.announcement a where a.id = ?1  order by s.company.name")
     List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id);

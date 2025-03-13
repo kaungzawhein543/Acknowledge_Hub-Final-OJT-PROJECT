@@ -1,9 +1,9 @@
 package com.ace.entity.organization;
 
-import com.ace.utility.entity.BaseTimestampEntity;
+import com.ace.utility.core.coreEntity.BaseTimestampEntity;
 import com.ace.entity.Announcement.Announcement;
-import com.ace.enums.DefaultPassword;
-import com.ace.enums.Role;
+import com.ace.utility.enums.DefaultPassword;
+import com.ace.utility.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

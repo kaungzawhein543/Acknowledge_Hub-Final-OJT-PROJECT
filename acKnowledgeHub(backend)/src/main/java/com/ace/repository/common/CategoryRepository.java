@@ -1,7 +1,7 @@
 package com.ace.repository.common;
 
 import com.ace.entity.common.Category;
-import com.ace.utility.repository.BaseRepository;
+import com.ace.utility.core.coreRepository.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

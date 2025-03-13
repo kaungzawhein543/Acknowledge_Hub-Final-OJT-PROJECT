@@ -1,6 +1,7 @@
 package com.ace.service;
 
-import com.ace.dto.*;
+import com.ace.admin.dtos.*;
+import com.ace.announcements.dtos.AnnouncementListDTO;
 import com.ace.entity.organization.Group;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.entity.organization.Staff;
@@ -9,6 +10,10 @@ import com.ace.entity.acknowledgement.StaffNotedAnnouncement;
 import com.ace.repository.announcement.AnnouncementRepository;
 import com.ace.repository.acknowledgement.NotedRepository;
 import com.ace.repository.organization.StaffRepository;
+import com.ace.staff.dtos.StaffDTO;
+import com.ace.staff.dtos.StaffResponseDTO;
+import com.ace.thirdPartyNotifications.email.dtos.ChangePasswordRequest;
+import com.ace.thirdPartyNotifications.email.dtos.PasswordResponseDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;

@@ -1,6 +1,6 @@
 package com.ace.service;
 
-import com.ace.dto.NotificationDTO;
+import com.ace.common.sysNotification.dtos.NotificationDTO;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.entity.organization.Group;
 import com.ace.entity.common.Notification;

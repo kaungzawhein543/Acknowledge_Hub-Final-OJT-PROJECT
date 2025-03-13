@@ -1,8 +1,8 @@
 package com.ace.controller;
 
-import com.ace.dto.EmailResponseDTO;
-import com.ace.dto.OTPEmailDTO;
-import com.ace.dto.PasswordResponseDTO;
+import com.ace.thirdPartyNotifications.email.dtos.EmailResponseDTO;
+import com.ace.thirdPartyNotifications.email.dtos.OTPEmailDTO;
+import com.ace.thirdPartyNotifications.email.dtos.PasswordResponseDTO;
 import com.ace.entity.organization.Staff;
 import com.ace.service.EmailService;
 import com.ace.service.StaffService;
