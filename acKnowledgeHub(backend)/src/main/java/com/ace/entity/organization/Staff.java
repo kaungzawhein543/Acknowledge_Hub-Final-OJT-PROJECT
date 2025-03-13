@@ -1,7 +1,6 @@
 package com.ace.entity.organization;
 
-import com.ace.baseclasses.entity.BaseEntity;
-import com.ace.baseclasses.entity.BaseTimestampEntity;
+import com.ace.utility.entity.BaseTimestampEntity;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.enums.DefaultPassword;
 import com.ace.enums.Role;
@@ -19,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 @Entity

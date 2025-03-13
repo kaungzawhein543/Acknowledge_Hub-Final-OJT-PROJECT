@@ -1,7 +1,7 @@
 package com.ace.entity.Announcement;
 
 
-import com.ace.baseclasses.entity.BaseEntity;
+import com.ace.utility.entity.BaseEntity;
 import com.ace.entity.common.Category;
 import com.ace.entity.organization.Group;
 import com.ace.entity.organization.Staff;
@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity

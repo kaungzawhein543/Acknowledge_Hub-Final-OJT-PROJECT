@@ -1,4 +1,4 @@
-package com.ace.baseclasses.entity;
+package com.ace.utility.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
