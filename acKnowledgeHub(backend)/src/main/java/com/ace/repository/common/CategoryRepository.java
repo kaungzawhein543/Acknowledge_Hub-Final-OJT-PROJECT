@@ -1,7 +1,7 @@
 package com.ace.repository.common;
 
 import com.ace.entity.common.Category;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Integer> {
+public interface CategoryRepository extends BaseRepository<Category, Integer> {
 
     @Modifying
     @Transactional

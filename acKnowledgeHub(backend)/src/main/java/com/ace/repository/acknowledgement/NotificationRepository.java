@@ -1,7 +1,7 @@
 package com.ace.repository.acknowledgement;
 
 import com.ace.entity.common.Notification;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Integer> {
+public interface NotificationRepository extends BaseRepository<Notification, Integer> {
 
     @Query("SELECT n FROM Notification n WHERE n.staff.id = :staffId")
     List<Notification> findByStaffId(@Param("staffId") int staffId);

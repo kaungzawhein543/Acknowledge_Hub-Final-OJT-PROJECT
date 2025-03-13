@@ -1,7 +1,7 @@
 package com.ace.repository.organization;
 
 import com.ace.entity.organization.Company;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CompanyRepository extends JpaRepository<Company,Integer> {
+public interface CompanyRepository extends BaseRepository<Company,Integer> {
     Optional<Company> findByName(String name);
 
     @Query("SELECT c FROM Company c ORDER BY c.name ASC")

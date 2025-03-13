@@ -2,7 +2,7 @@ package com.ace.repository.organization;
 
 import com.ace.entity.organization.Department;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DepartmentRepository extends JpaRepository<Department, Integer> {
+public interface DepartmentRepository extends BaseRepository<Department, Integer> {
     Optional<Department> findByName(String name);
 
     List<Department> findByCompanyId(Integer companyId);

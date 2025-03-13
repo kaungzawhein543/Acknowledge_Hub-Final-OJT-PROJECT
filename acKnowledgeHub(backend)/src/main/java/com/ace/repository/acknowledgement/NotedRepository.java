@@ -3,14 +3,14 @@ package com.ace.repository.acknowledgement;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.entity.organization.Staff;
 import com.ace.entity.acknowledgement.StaffNotedAnnouncement;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface NotedRepository extends JpaRepository<StaffNotedAnnouncement,Integer> {
+public interface NotedRepository extends BaseRepository<StaffNotedAnnouncement,Integer> {
 
     Optional<StaffNotedAnnouncement> findByStaffAndAnnouncement(Staff staff, Announcement announcement);
 

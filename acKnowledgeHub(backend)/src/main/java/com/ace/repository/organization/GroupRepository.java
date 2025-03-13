@@ -3,7 +3,7 @@ package com.ace.repository.organization;
 import com.ace.dto.GroupResponseDTO;
 import com.ace.entity.organization.Group;
 import com.ace.entity.organization.Staff;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface GroupRepository extends JpaRepository<Group, Integer> {
+public interface GroupRepository extends BaseRepository<Group, Integer> {
 
     @Query("SELECT g FROM Group g JOIN g.announcement a WHERE a.id IN :announcementIds")
     List<Group> findGroupsByAnnouncementIds(@Param("announcementIds") List<Integer> announcementIds);

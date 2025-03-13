@@ -2,7 +2,7 @@ package com.ace.repository.announcement;
 
 import com.ace.dto.*;
 import com.ace.entity.Announcement.Announcement;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @Repository
-public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
+public interface AnnouncementRepository extends BaseRepository<Announcement,Integer> {
     //List<Announcement> findByStatus(String status);
 
     @Query("SELECT NEW com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.createdAt, a.scheduleAt, a.groupStatus, a.file) " +

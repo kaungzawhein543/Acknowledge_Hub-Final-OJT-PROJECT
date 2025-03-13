@@ -2,7 +2,7 @@ package com.ace.repository.organization;
 
 
 import com.ace.entity.organization.Position;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PositionRepository extends JpaRepository<Position,Integer> {
+public interface PositionRepository extends BaseRepository<Position,Integer> {
 
     Optional<Position> findByName(String name);
     @Query("SELECT DISTINCT p FROM Position p " +

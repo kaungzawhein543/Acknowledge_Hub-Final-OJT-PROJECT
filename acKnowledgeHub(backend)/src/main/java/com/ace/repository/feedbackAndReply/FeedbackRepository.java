@@ -2,6 +2,7 @@ package com.ace.repository.feedbackAndReply;
 
 import com.ace.dto.FeedbackResponseListDTO;
 import com.ace.entity.feedbackAndReply.Feedback;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<Feedback,Integer> {
+public interface FeedbackRepository extends BaseRepository<Feedback,Integer> {
 
     @Query(value = "select f.id, f.content, s.name, rp.content, " +
             "(select s2.name from staff s2 where s2.id = rp.staff_id), " +

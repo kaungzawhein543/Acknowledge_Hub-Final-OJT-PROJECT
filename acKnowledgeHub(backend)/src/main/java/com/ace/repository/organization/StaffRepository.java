@@ -3,9 +3,9 @@ package com.ace.repository.organization;
 import com.ace.dto.*;
 import com.ace.entity.Announcement.Announcement;
 import com.ace.entity.organization.Staff;
+import com.ace.utility.repository.BaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public interface StaffRepository extends JpaRepository<Staff, Integer> {
+public interface StaffRepository extends BaseRepository<Staff, Integer> {
 
     @Query("SELECT s FROM Staff s where s.email = :email")
     public Staff findByEmail(@Param("email") String email);
