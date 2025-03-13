@@ -3,18 +3,16 @@ package com.ace.controller;
 import com.ace.dto.GroupDTO;
 import com.ace.dto.GroupResponseDTO;
 import com.ace.dto.StaffDTO;
-import com.ace.entity.Company;
-import com.ace.entity.Group;
-import com.ace.entity.Staff;
+import com.ace.entity.organization.Company;
+import com.ace.entity.organization.Group;
+import com.ace.entity.organization.Staff;
 import com.ace.service.CompanyService;
 import com.ace.service.GroupService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,9 +1,7 @@
-package com.ace.repository;
+package com.ace.repository.announcement;
 
 import com.ace.dto.*;
-import com.ace.entity.Announcement;
-import com.ace.entity.Group;
-import com.ace.entity.Staff;
+import com.ace.entity.Announcement.Announcement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,14 +10,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
     //List<Announcement> findByStatus(String status);
 
-    @Query("SELECT NEW com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.created_at, a.scheduleAt, a.groupStatus, a.file) " +
+    @Query("SELECT NEW com.ace.dto.AnnouncementListDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.status, a.createdAt, a.scheduleAt, a.groupStatus, a.file) " +
             "FROM Announcement a " +
             "WHERE a.permission = 'approved' AND a.isPublished = true " +
             "ORDER BY a.scheduleAt DESC")
@@ -38,7 +35,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("SELECT a.file FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%')")
     List<String> getAllVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
-    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.created_at DESC")
+    @Query("SELECT a FROM Announcement a WHERE a.file LIKE CONCAT('%/', :baseFileName, '%') ORDER BY a.createdAt DESC")
     List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
     @Query("select NEW com.ace.dto.StaffNotedResponseDTO(a.id , a.title , a.description, a.scheduleAt, sn.notedAt, a.createStaff.name) from Announcement a " +
@@ -79,10 +76,10 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     List<AnnouncementResponseListDTO> getPendingAnnouncement();
 
     //Query for staffNotedAnnouncement
-    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
+    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.createdAt, COUNT(s.id)) " +
             "FROM Announcement a " +
             "LEFT JOIN StaffNotedAnnouncement s ON a.id = s.announcement.id " +
-            "GROUP BY a.id, a.title, a.created_at")
+            "GROUP BY a.id, a.title, a.createdAt")
     List<AnnouncementStaffCountDTO> findAnnouncementStaffCounts();
 //    @Query("SELECT new com.ace.dto.AnnouncementStaffCountDTO(a.id, a.title, a.created_at, COUNT(s.id)) " +
 //            "FROM Announcement a " +
@@ -110,7 +107,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "group by YEAR(a.scheduleAt), MONTH(a.scheduleAt)")
     List<MonthlyCountDTO> countActiveAnnouncementsByMonth();
 
-    @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId AND a.isPublished = true ORDER BY a.created_at DESC")
+    @Query("SELECT a FROM Announcement a JOIN a.staff s WHERE s.id = :staffId AND a.isPublished = true ORDER BY a.createdAt DESC")
     List<Announcement> findAnnouncementsByStaffId(@Param("staffId") int staffId);
 
     @Query("SELECT a FROM Announcement a " +
@@ -118,7 +115,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
             "JOIN g.staff s " +
             "WHERE s.id = :staffId " +
             "AND a.groupStatus = 1 AND a.isPublished = true " +
-            "ORDER BY a.created_at DESC")
+            "ORDER BY a.createdAt DESC")
     List<Announcement> findAnnouncementsByStaffIdInGroups(@Param("staffId") int staffId);
 
     @Query("SELECT new com.ace.dto.AnnouncementVersionDTO(a.id, a.file) " +
@@ -129,7 +126,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 //    List<Announcement> getLatestVersionsOfAnnouncement(@Param("baseFileName") String baseFileName);
 
     @Query("select new com.ace.dto.RequestAnnouncementResponseDTO" +
-            "(a.id, a.title , a.description,a.created_at, a.scheduleAt,  a.category.name, a.createStaff.name,cs.company.name) " +
+            "(a.id, a.title , a.description,a.createdAt, a.scheduleAt,  a.category.name, a.createStaff.name,cs.company.name) " +
             "from Announcement a join a.createStaff cs where a.permission = 'pending'")
     List<RequestAnnouncementResponseDTO> getRequestAnnouncement();
 
@@ -148,7 +145,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     @Query("update Announcement a set a.permission = 'reject' where a.id = ?1")
     void rejectRequestAnnouncement(Integer id);
 
-    @Query("select new com.ace.dto.AnnouncementListForHrDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.permission, a.created_at, a.scheduleAt, a.groupStatus,a.isPublished ,a.file) " +
+    @Query("select new com.ace.dto.AnnouncementListForHrDTO(a.id, a.title, a.description, a.createStaff.name, a.category.name, a.permission, a.createdAt, a.scheduleAt, a.groupStatus,a.isPublished ,a.file) " +
             "from Announcement a where  a.createStaff.id = ?1 order by a.scheduleAt DESC")
     List<AnnouncementListForHrDTO> getAnnouncementListByStaffRequest(Integer staffId);
 

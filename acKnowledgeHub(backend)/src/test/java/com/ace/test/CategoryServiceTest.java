@@ -2,8 +2,8 @@ package com.ace.test;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ace.entity.Category;
-import com.ace.repository.CategoryRepository;
+import com.ace.entity.common.Category;
+import com.ace.repository.common.CategoryRepository;
 import com.ace.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

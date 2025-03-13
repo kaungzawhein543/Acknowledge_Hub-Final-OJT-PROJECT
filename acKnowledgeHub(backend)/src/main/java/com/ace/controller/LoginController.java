@@ -4,8 +4,8 @@ import com.ace.dto.ChangePasswordRequest;
 import com.ace.dto.LoginRequest;
 import com.ace.dto.LoginUserInfo;
 import com.ace.dto.ProfileDTO;
-import com.ace.entity.Company;
-import com.ace.entity.Staff;
+import com.ace.entity.organization.Company;
+import com.ace.entity.organization.Staff;
 import com.ace.service.CompanyService;
 import com.ace.service.StaffService;
 import com.ace.service.TokenBlacklistService;
@@ -17,7 +17,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +52,7 @@ public class LoginController {
         Staff user = staffService.findByStaffId(loginRequest.getStaffId());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid staff ID");
-        } else if (!user.getStatus().equals("active")) {
+        } else if (!user.isStatus()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your account is inactive. Please contact the administrator.");
         } else {
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
@@ -226,7 +225,7 @@ public class LoginController {
                             staff.getCompanyStaffId(),
                             staff.getEmail(),
                             staff.getPassword(),
-                            staff.getStatus(),
+                            staff.isStatus(),
                             staff.getRole(),
                             staff.getPhotoPath(),
                             staff.getPosition().getName(),

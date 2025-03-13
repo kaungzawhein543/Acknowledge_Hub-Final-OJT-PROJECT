@@ -1,34 +1,32 @@
-package com.ace.entity;
+package com.ace.entity.common;
 
 
+import com.ace.baseclasses.entity.BaseEntity;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Staff;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.sql.Timestamp;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "notification")
-public class Notification {
+public class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @Column(name = "description",nullable = false)
     private String description;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    @Column(name = "status")
-    private String status = "active";
     @Column(name = "url")
     private String url;
+    @Column(name="status")
+    private boolean status;
     @Column(name = "checked")
     private boolean checked;
     @ManyToOne(cascade = CascadeType.MERGE)
@@ -38,11 +36,4 @@ public class Notification {
     @JoinColumn(name = "announcement_id",nullable = false)
     private Announcement announcement;
 
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt =  LocalDateTime.now();
-        }
-    }
 }

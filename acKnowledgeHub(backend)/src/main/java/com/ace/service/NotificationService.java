@@ -2,24 +2,20 @@ package com.ace.service;
 
 import com.ace.dto.AnnouncementDetails;
 import com.ace.dto.NotificationDTO;
-import com.ace.entity.Announcement;
-import com.ace.entity.Group;
-import com.ace.entity.Notification;
-import com.ace.repository.AnnouncementRepository;
-import com.ace.repository.GroupRepository;
-import com.ace.repository.NotificationRepository;
-import com.ace.repository.StaffRepository;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Group;
+import com.ace.entity.common.Notification;
+import com.ace.repository.announcement.AnnouncementRepository;
+import com.ace.repository.organization.GroupRepository;
+import com.ace.repository.acknowledgement.NotificationRepository;
+import com.ace.repository.organization.StaffRepository;
 import lombok.extern.slf4j.Slf4j;
-import nl.martijndwars.webpush.PushService;
-import nl.martijndwars.webpush.Subscription;
 import org.hibernate.Hibernate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,7 +99,7 @@ public class NotificationService {
     public void markNotificationsAsInactive(List<Integer> notificationIds) {
         List<Notification> notifications = notificationRepository.findAllById(notificationIds);
         for (Notification notification : notifications) {
-            notification.setStatus("inactive");
+            notification.setStatus(false);
         }
         notificationRepository.saveAll(notifications);
     }
@@ -132,7 +128,7 @@ public class NotificationService {
                 notification.getCreatedAt(),
                 notification.getAnnouncement() != null ? notification.getAnnouncement().getId() : 0,
                 extractGroupIds(notification),
-                notification.getStatus() != null ? notification.getStatus() : "unknown"
+                notification.isStatus()
 
         );
         dto.setId(notification.getId());

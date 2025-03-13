@@ -1,8 +1,7 @@
 package com.ace.dto;
 
-import com.ace.entity.*;
+import com.ace.entity.common.Category;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

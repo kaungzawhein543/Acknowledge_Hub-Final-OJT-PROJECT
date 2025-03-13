@@ -1,7 +1,7 @@
 package com.ace.dto;
 
-import com.ace.entity.Announcement;
-import com.ace.entity.Group;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Group;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

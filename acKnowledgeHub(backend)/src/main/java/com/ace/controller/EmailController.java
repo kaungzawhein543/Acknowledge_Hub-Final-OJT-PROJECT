@@ -3,19 +3,14 @@ package com.ace.controller;
 import com.ace.dto.EmailResponseDTO;
 import com.ace.dto.OTPEmailDTO;
 import com.ace.dto.PasswordResponseDTO;
-import com.ace.entity.Staff;
+import com.ace.entity.organization.Staff;
 import com.ace.service.EmailService;
 import com.ace.service.StaffService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
 
 @Slf4j

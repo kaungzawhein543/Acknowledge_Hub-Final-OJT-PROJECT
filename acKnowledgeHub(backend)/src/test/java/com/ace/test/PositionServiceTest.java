@@ -14,8 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.ace.entity.Position;
-import com.ace.repository.PositionRepository;
+import com.ace.entity.organization.Position;
+import com.ace.repository.organization.PositionRepository;
 import com.ace.service.PositionService;
 
 @SpringBootTest

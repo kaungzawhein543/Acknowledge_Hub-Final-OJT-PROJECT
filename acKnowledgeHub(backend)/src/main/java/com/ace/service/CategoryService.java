@@ -1,8 +1,7 @@
 package com.ace.service;
 
-import com.ace.entity.Category;
-import com.ace.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ace.entity.common.Category;
+import com.ace.repository.common.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

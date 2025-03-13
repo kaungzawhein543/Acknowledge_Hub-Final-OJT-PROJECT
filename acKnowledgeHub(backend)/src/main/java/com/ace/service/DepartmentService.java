@@ -1,11 +1,10 @@
 package com.ace.service;
 
-import com.ace.entity.Group;
-import com.ace.repository.DepartmentRepository;
-import com.ace.entity.Department;
-import com.ace.repository.GroupRepository;
+import com.ace.entity.organization.Group;
+import com.ace.repository.organization.DepartmentRepository;
+import com.ace.entity.organization.Department;
+import com.ace.repository.organization.GroupRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

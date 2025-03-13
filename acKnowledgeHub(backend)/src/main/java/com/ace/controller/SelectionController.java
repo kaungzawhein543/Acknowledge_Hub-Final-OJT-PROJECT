@@ -1,6 +1,6 @@
 //package com.ace.controller;
 //
-//import com.ace.entity.Staff;
+//import com.ace.entity.organization.Staff;
 //import com.ace.service.StaffService;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.web.bind.annotation.*;

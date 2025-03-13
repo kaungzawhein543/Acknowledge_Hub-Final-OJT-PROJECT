@@ -2,28 +2,22 @@ package com.ace.controller;
 
 import com.ace.dto.FeedbackListResponseDTO;
 import com.ace.dto.FeedbackRequestDTO;
-import com.ace.dto.FeedbackResponseDTO;
 import com.ace.dto.FeedbackResponseListDTO;
-import com.ace.entity.Announcement;
-import com.ace.entity.Feedback;
-import com.ace.entity.Notification;
-import com.ace.entity.Staff;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.feedbackAndReply.Feedback;
+import com.ace.entity.common.Notification;
+import com.ace.entity.organization.Staff;
 import com.ace.service.*;
-import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/feedback")

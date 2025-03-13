@@ -1,7 +1,6 @@
-package com.ace.repository;
+package com.ace.repository.organization;
 
-import com.ace.entity.Company;
-import com.ace.entity.Department;
+import com.ace.entity.organization.Department;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

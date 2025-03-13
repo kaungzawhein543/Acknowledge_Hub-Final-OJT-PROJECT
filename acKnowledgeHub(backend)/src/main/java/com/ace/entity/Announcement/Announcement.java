@@ -1,9 +1,14 @@
-package com.ace.entity;
+package com.ace.entity.Announcement;
 
 
+import com.ace.baseclasses.entity.BaseEntity;
+import com.ace.entity.common.Category;
+import com.ace.entity.organization.Group;
+import com.ace.entity.organization.Staff;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
@@ -15,17 +20,15 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "announcement")
-public class Announcement {
+public class Announcement extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
     @Column(name = "title")
     private String title;
-    @Temporal(TemporalType.DATE)
-    @Column(name = "created_at")
-    private Date created_at;
     @Column(name = "schedule_at")
     private LocalDateTime scheduleAt;
     @Column(name = "file")
@@ -68,9 +71,6 @@ public class Announcement {
 
     @PrePersist
     protected void onCreate() {
-        if (this.created_at == null) {
-            this.created_at = new Date();
-        }
         if(this.scheduleAt == null){
             this.scheduleAt = LocalDateTime.now();
         }

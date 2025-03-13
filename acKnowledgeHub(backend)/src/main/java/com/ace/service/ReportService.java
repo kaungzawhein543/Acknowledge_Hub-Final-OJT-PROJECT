@@ -1,7 +1,7 @@
 package com.ace.service;
 
 import com.ace.dto.FeedbackListResponseDTO;
-import com.ace.entity.Announcement;
+import com.ace.entity.Announcement.Announcement;
 //import net.sf.dynamicreports.report.builder.DynamicReports;
 //import net.sf.dynamicreports.report.builder.ReportBuilder;
 //import net.sf.dynamicreports.report.builder.component.TextFieldBuilder;
@@ -12,21 +12,12 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-
-import static org.springframework.orm.hibernate5.SessionFactoryUtils.getDataSource;
 
 @Service
 public class ReportService {

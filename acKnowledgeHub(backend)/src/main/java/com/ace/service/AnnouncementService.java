@@ -1,10 +1,8 @@
 package com.ace.service;
 
 import com.ace.dto.*;
-import com.ace.entity.Announcement;
-import com.ace.entity.Group;
-import com.ace.entity.Staff;
-import com.ace.repository.AnnouncementRepository;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.repository.announcement.AnnouncementRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,8 +1,8 @@
 package com.ace.dto;
 
 
-import com.ace.entity.Category;
-import com.ace.entity.Staff;
+import com.ace.entity.common.Category;
+import com.ace.entity.organization.Staff;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;

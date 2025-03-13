@@ -1,8 +1,7 @@
 package com.ace.controller;
 
-import com.ace.entity.Category;
+import com.ace.entity.common.Category;
 import com.ace.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +29,7 @@ public class CategoryController {
             Category category = new Category();
             category.setName(name);
             category.setDescription(description);
-            category.setCreatedAt(LocalDate.now());
+            category.setCreated_at(LocalDate.now());
             service.save(category);
             return ResponseEntity.ok("Adding category is successful.");
         } else {

@@ -1,8 +1,8 @@
-package com.ace.repository;
+package com.ace.repository.organization;
 
 import com.ace.dto.*;
-import com.ace.entity.Announcement;
-import com.ace.entity.Staff;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Staff;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -83,7 +83,7 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<StaffResponseDTO> getStaffList();
 
     @Query("select NEW com.ace.dto.ActiveStaffResponseDTO(s.id, s.companyStaffId, s.name, s.email, s.role, s.position.name, s.department.name, s.company.name) " +
-            "from Staff s where s.status = 'active' ")
+            "from Staff s where s.status = true ")
     List<ActiveStaffResponseDTO> getActiveStaffList();
 
 
@@ -103,8 +103,8 @@ List<Map<String, Object>> countStaffByAnnouncement();
     //@Query to get staff summary count
     @Query("SELECT new com.ace.dto.StaffSummaryDTO(" +
             "COUNT(s), " +
-            "SUM(CASE WHEN s.status = 'active' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN s.status = 'inactive' THEN 1 ELSE 0 END)) " +
+            "SUM(CASE WHEN s.status = true THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN s.status = false THEN 1 ELSE 0 END)) " +
             "FROM Staff s")
     StaffSummaryDTO getStaffSummary();
 

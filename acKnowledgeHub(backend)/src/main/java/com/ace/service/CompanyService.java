@@ -1,11 +1,10 @@
 package com.ace.service;
 
-import com.ace.entity.Group;
-import com.ace.repository.CompanyRepository;
-import com.ace.entity.Company;
-import com.ace.repository.GroupRepository;
+import com.ace.entity.organization.Group;
+import com.ace.repository.organization.CompanyRepository;
+import com.ace.entity.organization.Company;
+import com.ace.repository.organization.GroupRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

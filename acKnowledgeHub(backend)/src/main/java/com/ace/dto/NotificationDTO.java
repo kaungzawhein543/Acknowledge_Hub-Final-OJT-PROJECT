@@ -10,7 +10,7 @@ public class NotificationDTO {
     private int id;
     private String title;
     private String description;
-    private String status;
+    private boolean status;
     private String staffId;
     private String url;
     private boolean checked;
@@ -19,7 +19,7 @@ public class NotificationDTO {
     private List<Integer> groupIds;
     private AnnouncementDetails announcementDetails;
 
-    public NotificationDTO(Integer id , String title, String description, String staffId,boolean checked,String url, LocalDateTime created_at, int announceId, List<Integer> groupIds,String status) {
+    public NotificationDTO(Integer id , String title, String description, String staffId,boolean checked,String url, LocalDateTime created_at, int announceId, List<Integer> groupIds,boolean status) {
         this.id = id;
         this.title = title;
         this.description = description;

@@ -1,9 +1,9 @@
 package com.ace.service;
 
-import com.ace.entity.Announcement;
-import com.ace.entity.Staff;
-import com.ace.entity.StaffNotedAnnouncement;
-import com.ace.repository.NotedRepository;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Staff;
+import com.ace.entity.acknowledgement.StaffNotedAnnouncement;
+import com.ace.repository.acknowledgement.NotedRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

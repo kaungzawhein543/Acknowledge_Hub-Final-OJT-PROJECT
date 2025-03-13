@@ -1,8 +1,8 @@
-package com.ace.repository;
+package com.ace.repository.acknowledgement;
 
-import com.ace.entity.Announcement;
-import com.ace.entity.Staff;
-import com.ace.entity.StaffNotedAnnouncement;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Staff;
+import com.ace.entity.acknowledgement.StaffNotedAnnouncement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

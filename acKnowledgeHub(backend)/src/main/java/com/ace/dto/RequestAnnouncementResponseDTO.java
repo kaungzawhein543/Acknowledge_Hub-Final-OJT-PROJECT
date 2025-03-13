@@ -10,13 +10,13 @@ public class RequestAnnouncementResponseDTO {
     private Integer id;
     private String title;
     private String description;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private LocalDateTime scheduleAt;
     private String category;
     private String createStaff;
     private String staffCompany;
 
-    public RequestAnnouncementResponseDTO(Integer id, String title, String description, Date createdAt, LocalDateTime scheduleAt, String category, String createStaff, String staffCompany) {
+    public RequestAnnouncementResponseDTO(Integer id, String title, String description, LocalDateTime createdAt, LocalDateTime scheduleAt, String category, String createStaff, String staffCompany) {
         this.id = id;
         this.title = title;
         this.description = description;

@@ -1,16 +1,14 @@
 package com.ace.service;
 
-import com.ace.controller.AnnouncementController;
 import com.ace.dto.NotificationDTO;
-import com.ace.entity.Announcement;
-import com.ace.entity.Group;
-import com.ace.entity.Notification;
-import com.ace.entity.Staff;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Group;
+import com.ace.entity.common.Notification;
+import com.ace.entity.organization.Staff;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -187,7 +185,6 @@ public class BlogService {
                    .map(Group::getId)
                    .collect(Collectors.toList()): new ArrayList<>();
            String staffId = String.valueOf((notification.getStaff().getId()));
-           String status = notification.getStatus() != null ? notification.getStatus() : "unknown";
            return new NotificationDTO(
                    notification.getId(),
                    notification.getAnnouncement().getTitle(),
@@ -198,7 +195,8 @@ public class BlogService {
                    notification.getCreatedAt(),
                    notification.getAnnouncement().getId(),
                    groupIds,
-                   status
+                   notification.isStatus()
+
            );
        }catch(Exception e){
            log.info("Error occur when converting the dto in blog service!");

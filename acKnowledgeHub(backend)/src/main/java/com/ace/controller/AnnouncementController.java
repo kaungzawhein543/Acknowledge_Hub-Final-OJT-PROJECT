@@ -1,19 +1,23 @@
 package com.ace.controller;
 
 import com.ace.dto.*;
-import com.ace.entity.*;
-import com.ace.repository.StaffRepository;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.acknowledgement.StaffNotedAnnouncement;
+import com.ace.entity.common.Notification;
+import com.ace.entity.organization.Company;
+import com.ace.entity.organization.Group;
+import com.ace.entity.organization.Position;
+import com.ace.entity.organization.Staff;
+import com.ace.repository.organization.StaffRepository;
 import com.ace.service.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,17 +26,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
 

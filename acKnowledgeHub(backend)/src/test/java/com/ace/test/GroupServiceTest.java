@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -18,12 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.ace.entity.Group;
-import com.ace.entity.Staff;
-import com.ace.repository.GroupRepository;
-import com.ace.repository.StaffRepository;
+import com.ace.entity.organization.Group;
+import com.ace.entity.organization.Staff;
+import com.ace.repository.organization.GroupRepository;
+import com.ace.repository.organization.StaffRepository;
 import com.ace.service.GroupService;
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext.Empty;
 
 @SpringBootTest
 public class GroupServiceTest {

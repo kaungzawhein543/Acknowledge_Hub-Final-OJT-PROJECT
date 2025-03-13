@@ -1,10 +1,9 @@
 package com.ace.controller;
 
-import com.ace.entity.Company;
-import com.ace.entity.Department;
+import com.ace.entity.organization.Company;
+import com.ace.entity.organization.Department;
 import com.ace.service.CompanyService;
 import com.ace.service.DepartmentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

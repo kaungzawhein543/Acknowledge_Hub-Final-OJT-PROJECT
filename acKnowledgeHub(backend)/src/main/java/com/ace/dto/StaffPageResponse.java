@@ -1,6 +1,6 @@
 package com.ace.dto;
 
-import com.ace.entity.Staff;
+import com.ace.entity.organization.Staff;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -1,9 +1,8 @@
-package com.ace.repository;
+package com.ace.repository.organization;
 
-import com.ace.dto.GroupDTO;
 import com.ace.dto.GroupResponseDTO;
-import com.ace.entity.Group;
-import com.ace.entity.Staff;
+import com.ace.entity.organization.Group;
+import com.ace.entity.organization.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

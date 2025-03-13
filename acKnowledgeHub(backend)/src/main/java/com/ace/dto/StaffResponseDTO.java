@@ -13,9 +13,9 @@ public class StaffResponseDTO {
     private String position;
     private String department;
     private String company;
-    private String status;
+    private boolean status;
 
-    public StaffResponseDTO(Integer id, String companyStaffId, String name, String email, Role role, String position, String department, String company, String status) {
+    public StaffResponseDTO(Integer id, String companyStaffId, String name, String email, Role role, String position, String department, String company, boolean status) {
         this.id = id;
         this.companyStaffId = companyStaffId;
         this.name = name;

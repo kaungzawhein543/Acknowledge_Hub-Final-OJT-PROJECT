@@ -1,13 +1,11 @@
-package com.ace.entity;
+package com.ace.entity.common;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Data
@@ -25,7 +23,7 @@ public class Category {
     private String description;
     @Temporal(TemporalType.DATE)
     @Column(name = "created_at")
-    private LocalDate createdAt;
+    private LocalDate created_at;
     @Column(name = "status")
     private String status = "active";
 

@@ -1,7 +1,6 @@
 package com.ace.controller;
 
-import com.ace.entity.Company;
-import com.ace.entity.Position;
+import com.ace.entity.organization.Position;
 import com.ace.service.PositionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

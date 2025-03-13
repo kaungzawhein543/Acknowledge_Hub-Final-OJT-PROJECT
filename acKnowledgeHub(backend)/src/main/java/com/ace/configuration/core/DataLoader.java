@@ -1,14 +1,14 @@
 package com.ace.configuration.core;
 
-import com.ace.entity.*;
+import com.ace.entity.organization.*;
 import com.ace.enums.Role;
-import com.ace.repository.*;
+import com.ace.repository.organization.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Configuration
 public class DataLoader {
@@ -63,8 +63,8 @@ public class DataLoader {
                 adminStaff.setName("Admin");
                 adminStaff.setCompanyStaffId("ADMIN001");
                 adminStaff.setEmail("admin@gmail.com");
-                adminStaff.setCreatedAt(new Date());
-                adminStaff.setStatus("active");
+                adminStaff.setCreatedAt(LocalDateTime.now());
+                adminStaff.setStatus(true);
                 adminStaff.setCompany(company);
                 adminStaff.setDepartment(department);
                 adminStaff.setPosition(position);
@@ -84,7 +84,7 @@ public class DataLoader {
         if (groupRepository.findByName("Global Group") == null) {
             Group newGroup = new Group();
             newGroup.setName("Global Group"); // Set the name
-            newGroup.setCreatedAt(new Date()); // Set the created_at date
+            newGroup.setCreatedAt(LocalDateTime.now()); // Set the created_at date
             newGroup.setStatus("active"); // Set default status to active
             groupRepository.save(newGroup); // Save the group
         }

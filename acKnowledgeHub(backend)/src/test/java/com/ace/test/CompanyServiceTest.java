@@ -17,11 +17,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.ace.entity.Category;
-import com.ace.entity.Company;
-import com.ace.entity.Group;
-import com.ace.repository.CompanyRepository;
-import com.ace.repository.GroupRepository;
+import com.ace.entity.organization.Company;
+import com.ace.entity.organization.Group;
+import com.ace.repository.organization.CompanyRepository;
+import com.ace.repository.organization.GroupRepository;
 import com.ace.service.CompanyService;
 import static org.mockito.ArgumentMatchers.any;
 

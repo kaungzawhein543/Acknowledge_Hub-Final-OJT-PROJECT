@@ -1,23 +1,20 @@
 package com.ace.controller;
 
 import com.ace.dto.FeedBackReplyDTO;
-import com.ace.dto.FeedbackListResponseDTO;
 import com.ace.dto.FeedbackReplyRequestDTO;
 import com.ace.dto.TypingStatusMessage;
-import com.ace.entity.Feedback;
-import com.ace.entity.FeedbackReply;
-import com.ace.entity.Notification;
+import com.ace.entity.feedbackAndReply.Feedback;
+import com.ace.entity.feedbackAndReply.FeedbackReply;
+import com.ace.entity.common.Notification;
 import com.ace.service.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -71,10 +68,10 @@ public class FeedbackReplyController {
         // Mapping the common fields
         feedBackReplyDTO.setId(feedback.getId());
         feedBackReplyDTO.setContent(feedback.getContent());
-        feedBackReplyDTO.setCreatedAt(feedback.getCreated_at());  // Convert LocalDateTime to String
+        feedBackReplyDTO.setCreatedAt(feedback.getCreatedAt());  // Convert LocalDateTime to String
         feedBackReplyDTO.setReplyBy(reply.getStaff().getName());
         feedBackReplyDTO.setReply(reply.getContent());
-        feedBackReplyDTO.setReplyAt(reply.getCreated_at());
+        feedBackReplyDTO.setReplyAt(reply.getCreatedAt());
         feedBackReplyDTO.setPhotoPath(feedback.getStaff().getPhotoPath());
         // Mapping nested staff fields
         if (feedback.getStaff() != null) {

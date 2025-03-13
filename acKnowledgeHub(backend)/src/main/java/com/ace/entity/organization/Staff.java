@@ -1,11 +1,15 @@
-package com.ace.entity;
+package com.ace.entity.organization;
 
+import com.ace.baseclasses.entity.BaseEntity;
+import com.ace.baseclasses.entity.BaseTimestampEntity;
+import com.ace.entity.Announcement.Announcement;
 import com.ace.enums.DefaultPassword;
 import com.ace.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,8 +26,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "staff")
-public class Staff implements UserDetails {
+public class Staff extends BaseTimestampEntity implements UserDetails{
 
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Id
@@ -38,11 +43,6 @@ public class Staff implements UserDetails {
     private String email;
     @Column(name ="password")
     private String password;
-    @Temporal(TemporalType.DATE)
-    @Column(name="created_at")
-    private Date createdAt;
-    @Column(name = "status")
-    private String status = "active";
     @Column(name = "chat_id")
     private String chatId;
     @Enumerated(EnumType.STRING)
@@ -71,9 +71,6 @@ public class Staff implements UserDetails {
 
     @PrePersist
     protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = new Date(System.currentTimeMillis());
-        }
         if (this.password == null) {
             switch (this.role) {
                 case ADMIN:
@@ -128,5 +125,5 @@ public class Staff implements UserDetails {
 
     @Override
     public String toString() {
-        return "Staff{id=" + id + ", name='" + name + "', companyStaffId='" + companyStaffId + "', email='" + email + "', createdAt=" + createdAt + "}";}
+        return "Staff{id=" + id + ", name='" + name + "', companyStaffId='" + companyStaffId + "', email='" + email + "', createdAt='" + super.createdAt + "'}";}
 }

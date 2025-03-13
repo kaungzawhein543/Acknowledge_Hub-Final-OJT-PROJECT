@@ -1,12 +1,14 @@
-package com.ace.entity;
+package com.ace.entity.organization;
 
+import com.ace.baseclasses.entity.BaseEntity;
+import com.ace.entity.Announcement.Announcement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,8 +17,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "`group`")
-public class Group {
+public class Group extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -25,9 +28,6 @@ public class Group {
     private String name;
     @Column (name = "status")
     private String status = "active";
-    @Temporal(TemporalType.DATE)
-    @Column(name = "created_at")
-    private Date createdAt;
     @ManyToMany(mappedBy = "group")
     @JsonIgnore
     private List<Announcement> announcement;
@@ -41,14 +41,8 @@ public class Group {
     @JsonIgnore
     private List<Staff> staff = new ArrayList<>();
 
-    @PrePersist
-    protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = new Date();
-        }
-    }
     @Override
     public String toString() {
-        return "Group{id=" + id + ", name='" + name + "', status='" + status + "', createdAt=" + createdAt + "}";}
+        return "Group{id=" + id + ", name='" + name + "', status='" + status + "', createdAt=" + super.createdAt + "}";}
 
 }

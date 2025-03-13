@@ -1,15 +1,13 @@
 package com.ace.service;
 
-import com.ace.dto.GroupDTO;
 import com.ace.dto.GroupResponseDTO;
-import com.ace.entity.Staff;
-import com.ace.repository.GroupRepository;
+import com.ace.entity.organization.Staff;
+import com.ace.repository.organization.GroupRepository;
 
-import com.ace.entity.Group;
-import com.ace.repository.StaffRepository;
+import com.ace.entity.organization.Group;
+import com.ace.repository.organization.StaffRepository;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;

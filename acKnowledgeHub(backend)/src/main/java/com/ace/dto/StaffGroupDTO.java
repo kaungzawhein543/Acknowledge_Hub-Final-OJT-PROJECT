@@ -1,8 +1,8 @@
 package com.ace.dto;
 
-import com.ace.entity.Company;
-import com.ace.entity.Department;
-import com.ace.entity.Position;
+import com.ace.entity.organization.Company;
+import com.ace.entity.organization.Department;
+import com.ace.entity.organization.Position;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

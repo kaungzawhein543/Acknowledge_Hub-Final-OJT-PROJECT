@@ -1,35 +1,17 @@
 package com.ace.controller;
 
 import com.ace.dto.NotificationDTO;
-import com.ace.entity.Notification;
-import com.ace.exceptions.ErrorResponse;
 import com.ace.security.JwtUtil;
 import com.ace.service.NotificationService;
 import com.ace.service.TokenBlacklistService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class NotificationController {

@@ -1,11 +1,8 @@
 package com.ace.service;
 
-import com.ace.entity.Feedback;
-import com.ace.entity.FeedbackReply;
-import com.ace.repository.FeedbackReplyRepository;
+import com.ace.entity.feedbackAndReply.FeedbackReply;
+import com.ace.repository.feedbackAndReply.FeedbackReplyRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class FeedbackReplyService {

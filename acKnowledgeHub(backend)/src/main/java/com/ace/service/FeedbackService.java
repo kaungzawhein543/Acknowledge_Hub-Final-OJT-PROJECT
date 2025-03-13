@@ -2,10 +2,8 @@ package com.ace.service;
 
 import com.ace.dto.FeedbackListResponseDTO;
 import com.ace.dto.FeedbackResponseListDTO;
-import com.ace.entity.Announcement;
-import com.ace.entity.Feedback;
-import com.ace.entity.Notification;
-import com.ace.repository.FeedbackRepository;
+import com.ace.entity.feedbackAndReply.Feedback;
+import com.ace.repository.feedbackAndReply.FeedbackRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

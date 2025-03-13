@@ -1,5 +1,4 @@
-package com.ace.entity;
-
+package com.ace.entity.organization;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,12 +9,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "position")
-public class Position {
+@Table(name = "department")
+public class Department{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="id")
+    @Column(name = "id")
     private int id;
     @Column(name = "name",nullable = false)
-    private String name;
+    private String name ;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "company_id",nullable = false)
+    private Company company;
+
 }

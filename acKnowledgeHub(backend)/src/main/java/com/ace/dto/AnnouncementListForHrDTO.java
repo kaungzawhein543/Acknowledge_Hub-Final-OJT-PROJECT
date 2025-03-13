@@ -13,20 +13,20 @@ public class AnnouncementListForHrDTO {
     private String createStaff;
     private String category;
     private String status;
-    private Date created_at;
+    private LocalDateTime createdAt;
     private LocalDateTime scheduleAt;
     private byte groupStatus;
     private boolean isPublished;
     private String file;
 
-    public AnnouncementListForHrDTO(Integer id, String title, String description, String createStaff, String category, String status, Date created_at, LocalDateTime scheduleAt, byte groupStatus,boolean isPublished, String file) {
+    public AnnouncementListForHrDTO(Integer id, String title, String description, String createStaff, String category, String status, LocalDateTime created_at, LocalDateTime scheduleAt, byte groupStatus,boolean isPublished, String file) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.createStaff = createStaff;
         this.category = category;
         this.status = status;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
         this.scheduleAt = scheduleAt;
         this.groupStatus = groupStatus;
         this.isPublished = isPublished;

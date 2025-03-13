@@ -1,24 +1,21 @@
-package com.ace.entity;
+package com.ace.entity.organization;
+
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "company")
-public class Company {
+@Table(name = "position")
+public class Position {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name ="id")
     private int id;
     @Column(name = "name",nullable = false)
     private String name;
-
 }

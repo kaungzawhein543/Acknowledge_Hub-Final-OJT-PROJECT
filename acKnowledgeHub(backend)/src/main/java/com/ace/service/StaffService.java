@@ -1,20 +1,18 @@
 package com.ace.service;
 
 import com.ace.dto.*;
-import com.ace.entity.Group;
-import com.ace.entity.Announcement;
-import com.ace.entity.Staff;
-import com.ace.repository.GroupRepository;
-import com.ace.entity.StaffNotedAnnouncement;
-import com.ace.repository.AnnouncementRepository;
-import com.ace.repository.NotedRepository;
-import com.ace.repository.StaffRepository;
+import com.ace.entity.organization.Group;
+import com.ace.entity.Announcement.Announcement;
+import com.ace.entity.organization.Staff;
+import com.ace.repository.organization.GroupRepository;
+import com.ace.entity.acknowledgement.StaffNotedAnnouncement;
+import com.ace.repository.announcement.AnnouncementRepository;
+import com.ace.repository.acknowledgement.NotedRepository;
+import com.ace.repository.organization.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -329,7 +326,7 @@ private final GroupRepository groupRepository;
                         a.getCreateStaff().getName(),
                         a.getCategory().getName(),
                         a.getStatus(),
-                        a.getCreated_at(),
+                        a.getCreatedAt(),
                         a.getScheduleAt(),
                         a.getGroupStatus(),
                         a.getFile()))
@@ -359,13 +356,13 @@ private final GroupRepository groupRepository;
 
     public void activateStaff(Integer id){
         Optional<Staff> staff =staffRepository.findById(id);
-        staff.get().setStatus("active");
+        staff.get().setStatus(true);
         staffRepository.save(staff.get());
     }
 
     public void inActivateStaff(Integer id){
         Optional<Staff> staff =staffRepository.findById(id);
-        staff.get().setStatus("inactive");
+        staff.get().setStatus(false);
         staffRepository.save(staff.get());
     }
 

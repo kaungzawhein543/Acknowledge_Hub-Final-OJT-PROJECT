@@ -1,7 +1,7 @@
 package com.ace.service;
 
-import com.ace.entity.*;
-import com.ace.repository.*;
+import com.ace.entity.organization.*;
+import com.ace.repository.organization.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,7 +86,7 @@ public class ExcelService {
     }
 
     private Staff createOrUpdateStaff(String staffId, String staffName, String staffEmail,
-                                      String positionName, String companyName, String departmentName,String telegramName) {
+                                      String positionName, String companyName, String departmentName, String telegramName) {
         Company company = findOrCreateCompany(companyName);
         Department department = findOrCreateDepartment(departmentName, company);
         Position position = findOrCreatePosition(positionName);
@@ -163,12 +163,12 @@ public class ExcelService {
 
                 if (staff.getCompanyStaffId().equals("ADMIN001") || staff.getPosition().equals("Human Resource(Main)")) {
                     // Always keep ADMIN001 active
-                    staff.setStatus("active");
+                    staff.setStatus(true);
                 } else {
                     if (!importedStaffIds.contains(staff.getCompanyStaffId())) {
-                        staff.setStatus("inactive");
+                        staff.setStatus(false);
                     } else {
-                        staff.setStatus("active");
+                        staff.setStatus(true);
                     }
                 }
                 staffRepository.save(staff);

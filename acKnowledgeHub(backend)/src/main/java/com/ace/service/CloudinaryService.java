@@ -1,7 +1,5 @@
 package com.ace.service;
 
-import com.ace.entity.Group;
-import com.ace.entity.Staff;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
@@ -18,17 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
