@@ -2,7 +2,9 @@ package com.ace.service;
 
 import com.ace.entity.Group;
 import com.ace.entity.Staff;
+import com.ace.enums.PredefinedFolders;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +43,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CloudinaryService {
 
-    private static final String[] PREDEFINED_FOLDERS = {"images", "documents", "archives", "spreadsheets"};
     private final Cloudinary cloudinary;
 
     @Autowired
@@ -70,7 +71,6 @@ public class CloudinaryService {
         // Generate the new file name with the incremented version
         newFileName = name + "_V" + versionNumber;
 
-
         // Determine the appropriate folder based on the content type
         if (contentType != null && contentType.startsWith("image/")) {
             folder = baseFolder + "/images/" + name;
@@ -92,24 +92,23 @@ public class CloudinaryService {
         // Set the resource type for ZIP files
         String resourceType = "raw";  // Default to auto-detect
 
-
         // Upload the file to Cloudinary
         Map<String, Object> uploadParams = ObjectUtils.asMap(
                 "folder", folder,
                 "public_id", newFileName,
                 "resource_type", resourceType
         );
+
         Map<String, Object> uploadResult = cloudinary.uploader().upload(fileBytes, uploadParams);
         return CompletableFuture.completedFuture(uploadResult);
     }
 
-
     public String findLatestFileByBaseName(String baseName) {
         AtomicReference<String> latestVersionedFileRef = new AtomicReference<>(null);
 
-        for (String predefinedFolder : PREDEFINED_FOLDERS) {
+        for (String predefinedFolder : PredefinedFolders.getAllTypes()) {
             String prefix = "AcknowledgeHub/" + predefinedFolder + "/" + baseName;
-            String[] resourceTypes = {"image", "raw", "auto"};
+            String[] resourceTypes = {"image", "raw", "video"};
             String fileExtensionPattern;
 
             // Special handling for archives and spreadsheets
@@ -123,7 +122,7 @@ public class CloudinaryService {
 
             for (String resourceType : resourceTypes) {
                 try {
-                    Map<String, Object> result = cloudinary.api().resources(ObjectUtils.asMap(
+                    ApiResponse result = cloudinary.api().resources(ObjectUtils.asMap(
                             "type", "upload",
                             "prefix", prefix,
                             "resource_type", resourceType,
@@ -175,11 +174,6 @@ public class CloudinaryService {
         return 0;  // Default to 0 if no version number is found
     }
 
-
-
-
-
-
     //Delete Announcement
     public void deleteFile(String publicId) {
         try {
@@ -189,7 +183,6 @@ public class CloudinaryService {
             log.info("Error while deleting the file in cloud{}",e.getMessage());
         }
     }
-
 
     public Map getFile(String publicId) {
         try {

@@ -123,7 +123,7 @@ public class BlogService {
                    }
                }
 
-// Now process each unique staff member
+                // Now process each unique staff member
                for (Staff announceStaff : allUniqueStaffs) {
                    // Check for Chat ID and file sending logic
                    if (announceStaff.getChatId() != null) {

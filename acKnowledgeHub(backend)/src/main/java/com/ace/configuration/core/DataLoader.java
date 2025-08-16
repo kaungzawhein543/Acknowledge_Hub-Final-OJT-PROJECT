@@ -37,14 +37,14 @@ public class DataLoader {
         return args -> {
             if (staffRepository.findByEmail("admin@gmail.com") == null) {
 
-                Company company = companyRepository.findByName("Default Company").stream().findFirst()
+                Company company = companyRepository.findByName("ACE Data Systems Ltd. (ACE)").stream().findFirst()
                         .orElseGet(() -> {
                             Company newCompany = new Company();
                             newCompany.setName("ACE Data Systems Ltd. (ACE)");
                             return companyRepository.save(newCompany);
                         });
 
-                Department department = departmentRepository.findByName("Default Department").stream().findFirst()
+                Department department = departmentRepository.findByName("ERP").stream().findFirst()
                         .orElseGet(() -> {
                             Department newDepartment = new Department();
                             newDepartment.setName("ERP");
@@ -52,7 +52,7 @@ public class DataLoader {
                             return departmentRepository.save(newDepartment);
                         });
 
-                Position position = positionRepository.findByName("Default Position").stream().findFirst()
+                Position position = positionRepository.findByName("Manager").stream().findFirst()
                         .orElseGet(() -> {
                             Position newPosition = new Position();
                             newPosition.setName("Manager");

@@ -114,8 +114,7 @@ public class AnnouncementController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
-    //    Create and update method (because update is also insert the row in database)
+    // Create and update method (because update is also insert the row in database)
     @PostMapping(value = "/allHR/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Announcement> createAnnouncement(
             @RequestPart AnnouncementDTO request,
@@ -161,14 +160,10 @@ public class AnnouncementController {
             //Announce People
             if (request.getGroupStatus() == 1) {
                 groupsForAnnounce = groupService.findGroupsByIds(groupIds);
+                groupsForAnnounce.forEach(group -> group.getStaff().size()); // just force init
+
                 // Initialize staff list before async operation
                 for (Group group : groupsForAnnounce) {
-                    group.getStaff().size(); // Force initialization
-                }
-                groupsForAnnounce = groupService.findGroupsByIds(groupIds);
-                // Initialize staff list before async operation
-                for (Group group : groupsForAnnounce) {
-                    group.getStaff().size(); // Force initialization
                     // Remove logged-in staff from group members
                     group.setStaff(group.getStaff().stream()
                             .filter(staff -> !staff.getCompanyStaffId().equals(finalStaffId))
@@ -190,28 +185,21 @@ public class AnnouncementController {
             announcement.setCreateStaff(user);
             announcement.setCategory(request.getCategory());
 
-
-            // If ScheduledAt is null assign default
-//            if (announcement.getScheduleAt() == null) {
-//                LocalDateTime publishDateTime = LocalDateTime.now();
-//                announcement.setScheduleAt(publishDateTime);
-//            }
             if (request.getForRequest() == 1) {
                 announcement.setPermission("pending");
             } else {
                 announcement.setPermission("approved");
             }
-            Integer lastAnnouncementId = 0;
+
             byte updateStatus = 0;
             if(announcement.getId() > 0){
-                lastAnnouncementId = announcement.getId();
                 //Set id to null because even that is update need to add new row
                 updateStatus = 1;
                 announcement.setId(null);
             }
+
             // Save the announcement
             Announcement savedAnnouncement = announcement_service.createAnnouncement(announcement);
-
 
             // Send Announcement to Telegram & email
             if (request.getScheduleAt() != null) {  //schedule ဟုတ်မဟုတ်စစ်တယ် (null မဟုတ်ခဲ့ဘူးဆိုရင်)
@@ -232,8 +220,8 @@ public class AnnouncementController {
                     }else{ // Announcement က update လုပ်ဖို့မဟုတ်ဘူးဆိုရင်
                         description = savedAnnouncement.getCreateStaff().getName()+" Requested Announcement!Check It Out!";
                     }
-                    Position postion = positionService.findByName("Human Resource(Main)");
-                    List<Staff> HrStaff = staffService.getStaffByPositionId(postion.getId());
+                    Position position = positionService.findByName("Human Resource(Main)");
+                    List<Staff> HrStaff = staffService.getStaffByPositionId(position.getId());
                     String url =  "/acknowledgeHub/announcement/request-list";
                     Notification notification = blogService.createNotification(savedAnnouncement, HrStaff.get(0), description,url);
                     notificationService.sendNotification(blogService.convertToDTO(notification));
@@ -316,6 +304,7 @@ public class AnnouncementController {
 
                     // Initialize a Set to store unique staff IDs
                     Set<Integer> allStaff = new HashSet<>();
+
                     // Fetch staff for each group ID
                     for (Integer groupId : groupIds) {
                         List<Staff> staffInGroup = groupService.getStaffsByGroupId(groupId);

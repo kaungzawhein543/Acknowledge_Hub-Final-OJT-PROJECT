@@ -35,17 +35,11 @@ public class AnnouncementService {
         return announcement_repo.getAllVersionsOfAnnouncement(pathParts[2]);
     }
 
-//    public Announcement getLatestVersionByFilePattern(String baseFileName) {
-//        List<String> announcements = announcement_repo.getAllVersionsOfAnnouncement(baseFileName);
-//        return announcements.isEmpty() ? null : announcements.get(0);  // Return the latest version or null if none found
-//    }
-
     //Find Lastest Version By File
     public Optional<Announcement> findLastByFileName(String file) {
         List<Announcement> announcements = announcement_repo.findAllByFileName(file);
         return Optional.of(announcements.get(announcements.size() - 1));  // Return the last element
     }
-
 
     // Read an announcement by ID
     public Optional<Announcement> getAnnouncementById(Integer id) {
@@ -89,7 +83,6 @@ public class AnnouncementService {
             return new Announcement(); // Return a new announcement if the ID does not exist
         }
     }
-
 
     // Delete an announcement by ID (Soft)
     public void deleteAnnouncement(Integer id) {

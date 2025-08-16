@@ -94,8 +94,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
     //Query for announcement stats card
     @Query("SELECT new com.ace.dto.AnnouncementStatsDTO( " +
             "COUNT(a), " +
-            "SUM(CASE WHEN a.isPublished = TRUE THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN a.isPublished = FALSE THEN 1 ELSE 0 END)) " +
+            "COALESCE(SUM(CASE WHEN a.isPublished = TRUE THEN 1 ELSE 0 END), 0), " +
+            "COALESCE(SUM(CASE WHEN a.isPublished = FALSE THEN 1 ELSE 0 END), 0)) " +
             "FROM Announcement a")
     AnnouncementStatsDTO getAnnouncementCounts();
 

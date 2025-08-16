@@ -38,12 +38,11 @@ public class StaffService implements UserDetailsService {
     private final EmailService emailService;
 
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
-private final GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
-
 
 
     public StaffService(StaffRepository staffRepository, AnnouncementRepository announcement_repo, NotedRepository notedRepository, EmailService emailService, GroupRepository groupRepository) {
@@ -62,7 +61,6 @@ private final GroupRepository groupRepository;
     public List<String> findStaffsChatIdByIds(List<Integer> ids) {
         return staffRepository.findStaffsChatIdByIds(ids);
     }
-
 
 
     public Page<StaffDTO> getStaffs(int page, int size) {
@@ -98,7 +96,6 @@ private final GroupRepository groupRepository;
     }
 
 
-
     public List<NotedResponseDTO> getNotedStaffList(Integer announcementId) {
         return staffRepository.getNotedStaffByAnnouncement(announcementId);
     }
@@ -132,7 +129,7 @@ private final GroupRepository groupRepository;
         return null;
     }
 
-    public List<Staff> findStaffByAnnouncementId(Integer announcementId){
+    public List<Staff> findStaffByAnnouncementId(Integer announcementId) {
         return staffRepository.findStaffByAnnouncementId(announcementId);
     }
 
@@ -225,15 +222,15 @@ private final GroupRepository groupRepository;
         return staffRepository.getActiveStaffList();
     }
 
-    public List<StaffResponseDTO> getHRStaffList(){
+    public List<StaffResponseDTO> getHRStaffList() {
         return staffRepository.getHRStaffList();
     }
 
-    public void save(Staff  staff){
-         staffRepository.save(staff);
+    public void save(Staff staff) {
+        staffRepository.save(staff);
     }
 
-    public Staff getHRMainStaff(String position){
+    public Staff getHRMainStaff(String position) {
         return staffRepository.findByPosition(position);
     }
 
@@ -272,7 +269,6 @@ private final GroupRepository groupRepository;
 
         return monthlyCount;
     }
-
 
 
     public Map<String, Long> getNotesCountByMonthForStaff(String staffId) {
@@ -357,19 +353,19 @@ private final GroupRepository groupRepository;
         }
     }
 
-    public void activateStaff(Integer id){
-        Optional<Staff> staff =staffRepository.findById(id);
+    public void activateStaff(Integer id) {
+        Optional<Staff> staff = staffRepository.findById(id);
         staff.get().setStatus("active");
         staffRepository.save(staff.get());
     }
 
-    public void inActivateStaff(Integer id){
-        Optional<Staff> staff =staffRepository.findById(id);
+    public void inActivateStaff(Integer id) {
+        Optional<Staff> staff = staffRepository.findById(id);
         staff.get().setStatus("inactive");
         staffRepository.save(staff.get());
     }
 
-    public List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id){
+    public List<StaffResponseDTO> getStaffListByAnnouncementId(Integer id) {
         return staffRepository.getStaffListByAnnouncementId(id);
     }
 }
