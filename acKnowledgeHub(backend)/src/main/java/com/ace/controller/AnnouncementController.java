@@ -2,18 +2,15 @@ package com.ace.controller;
 
 import com.ace.dto.*;
 import com.ace.entity.*;
-import com.ace.repository.StaffRepository;
 import com.ace.service.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,19 +19,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.net.URLEncoder;
 import java.util.stream.Collectors;
-
 
 @EnableAsync
 @Slf4j
@@ -45,10 +38,8 @@ public class AnnouncementController {
     private final AnnouncementService announcement_service;
     private final CloudinaryService cloudinaryService;
     private final ModelMapper mapper;
-    private final ReportService reportService;
     private final BlogService blogService;
     private final PostSchedulerService postSchedulerService;
-    private final BotService botService;
     private final StaffService staffService;
     private final EmailService emailService;
     private final GroupService groupService;
@@ -60,14 +51,12 @@ public class AnnouncementController {
     private String jwtSecret;
 
 
-    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, ReportService reportService, BlogService blogService, PostSchedulerService postSchedulerService, BotService botService, StaffRepository staffRepository, StaffService staffService, EmailService emailService, GroupService groupService, NotificationService notificationService, UserNotedAnnouncementService userNotedAnnouncementService, PositionService positionService) {
+    public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, BlogService blogService, PostSchedulerService postSchedulerService, StaffService staffService, EmailService emailService, GroupService groupService, NotificationService notificationService, UserNotedAnnouncementService userNotedAnnouncementService, PositionService positionService) {
         this.announcement_service = announcement_service;
         this.cloudinaryService = cloudinaryService;
         this.mapper = mapper;
-        this.reportService = reportService;
         this.blogService = blogService;
         this.postSchedulerService = postSchedulerService;
-        this.botService = botService;
         this.staffService = staffService;
         this.emailService = emailService;
         this.groupService = groupService;

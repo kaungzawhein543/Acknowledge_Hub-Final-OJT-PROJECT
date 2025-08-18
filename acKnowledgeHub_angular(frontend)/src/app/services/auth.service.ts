@@ -111,7 +111,10 @@ export class AuthService {
   // Method to get user information including roles
   getUserInfo(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
-      catchError(() => of(null))  // In case of error, return null
+      catchError((error) => {
+        console.log('Error fetching user info:', error);  // ✅ print error
+        return of(null); // fallback value
+      })
     );
   }
 

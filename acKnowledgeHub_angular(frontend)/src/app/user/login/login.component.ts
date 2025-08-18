@@ -111,10 +111,8 @@ export class LoginComponent implements OnInit {
             if(this.countdown === 118){
               this.errorMessage = '';
             }
-            console.log(this.countdown)
             if (this.countdown <= 0) {
               clearInterval(intervalId);
-              console.log(this.countdown)
               this.isLocked = false;
               if(this.countdown === 0){
                 this.loginButtonStatus = true;

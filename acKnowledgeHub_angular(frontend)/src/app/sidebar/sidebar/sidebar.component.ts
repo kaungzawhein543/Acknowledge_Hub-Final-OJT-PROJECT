@@ -77,26 +77,29 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.authService.hasRole("ADMIN").subscribe(
-      (data) => {
-        this.isAdmin = data;
-      }
-    )
-    this.authService.hasPostion("Human Resource(Main)").subscribe(
-      (data) => {
-        this.isMainHr = data;
-        this.authService.hasPostion("Human Resource").subscribe(
+    this.authService.isLoggedIn().subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        this.authService.hasRole("ADMIN").subscribe(
+              (data) => {
+                this.isAdmin = data;
+              }
+        )
+        this.authService.hasPostion("Human Resource(Main)").subscribe(
           (data) => {
-            this.isHr = data;
+            this.isMainHr = data;
+            this.authService.hasPostion("Human Resource").subscribe(
+              (data) => {
+                this.isHr = data;
+              }
+            )
+          }
+        )
+        this.authService.getUserInfo().subscribe(
+          (data) => {
+            this.staffId = data.user.id;
           }
         )
       }
-    )
-    this.authService.getUserInfo().subscribe(
-      (data) => {
-        this.staffId = data.user.id;
-      }
-    )
+    });
   }
-
 }

@@ -3,6 +3,7 @@ package com.ace.security;
 import com.ace.entity.Company;
 import com.ace.entity.Position;
 import com.ace.entity.Staff;
+import com.ace.enums.Role;
 import com.ace.service.CompanyService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
@@ -11,24 +12,24 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Objects;
 
 @Configuration
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
     private final CompanyService companyService;
+    private final Environment env;
 
-    public JwtUtil(CompanyService companyService) {
+    public JwtUtil(CompanyService companyService, Environment env) {
         this.companyService = companyService;
+        this.env = env;
     }
-
 
     public String generateToken(Staff user) {
         return Jwts.builder()
@@ -39,20 +40,15 @@ public class JwtUtil {
                 .claim("company",user.getCompany().getName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .signWith(getKeyFromJwtSecret(), SignatureAlgorithm.HS512)
                 .compact();
-    }
-
-    public String extractUsername(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
     }
 
     public Staff extractUserDataFromToken(HttpServletRequest request) {
         String token = extractTokenFromRequest(request);
+        if (token == null || token.isEmpty()) {
+            return null;
+        }
         Claims claims = extractClaims(token);
         return setStaffData(claims);
     }
@@ -83,11 +79,8 @@ public class JwtUtil {
     }
 
     public Claims extractClaims(String token) {
-        // Convert String secret to Key
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
         JwtParser parser = Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKeyFromJwtSecret())
                 .build();
 
         return parser.parseClaimsJws(token).getBody();
@@ -108,6 +101,12 @@ public class JwtUtil {
                 .build();
         staff.setPosition(position);
 
+        staff.setRole(Role.valueOf(claims.get("role", String.class).toUpperCase()));
         return staff;
+    }
+
+    public Key getKeyFromJwtSecret() {
+        return Keys.hmacShaKeyFor(Objects.requireNonNull(
+                env.getProperty("jwt.secret")).getBytes(StandardCharsets.UTF_8));
     }
 }

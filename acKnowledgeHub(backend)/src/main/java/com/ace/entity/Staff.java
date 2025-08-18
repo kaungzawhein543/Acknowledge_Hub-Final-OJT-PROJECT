@@ -48,7 +48,7 @@ public class Staff implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role = Role.USER;
-    @Column(name = "photo_path")  // Field to store the file path
+    @Column(name = "photo_path")
     private String photoPath;
     @Column(name = "telegram_name")
     private String telegramName;
@@ -100,34 +100,17 @@ public class Staff implements UserDetails {
         return authorities;
     }
 
-
-
     @Override
     public String getUsername() {
-        return this.companyStaffId != null ? this.getEmail() : this.email; // Ensure email is used as username
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+        return this.companyStaffId != null ? this.getEmail() : this.email;
     }
 
     @Override
     public String toString() {
-        return "Staff{id=" + id + ", name='" + name + "', companyStaffId='" + companyStaffId + "', email='" + email + "', createdAt=" + createdAt + "}";}
+        return "Staff{" +
+                "id=" + id +
+                ", name='" + name +
+                "', companyStaffId='" + companyStaffId +
+                "', email='" + email +
+                "', createdAt=" + createdAt + "}";}
 }

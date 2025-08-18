@@ -1,8 +1,10 @@
 package com.ace.security;
 
+import com.ace.entity.Staff;
 import com.ace.service.StaffService;
 import com.ace.service.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,31 +32,34 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final StaffService staffService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final JwtUtil jwtUtil;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public JwtAuthorizationFilter(@Lazy StaffService staffService, TokenBlacklistService tokenBlacklistService) {
+    public JwtAuthorizationFilter(@Lazy StaffService staffService, TokenBlacklistService tokenBlacklistService, JwtUtil jwtUtil) {
         this.staffService = staffService;
         this.tokenBlacklistService = tokenBlacklistService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = null;
-        String username = null;
 
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt".equals(cookie.getName())) {
-                    jwt = cookie.getValue();
-                }
-            }
-        }
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
+        } else {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("jwt".equals(cookie.getName())) {
+                        jwt = cookie.getValue();
+                        break;
+                    }
+                }
+            }
         }
 
         if (jwt != null) {
@@ -64,28 +69,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
 
             try {
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(jwtSecret)
-                        .build()
-                        .parseClaimsJws(jwt)
-                        .getBody();
-
-                username = claims.getSubject();
-                String role = claims.get("role", String.class); // Extract role
-                String position = claims.get("position", String.class); // Extract position if stored in JWT
-                if (username != null) {
-                    var userDetails = staffService.loadUserByUsername(username);
+                Staff staffData = jwtUtil.extractUserDataFromToken(request);
+                if (staffData.getCompanyStaffId() != null) {
+                    var userDetails = staffService.loadUserByUsername(staffData.getCompanyStaffId());
 
                     if (userDetails != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         // Create a list of authorities based on both role and position
                         var authorities = new ArrayList<SimpleGrantedAuthority>();
-                        if (role != null) {
-                            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                        if (staffData.getRole() != null) {
+                            authorities.add(new SimpleGrantedAuthority("ROLE_" + staffData.getRole().toString()));
                         }
-                        if (position != null) {
-                            authorities.add(new SimpleGrantedAuthority(position)); // Add position-based authority
+                        if (staffData.getPosition() != null) {
+                            authorities.add(new SimpleGrantedAuthority(staffData.getPosition().getName()));
                         }
-
                         // Create authentication token
                         var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

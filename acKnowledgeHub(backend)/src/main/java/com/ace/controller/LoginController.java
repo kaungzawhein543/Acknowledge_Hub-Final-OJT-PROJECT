@@ -6,6 +6,7 @@ import com.ace.dto.LoginUserInfo;
 import com.ace.dto.ProfileDTO;
 import com.ace.entity.Company;
 import com.ace.entity.Staff;
+import com.ace.mapper.StaffMapper;
 import com.ace.security.JwtUtil;
 import com.ace.service.AuthService;
 import com.ace.service.CompanyService;
@@ -38,11 +39,13 @@ public class LoginController {
     private final StaffService staffService;
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final StaffMapper staffMapper;
 
-    public LoginController(StaffService staffService, AuthService authService, JwtUtil jwtUtil) {
+    public LoginController(StaffService staffService, AuthService authService, JwtUtil jwtUtil, StaffMapper staffMapper) {
         this.staffService = staffService;
         this.authService = authService;
         this.jwtUtil = jwtUtil;
+        this.staffMapper = staffMapper;
     }
 
     @PostMapping("/login")
@@ -65,25 +68,26 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         Staff staffData = jwtUtil.extractUserDataFromToken(request);
-        response.put("position",staffData.getPosition().getName());
-        response.put("company",staffData.getCompany().getName());
-        response.put("companyId",staffData.getCompany().getId());
+        if (staffData != null) {
+            response.put("position",staffData.getPosition().getName());
+            response.put("company",staffData.getCompany().getName());
+            response.put("companyId",staffData.getCompany().getId());
 
-        // Retrieve user by staff ID
-        Staff user = staffService.findByStaffId(staffData.getCompanyStaffId());
-        if (user == null) {
-            response.put("isLoggedIn", false);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            // Retrieve user by staff ID
+            Staff user = staffService.findByStaffId(staffData.getCompanyStaffId());
+            if (user != null) {
+                response.put("isLoggedIn", true);
+                response.put("user", new LoginUserInfo(user.getId(), user.getCompanyStaffId(), user.getName(), user.getRole(), user.getPosition().getName()));
+                return ResponseEntity.ok(response);
+            }
         }
-
-        response.put("isLoggedIn", true);
-        response.put("user", new LoginUserInfo(user.getId(), user.getCompanyStaffId(), user.getName(), user.getRole(), user.getPosition().getName()));
-        return ResponseEntity.ok(response);
+        response.put("isLoggedIn", false);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        return authService.logout(response);
+        return authService.logout(request, response);
     }
 
     @GetMapping("/profile")
@@ -98,19 +102,14 @@ public class LoginController {
                 Staff staff = staffService.findByStaffId(staffData.getCompanyStaffId());
                 if (staff != null) {
                     Map<String, Long> monthlyCount = staffService.getMonthlyAnnouncementCount(staff.getId());
-
-                    // Map Staff entity to StaffProfileDTO
-                    ProfileDTO profileDTO = new ProfileDTO(staff.getId(), staff.getName(), staff.getCompanyStaffId(),
-                            staff.getEmail(), staff.getPassword(), staff.getStatus(), staff.getRole(), staff.getPhotoPath(),
-                            staff.getPosition().getName(), staff.getDepartment().getName(), staff.getCompany().getName(),
-                            staff.getCreatedAt(), staff.getChatId(), monthlyCount);
-
+                    ProfileDTO profileDTO = staffMapper.toProfileDTO(staff);
+                    profileDTO.setMonthlyCount(monthlyCount);
                     return ResponseEntity.ok(profileDTO);
                 } else {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found.");
                 }
             } catch (JwtException e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token." + e.getMessage());
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token found.");

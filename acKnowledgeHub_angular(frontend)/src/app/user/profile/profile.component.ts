@@ -71,12 +71,12 @@ export class ProfileComponent implements OnInit {
         this.profile = data;
         this.timestamp = Date.now(); // Update the timestamp when profile is loaded
         this.oldPhotoUrl = this.baseUrl + this.profile?.photoPath + '?' + this.timestamp;
-        console.log('Resolved photoPath:', this.profile?.photoPath);
+        console.log('Resolved photoPath:', this.profile?.photoPath +" ?" + this.timestamp);
         console.log('Profile data:', this.profile);
         console.log(this.oldPhotoUrl)
         this.profileService.updateProfile(this.profile);
         // Initialize the selected month count
-        if (this.profile?.monthlyCount) {
+        if (this.profile?.monthlyCount) { 
           const firstMonth = Object.keys(this.profile.monthlyCount)[0];
           this.selectedMonth = firstMonth; // Set default selected month
           this.selectedMonthCount = this.profile.monthlyCount[firstMonth] ?? 0;

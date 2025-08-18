@@ -67,7 +67,7 @@ export class AnnouncementService {
 
   //Get Published Announcement
   getPublishAnnouncements(): Observable<listAnnouncement[]> {
-    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/all/getPublishedAnnouncements`);
+    return this.http.get<listAnnouncement[]>(`${this.BaseUrl}/all/getPublishedAnnouncements`,{ withCredentials: true});
   }
 
   //Delete Announcement
