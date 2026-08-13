@@ -111,14 +111,10 @@ public class CompanyServiceTest {
 		company.setId(companyId);
 		company.setName("ACE");
 		when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
-		
-		Company company2 = new Company();
-		company2.setId(companyId);
-		company2.setName("DAT");
-		
-		when(companyRepository.save(company2)).thenReturn(company2);
-		
-		Company result = companyService.updateCompany(companyId, company2);
+		when(groupRepository.getGroupsByName("ACE")).thenReturn(List.of());
+		when(companyRepository.save(company)).thenAnswer(invocation -> invocation.getArgument(0));
+
+		Company result = companyService.updateCompany(companyId, "DAT");
 		assertEquals("DAT", result.getName());
 		verify(companyRepository).findById(companyId);
 		verify(companyRepository).save(company);
@@ -127,13 +123,11 @@ public class CompanyServiceTest {
 	 @Test
 	    void updateCompany_CompanyNotFound() {
 	        int companyId = 1;
-	        Company updatedCompany = new Company();
-	        updatedCompany.setName("New Name");
 
 	        when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
 
 	        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-	            companyService.updateCompany(companyId, updatedCompany);
+	            companyService.updateCompany(companyId, "New Name");
 	        });
 
 	        assertEquals("Company not found", exception.getMessage());

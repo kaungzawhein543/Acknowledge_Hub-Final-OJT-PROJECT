@@ -44,6 +44,9 @@ public class StaffService implements UserDetailsService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Value("${app.default-password.user}")
+    private String defaultUserPassword;
+
 
     public StaffService(StaffRepository staffRepository, AnnouncementRepository announcement_repo, NotedRepository notedRepository, EmailService emailService, GroupRepository groupRepository) {
         this.staffRepository = staffRepository;
@@ -199,6 +202,9 @@ public class StaffService implements UserDetailsService {
     }
 
     public void addStaff(Staff staff) {
+        if (staff.getPassword() == null) {
+            staff.setPassword(passwordEncoder.encode(defaultUserPassword));
+        }
         staffRepository.save(staff);
         Group companyGroup = groupRepository.findByName(staff.getCompany().getName());
         if (companyGroup != null) {

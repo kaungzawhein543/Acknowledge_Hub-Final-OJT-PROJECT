@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,22 +22,28 @@ public class ExcelService {
     @Value("${default.photo.path}")
     private String defaultPath;
 
+    @Value("${app.default-password.user}")
+    private String defaultUserPassword;
+
     private final StaffRepository staffRepository;
     private final PositionRepository positionRepository;
     private final CompanyRepository companyRepository;
     private final DepartmentRepository departmentRepository;
     private final GroupRepository groupRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public ExcelService(StaffRepository staffRepository, PositionRepository positionRepository,
                         CompanyRepository companyRepository, DepartmentRepository departmentRepository,
-                        GroupRepository groupRepository, EmailService emailService) {
+                        GroupRepository groupRepository, EmailService emailService,
+                        PasswordEncoder passwordEncoder) {
         this.staffRepository = staffRepository;
         this.positionRepository = positionRepository;
         this.companyRepository = companyRepository;
         this.departmentRepository = departmentRepository;
         this.groupRepository = groupRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -95,6 +102,7 @@ public class ExcelService {
         if (staff == null) {
             staff = new Staff();
             staff.setCompanyStaffId(staffId);
+            staff.setPassword(passwordEncoder.encode(defaultUserPassword));
         }
         staff.setName(staffName);
         staff.setCompany(company);

@@ -1,7 +1,6 @@
-import { NgModule, isDevMode } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideHttpClient, withFetch } from '@angular/common/http';
@@ -146,7 +145,6 @@ import { UpdatePositionComponent } from './position/update-position/update-posit
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatPseudoCheckboxModule,
@@ -159,16 +157,9 @@ import { UpdatePositionComponent } from './position/update-position/update-posit
     MatButtonToggleModule,
     ScrollingModule,
     MatListOption,
-    MatButtonModule,
-    MatRadioModule,
-    MtxGridModule,
-    RouterModule,
     MatMenuModule,
-    ScrollingModule,
     MatTableModule,
     MatPaginatorModule,
-    BrowserAnimationsModule,
-    BrowserModule,
     CommonModule
   ],
   providers: [

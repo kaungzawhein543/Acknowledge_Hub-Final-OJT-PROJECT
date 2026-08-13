@@ -17,6 +17,8 @@ import org.springframework.core.env.Environment;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -106,7 +108,16 @@ public class JwtUtil {
     }
 
     public Key getKeyFromJwtSecret() {
-        return Keys.hmacShaKeyFor(Objects.requireNonNull(
-                env.getProperty("jwt.secret")).getBytes(StandardCharsets.UTF_8));
+        byte[] secretBytes = Objects.requireNonNull(
+                env.getProperty("jwt.secret"), "jwt.secret must be set")
+                .getBytes(StandardCharsets.UTF_8);
+        if (secretBytes.length < 64) {
+            try {
+                secretBytes = MessageDigest.getInstance("SHA-512").digest(secretBytes);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("SHA-512 is required to derive the JWT signing key", e);
+            }
+        }
+        return Keys.hmacShaKeyFor(secretBytes);
     }
 }

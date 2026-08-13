@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AnnouncementStaffCountDTO } from '../models/announcement';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChartService {
-  private apiUrl = 'http://localhost:8080/api/v1/announcement'; 
-  private staffUrl = 'http://localhost:8080/api/v1/staff';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/v1/announcement`;
+  private readonly staffUrl = `${environment.apiBaseUrl}/api/v1/staff`;
 
   constructor(private http: HttpClient) { }
 

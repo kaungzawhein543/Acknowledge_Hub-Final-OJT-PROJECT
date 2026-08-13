@@ -4,6 +4,7 @@ import { GroupService } from '../../services/group.service';
 import { ToastService } from '../../services/toast.service';
 import { StaffGroup } from '../../models/staff-group';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
@@ -54,7 +55,7 @@ export class ListGroupComponent {
   showStaffs(group: any): void {
     this.selectedGroup = group;
     this.selectedGroup.staff = group.staff.map((staff: StaffGroup) => {
-      this.staffPhotoUrl = "http://localhost:8080" + staff.photoPath + "?"+ Date.now();
+      this.staffPhotoUrl = environment.apiBaseUrl + staff.photoPath + "?"+ Date.now();
       console.log(staff.photoPath);
       return staff; // Return the modified staff object
     });    this.filterStaffListAfterSelect = this.selectedGroup.staff;

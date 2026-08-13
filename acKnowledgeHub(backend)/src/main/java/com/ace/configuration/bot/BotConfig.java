@@ -5,6 +5,7 @@ import com.ace.service.AnnouncementService;
 import com.ace.service.StaffService;
 import com.ace.service.UserNotedAnnouncementService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
@@ -37,6 +38,7 @@ public class BotConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "bot.enabled", havingValue = "true")
     public TelegramBotsApi telegramBotsApi(MyTelegramBot telegramBot) throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(telegramBot);

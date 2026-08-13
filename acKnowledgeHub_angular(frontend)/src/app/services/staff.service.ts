@@ -12,7 +12,7 @@ import { AddStaff } from '../models/addStaff';
 import { announcementList } from '../models/announcement-list';
 import { AnnouncementListDTO } from '../models/announcement';
 import { ChangePasswordRequest } from '../models/change-password-request.model';
-import { text } from 'stream/consumers';
+import { environment } from '../../environments/environment';
 
 
 
@@ -22,7 +22,7 @@ import { text } from 'stream/consumers';
 })
 export class StaffService {
 
-  private baseURL = "http://localhost:8080/api/v1/staff";
+  private readonly baseURL = `${environment.apiBaseUrl}/api/v1/staff`;
 
   constructor(private http: HttpClient) { }
 
@@ -37,18 +37,6 @@ export class StaffService {
   getUnNotedStaffByAnnouncementList(id: number, groupStatus: number): Observable<UnNotedUser[]> {
     return this.http.get<UnNotedUser[]>(`${this.baseURL}/all/not-noted-list/${id}/${groupStatus}`,{ withCredentials: true});
   }
-
-  // getAllCompany(): Observable<Company[]> {
-  //   return this.http.get<Company[]>(`http://localhost:8080/api/v1/company`);
-  // }
-
-  // getDepartmentListByCompanyId(companyId: number): Observable<Department[]> {
-  //   return this.http.get<Department[]>(`http://localhost:8080/api/v1/department/company/${companyId}`);
-  // }
-
-  // getAllDepartment(): Observable<Department[]> {
-  //   return this.http.get<Department[]>(`http://localhost:8080/api/v1/department`);
-  // }
 
 
   makeNotedAnnouncement(userId: number, announcementId: number): Observable<string> {
@@ -104,8 +92,7 @@ export class StaffService {
   }
 
   checkOldPassword(staffId: string): Observable<boolean> {
-    const requestBody = { id: staffId, password: 'acknowledgeHub' }; // Set the password to check
-    return this.http.post<boolean>(`${this.baseURL}/check_old_password`, requestBody, {
+    return this.http.post<boolean>(`${this.baseURL}/check_old_password`, { staffId }, {
       withCredentials: true,
     });
   }

@@ -1,6 +1,7 @@
 spring.application.name=ackKnowledgeHub
 spring.config.import=optional:file:.env[.properties]
 
+# Embedded development database; no MySQL installation is required.
 spring.datasource.url=${DB_URL:jdbc:h2:file:./data/acknowledge_hub;AUTO_SERVER=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE}
 spring.datasource.driver-class-name=org.h2.Driver
 spring.datasource.username=${DB_USERNAME:sa}
@@ -12,11 +13,10 @@ spring.h2.console.path=/h2-console
 spring.jpa.hibernate.ddl-auto=update
 spring.main.allow-circular-references=true
 
-spring.jackson.serialization-indentation.max-nesting-depth=2000
+spring.jackson.serialization.indentation.max-nesting-depth=2000
 
 jwt.secret=${JWT_SECRET}
 
-#defaultProfileURL
 default.photo.path=${DEFAULT_PHOTO_PATH:/defaultProfile/profile.jpg}
 
 spring.mail.host=${MAIL_HOST:smtp.gmail.com}
@@ -26,9 +26,6 @@ spring.mail.password=${MAIL_PASSWORD}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 spring.mail.debug=false
-
-#logging.level.org.springframework.mail=DEBUG
-#spring.mail.properties.mail.debug=true
 
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB

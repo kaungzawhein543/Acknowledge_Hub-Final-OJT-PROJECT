@@ -16,6 +16,7 @@ import { Group } from '../../models/Group';
 import { staffList } from '../../models/staff';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
+import { environment } from '../../../environments/environment';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 
@@ -113,8 +114,8 @@ export class DetailAnnouncementComponent {
         next: (feedback) => {
           if (feedback.announcementId === Number(decodedId)) {
             const existingFeedbackIndex = this.questionList.findIndex(q => q.id === feedback.id);
-            feedback.photoPath = 'http://localhost:8080'+feedback.photoPath+'?'+Date.now()
-            feedback.replyPhotoPath = 'http://localhost:8080'+feedback.replyPhotoPath+'?'+Date.now()
+            feedback.photoPath = environment.apiBaseUrl + feedback.photoPath + '?' + Date.now()
+            feedback.replyPhotoPath = environment.apiBaseUrl + feedback.replyPhotoPath + '?' + Date.now()
             if (existingFeedbackIndex !== -1) {
               this.questionList[existingFeedbackIndex] = feedback; // Replace the existing feedback
             } else {
@@ -200,8 +201,8 @@ private loadAnnouncementData(decodedId: string): void {
             ...feedback,
             showInput: false,
             replyText: '',
-            photoPath: 'http://localhost:8080'+feedback.photoPath+'?'+Date.now(),
-            replyPhotoPath: 'http://localhost:8080'+feedback.replyPhotoPath+'?'+Date.now(),
+            photoPath: environment.apiBaseUrl + feedback.photoPath + '?' + Date.now(),
+            replyPhotoPath: environment.apiBaseUrl + feedback.replyPhotoPath + '?' + Date.now(),
           }));
           console.log(this.questionList)
           setTimeout(() => {
@@ -334,8 +335,8 @@ goEditPage(announcementId : number){
             ...feedback,
             showInput: false,
             replyText: '',
-            photoPath: 'http://localhost:8080'+feedback.photoPath+'?'+Date.now(),
-            replyPhotoPath: 'http://localhost:8080'+feedback.replyPhotoPath+'?'+Date.now(),
+            photoPath: environment.apiBaseUrl + feedback.photoPath + '?' + Date.now(),
+            replyPhotoPath: environment.apiBaseUrl + feedback.replyPhotoPath + '?' + Date.now(),
           }));
         },
         error: (e) => console.log(e)
@@ -353,7 +354,18 @@ notedAnnouncement(userId: number,announcementId : number){
   )
 }
   downloadFile(version: string): void {
+    if (!this.hasAttachmentFor(version)) {
+      return;
+    }
     this.announcementService.downloadFile(version);
+  }
+
+  hasAttachment(): boolean {
+    return this.hasAttachmentFor(this.announcement?.file);
+  }
+
+  private hasAttachmentFor(file?: string): boolean {
+    return !!file && file.trim().length > 0 && file.trim().toUpperCase() !== 'N/A';
   }
 
   scrollToAskQuestion() {
@@ -525,4 +537,3 @@ notedAnnouncement(userId: number,announcementId : number){
   }
   
 }
-

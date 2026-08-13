@@ -91,7 +91,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                SecurityContextHolder.clearContext();
             }
         }
 

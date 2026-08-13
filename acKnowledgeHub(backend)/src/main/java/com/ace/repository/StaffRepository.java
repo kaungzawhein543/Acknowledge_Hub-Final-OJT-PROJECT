@@ -59,8 +59,19 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             "WHERE a.id = :announcementId AND sn.id IS NULL")
     public List<UnNotedResponseDTO> getUnNotedStaffByAnnouncementWithGroup(@Param("announcementId") Integer announcementId);
 
-    @Query("SELECT s FROM Staff s where companyStaffId = ?1")
-    Staff findByCompanyStaffId(String staffId);
+    @Query("SELECT s FROM Staff s WHERE s.companyStaffId = :staffId ORDER BY s.id ASC")
+    List<Staff> findAllByCompanyStaffId(@Param("staffId") String staffId);
+
+    default Staff findByCompanyStaffId(String staffId) {
+        List<Staff> matches = findAllByCompanyStaffId(staffId);
+        if (matches.isEmpty()) {
+            return null;
+        }
+        return matches.stream()
+                .filter(staff -> "active".equalsIgnoreCase(staff.getStatus()))
+                .findFirst()
+                .orElse(matches.get(0));
+    }
 
     Optional<Staff> findByName(String name);
 

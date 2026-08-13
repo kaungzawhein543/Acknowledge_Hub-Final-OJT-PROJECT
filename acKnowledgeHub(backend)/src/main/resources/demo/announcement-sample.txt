@@ -1,0 +1,6 @@
+Acknowledge Hub — Demo Attachment
+
+This sample file is bundled for local development so announcement
+downloads work without Cloudinary credentials.
+
+Replace this with a real upload when testing file attachments end-to-end.

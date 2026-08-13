@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Company } from '../models/Company';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
 
-  private baseUrl = 'http://localhost:8080/api/v1/company/sys';
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v1/company/sys`;
   constructor(private http: HttpClient) { }
 
   addCompany(company: Company): Observable<string> {
@@ -16,7 +17,7 @@ export class CompanyService {
   }
 
   getAllCompany(): Observable<Company[]> {
-    return this.http.get<Company[]>(`http://localhost:8080/api/v1/company/sys`,{ withCredentials: true});
+    return this.http.get<Company[]>(this.baseUrl, { withCredentials: true });
   }
   updateCompany(id: number, company: string): Observable<String> {
     return this.http.put<String>(`${this.baseUrl}/${id}`, company, { withCredentials: true, responseType: 'text' as 'json' });

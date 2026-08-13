@@ -12,8 +12,7 @@ export const roleBaseRedirectGuard: CanActivateFn = (route, state) => {
   return authService.getUserInfo().pipe(
     switchMap(userInfo => {
 
-      if (!userInfo) {
-        // If no user is logged in, redirect to the login page
+      if (!userInfo?.user) {
         router.navigate(['/acknowledgeHub/login']);
         return of(true);
       }

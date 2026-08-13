@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,6 +50,9 @@ public class AnnouncementController {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Value("${app.frontend-url}")
+    private String frontendBaseUrl;
 
 
     public AnnouncementController(AnnouncementService announcement_service, CloudinaryService cloudinaryService, ModelMapper mapper, BlogService blogService, PostSchedulerService postSchedulerService, StaffService staffService, EmailService emailService, GroupService groupService, NotificationService notificationService, UserNotedAnnouncementService userNotedAnnouncementService, PositionService positionService) {
@@ -344,14 +348,22 @@ public class AnnouncementController {
         if(!notedAnnouncement.isPresent()){
             userNotedAnnouncementService.save(staffNotedAnnouncement);
         }
-            String frontendUrl = "http://localhost:4200/acknowledgeHub/noted";
+            String frontendUrl = frontendBaseUrl + "/acknowledgeHub/noted";
             response.setHeader("Location", frontendUrl);
             return new ResponseEntity<>(HttpStatus.FOUND);
     }
 
     @GetMapping("/all/downloadfile")
     public ResponseEntity<byte[]> downloadFile(@RequestParam String file) {
+        if (file == null || file.isBlank() || "N/A".equalsIgnoreCase(file.trim())) {
+            return ResponseEntity.badRequest().build();
+        }
+
         try {
+            if (file.startsWith("local:")) {
+                return downloadLocalFile(file.substring("local:".length()));
+            }
+
             Map<String, Object> fileData = cloudinaryService.downloadFile(file);
             byte[] fileBytes = (byte[]) fileData.get("fileBytes");
             String contentType = (String) fileData.get("contentType");
@@ -363,8 +375,24 @@ public class AnnouncementController {
 
             return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (IOException | InterruptedException e) {
+            log.error("Failed to download announcement file {}", file, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private ResponseEntity<byte[]> downloadLocalFile(String resourcePath) throws IOException {
+        ClassPathResource resource = new ClassPathResource(resourcePath);
+        if (!resource.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] fileBytes = resource.getInputStream().readAllBytes();
+        String fileName = resourcePath.substring(resourcePath.lastIndexOf('/') + 1);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        headers.setContentDispositionFormData("attachment", fileName);
+        return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
     }
 
     private String getFileNameWithVersion(String fileName) {

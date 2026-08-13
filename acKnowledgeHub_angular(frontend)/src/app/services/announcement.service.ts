@@ -6,13 +6,14 @@ import { staffNotedAnnouncement } from '../models/staff-noted-announcement';
 import { announcementList, listAnnouncement, requestAnnouncement } from '../models/announcement-list';
 import { announcementVersion } from '../models/announcement-version';
 import { updateAnnouncement } from '../models/updateAnnouncement';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AnnouncementService {
 
-  private BaseUrl = "http://localhost:8080/api/v1/announcement";
+  private readonly BaseUrl = `${environment.apiBaseUrl}/api/v1/announcement`;
 
   constructor(private http: HttpClient) { }
 
@@ -120,15 +121,25 @@ export class AnnouncementService {
     return throwError(() => new Error('Something went wrong; please try again later.'));
   }
   downloadFile(filePath: string): void {
+    if (!filePath || filePath.trim().length === 0 || filePath.trim().toUpperCase() === 'N/A') {
+      console.error('No attachment available to download');
+      return;
+    }
+
     const params = new HttpParams().set('file', filePath);
     this.http.get(`${this.BaseUrl}/all/downloadfile`, { params, withCredentials: true, responseType: 'blob' }).subscribe(blob => {
-      // Create a new Blob object using the response data of the file
+      if (!blob || blob.size === 0) {
+        console.error('Download returned an empty file');
+        return;
+      }
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = this.getFileName(filePath); // Set the file name for the download
+      a.download = this.getFileName(filePath);
       document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }, error => {
       console.error('Download error:', error);
@@ -147,7 +158,9 @@ export class AnnouncementService {
     return this.http.get<MonthlyCountDTO[]>(`${this.BaseUrl}/sys/monthly-counts`, { withCredentials: true });
   }
   private getFileName(filePath: string): string {
-    // Extract file name from filePath if needed
+    if (filePath.startsWith('local:')) {
+      return filePath.substring(filePath.lastIndexOf('/') + 1);
+    }
     return filePath.split('/').pop() || 'downloaded-file';
   }
   getAnnouncementVersion(announcementId: string): Observable<string[]> {
