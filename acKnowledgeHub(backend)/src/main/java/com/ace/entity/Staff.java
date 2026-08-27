@@ -1,6 +1,5 @@
 package com.ace.entity;
 
-import com.ace.enums.DefaultPassword;
 import com.ace.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -10,8 +9,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +22,6 @@ import java.util.List;
 @Table(name = "staff")
 public class Staff implements UserDetails {
 
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="id")
@@ -73,17 +69,6 @@ public class Staff implements UserDetails {
     protected void onCreate() {
         if (this.createdAt == null) {
             this.createdAt = new Date(System.currentTimeMillis());
-        }
-        if (this.password == null) {
-            switch (this.role) {
-                case ADMIN:
-                    this.password = passwordEncoder.encode(DefaultPassword.ADMIN_PASSWORD.getPassword());
-                    break;
-                case USER:
-                default:
-                    this.password = passwordEncoder.encode(DefaultPassword.USER_PASSWORD.getPassword());
-                    break;
-            }
         }
     }
 

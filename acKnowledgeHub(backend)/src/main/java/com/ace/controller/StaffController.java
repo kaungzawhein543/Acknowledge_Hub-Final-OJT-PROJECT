@@ -61,6 +61,9 @@ public class StaffController {
     @Value("${default.photo.path}")
     private String DEFAULT_PHOTO_PATH;
 
+    @Value("${app.default-password.user}")
+    private String defaultUserPassword;
+
     public StaffController(StaffService staffService, ModelMapper mapper, CompanyService companyService, DepartmentService departmentService, PositionService positionService, PagedResourcesAssembler<StaffGroupDTO> pagedResourcesAssembler, UserNotedAnnouncementService userNotedAnnouncementService, AnnouncementService announcementService, TokenBlacklistService tokenBlacklistService, PasswordEncoder passwordEncoder) {
         this.staffService = staffService;
         this.mapper = mapper;
@@ -416,15 +419,16 @@ public class StaffController {
     }
 
     @PostMapping("/check_old_password")
-    public ResponseEntity<Boolean> checkOldPassword(@RequestBody String staffId) {
+    public ResponseEntity<Boolean> checkOldPassword(@RequestBody Map<String, String> request) {
         try {
+            String staffId = request.get("staffId");
             Staff staff = staffService.findByStaffId(staffId);
             if (staff == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false); // Staff not found
             }
 
             // Compare the input password with the stored hashed password
-            boolean matches = passwordEncoder.matches("acknowledgeHub", staff.getPassword());
+            boolean matches = passwordEncoder.matches(defaultUserPassword, staff.getPassword());
             return ResponseEntity.ok(matches);
         } catch (Exception e) {
             // Log the exception for debugging purposes

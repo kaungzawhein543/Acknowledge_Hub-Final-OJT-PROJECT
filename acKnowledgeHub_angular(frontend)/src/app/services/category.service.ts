@@ -2,12 +2,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Category } from '../models/category';
 import { catchError, Observable, of } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryService {
-  private baseUrl ='http://localhost:8080/api/v1/category';
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v1/category`;
 
   constructor(private http: HttpClient) { }
 
@@ -43,7 +44,7 @@ export class CategoryService {
     return this.http.get<Category[]>(`${this.baseUrl}/all/allcategories`, { withCredentials: true });
   }
     softDelete(id: number): Observable<void> {
-      return this.http.put<void>(`${this.baseUrl}/sys/softDeleteCategory/${id}`, { withCredentials: true});
+      return this.http.put<void>(`${this.baseUrl}/sys/softDeleteCategory/${id}`, null, { withCredentials: true });
     }
 
 

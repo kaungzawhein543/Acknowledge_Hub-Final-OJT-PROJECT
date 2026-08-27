@@ -1,16 +1,16 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { userInfo } from 'os';
 import { catchError, map, Observable, of, Subject, tap } from 'rxjs';
 import { ResponseEmail } from '../models/response-email';
 import { StaffProfileDTO } from '../models/staff';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth'; // Your backend URL
+  private readonly apiUrl = `${environment.apiBaseUrl}/auth`;
   private loginSubject = new Subject<void>();
   private logoutSubject = new Subject<void>();
   constructor(private http: HttpClient, private router: Router) { }
@@ -53,7 +53,7 @@ export class AuthService {
         if (typeof window !== 'undefined') { // Check if window is defined
           localStorage.clear();
         }
-        this.loginSubject.next();
+        this.logoutSubject.next();
       })
     );
   }
@@ -94,9 +94,7 @@ export class AuthService {
 
   hasRole(expectedRole: string): Observable<boolean> {
     return this.getUserInfo().pipe(
-      map(userInfo => {
-        return userInfo.user.role === expectedRole;
-      }),
+      map(userInfo => userInfo?.user?.role === expectedRole),
       catchError(() => of(false))
     );
   }
@@ -128,15 +126,19 @@ export class AuthService {
   }
 
   getOTP(staffId: string): Observable<ResponseEmail> {
-    return this.http.post<ResponseEmail>(`http://localhost:8080/api/v1/email/send-otp?staffId=${staffId}`,  { withCredentials: true })
+    return this.http.post<ResponseEmail>(
+      `${environment.apiBaseUrl}/api/v1/email/send-otp?staffId=${staffId}`,
+      null,
+      { withCredentials: true }
+    );
   }
 
   sendOTP(email: string, otp: string): Observable<any> {
-    return this.http.post(`http://localhost:8080/api/v1/email/verify-otp`, { email, otp }, { withCredentials: true })
+    return this.http.post(`${environment.apiBaseUrl}/api/v1/email/verify-otp`, { email, otp }, { withCredentials: true })
   }
 
   addPassword(email: string, password: string): Observable<any> {
-    return this.http.post(`http://localhost:8080/api/v1/email/update-password`, { email, password }, { withCredentials: true })
+    return this.http.post(`${environment.apiBaseUrl}/api/v1/email/update-password`, { email, password }, { withCredentials: true })
   }
 
 }

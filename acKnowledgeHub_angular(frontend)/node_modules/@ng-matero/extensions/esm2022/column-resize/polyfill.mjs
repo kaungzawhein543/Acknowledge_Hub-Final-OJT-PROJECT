@@ -1,0 +1,19 @@
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/** closest implementation that is able to start from non-Element Nodes. */
+export function closest(element, selector) {
+    if (!(element instanceof Node)) {
+        return null;
+    }
+    let curr = element;
+    while (curr != null && !(curr instanceof Element)) {
+        curr = curr.parentNode;
+    }
+    return curr?.closest(selector) ?? null;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicG9seWZpbGwuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi8uLi9wcm9qZWN0cy9leHRlbnNpb25zL2NvbHVtbi1yZXNpemUvcG9seWZpbGwudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7OztHQU1HO0FBRUgsMkVBQTJFO0FBQzNFLE1BQU0sVUFBVSxPQUFPLENBQ3JCLE9BQWlELEVBQ2pELFFBQWdCO0lBRWhCLElBQUksQ0FBQyxDQUFDLE9BQU8sWUFBWSxJQUFJLENBQUMsRUFBRSxDQUFDO1FBQy9CLE9BQU8sSUFBSSxDQUFDO0lBQ2QsQ0FBQztJQUVELElBQUksSUFBSSxHQUFnQixPQUFPLENBQUM7SUFDaEMsT0FBTyxJQUFJLElBQUksSUFBSSxJQUFJLENBQUMsQ0FBQyxJQUFJLFlBQVksT0FBTyxDQUFDLEVBQUUsQ0FBQztRQUNsRCxJQUFJLEdBQUcsSUFBSSxDQUFDLFVBQVUsQ0FBQztJQUN6QixDQUFDO0lBRUQsT0FBTyxJQUFJLEVBQUUsT0FBTyxDQUFDLFFBQVEsQ0FBQyxJQUFJLElBQUksQ0FBQztBQUN6QyxDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBAbGljZW5zZVxuICogQ29weXJpZ2h0IEdvb2dsZSBMTEMgQWxsIFJpZ2h0cyBSZXNlcnZlZC5cbiAqXG4gKiBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUgbGljZW5zZSB0aGF0IGNhbiBiZVxuICogZm91bmQgaW4gdGhlIExJQ0VOU0UgZmlsZSBhdCBodHRwczovL2FuZ3VsYXIuaW8vbGljZW5zZVxuICovXG5cbi8qKiBjbG9zZXN0IGltcGxlbWVudGF0aW9uIHRoYXQgaXMgYWJsZSB0byBzdGFydCBmcm9tIG5vbi1FbGVtZW50IE5vZGVzLiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGNsb3Nlc3QoXG4gIGVsZW1lbnQ6IEV2ZW50VGFyZ2V0IHwgRWxlbWVudCB8IG51bGwgfCB1bmRlZmluZWQsXG4gIHNlbGVjdG9yOiBzdHJpbmdcbik6IEVsZW1lbnQgfCBudWxsIHtcbiAgaWYgKCEoZWxlbWVudCBpbnN0YW5jZW9mIE5vZGUpKSB7XG4gICAgcmV0dXJuIG51bGw7XG4gIH1cblxuICBsZXQgY3VycjogTm9kZSB8IG51bGwgPSBlbGVtZW50O1xuICB3aGlsZSAoY3VyciAhPSBudWxsICYmICEoY3VyciBpbnN0YW5jZW9mIEVsZW1lbnQpKSB7XG4gICAgY3VyciA9IGN1cnIucGFyZW50Tm9kZTtcbiAgfVxuXG4gIHJldHVybiBjdXJyPy5jbG9zZXN0KHNlbGVjdG9yKSA/PyBudWxsO1xufVxuIl19

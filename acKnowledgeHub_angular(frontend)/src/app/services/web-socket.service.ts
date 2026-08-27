@@ -8,6 +8,7 @@ import SockJS from 'sockjs-client';
 import { Feedback } from '../models/feedback';
 import { FeedbackReply } from '../models/feedbackReply';
 import { feedbackResponse } from '../models/feedResponse';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,7 @@ export class WebSocketService {
 
   connectNotifications(id: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS(`http://localhost:8080/ws`);
+      const socket = new SockJS(`${environment.apiBaseUrl}/ws`);
       this.stompClient = Stomp.over(socket);
       
   

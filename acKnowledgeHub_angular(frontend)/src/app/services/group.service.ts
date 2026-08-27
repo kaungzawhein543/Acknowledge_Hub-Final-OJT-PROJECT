@@ -6,12 +6,13 @@ import { Department } from '../models/Department';
 import { Position } from '../models/Position';
 import { User } from '../models/user';
 import { Group } from '../models/Group';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroupService {
-  private baseURL = 'http://localhost:8080/api/v1/group';
+  private readonly baseURL = `${environment.apiBaseUrl}/api/v1/group`;
 
   constructor(private http: HttpClient) { }
 

@@ -15,6 +15,7 @@ import java.util.Map;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,12 @@ public class EmailService {
 
 
     private final JavaMailSender javaMailSender;
+
+    @Value("${app.backend-url}")
+    private String backendBaseUrl;
+
+    @Value("${app.telegram-bot-url}")
+    private String telegramBotUrl;
 
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
@@ -95,8 +102,8 @@ public class EmailService {
             mimeMessageHelper.setTo(toEmail);
             mimeMessageHelper.setSubject(subject);
 
-            String downloadUrl = "http://localhost:8080/api/v1/announcement/all/download?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
-            String backendApiUrl = "http://localhost:8080/api/v1/announcement/all/note?announcementId=" + announcementId + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
+            String downloadUrl = backendBaseUrl + "/api/v1/announcement/all/download?publicId=" + fileName + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
+            String backendApiUrl = backendBaseUrl + "/api/v1/announcement/all/note?announcementId=" + announcementId + "&userEmail=" + URLEncoder.encode(toEmail, "UTF-8");
             String htmlContent = "<html>"
                     + "<body style='font-family: Arial, sans-serif; color: #333; background-color: #ffffff; padding: 20px; margin: 0;'>"
                     + "<div style='text-align: center;'>"
@@ -270,7 +277,7 @@ public class EmailService {
                             "</div>" +
                             "<p>Click the button below to join our Telegram bot and stay updated with all our important news.</p>" +
                             "<div class='button'>" +
-                            "<a href='https://t.me/AcKnowledgeHubBot'>Join Our Telegram Bot</a>" +
+                            "<a href='" + telegramBotUrl + "'>Join Our Telegram Bot</a>" +
                             "</div>" +
                             "<p>Thank you for your attention!</p>" +
                             "</td>" +

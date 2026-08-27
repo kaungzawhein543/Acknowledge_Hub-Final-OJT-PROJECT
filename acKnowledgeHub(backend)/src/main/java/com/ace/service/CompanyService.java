@@ -47,6 +47,10 @@ public class CompanyService {
     @Transactional
     public Company updateCompany(int id, String updatedCompany) {
         Optional<Company> existingCompany = companyRepository.findById(id);
+        if (existingCompany.isEmpty()) {
+            throw new RuntimeException("Company not found");
+        }
+
         String companyName = existingCompany.get().getName();
         List<Group> groupList = groupRepository.getGroupsByName(companyName);
         for (Group group : groupList) {
@@ -56,13 +60,9 @@ public class CompanyService {
             groupRepository.save(group);
         }
 
-        if (existingCompany.isPresent()) {
-            Company company = existingCompany.get();
-            company.setName(updatedCompany);
-            return companyRepository.save(company);
-        } else {
-            throw new RuntimeException("Company not found");
-        }
+        Company company = existingCompany.get();
+        company.setName(updatedCompany);
+        return companyRepository.save(company);
     }
 
     public void deleteCompany(int id) {

@@ -13,6 +13,7 @@ import { map } from 'rxjs';
 import { ConfirmationModalComponent } from '../../confirmation-modal/confirmation-modal.component';
 import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
@@ -94,7 +95,7 @@ export class AddGroupComponent {
       map((data: any[]) =>
         data.map(staff => ({
           ...staff,
-          photoPath: staff.photoPath ? `http://localhost:8080${staff.photoPath}?${Date.now()}` : ''
+          photoPath: staff.photoPath ? `${environment.apiBaseUrl}${staff.photoPath}?${Date.now()}` : ''
         }))
       )
     ).subscribe({

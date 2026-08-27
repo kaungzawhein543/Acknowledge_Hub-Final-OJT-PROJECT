@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,12 @@ public class AuthService {
     private final StaffService staffService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
+    @Value("${app.default-password.user}")
+    private String defaultUserPassword;
+
+    @Value("${app.default-password.admin}")
+    private String defaultAdminPassword;
 
     public AuthService(StaffService staffService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.staffService = staffService;
@@ -34,7 +41,8 @@ public class AuthService {
         }
 
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            if (passwordEncoder.matches("acknowledgeHub", user.getPassword()) || passwordEncoder.matches("adminPassword", user.getPassword())) {
+            if (passwordEncoder.matches(defaultUserPassword, user.getPassword())
+                    || passwordEncoder.matches(defaultAdminPassword, user.getPassword())) {
                 return ResponseEntity.ok(user.getCompanyStaffId() + ":Please change your password");
             } else {
                 String token = jwtUtil.generateToken(user);

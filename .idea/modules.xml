@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Acknowledge_Hub-Final-OJT-PROJECT.iml" filepath="$PROJECT_DIR$/.idea/Acknowledge_Hub-Final-OJT-PROJECT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/acKnowledgeHub(backend)/src/main/main.iml" filepath="$PROJECT_DIR$/acKnowledgeHub(backend)/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/acKnowledgeHub(backend)/target/target.iml" filepath="$PROJECT_DIR$/acKnowledgeHub(backend)/target/target.iml" />
+      <module fileurl="file://$PROJECT_DIR$/acKnowledgeHub(backend)/src/test/test.iml" filepath="$PROJECT_DIR$/acKnowledgeHub(backend)/src/test/test.iml" />
+    </modules>
+  </component>
+</project>

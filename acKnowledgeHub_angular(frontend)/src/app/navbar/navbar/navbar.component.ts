@@ -9,6 +9,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { StaffProfileDTO } from '../../models/staff';
 import { ProfileService } from '../../services/profile.service';
 import { Title } from '@angular/platform-browser';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -28,7 +29,7 @@ export class NavbarComponent implements OnInit,OnDestroy {
   name: string = '';
   private audio: HTMLAudioElement;
   profile: StaffProfileDTO | null = null;
-  baseUrl = 'http://localhost:8080';
+  readonly baseUrl = environment.apiBaseUrl;
   oldPhotoUrl: string | null = null;
   originalTitle: string = 'Acknowledge Hub';
   notificationTitle: string = '(1) New Notification!';

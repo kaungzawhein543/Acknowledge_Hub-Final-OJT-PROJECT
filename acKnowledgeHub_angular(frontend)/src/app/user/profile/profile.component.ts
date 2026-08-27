@@ -7,6 +7,7 @@ import { trigger, style, transition, animate, query, stagger } from '@angular/an
 import { ChangePasswordRequest } from '../../models/change-password-request.model';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
@@ -33,7 +34,7 @@ export class ProfileComponent implements OnInit {
   oldPhotoUrl: string | null = null; // To store the old photo URL
   showModal: boolean = false; // To control the visibility of the modal
   timestamp: number = Date.now();
-  baseUrl = 'http://localhost:8080';
+  readonly baseUrl = environment.apiBaseUrl;
   selectedMonthCount: number | null = null; // To store the count for the selected month
   selectedMonth: string | null = null; // Property to store selected month
   monthlyCount: number = 0; // Property to store the count for the selected month

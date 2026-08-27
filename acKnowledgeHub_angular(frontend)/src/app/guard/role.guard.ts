@@ -23,6 +23,10 @@ export class RoleGuard implements CanActivate {
 
     return this.authService.getUserInfo().pipe(
       switchMap(userInfo => {
+        if (!userInfo?.user) {
+          return of(false);
+        }
+
         let hasRole = requiredRoles.length > 0 ? requiredRoles.includes(userInfo.user.role) : true;
         let hasPosition = requiredPositions.length > 0 ? requiredPositions.includes(userInfo.position) : true;
 

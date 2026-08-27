@@ -5,14 +5,15 @@ import { Feedback } from '../models/feedback';
 import { feedbackResponse } from '../models/feedResponse';
 import { FeedbackReply } from '../models/feedbackReply';
 import { feedbackList } from '../models/feedback-list';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FeedbackService {
 
-  private baseURL = 'http://localhost:8080/api/v1/feedback'
-  private baseURL2 = 'http://localhost:8080/api/v1/feedback-reply'
+  private readonly baseURL = `${environment.apiBaseUrl}/api/v1/feedback`;
+  private readonly baseURL2 = `${environment.apiBaseUrl}/api/v1/feedback-reply`;
   constructor(private http: HttpClient) { }
 
   getFeedbackList(id: number): Observable<feedbackList[]> {

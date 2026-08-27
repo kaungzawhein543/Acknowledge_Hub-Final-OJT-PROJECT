@@ -96,17 +96,16 @@ public class DepartmentServiceTest {
 	}
 
 	@Test
-	void findByIdTest() {
+	void getDepartmentByIdTest() {
 		int departmentId = 1;
 		Department department = new Department();
 		department.setId(departmentId);
 		department.setName("Banking");
 		when(departmentRepository.findById(departmentId)).thenReturn(Optional.of(department));
 
-		Optional<Department> result = departmentService.findById(departmentId);
+		Department result = departmentService.getDepartmentById(departmentId);
 
-		assertTrue(result.isPresent());
-		assertEquals("Banking", result.get().getName());
+		assertEquals("Banking", result.getName());
 		verify(departmentRepository).findById(departmentId);
 	}
 
